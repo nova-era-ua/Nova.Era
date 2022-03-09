@@ -29,7 +29,7 @@ steps:
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:SkipInvalidConfigurations=true /p:AutoParameterizationWebConfigConnectionStrings=False'
+    msbuildArgs: '/p:DeployOnBuild=True /p:WebPublishMethod=Package /p:PackageAsSingleFile=False /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
