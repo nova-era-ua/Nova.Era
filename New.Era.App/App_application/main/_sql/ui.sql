@@ -63,7 +63,8 @@ begin
 	values
 		(1,  null,  0, N'Main',         null,         null),
 		(10,    1, 10, N'@[Dashboard]', N'dashboard', N'dashboard-outline'),
-		(30,    1, 10, N'@[Catalogs]',  N'catalog',   N'list');
+		(30,    1, 10, N'@[Catalogs]',  N'catalog',   N'list'),
+		(301,   30, 10, N'@[Agents]',   N'agent',     N'users');
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 900;
 end
