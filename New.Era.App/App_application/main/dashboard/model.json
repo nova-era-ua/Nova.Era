@@ -1,0 +1,10 @@
+﻿{
+  "$schema": "../../@schemas/model-json-schema.json#",
+  "schema": "",
+  "model": "",
+  "actions": {
+    "index": {
+      "view": "dashboard.view"
+    }
+  }
+}

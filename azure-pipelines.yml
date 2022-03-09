@@ -1,0 +1,55 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-2022'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      copy $(Build.SourcesDirectory)\New.Era.Web\Web.config.deploy $(Build.SourcesDirectory)\Web.config
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:SkipInvalidConfigurations=true /p:AutoParameterizationWebConfigConnectionStrings=False'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      mkdir $(System.DefaultWorkingDirectory)\App_application\main      
+      xcopy $(Build.SourcesDirectory)\New.Era.App\*.* $(System.DefaultWorkingDirectory)\App_application\main
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: $(System.DefaultWorkingDirectory)
+    artifactName: 'WebApp'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)\New.Era.App\App_application\@sql\platform'
+    artifactName: 'SqlPlatform'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)\New.Era.App\App_application\SqlScripts'
+    artifactName: 'SqlScripts'
