@@ -29,15 +29,15 @@ steps:
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=True /p:WebPublishMethod=Package /p:PackageAsSingleFile=False /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp"'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:SkipInvalidConfigurations=true /p:AutoParameterizationWebConfigConnectionStrings=False'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
 - task: CmdLine@2
   inputs:
     script: |
-      mkdir $(System.DefaultWorkingDirectory)\App_application\main      
-      xcopy $(Build.SourcesDirectory)\New.Era.App\*.* $(System.DefaultWorkingDirectory)\App_application\main
+      mkdir: $(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main
+      xcopy $(Build.SourcesDirectory)\New.Era.App\*.* $(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main
 
 - task: PublishPipelineArtifact@1
   inputs:
