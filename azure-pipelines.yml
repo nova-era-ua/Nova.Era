@@ -33,21 +33,16 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-#- task: CopyFiles@2
-#  inputs:
-#    SourceFolder: '$(Build.SourcesDirectory)\New.Era.App\App_application\main'
-#    Contents: '**'
-#    TargetFolder: '$(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main'
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)\New.Era.App\App_application\main'
+    Contents: '**'
+    TargetFolder: '$(Build.SourcesDirectory)\New.Era.Web\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main'
 
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: $(Build.SourcesDirectory)\New.Era.Web\obj\Release\Package\PackageTmp
-    artifactName: 'Bin'
-
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: $(Build.SourcesDirectory)\New.Era.App\App_application\main
-    artifactName: 'App'
+    artifactName: 'WebApp'
 
 - task: PublishPipelineArtifact@1
   inputs:
