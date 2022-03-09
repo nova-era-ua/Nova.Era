@@ -24,7 +24,7 @@ steps:
 - task: CmdLine@2
   inputs:
     script: |
-      copy $(Build.SourcesDirectory)\New.Era.Web\Web.config.deploy $(Build.SourcesDirectory)\Web.config
+      copy $(Build.SourcesDirectory)\New.Era.Web\Web.config.deploy $(Build.SourcesDirectory)\New.Era.Web\Web.config
 
 - task: VSBuild@1
   inputs:
