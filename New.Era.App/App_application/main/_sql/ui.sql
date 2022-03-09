@@ -62,7 +62,8 @@ begin
 	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon) 
 	values
 		(1,  null,  0, N'Main',         null,         null),
-		(10,    1, 10, N'@[Dashboard]', N'dashboard', N'dashboard-outline');
+		(10,    1, 10, N'@[Dashboard]', N'dashboard', N'dashboard-outline'),
+		(30,    1, 10, N'@[Catalogs]',  N'catalog',   N'list');
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 900;
 end
