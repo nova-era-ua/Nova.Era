@@ -29,7 +29,7 @@ steps:
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=false /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)"'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=false /p:SkipInvalidConfigurations=true /p:AutoParameterizationWebConfigConnectionStrings=false'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
@@ -38,7 +38,6 @@ steps:
     SourceFolder: '$(Build.SourcesDirectory)\New.Era.App\App_application\main'
     Contents: '**'
     TargetFolder: '$(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main'
-    OverWrite: true
 
 - task: PublishPipelineArtifact@1
   inputs:
