@@ -35,7 +35,7 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\New.Era.App\main'
+    SourceFolder: '$(Build.SourcesDirectory)\New.Era.App\App_application\main'
     Contents: '**'
     TargetFolder: '$(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main'
     OverWrite: true
