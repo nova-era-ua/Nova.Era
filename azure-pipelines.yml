@@ -41,7 +41,7 @@ steps:
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: $(Build.SourcesDirectory)\obj\Release\Package\PackageTmp
+    targetPath: $(Build.SourcesDirectory)\New.Era.Web\obj\Release\Package\PackageTmp
     artifactName: 'Bin'
 
 - task: PublishPipelineArtifact@1
