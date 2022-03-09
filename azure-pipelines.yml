@@ -33,11 +33,6 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: CmdLine@2
-  inputs:
-    script: |
-      mkdir: $(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main
-
 - task: CopyFiles@2
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)\New.Era.App\main'
