@@ -37,11 +37,17 @@ steps:
   inputs:
     script: |
       mkdir: $(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main
-      xcopy $(Build.SourcesDirectory)\New.Era.App\*.* $(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)\New.Era.App\main'
+    Contents: '**'
+    TargetFolder: '$(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main'
+    OverWrite: true
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: $(System.DefaultWorkingDirectory)
+    targetPath: $(Build.SourcesDirectory)\obj\$(buildConfiguration)\Package\PackageTmp
     artifactName: 'WebApp'
 
 - task: PublishPipelineArtifact@1
