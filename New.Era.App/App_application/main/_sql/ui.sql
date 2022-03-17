@@ -64,7 +64,8 @@ begin
 		(1,  null,  0, N'Main',         null,         null),
 		(10,    1, 10, N'@[Dashboard]', N'dashboard', N'dashboard-outline'),
 		(30,    1, 10, N'@[Catalogs]',  N'catalog',   N'list'),
-		(301,   30, 10, N'@[Agents]',   N'agent',     N'users');
+		(301,   30, 10, N'@[Agents]',   N'agent',     N'users'),
+		(302,   30, 20, N'@[Items]',    N'item',      N'package-outline');
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 900;
 end

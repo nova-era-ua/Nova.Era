@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1001
-generated: 09.03.2022 20:46:11
+generated: 17.03.2022 15:54:22
 */
 
 
@@ -9,6 +9,50 @@ generated: 09.03.2022 20:46:11
 /*
 main structure
 */
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'cat')
+	exec sp_executesql N'create schema cat';
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
+	create sequence cat.SQ_Units as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Units')
+create table cat.Units
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Units_PK default(next value for cat.SQ_Units),
+	Void bit not null 
+		constraint DF_Units_Void default(0),
+	Short nvarchar(8),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Units primary key (TenantId, Id),
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Items')
+	create sequence cat.SQ_Items as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Items')
+create table cat.Items
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Items_PK default(next value for cat.SQ_Items),
+	Void bit not null 
+		constraint DF_Items_Void default(0),
+	Article nvarchar(16),
+	Unit bigint null,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Items primary key (TenantId, Id),
+		constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
+);
+go
+
 /*
 user interface
 */
@@ -74,11 +118,31 @@ begin
 	values
 		(1,  null,  0, N'Main',         null,         null),
 		(10,    1, 10, N'@[Dashboard]', N'dashboard', N'dashboard-outline'),
-		(30,    1, 10, N'@[Catalogs]',  N'catalog',   N'list');
+		(30,    1, 10, N'@[Catalogs]',  N'catalog',   N'list'),
+		(301,   30, 10, N'@[Agents]',   N'agent',     N'users'),
+		(302,   30, 20, N'@[Items]',    N'item',      N'package-outline');
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 900;
 end
 go
+
+/* Item */
+-------------------------------------------------
+create or alter procedure cat.[Item.Index]
+@TenantId int = 1,
+@UserId bigint,
+@CompanyId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Items!TItem!Array] = null, [Id!!Id] = Id
+	from cat.Items
+	where TenantId = @TenantId;
+end
+go
+-------------------------------------------------
 
 /*
 admin

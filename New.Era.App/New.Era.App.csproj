@@ -47,7 +47,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_application\main\catalog\agent\index.view.xaml">
+    <Content Include="App_application\Main\catalog\agent\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\Main\catalog\item\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
@@ -65,7 +68,7 @@
     <Content Include="App_application\%40sql\platform\source\a2v10ui.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10ui_simple.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10workflow.sql" />
-    <Content Include="App_application\main\dashboard\dashboard.view.xaml">
+    <Content Include="App_application\Main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -74,21 +77,25 @@
     <None Include="App_application\%40schemas\app-json-schema.json" />
     <None Include="App_application\%40schemas\model-json-schema.json" />
     <None Include="App_application\%40schemas\sql-json-schema.json" />
-    <None Include="App_application\main\catalog\agent\model.json" />
-    <None Include="App_application\main\dashboard\model.json" />
+    <None Include="App_application\Main\catalog\agent\model.json" />
+    <Content Include="App_application\Main\catalog\item\item.sql" />
+    <TypeScriptCompile Include="App_application\Main\catalog\item\index.d.ts" />
+    <TypeScriptCompile Include="App_application\Main\catalog\item\index.template.ts" />
+    <None Include="App_application\Main\catalog\item\model.json" />
+    <None Include="App_application\Main\dashboard\model.json" />
     <None Include="App_application\sql.json" />
     <None Include="packages.config" />
     <None Include="tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_application\main\_localization\main.uk.txt" />
-    <Content Include="App_application\main\_sql\admin.sql" />
-    <Content Include="App_application\main\_sql\ui.sql" />
-    <Content Include="App_application\main\_sql\struct.sql" />
+    <Content Include="App_application\Main\_localization\main.uk.txt" />
+    <Content Include="App_application\Main\_sql\admin.sql" />
+    <Content Include="App_application\Main\_sql\ui.sql" />
+    <Content Include="App_application\Main\_sql\struct.sql" />
     <Content Include="App_application\SqlScripts\application.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_application\main\profile\" />
+    <Folder Include="App_application\Main\profile\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />

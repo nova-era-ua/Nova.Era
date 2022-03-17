@@ -1,1 +1,4 @@
 ﻿@Agents=Контрагенти
+@Items=Об'єкти обліку
+@CreateFolder=Створити папку
+@SearchResult=[Результат пошуку]

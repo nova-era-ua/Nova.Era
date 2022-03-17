@@ -1,0 +1,29 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Grid Rows="Auto,1*" Columns="MinMax(270px;25%),1px, 1*" Height="100%" Gap=".5rem" Padding="1rem">
+		<Toolbar Grid.Row="1" Grid.Col="1" Style="Light" Padding="0">
+			<Button Icon="Plus" Content="@[CreateFolder]"/>
+			<Separator />
+			<Button Icon="Refresh"/>
+		</Toolbar>
+		<TreeView Grid.Row="2" Grid.Col="1" Grid.VAlign="Stretch"
+			AutoSelect="FirstItem" ExpandFirstItem="True" Indent="True"
+					ItemsSource="{Bind Folders}" FolderSelect="True">
+			<TreeViewItem ItemsSource="{Bind SubItems}" Icon="{Bind Icon}"
+						Label="{Bind Name}" IsGroup="{Bind HasSubItems}" Show="{Bind $IsVisible}"/>
+		</TreeView>
+		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
+		<CollectionView Grid.Col="3" Grid.RowSpan="2" RunAt="Server">
+			<Grid Columns="1*" Rows="Auto,1*,Auto" Height="100%" Padding="0" Gap=".5rem">
+				<Toolbar Grid.Row="1" Grid.Col="1" Style="Light" Padding="0">
+					<Button Icon="Plus" Content="@[Create]"/>
+					<Separator />
+					<Button Icon="Refresh" />
+				</Toolbar>
+				<DataGrid Grid.Row="2" Grid.Col="1" FixedHeader="True"
+						GridLines="Horizontal" Hover="True">
+				</DataGrid>
+				<Pager Grid.Row="3" Grid.Col="1" Source="{Bind Parent.Pager}" Padding=".5rem,.5rem,0,.5rem"/>
+			</Grid>
+		</CollectionView>
+	</Grid>
+</Page>
