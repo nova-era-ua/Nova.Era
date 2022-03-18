@@ -1,6 +1,5 @@
 ﻿
-import { TRoot } from "folder";
-import { TFolder } from "./index";
+import { TRoot, TFolder } from "./folder";
 
 
 const template: Template = {
@@ -8,10 +7,10 @@ const template: Template = {
 		'TFolder.$Title'(this: TFolder) { return this.Id ? this.Id : '@[NewFolder]' }
 	},
 	validators: {
-		'Folder.Name': StdValidator.notBlank
+		'Folder.Name': '@[Error.Required]'
 	},
 	defaults: {
-		'Folder.ParentFolder'(this: TRoot) { return this.ParentFolder.Id }
+		'Folder.ParentFolder'(this: TRoot) { return this.ParentFolder; }
 	}
 }
 

@@ -6,8 +6,8 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
-		<Static Label="@[ParentFolder]" Value="{Bind ParentFolder.Name}"/>
-		<TextBox Label="@[Name]" Value="{Bind Folder.Name}" UpdateTrigger="Input"/>
+		<TextBox Label="@[Name]" Value="{Bind Folder.Name}" UpdateTrigger="Input" Bold="True"/>
+		<Static Label="@[ParentFolder]" Value="{Bind Folder.ParentFolder.Name}"/>
 	</Grid>
 </Dialog>
 

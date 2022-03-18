@@ -1,10 +1,21 @@
-﻿
+﻿export interface TParentFolder extends IArrayElement {
+	readonly Id: number;
+}
+
+export interface TItem extends IArrayElement {
+	readonly Id: number;
+	readonly ParentFolder: TParentFolder;
+}
+
+declare type TItems = IElementArray<TItem>;
+
 export interface TFolder extends ITreeElement {
 	Id: number;
 	Name: string;
 	Icon: string;
 	readonly SubItems: TFolders;
 	HasSubItems: boolean;
+	Children: TItems;
 
 	readonly $root: TRoot;
 	readonly $IsFolder: boolean;

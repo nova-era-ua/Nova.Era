@@ -1,7 +1,16 @@
-﻿@Agents=Контрагенти
+﻿@Folder=Папка
+@Agents=Контрагенти
 @Items=Об'єкти обліку
 @CreateFolder=Створити папку
 @CreateSection=Створити розділ
 @ParentFolder=Знаходиться в папці
 @NewFolder=Нова папка
+@NewItem=Новий
 @SearchResult=[Результат пошуку]
+@ItemProperties=Властивості елементу
+;
+@Article=Артикул
+;
+@Error.Required=Обов\'язкове поле
+;
+@SearchItemsPlaceholder=Пощук за назвою, артикулом, приміткою

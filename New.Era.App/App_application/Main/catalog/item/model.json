@@ -20,5 +20,15 @@
       "template": "edititem.template",
       "view": "edititem.dialog"
     }
+  },
+  "commands": {
+    "getPath": {
+      "type": "sql",
+      "procedure": "Item.Folder.GetPath"
+    },
+    "findIndex": {
+      "type": "sql",
+      "procedure": "Item.Item.FindIndex"
+    }
   }
 }

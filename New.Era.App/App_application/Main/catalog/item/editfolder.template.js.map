@@ -1,1 +1,0 @@
-{"version":3,"file":"editfolder.template.js","sourceRoot":"","sources":["editfolder.template.ts"],"names":[],"mappings":";;AAEA,IAAM,QAAQ,GAAa;IAC1B,UAAU,EAAE;QACX,aAAa,2BAAuB;KACpC;IACD,QAAQ,EAAE;QACT,qBAAqB,EAAE,UAAC,CAAC,IAAO,OAAO,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC,CAAC,OAAO,CAAC,CAAC,CAAA,CAAC;KAC1D;CACD,CAAA;AAED,kBAAe,QAAQ,CAAC"}

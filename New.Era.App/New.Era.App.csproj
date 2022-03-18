@@ -56,6 +56,7 @@
     <Content Include="App_application\Main\catalog\item\editfolder.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\Main\_sql\initial_data.sql" />
     <Content Include="todo.txt" />
     <Content Include="App_application\Main\catalog\item\editItem.dialog.xaml">
       <SubType>Designer</SubType>
@@ -96,7 +97,7 @@
     <None Include="App_application\Main\dashboard\model.json" />
     <None Include="App_application\sql.json" />
     <None Include="packages.config" />
-    <None Include="tsconfig.json" />
+    <Content Include="tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\Main\_localization\main.uk.txt" />

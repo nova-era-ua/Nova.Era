@@ -22,8 +22,7 @@
 			AutoSelect="FirstItem" ExpandFirstItem="True" Indent="True"
 					ItemsSource="{Bind Folders}" FolderSelect="True">
 			<TreeViewItem ItemsSource="{Bind SubItems}" Icon="{Bind Icon}"
-						Label="{Bind Name}" IsGroup="{Bind HasSubItems}" Show="{Bind $IsVisible}">
-			</TreeViewItem>
+						Label="{Bind Name}" IsGroup="{Bind HasSubItems}" Show="{Bind $IsVisible}"/>
 		</TreeView>
 		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
 		<CollectionView Grid.Col="3" Grid.RowSpan="2" RunAt="Server" ItemsSource="{Bind Folders.Selected(Children)}">
@@ -36,18 +35,35 @@
 				<Toolbar Grid.Row="1" Grid.Col="1" Style="Light" Padding="0">
 					<Button Icon="Add" Content="@[Create]" 
 							Command="{BindCmd Dialog, Action=Append, Url='/catalog/item/edititem', Argument={Bind Folders.Selected(Children)}, Data={Bind Root.$ParentFolderData}}" />
+					<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders.Selected(Children)}, Url='/catalog/item/editItem'}" />
+					<Button Icon="Delete" Command="{BindCmd Execute, CommandName=deleteItem, Argument={Bind Folders.Selected(Children)}}"/>
 					<Separator />
-					<Button Icon="Refresh" />
+					<TextBox Label="@[Search]" Value="{Bind Root.$Filter}" Placeholder="@[SearchItemsPlaceholder]" Width="28rem">
+						<TextBox.AddOns>
+							<Hyperlink Icon="Search" />
+							<Hyperlink Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter}"/>
+						</TextBox.AddOns>
+					</TextBox>
+					<Separator />
+					<Button Icon="Refresh" Command="{BindCmd Reload, Argument={Bind Folders.Selected(Children)}}" />
 				</Toolbar>
-				<DataGrid Grid.Row="2" Grid.Col="1" FixedHeader="True"
+				<DataGrid Grid.Row="2" Grid.Col="1" FixedHeader="True" Sort="True"
 						GridLines="Horizontal" Hover="True" ItemsSource="{Bind Parent.ItemsSource}">
-					<DataGridColumn Header="Id" Content="{Bind Id}"/>
+					<DataGridColumn Header="Id" Content="{Bind Id}" Role="Id"/>
 					<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
-					<DataGridColumn Header="@[Article]" Content="{Bind Article}"/>
+					<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+					<DataGridColumn Sort="False" Header="@[Folder]">
+						<Group>
+							<Label Content="{Bind ParentFolder.Name}" If="{Bind !Root.$IsSeachFolder}"/>
+							<Hyperlink Content="{Bind ParentFolder.Name}" If="{Bind Root.$IsSeachFolder}"
+								Command="{BindCmd Execute, CommandName=gotoFolder, Argument={Bind}}"/>
+						</Group>
+					</DataGridColumn>
 					<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
-					<DataGridColumn Fit="True">
+					<DataGridColumn Fit="True" Sort="False">
 						<CommandBar Visibility="Hover">
-							<Button Icon="Edit"/>
+							<Button Icon="Edit"
+									Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/item/editItem'}"/>
 						</CommandBar>
 					</DataGridColumn>
 				</DataGrid>
