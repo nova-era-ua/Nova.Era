@@ -4,6 +4,8 @@ main structure
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'cat')
 	exec sp_executesql N'create schema cat';
 go
+grant execute on schema::cat to public;
+go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
 	create sequence cat.SQ_Units as bigint start with 100 increment by 1;

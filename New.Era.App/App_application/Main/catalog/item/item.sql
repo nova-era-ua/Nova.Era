@@ -33,7 +33,7 @@ begin
 		/*nested items (not folders!) */
 		[Children!TItem!LazyArray] = null
 	from T
-	order by [IsSpec], [Name];
+	order by [IsSpec], [Id];
 
 	select [Hierarchy!THierarchy!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.ItemTree where Id= @HieId;
