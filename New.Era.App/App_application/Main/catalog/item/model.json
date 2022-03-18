@@ -8,5 +8,17 @@
       "template": "index.template",
       "view": "index.view"
     }
+  },
+  "dialogs": {
+    "editFolder": {
+      "model": "Item.Folder",
+      "template": "editfolder.template",
+      "view": "editfolder.dialog"
+    },
+    "editItem": {
+      "model": "Item.Item",
+      "template": "edititem.template",
+      "view": "edititem.dialog"
+    }
   }
 }

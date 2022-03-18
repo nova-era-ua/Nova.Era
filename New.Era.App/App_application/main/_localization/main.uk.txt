@@ -1,4 +1,7 @@
 ﻿@Agents=Контрагенти
 @Items=Об'єкти обліку
 @CreateFolder=Створити папку
+@CreateSection=Створити розділ
+@ParentFolder=Знаходиться в папці
+@NewFolder=Нова папка
 @SearchResult=[Результат пошуку]

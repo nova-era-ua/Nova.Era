@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1001
-generated: 17.03.2022 15:54:22
+generated: 18.03.2022 07:50:07
 */
 
 
@@ -32,6 +32,24 @@ create table cat.Units
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Vendors')
+	create sequence cat.SQ_Vendors as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Vendors')
+create table cat.Vendors
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Vendors_PK default(next value for cat.SQ_Vendors),
+	Void bit not null 
+		constraint DF_Vendors_Void default(0),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Vendors primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Items')
 	create sequence cat.SQ_Items as bigint start with 100 increment by 1;
 go
@@ -45,11 +63,36 @@ create table cat.Items
 	Void bit not null 
 		constraint DF_Items_Void default(0),
 	Article nvarchar(16),
-	Unit bigint null,
+	Unit bigint, /* base, references cat.Units */
 	[Name] nvarchar(255),
+	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
+	Vendor bigint, -- references cat.Vendors
+	Brand bigint, -- references cat.Brands
 		constraint PK_Items primary key (TenantId, Id),
 		constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
+		constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemTree')
+	create sequence cat.SQ_ItemTree as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemTree')
+create table cat.ItemTree
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_ItemTree_PK default(next value for cat.SQ_ItemTree),
+	[Root] bigint not null,
+	Parent bigint not null,
+	Void bit not null
+		constraint DF_ItemTree_Void default(0),
+	[Name] nvarchar(255),
+		constraint PK_ItemTree primary key (TenantId, Id),
+		constraint FK_ItemTree_Root_ItemTree foreign key (TenantId, [Root]) references cat.ItemTree(TenantId, Id),
+		constraint FK_ItemTree_Parent_ItemTree foreign key (TenantId, Parent) references cat.ItemTree(TenantId, Id)
 );
 go
 
@@ -130,19 +173,126 @@ go
 -------------------------------------------------
 create or alter procedure cat.[Item.Index]
 @TenantId int = 1,
+@CompanyId bigint = 0,
 @UserId bigint,
-@CompanyId bigint
+@HideSearch bit = 0,
+@TreeId bigint = 1
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Items!TItem!Array] = null, [Id!!Id] = Id
-	from cat.Items
-	where TenantId = @TenantId;
+	with T(Id, [Name], Icon, HasChildren, IsSpec)
+	as (
+		select Id = cast(-1 as bigint), [Name] = N'@[SearchResult]', Icon='search',
+			HasChildren = cast(0 as bit), IsSpec=1
+		where @HideSearch = 0
+		union all
+		select Id, [Name], Icon = N'folder-outline',
+			HasChildren= case when exists(select 1 from cat.ItemTree it where it.Void = 0 and it.Parent = t.Id) then 1 else 0 end,
+			IsSpec = 0
+		from cat.ItemTree t
+			where t.Void = 0 and t.Parent = @TreeId
+	)
+	select [Folders!TFolder!Tree] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon,
+		/*nested folders - lazy*/
+		[SubItems!TFolder!Items] = null, 
+		/* marker: subfolders exist */
+		[HasSubItems!!HasChildren] = HasChildren,
+		/*nested items (not folders!) */
+		[Children!TItem!LazyArray] = null
+	from T
+	order by [IsSpec], [Name];
+end
+go
+------------------------------------------------
+drop procedure if exists cat.[Item.Folder.Metadata];
+drop procedure if exists cat.[Item.Folder.Update];
+drop procedure if exists cat.[Item.Item.Metadata];
+drop procedure if exists cat.[Item.Item.Update];
+drop type if exists cat.[Item.Folder.TableType];
+go
+------------------------------------------------
+create type cat.[Item.Folder.TableType]
+as table(
+	Id bigint null,
+	ParentFolder bigint,
+	[Name] nvarchar(255)
+)
+go
+-------------------------------------------------
+create or alter procedure cat.[Item.Folder.Load]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint = null,
+@Parent bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Folder!TFolder!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
+		ParentFolder = Parent
+	from cat.ItemTree where Id = @Id;
+
+	select [ParentFolder!TParentFolder!Object] = null,  [Id!!Id] = Id, [Name!!Name] = [Name]
+	from cat.ItemTree 
+	where Id=@Parent;
 end
 go
 -------------------------------------------------
+create or alter procedure cat.[Item.Folder.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Folder [Item.Folder.TableType];
+	select [Folder!Folder!Metadata] = null, * from @Folder;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Item.Folder.Update]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Folder [Item.Folder.TableType] readonly,
+@RetId bigint = null output
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	declare @xml nvarchar(max);
+	set @xml = (select * from @Folder for xml auto);
+	throw 60000, @xml, 0;
+
+	declare @output table(op sysname, id bigint);
+	declare @Root bigint;
+	set @Root = 1;
+
+	merge cat.ItemTree as t
+	using @Folder as s
+	on (t.Id = s.Id)
+	when matched then
+		update set 
+			t.[Name] = s.[Name]
+	when not matched by target then 
+		insert (TenantId, [Root], Parent, [Name])
+		values (@TenantId, @Root, s.ParentFolder, s.[Name])
+	output 
+		$action op, inserted.Id id
+	into @output(op, id);
+
+	select top(1) @RetId = id from @output;
+
+	select [Folder!TFolder!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon=N'folder-outline',
+		ParentFolder = Parent
+	from cat.ItemTree 
+	where Id=@RetId;
+end
+go
 
 /*
 admin

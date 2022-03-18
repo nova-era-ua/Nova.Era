@@ -1,0 +1,11 @@
+﻿
+Items
+=====
+1. TreeView: DoubleClick
+3. EditFolder: ParentFolder
+5. ItemList - Reload,
+6. ItemList - Edit
+7. ItemList - Filter
+8. ItemList - Search
+9. ItemList - Delete
+10. TreeView - Delete

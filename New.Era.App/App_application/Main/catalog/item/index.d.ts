@@ -13,10 +13,16 @@ export interface TFolder extends ITreeElement {
 	readonly $parent: TFolders;
 }
 
+export interface THierarchy extends IElement {
+	readonly Id: number;
+	readonly Name: string;
+}
+
 declare type TFolders = IElementArray<TFolder>;
 
 export interface TRoot extends IRoot {
 	readonly Folders: TFolders;
+	readonly Hierarchy: THierarchy;
 	$Filter: string;
 }
 

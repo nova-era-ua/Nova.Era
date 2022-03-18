@@ -53,6 +53,13 @@
     <Content Include="App_application\Main\catalog\item\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\Main\catalog\item\editfolder.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="todo.txt" />
+    <Content Include="App_application\Main\catalog\item\editItem.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -79,7 +86,11 @@
     <None Include="App_application\%40schemas\sql-json-schema.json" />
     <None Include="App_application\Main\catalog\agent\model.json" />
     <Content Include="App_application\Main\catalog\item\item.sql" />
+    <TypeScriptCompile Include="App_application\Main\catalog\item\editItem.template.ts" />
+    <TypeScriptCompile Include="App_application\Main\catalog\item\item.d.ts" />
+    <TypeScriptCompile Include="App_application\Main\catalog\item\folder.d.ts" />
     <TypeScriptCompile Include="App_application\Main\catalog\item\index.d.ts" />
+    <TypeScriptCompile Include="App_application\Main\catalog\item\editfolder.template.ts" />
     <TypeScriptCompile Include="App_application\Main\catalog\item\index.template.ts" />
     <None Include="App_application\Main\catalog\item\model.json" />
     <None Include="App_application\Main\dashboard\model.json" />
