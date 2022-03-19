@@ -65,8 +65,22 @@ begin
 		(10,    1, 10, N'@[Dashboard]', N'dashboard', N'dashboard-outline'),
 		(30,    1, 10, N'@[Catalogs]',  N'catalog',   N'list'),
 		(301,   30, 10, N'@[Agents]',   N'agent',     N'users'),
-		(302,   30, 20, N'@[Items]',    N'item',      N'package-outline');
+		(302,   30, 20, N'@[Items]',    N'item',      N'package-outline'),
+		(309,   30, 90, N'@[Other]',    N'other',      N'items');
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 900;
+end
+go
+------------------------------------------------
+create or alter procedure a2ui.[Catalog.Other.Index]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Catalog!TCatalog!Array] = null
 end
 go

@@ -61,6 +61,9 @@
     <Content Include="App_application\main\catalog\item\editItem.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\catalog\other\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -94,6 +97,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\item\editfolder.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\index.template.ts" />
     <None Include="App_application\main\catalog\item\model.json" />
+    <None Include="App_application\main\catalog\other\model.json" />
     <None Include="App_application\main\dashboard\model.json" />
     <None Include="App_application\sql.json" />
     <None Include="packages.config" />

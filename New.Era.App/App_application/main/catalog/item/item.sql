@@ -104,7 +104,7 @@ begin
 			)
 			from cat.Items i
 			inner join cat.ItemTreeItems iti on i.TenantId = iti.TenantId and i.Id = iti.Item
-		where i.Void=0 and (
+		where i.Void = 0 and (
 			i.TenantId = @TenantId and iti.TenantId = @TenantId and iti.Parent = @Id or
 				(@Id = -1 and (upper([Name]) like @fr or upper(Memo) like @fr))
 			)
@@ -166,10 +166,9 @@ begin
 
 	select [Folder!TFolder!Object] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name],
 		[ParentFolder.Id!TParentFolder!Id] = t.Parent, [ParentFolder.Name!TParentFolder!Name] = p.[Name]
-
 	from cat.ItemTree t
-	inner join cat.ItemTree p on t.TenantId = p.TenantId and t.Parent = p.Id
-	where t.TenantId=@TenantId and t.Id = @Id;
+		inner join cat.ItemTree p on t.TenantId = p.TenantId and t.Parent = p.Id
+	where t.TenantId=@TenantId and t.Id = @Id and t.Void = 0;
 
 	select [ParentFolder!TParentFolder!Object] = null,  [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.ItemTree 
@@ -243,7 +242,7 @@ begin
 		inner join cat.ItemTreeItems iti on i.Id = iti.Item and i.TenantId = iti.TenantId
 		inner join cat.ItemTree t on iti.Parent = t.Id and iti.TenantId = t.TenantId
 	where i.TenantId = @TenantId and iti.TenantId=@TenantId and t.TenantId = @TenantId 
-		and i.Id=@Id;
+		and i.Id=@Id and i.Void = 0;
 	
 	select [ParentFolder!TParentFolder!Object] = null,  [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.ItemTree t
@@ -373,6 +372,43 @@ begin
 	select [Result!TResult!Object] = null, T.Id, RowNo = T.RowNumber - 1 /*row_number is 1-based*/
 	from T
 	where T.Id = @Id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Folder.Delete]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	if exists(select 1 from cat.ItemTree where TenantId=@TenantId and Parent = @Id and Void = 0) or
+	   exists(select 1 from cat.ItemTree where TenantId=@TenantId and Parent = @Id and Void = 0)
+		throw 60000, N'UI:@[Error.Delete.Folder]', 0;
+	update cat.ItemTree set Void=1 where TenantId = @TenantId and Id = @Id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Item.Delete]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	-- TODO: check if there are any references
+	begin tran
+	update cat.Items set Void=1 where TenantId = @TenantId and Id = @Id;
+	delete from cat.ItemTreeItems where
+		TenantId = @TenantId and Item = @Id;
+	commit tran;
 end
 go
 

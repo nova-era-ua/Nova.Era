@@ -8,7 +8,7 @@
 		<add key="appPath" value="~/App_application" />
 		<add key="appKey" value="main" />
 		<add key="configuration" value="debug" />
-		<add key="multicompany" value="false"/>
+		<add key="multicompany" value="true"/>
 		<add key="theme" value="advance.blue"/>
 		<add key="customUserMenu" value="a2ui.[Menu.Simple.User.Load]"/>
 	</appSettings>

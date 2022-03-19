@@ -29,6 +29,14 @@
     "findIndex": {
       "type": "sql",
       "procedure": "Item.Item.FindIndex"
+    },
+    "deleteFolder": {
+      "type": "sql",
+      "procedure": "Item.Folder.Delete"
+    },
+    "deleteItem": {
+      "type": "sql",
+      "procedure": "Item.Item.Delete"
     }
   }
 }

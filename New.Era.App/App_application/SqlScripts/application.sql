@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1002
-generated: 18.03.2022 12:24:20
+generated: 19.03.2022 07:59:03
 */
 
 
@@ -11,6 +11,8 @@ main structure
 */
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'cat')
 	exec sp_executesql N'create schema cat';
+go
+grant execute on schema::cat to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -214,7 +216,7 @@ begin
 		/*nested items (not folders!) */
 		[Children!TItem!LazyArray] = null
 	from T
-	order by [IsSpec], [Name];
+	order by [IsSpec], [Id];
 
 	select [Hierarchy!THierarchy!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.ItemTree where Id= @HieId;
@@ -278,6 +280,8 @@ begin
 					case when @Order=N'id'   and @Dir=@Desc then i.Id end desc,
 					case when @Order=N'name' and @Dir=@Asc  then i.[Name] end asc,
 					case when @Order=N'name' and @Dir=@Desc then i.[Name] end desc,
+					case when @Order=N'article' and @Dir=@Asc  then i.Article end asc,
+					case when @Order=N'article' and @Dir=@Desc then i.Article end desc,
 					case when @Order=N'memo' and @Dir=@Asc  then i.Memo end asc,
 					case when @Order=N'memo' and @Dir=@Desc then i.Memo end desc
 			)
@@ -343,13 +347,16 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Folder!TFolder!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
-		ParentFolder = Parent
-	from cat.ItemTree where Id = @Id;
+	select [Folder!TFolder!Object] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name],
+		[ParentFolder.Id!TParentFolder!Id] = t.Parent, [ParentFolder.Name!TParentFolder!Name] = p.[Name]
+
+	from cat.ItemTree t
+	inner join cat.ItemTree p on t.TenantId = p.TenantId and t.Parent = p.Id
+	where t.TenantId=@TenantId and t.Id = @Id;
 
 	select [ParentFolder!TParentFolder!Object] = null,  [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.ItemTree 
-	where Id=@Parent;
+	where Id=@Parent and TenantId = @TenantId;
 end
 go
 -------------------------------------------------
@@ -487,6 +494,72 @@ begin
 		@UserId = @UserId, @Id = @RetId;
 end
 go
+------------------------------------------------
+create or alter procedure cat.[Item.Folder.GetPath]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint,
+@Root bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	with T(Id, Parent, [Level]) as (
+		select cast(null as bigint), @Id, 0
+		union all
+		select t.Id, t.Parent, [Level] + 1 
+			from cat.ItemTree t inner join T on t.Id = T.Parent and t.TenantId = @TenantId
+		where t.Id <> @Root
+	)
+	select [Result!TResult!Array] = null, [Id] = Id from T where Id is not null order by [Level] desc;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Item.FindIndex]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint,
+@Parent bigint,
+@Order nvarchar(255) = N'name',
+@Dir nvarchar(20) = N'asc'
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @Asc nvarchar(10), @Desc nvarchar(10), @RowCount int;
+
+	set @Asc = N'asc'; set @Desc = N'desc';
+	set @Dir = lower(isnull(@Dir, @Asc));
+	set @Order = lower(@Order);
+
+	with T(Id, RowNumber)
+	as (
+		select Id, [RowNumber] = row_number() over (
+				order by 
+					case when @Order=N'id'   and @Dir=@Asc  then i.Id end asc,
+					case when @Order=N'id'   and @Dir=@Desc then i.Id end desc,
+					case when @Order=N'name' and @Dir=@Asc  then i.[Name] end asc,
+					case when @Order=N'name' and @Dir=@Desc then i.[Name] end desc,
+					case when @Order=N'article' and @Dir=@Asc  then i.Article end asc,
+					case when @Order=N'article' and @Dir=@Desc then i.Article end desc,
+					case when @Order=N'memo' and @Dir=@Asc  then i.Memo end asc,
+					case when @Order=N'memo' and @Dir=@Desc then i.Memo end desc
+			)
+			from cat.Items i inner join cat.ItemTreeItems iti on
+			i.TenantId = iti.TenantId and i.Id = iti.Item
+			where iti.Parent = @Parent and iti.TenantId = @TenantId
+	)
+	select [Result!TResult!Object] = null, T.Id, RowNo = T.RowNumber - 1 /*row_number is 1-based*/
+	from T
+	where T.Id = @Id;
+end
+go
+
+
 /*
 admin
 */

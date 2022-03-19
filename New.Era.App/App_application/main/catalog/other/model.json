@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "a2ui",
+  "model": "Catalog.Other",
+  "actions": {
+    "index": {
+      "index": true,
+      "view": "index.view"
+    }
+  }
+}

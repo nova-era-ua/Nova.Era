@@ -25,7 +25,17 @@ define(["require", "exports"], function (require, exports) {
             clearFilter,
             createRoot,
             createFolder,
-            gotoFolder
+            gotoFolder,
+            deleteFolder: {
+                exec: deleteFolder,
+                canExec: canDeleteFolder,
+                confirm: '@[Confirm.Delete.Folder]'
+            },
+            deleteItem: {
+                exec: deleteItem,
+                canExec(items) { return !!(items === null || items === void 0 ? void 0 : items.$selected); },
+                confirm: '@[Confirm.Delete.Element]'
+            }
         }
     };
     exports.default = template;
@@ -160,5 +170,22 @@ define(["require", "exports"], function (require, exports) {
             await ch.$reload();
             findItem(ch);
         }
+    }
+    function canDeleteFolder(folder) {
+        var _a;
+        return (folder === null || folder === void 0 ? void 0 : folder.$IsFolder) && !(folder === null || folder === void 0 ? void 0 : folder.HasSubItems) && ((_a = folder === null || folder === void 0 ? void 0 : folder.Children) === null || _a === void 0 ? void 0 : _a.$isEmpty);
+    }
+    async function deleteFolder(folder) {
+        if (!canDeleteFolder(folder))
+            return;
+        await this.$ctrl.$invoke('deleteFolder', { Id: folder.Id });
+        folder.$remove();
+    }
+    async function deleteItem(arr) {
+        const ctrl = this.$ctrl;
+        if (!arr || !arr.$selected)
+            return;
+        await ctrl.$invoke('deleteItem', { Id: arr.$selected.Id });
+        arr.$selected.$remove();
     }
 });

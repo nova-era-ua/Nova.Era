@@ -1,4 +1,6 @@
-﻿@Folder=Папка
+﻿@Other=Інше
+;
+@Folder=Папка
 @Agents=Контрагенти
 @Items=Об'єкти обліку
 @CreateFolder=Створити папку
@@ -12,5 +14,9 @@
 @Article=Артикул
 ;
 @Error.Required=Обов\'язкове поле
+@Error.Delete.Folder=Неможливо видалити папку.\nМожна видаляти тількі порожні папки.
 ;
 @SearchItemsPlaceholder=Пощук за назвою, артикулом, приміткою
+;
+@Confirm.Delete.Folder=Ви дійсно бажаєте видалити папку?
+@Confirm.Delete.Element=Ви дійсно бажаєте видалити елемент?

@@ -26,7 +26,17 @@ const template: Template = {
 		clearFilter,
 		createRoot,
 		createFolder,
-		gotoFolder
+		gotoFolder,
+		deleteFolder: {
+			exec: deleteFolder,
+			canExec: canDeleteFolder,
+			confirm: '@[Confirm.Delete.Folder]'
+		},
+		deleteItem: {
+			exec: deleteItem,
+			canExec(items: TItems): boolean { return !!items?.$selected; },
+			confirm: '@[Confirm.Delete.Element]'
+		}
 	}
 }
 
@@ -203,3 +213,23 @@ async function gotoFolder(this: TRoot, item: TItem) {
 	}
 }
 
+function canDeleteFolder(folder: TFolder): boolean
+{
+	return folder?.$IsFolder && !folder?.HasSubItems && folder?.Children?.$isEmpty
+}
+
+async function deleteFolder(this: TRoot, folder: TFolder) {
+	if (!canDeleteFolder(folder))
+		return;
+	await this.$ctrl.$invoke('deleteFolder', { Id: folder.Id });
+	folder.$remove();
+}
+
+async function deleteItem(this: TRoot, arr: TFolders) {
+	const ctrl = this.$ctrl;
+	if (!arr || !arr.$selected) return;
+
+	await ctrl.$invoke('deleteItem', { Id: arr.$selected.Id });
+
+	arr.$selected.$remove();
+}
