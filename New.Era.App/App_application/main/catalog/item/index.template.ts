@@ -221,8 +221,16 @@ function canDeleteFolder(folder: TFolder): boolean
 async function deleteFolder(this: TRoot, folder: TFolder) {
 	if (!canDeleteFolder(folder))
 		return;
+	let rootFolder = this.Folders;
 	await this.$ctrl.$invoke('deleteFolder', { Id: folder.Id });
 	folder.$remove();
+	// fix bottom selection
+	this.$ctrl.$defer(() => {
+		if (rootFolder.$selected?.$IsSearch) {
+			if (rootFolder.length > 1)
+				rootFolder[rootFolder.length - 2].$select();
+		}
+	});
 }
 
 async function deleteItem(this: TRoot, arr: TFolders) {

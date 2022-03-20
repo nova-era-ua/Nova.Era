@@ -59,23 +59,23 @@ begin
 	declare @menu a2ui.[MenuModule.TableType];
 	truncate table a2security.[Menu.Acl];
 
-	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon) 
+	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon, ClassName) 
 	values
-		(1,  null,  0, N'Main',         null,         null),
-		(10,    1,  10, N'@[Dashboard]',      N'dashboard',   N'dashboard-outline'),
-		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'list'),
-		(12,    1,  12, N'@[StockPurchases]', N'purchase',    N'list'),
-		(13,    1,  13, N'@[Accounting]',     N'accounting',  N'calc'),
-		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list'),
-		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline'),
-		(111,   11, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline'),
-		(121,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline'),
-		(131,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline'),
-		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account'),
-		(301,   30, 10, N'@[Agents]',        N'agent',     N'users'),
-		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline'),
-		(309,   30, 90, N'@[Other]',         N'other',     N'items'),
-		(901,   90, 10, N'@[Operations]',    N'operation', N'list');
+		(1,  null,  0, N'Main',         null,         null, null),
+		(10,    1,  10, N'@[Dashboard]',      N'dashboard',   N'dashboard-outline', null),
+		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'list', null),
+		(12,    1,  12, N'@[StockPurchases]', N'purchase',    N'cart', null),
+		(13,    1,  13, N'@[Accounting]',     N'accounting',  N'calc', null),
+		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list', N'border-top'),
+		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', null),
+		(111,   11, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(121,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(131,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account', null),
+		(301,   30, 10, N'@[Agents]',        N'agent',     N'users', null),
+		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline', null),
+		(309,   30, 90, N'@[Other]',         N'other',     N'items', N'border-top'),
+		(901,   90, 10, N'@[Operations]',    N'operation', N'list', null);
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 999;
 end

@@ -178,8 +178,16 @@ define(["require", "exports"], function (require, exports) {
     async function deleteFolder(folder) {
         if (!canDeleteFolder(folder))
             return;
+        let rootFolder = this.Folders;
         await this.$ctrl.$invoke('deleteFolder', { Id: folder.Id });
         folder.$remove();
+        this.$ctrl.$defer(() => {
+            var _a;
+            if ((_a = rootFolder.$selected) === null || _a === void 0 ? void 0 : _a.$IsSearch) {
+                if (rootFolder.length > 1)
+                    rootFolder[rootFolder.length - 2].$select();
+            }
+        });
     }
     async function deleteItem(arr) {
         const ctrl = this.$ctrl;
