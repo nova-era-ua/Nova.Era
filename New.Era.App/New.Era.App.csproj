@@ -64,6 +64,15 @@
     <Content Include="App_application\main\catalog\other\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\accounting\plan\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\accounting\dashboard\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\settings\operation\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -82,12 +91,23 @@
     <Content Include="App_application\main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\sales\dashboard\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\purchase\dashboard\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="App_application\%40schemas\api-model-json-schema.json" />
     <None Include="App_application\%40schemas\app-json-schema.json" />
     <None Include="App_application\%40schemas\model-json-schema.json" />
     <None Include="App_application\%40schemas\sql-json-schema.json" />
+    <None Include="App_application\main\purchase\dashboard\model.json" />
+    <None Include="App_application\main\sales\dashboard\model.json" />
+    <None Include="App_application\main\settings\operation\model.json" />
+    <None Include="App_application\main\accounting\dashboard\model.json" />
+    <None Include="App_application\main\accounting\plan\model.json" />
     <None Include="App_application\main\catalog\agent\model.json" />
     <Content Include="App_application\main\catalog\item\item.sql" />
     <TypeScriptCompile Include="App_application\main\catalog\item\editItem.template.ts" />

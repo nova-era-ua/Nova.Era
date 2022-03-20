@@ -4,9 +4,9 @@
 			<Button Icon="Plus" Content="@[Create]">
 				<Button.DropDown>
 					<DropDownMenu>
-						<MenuItem Content="@[CreateSection]" Icon="Plus"
+						<MenuItem Content="@[CreateSection]" 
 							Command="{BindCmd Execute, CommandName=createRoot, Argument={Bind Folders.$selected}}"/>
-						<MenuItem Content="@[CreateFolder]" Icon="Plus"
+						<MenuItem Content="@[CreateFolder]"
 							Command="{BindCmd Execute, CommandName=createFolder, Argument={Bind Folders.$selected}}"/>
 					</DropDownMenu>
 				</Button.DropDown>
@@ -25,10 +25,10 @@
 						Label="{Bind Name}" IsGroup="{Bind HasSubItems}" Show="{Bind $IsVisible}"/>
 			<TreeView.ContextMenu>
 				<DropDownMenu>
-					<MenuItem Icon="Plus" Content="@[CreateFolder]" Command="{BindCmd Execute, CommandName=createFolder, Argument={Bind Folders.$selected}}"/>
+					<MenuItem Content="@[CreateFolder]" Command="{BindCmd Execute, CommandName=createFolder, Argument={Bind Folders.$selected}}"/>
 					<Separator />
-					<MenuItem Icon="Edit" Content="Edit" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders}, Url='/catalog/item/editfolder'}"/>
-					<MenuItem Icon="Delete" Content="Delete" Command="{BindCmd Execute, 
+					<MenuItem Content="@[Edit]" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders}, Url='/catalog/item/editfolder'}"/>
+					<MenuItem Content="@[Delete]" Command="{BindCmd Execute, 
 						CommandName=deleteFolder, Argument={Bind Folders.$selected}}"/>
 				</DropDownMenu>
 			</TreeView.ContextMenu>
@@ -80,11 +80,11 @@
 					</DataGridColumn>
 					<DataGrid.ContextMenu>
 						<DropDownMenu>
-							<MenuItem Icon="Plus" Content="@[Create]" 
+							<MenuItem Content="@[Create]" 
 								Command="{BindCmd Dialog, Action=Append, Url='/catalog/item/edititem', Argument={Bind Folders.Selected(Children)}, Data={Bind Root.$ParentFolderData}}" />
 							<Separator />
-							<MenuItem Icon="Edit" Content="@[Edit]" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders.Selected(Children)}, Url='/catalog/item/editItem'}" />
-							<MenuItem Icon="Delete" Content="@[Delete]" Command="{BindCmd Execute, CommandName=deleteItem, Argument={Bind Folders.Selected(Children)}}"/>
+							<MenuItem Content="@[Edit]" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders.Selected(Children)}, Url='/catalog/item/editItem'}" />
+							<MenuItem Content="@[Delete]" Command="{BindCmd Execute, CommandName=deleteItem, Argument={Bind Folders.Selected(Children)}}"/>
 						</DropDownMenu>
 					</DataGrid.ContextMenu>
 				</DataGrid>

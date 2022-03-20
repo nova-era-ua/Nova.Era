@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1002
-generated: 19.03.2022 07:59:03
+generated: 19.03.2022 11:35:56
 */
 
 
@@ -172,15 +172,37 @@ begin
 	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon) 
 	values
 		(1,  null,  0, N'Main',         null,         null),
-		(10,    1, 10, N'@[Dashboard]', N'dashboard', N'dashboard-outline'),
-		(30,    1, 10, N'@[Catalogs]',  N'catalog',   N'list'),
-		(301,   30, 10, N'@[Agents]',   N'agent',     N'users'),
-		(302,   30, 20, N'@[Items]',    N'item',      N'package-outline');
+		(10,    1,  10, N'@[Dashboard]',      N'dashboard',   N'dashboard-outline'),
+		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'list'),
+		(12,    1,  12, N'@[StockPurchases]', N'purchase',    N'list'),
+		(13,    1,  13, N'@[Accounting]',     N'accounting',  N'calc'),
+		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list'),
+		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline'),
+		(111,   11, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline'),
+		(121,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline'),
+		(131,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline'),
+		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account'),
+		(301,   30, 10, N'@[Agents]',        N'agent',     N'users'),
+		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline'),
+		(309,   30, 90, N'@[Other]',         N'other',     N'items'),
+		(901,   90, 10, N'@[Operations]',    N'operation', N'list');
 
-	exec a2ui.[MenuModule.Merge] @menu, 1, 900;
+	exec a2ui.[MenuModule.Merge] @menu, 1, 999;
 end
 go
+------------------------------------------------
+create or alter procedure a2ui.[Catalog.Other.Index]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 
+	select [Catalog!TCatalog!Array] = null
+end
+go
 /* Item */
 -------------------------------------------------
 create or alter procedure cat.[Item.Index]
@@ -287,7 +309,7 @@ begin
 			)
 			from cat.Items i
 			inner join cat.ItemTreeItems iti on i.TenantId = iti.TenantId and i.Id = iti.Item
-		where i.Void=0 and (
+		where i.Void = 0 and (
 			i.TenantId = @TenantId and iti.TenantId = @TenantId and iti.Parent = @Id or
 				(@Id = -1 and (upper([Name]) like @fr or upper(Memo) like @fr))
 			)
@@ -349,10 +371,9 @@ begin
 
 	select [Folder!TFolder!Object] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name],
 		[ParentFolder.Id!TParentFolder!Id] = t.Parent, [ParentFolder.Name!TParentFolder!Name] = p.[Name]
-
 	from cat.ItemTree t
-	inner join cat.ItemTree p on t.TenantId = p.TenantId and t.Parent = p.Id
-	where t.TenantId=@TenantId and t.Id = @Id;
+		inner join cat.ItemTree p on t.TenantId = p.TenantId and t.Parent = p.Id
+	where t.TenantId=@TenantId and t.Id = @Id and t.Void = 0;
 
 	select [ParentFolder!TParentFolder!Object] = null,  [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.ItemTree 
@@ -426,7 +447,7 @@ begin
 		inner join cat.ItemTreeItems iti on i.Id = iti.Item and i.TenantId = iti.TenantId
 		inner join cat.ItemTree t on iti.Parent = t.Id and iti.TenantId = t.TenantId
 	where i.TenantId = @TenantId and iti.TenantId=@TenantId and t.TenantId = @TenantId 
-		and i.Id=@Id;
+		and i.Id=@Id and i.Void = 0;
 	
 	select [ParentFolder!TParentFolder!Object] = null,  [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.ItemTree t
@@ -556,6 +577,43 @@ begin
 	select [Result!TResult!Object] = null, T.Id, RowNo = T.RowNumber - 1 /*row_number is 1-based*/
 	from T
 	where T.Id = @Id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Folder.Delete]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	if exists(select 1 from cat.ItemTree where TenantId=@TenantId and Parent = @Id and Void = 0) or
+	   exists(select 1 from cat.ItemTree where TenantId=@TenantId and Parent = @Id and Void = 0)
+		throw 60000, N'UI:@[Error.Delete.Folder]', 0;
+	update cat.ItemTree set Void=1 where TenantId = @TenantId and Id = @Id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Item.Delete]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	-- TODO: check if there are any references
+	begin tran
+	update cat.Items set Void=1 where TenantId = @TenantId and Id = @Id;
+	delete from cat.ItemTreeItems where
+		TenantId = @TenantId and Item = @Id;
+	commit tran;
 end
 go
 

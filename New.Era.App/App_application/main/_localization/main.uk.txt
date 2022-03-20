@@ -1,4 +1,10 @@
-﻿@Other=Інше
+﻿@Settings=Налаштування
+@StockPurchases=Запаси та закупівлі
+@SalesMarketing=Продаж та маркетинг
+@Accounting=Бухгалтерія
+@AccountsPlan=Плани рахунків
+@Operations=Операції
+@Other=Інше
 ;
 @Folder=Папка
 @Agents=Контрагенти
