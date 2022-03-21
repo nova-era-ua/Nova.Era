@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1002
-generated: 20.03.2022 14:59:16
+generated: 21.03.2022 08:06:16
 */
 
 
@@ -12,7 +12,11 @@ main structure
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'cat')
 	exec sp_executesql N'create schema cat';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'doc')
+	exec sp_executesql N'create schema doc';
+go
 grant execute on schema::cat to public;
+grant execute on schema::doc to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -107,6 +111,25 @@ create table cat.ItemTreeItems
 		constraint PK_ItemTreeItems primary key (TenantId, Parent, Item),
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Agents')
+	create sequence cat.SQ_Agents as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Agents')
+create table cat.Agents
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Agents_PK default(next value for cat.SQ_Agents),
+	Void bit not null 
+		constraint DF_Agents_Void default(0),
+	[Name] nvarchar(255),
+	[FullName] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Agents primary key (TenantId, Id)
+);
+go
 
 /*
 user interface
@@ -169,23 +192,23 @@ begin
 	declare @menu a2ui.[MenuModule.TableType];
 	truncate table a2security.[Menu.Acl];
 
-	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon) 
+	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon, ClassName) 
 	values
-		(1,  null,  0, N'Main',         null,         null),
-		(10,    1,  10, N'@[Dashboard]',      N'dashboard',   N'dashboard-outline'),
-		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'list'),
-		(12,    1,  12, N'@[StockPurchases]', N'purchase',    N'list'),
-		(13,    1,  13, N'@[Accounting]',     N'accounting',  N'calc'),
-		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list'),
-		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline'),
-		(111,   11, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline'),
-		(121,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline'),
-		(131,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline'),
-		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account'),
-		(301,   30, 10, N'@[Agents]',        N'agent',     N'users'),
-		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline'),
-		(309,   30, 90, N'@[Other]',         N'other',     N'items'),
-		(901,   90, 10, N'@[Operations]',    N'operation', N'list');
+		(1,  null,  0, N'Main',         null,         null, null),
+		(10,    1,  10, N'@[Dashboard]',      N'dashboard',   N'dashboard-outline', null),
+		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'list', null),
+		(12,    1,  12, N'@[StockPurchases]', N'purchase',    N'cart', null),
+		(13,    1,  13, N'@[Accounting]',     N'accounting',  N'calc', null),
+		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list', N'border-top'),
+		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', null),
+		(111,   11, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(121,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(131,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account', null),
+		(301,   30, 10, N'@[Agents]',        N'agent',     N'users', null),
+		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline', null),
+		(309,   30, 90, N'@[Other]',         N'other',     N'items', N'border-top'),
+		(901,   90, 10, N'@[Operations]',    N'operation', N'list', null);
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 999;
 end
@@ -228,7 +251,7 @@ begin
 			) then 1 else 0 end,
 			IsSpec = 0
 		from cat.ItemTree t
-			where t.Void = 0 and t.Parent = @HieId
+			where t.TenantId = @TenantId and t.Void = 0 and t.Parent = @HieId
 	)
 	select [Folders!TFolder!Tree] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon,
 		/*nested folders - lazy*/
@@ -313,7 +336,7 @@ begin
 			i.TenantId = @TenantId and iti.TenantId = @TenantId and iti.Parent = @Id or
 				(@Id = -1 and (upper([Name]) like @fr or upper(Memo) like @fr))
 			)
-	) select [Children!TAgent!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
+	) select [Children!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
 		i.FullName, i.Article, i.Memo, 
 		[ParentFolder.Id!TParentFolder!Id] = T.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name],
 		[!!RowCount]  = (select count(1) from T)
@@ -618,6 +641,80 @@ end
 go
 
 
+/* Agent */
+-------------------------------------------------
+create or alter procedure cat.[Agent.Index]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Agents!TAgent!Array] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
+		FullName, [Memo]
+	from cat.Agents a
+	where TenantId = @TenantId;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Agent.Load]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Agent!TAgent!Object] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
+		FullName, [Memo]
+	from cat.Agents a
+	where TenantId = @TenantId and Id = @Id;
+end
+go
+-------------------------------------------------
+drop procedure if exists cat.[Agent.Metadata];
+drop procedure if exists cat.[Agent.Update];
+drop type if exists cat.[Agent.TableType];
+go
+-------------------------------------------------
+create type cat.[Agent.TableType]
+as table(
+	Id bigint null,
+	[Name] nvarchar(255),
+	[FullName] nvarchar(255),
+	[Memo] nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure cat.[Agent.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Agent [Agent.TableType];
+	select [Agent!Agent!Metadata] = null, * from @Agent;
+end
+go
+
+/* Operation */
+-------------------------------------------------
+create or alter procedure doc.[Operation.Index]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Operations!TOperation!Array] = null
+end
+go
+
 /*
 admin
 */
@@ -661,7 +758,6 @@ initial data
 */
 
 -- ITEM TREE
-
 if not exists(select * from cat.ItemTree where Id=0)
 	insert into cat.ItemTree(TenantId, Id, Parent, [Root], [Name]) 
 	values(1, 0, 0, 0, N'Root');
@@ -671,3 +767,10 @@ if not exists(select * from cat.ItemTree where Id=1)
 	insert into cat.ItemTree(TenantId, Id, Parent, [Root], [Name]) 
 	values(1, 1, 0, 0, N'(Default hierarchy)');
 go
+
+-- AGENT TREE
+if not exists(select * from cat.AgentTree where Id=0)
+	insert into cat.AgentTree(TenantId, Id, Parent, [Root], [Name]) 
+	values(1, 0, 0, 0, N'Root');
+go
+

@@ -2,7 +2,10 @@ define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
-        properties: {}
+        properties: {},
+        validators: {
+            'Agent.Name': '@[Required]'
+        }
     };
     exports.default = template;
 });

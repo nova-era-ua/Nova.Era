@@ -3,7 +3,6 @@ initial data
 */
 
 -- ITEM TREE
-
 if not exists(select * from cat.ItemTree where Id=0)
 	insert into cat.ItemTree(TenantId, Id, Parent, [Root], [Name]) 
 	values(1, 0, 0, 0, N'Root');
@@ -13,3 +12,23 @@ if not exists(select * from cat.ItemTree where Id=1)
 	insert into cat.ItemTree(TenantId, Id, Parent, [Root], [Name]) 
 	values(1, 1, 0, 0, N'(Default hierarchy)');
 go
+-------------------------------------------------
+-- OPERATION GROUPS
+begin
+	set nocount on;
+	declare @og table(Id nvarchar(16), [Order] int, [Name] nvarchar(255), Memo nvarchar(255));
+	insert into @og (Id, [Order], [Name], [Memo]) values
+		(N'Sales', 1, N'Продажі та маркетинг', N'Перелік операцій для продажів та маркетингу');
+	merge doc.OperationGroups as t
+	using @og as s on t.Id = s.Id and t.TenantId = 1
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.[Memo] = s.[Memo]
+	when not matched by target then insert
+		(TenantId, Id, [Order], [Name], [Memo]) values
+		(1, s.Id, s.[Order], s.[Name], s.Memo)
+	when not matched by source and t.TenantId = 1 then delete;
+end
+go
+

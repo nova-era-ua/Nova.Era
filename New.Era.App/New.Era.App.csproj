@@ -58,6 +58,7 @@
     <Content Include="App_application\%40sql\platform\source\a2v10ui.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10ui_simple.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10workflow.sql" />
+    <Content Include="App_application\main\catalog\agent\agent.sql" />
     <Content Include="App_application\main\catalog\agent\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -67,6 +68,7 @@
     <Content Include="App_application\main\catalog\item\editfolder.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\settings\operation\operation.sql" />
     <Content Include="App_application\main\_sql\initial_data.sql" />
     <Content Include="todo.txt" />
     <Content Include="App_application\main\catalog\item\editItem.dialog.xaml">
@@ -97,6 +99,12 @@
     <Content Include="App_application\main\purchase\dashboard\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\settings\operation\edit.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\sales\operation\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="App_application\%40schemas\api-model-json-schema.json" />
@@ -104,6 +112,7 @@
     <None Include="App_application\%40schemas\model-json-schema.json" />
     <None Include="App_application\%40schemas\sql-json-schema.json" />
     <None Include="App_application\main\purchase\dashboard\model.json" />
+    <None Include="App_application\main\sales\operation\model.json" />
     <None Include="App_application\main\sales\dashboard\model.json" />
     <None Include="App_application\main\settings\operation\model.json" />
     <None Include="App_application\main\accounting\dashboard\model.json" />
@@ -111,9 +120,10 @@
     <None Include="App_application\main\catalog\agent\model.json" />
     <Content Include="App_application\main\catalog\item\item.sql" />
     <None Include="packages.config" />
-    <None Include="tsconfig.json" />
+    <Content Include="tsconfig.json" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\agent\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\agent\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\editItem.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\item.d.ts" />
@@ -126,6 +136,8 @@
     <None Include="App_application\main\dashboard\model.json" />
     <None Include="App_application\sql.json" />
     <TypeScriptCompile Include="App_application\main\catalog\_common\tree.d.ts" />
+    <TypeScriptCompile Include="App_application\main\settings\operation\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\settings\operation\edit.template.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\_localization\main.uk.txt" />

@@ -1,0 +1,42 @@
+﻿<!-- Edit Folder -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="{Bind Operation.$Title, Format='@[OperationProperties] [{0}]'}" Overflow="True"
+		Width="70rem">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" 
+				Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid>
+		<TextBox Label="@[Name]" Value="{Bind Operation.Name}" UpdateTrigger="Input" Bold="True"/>
+	</Grid>
+	<Block Margin="1rem">
+		<TabBar Value="{Bind Root.$Tab}" Margin="0">
+			<TabButton Content="Документ" ActiveValue="" />
+			<TabButton Content="Журнали" ActiveValue="Jourual" />
+		</TabBar>
+		<Block Margin="1rem,0,0,0">
+			<Switch Expression="{Bind Root.$Tab}">
+				<Case Value="">
+					<Grid Padding="0">
+						<ComboBox Label="@[Agent]">
+							<ComboBoxItem Content="Схований"/>
+							<ComboBoxItem Content="Любий"/>
+							<ComboBoxItem Content="Тількі покупці"/>
+							<ComboBoxItem Content="Тількі постачальники"/>
+						</ComboBox>
+						<ComboBox Label="@[WarehouseFrom]"/>
+						<ComboBox Label="@[WarehouseTo]"/>
+					</Grid>
+				</Case>
+				<Case Value="Jourual">
+					<Text>Журнали</Text>
+				</Case>
+			</Switch>
+		</Block>
+	</Block>
+	<Grid>
+		<TextBox Label="@[Memo]" Value="{Bind Operation.Memo}" UpdateTrigger="Input" Multiline="True"/>
+	</Grid>
+</Dialog>
+

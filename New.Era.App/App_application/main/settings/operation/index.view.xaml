@@ -1,5 +1,33 @@
 ﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<EmptyPanel Icon="SmileSad">
-		Yet not implemented
-	</EmptyPanel>
+	<Grid Rows="Auto,1*" Columns="MinMax(270px;25%),1px, 1*" Height="100%" 
+		  Gap=".5rem" Padding="1rem">
+		<Toolbar Grid.Row="1" Grid.Col="1" Style="Light" Padding="0">
+			<Button Icon="Reload" Command="{BindCmd Reload}"/>
+		</Toolbar>
+		<List Grid.Row="2" Grid.Col="1" Grid.VAlign="Stretch"
+			ItemsSource="{Bind Groups}" AutoSelect="FirstItem"
+			Style="Underlined">
+			<ListItem Icon="ListBullet" Header="{Bind Name}"
+				Content="{Bind Memo}">
+			</ListItem>
+		</List>
+		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
+		<Toolbar Grid.Row="1" Grid.Col="3" Style="Light" Padding="0">
+			<Button Icon="Plus" Content="@[Create]" 
+				Command="{BindCmd Dialog, Action=Append, Argument={Bind Groups.Selected(Children)}, 
+				Data={Bind Root.$CreateData}, Url='/settings/operation/edit'}"/>
+		</Toolbar>
+		<DataGrid Grid.Row="2" Grid.Col="3" Grid.VAlign="Stretch"
+				  GridLines="Horizontal" Striped="True"
+			ItemsSource="{Bind Groups.Selected(Children)}">
+			<DataGridColumn Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
+			<DataGridColumn Fit="True" Wrap="NoWrap">
+				<CommandBar Visibility="Hover">
+					<Button Icon="Edit" Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/settings/operation/edit'}"/>
+				</CommandBar>
+			</DataGridColumn>
+		</DataGrid>
+	</Grid>
 </Page>

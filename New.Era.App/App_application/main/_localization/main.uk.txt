@@ -5,6 +5,10 @@
 @AccountsPlan=Плани рахунків
 @Operations=Операції
 @Other=Інше
+@Agent=Контрагент
+@Warehouse=Склад
+@WarehouseFrom=Склад звідки
+@WarehouseTo=Склад куди
 ;
 @Folder=Папка
 @Agents=Контрагенти
@@ -14,8 +18,10 @@
 @ParentFolder=Знаходиться в папці
 @NewFolder=Нова папка
 @NewItem=Новий
+@NewItemW=Нова
 @SearchResult=[Результат пошуку]
 @ItemProperties=Властивості елементу
+@OperationProperties=Властивості операції
 ;
 @Article=Артикул
 ;

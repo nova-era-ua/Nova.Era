@@ -7,6 +7,8 @@
       "main/_sql/struct.sql",
       "main/_sql/ui.sql",
       "main/catalog/item/item.sql",
+      "main/catalog/agent/agent.sql",
+      "main/settings/operation/operation.sql",
       "main/_sql/admin.sql",
       "main/_sql/initial_data.sql"
     ]

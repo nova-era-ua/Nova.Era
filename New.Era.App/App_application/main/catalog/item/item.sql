@@ -23,7 +23,7 @@ begin
 			) then 1 else 0 end,
 			IsSpec = 0
 		from cat.ItemTree t
-			where t.Void = 0 and t.Parent = @HieId
+			where t.TenantId = @TenantId and t.Void = 0 and t.Parent = @HieId
 	)
 	select [Folders!TFolder!Tree] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon,
 		/*nested folders - lazy*/
@@ -108,7 +108,7 @@ begin
 			i.TenantId = @TenantId and iti.TenantId = @TenantId and iti.Parent = @Id or
 				(@Id = -1 and (upper([Name]) like @fr or upper(Memo) like @fr))
 			)
-	) select [Children!TAgent!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
+	) select [Children!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
 		i.FullName, i.Article, i.Memo, 
 		[ParentFolder.Id!TParentFolder!Id] = T.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name],
 		[!!RowCount]  = (select count(1) from T)

@@ -4,4 +4,12 @@ Items
 1. TreeView: DoubleClick
 3. EditFolder: ParentFolder
 9. ItemList - Delete
-10. TreeView - Delete
+
+Agents
+======
+1. Create/Edit/Delete
+
+
+Catalog-Other
+=============
+1. Units

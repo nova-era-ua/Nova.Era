@@ -1,10 +1,18 @@
 ﻿{
-  "$schema": "../../@schemas/model-json-schema.json#",
-  "schema": "",
-  "model": "",
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "Agent",
   "actions": {
     "index": {
+      "index": true,
+      "template": "index.template",
       "view": "index.view"
+    }
+  },
+  "dialogs": {
+    "edit": {
+      "template": "edit.template",
+      "view": "edit.dialog"
     }
   }
 }

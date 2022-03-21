@@ -4,7 +4,11 @@ main structure
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'cat')
 	exec sp_executesql N'create schema cat';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'doc')
+	exec sp_executesql N'create schema doc';
+go
 grant execute on schema::cat to public;
+grant execute on schema::doc to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -99,3 +103,62 @@ create table cat.ItemTreeItems
 		constraint PK_ItemTreeItems primary key (TenantId, Parent, Item),
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Agents')
+	create sequence cat.SQ_Agents as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Agents')
+create table cat.Agents
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Agents_PK default(next value for cat.SQ_Agents),
+	Void bit not null 
+		constraint DF_Agents_Void default(0),
+	[Name] nvarchar(255),
+	[FullName] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Agents primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationGroups')
+create table doc.OperationGroups
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Name] nvarchar(255),
+	[Order] int,
+	[Memo] nvarchar(255),
+		constraint PK_OperationGroups primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Operations')
+	create sequence doc.SQ_Operations as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations')
+create table doc.Operations
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Operations_PK default(next value for doc.SQ_Operations),
+	Void bit not null 
+		constraint DF_Operations_Void default(0),
+	[Group] nvarchar(16),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[Agent] nchar(1),
+	[WarehouseFrom] nchar(1),
+	[WarehouseTo] nchar(1)
+		constraint PK_Operations primary key (TenantId, Id),
+		constraint FK_Operations_Group_OperationGroups foreign key (TenantId, [Group]) references doc.OperationGroups(TenantId, Id),
+);
+go
+
+/*
+drop table doc.Operations
+drop table doc.OperationGroups
+*/
