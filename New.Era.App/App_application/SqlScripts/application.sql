@@ -1,6 +1,6 @@
 ﻿/*
-version: 10.1.1002
-generated: 21.03.2022 08:06:16
+version: 10.1.1005
+generated: 23.03.2022 16:05:10
 */
 
 
@@ -9,14 +9,20 @@ generated: 21.03.2022 08:06:16
 /*
 main structure
 */
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'cat')
 	exec sp_executesql N'create schema cat';
 go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'doc')
 	exec sp_executesql N'create schema doc';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'acc')
+	exec sp_executesql N'create schema acc';
+go
+------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
+grant execute on schema::acc to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -130,6 +136,67 @@ create table cat.Agents
 		constraint PK_Agents primary key (TenantId, Id)
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Accounts')
+	create sequence cat.SQ_Accounts as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'acc' and TABLE_NAME=N'Accounts')
+create table acc.Accounts (
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Accounts_PK default(next value for cat.SQ_Accounts),
+	Void bit not null 
+		constraint DF_Accounts_Void default(0),
+	[Plan] bigint null,
+	Parent bigint null,
+	[Code] nvarchar(16),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Accounts primary key (TenantId, Id),
+		constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationGroups')
+create table doc.OperationGroups
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Name] nvarchar(255),
+	[Order] int,
+	[Memo] nvarchar(255),
+		constraint PK_OperationGroups primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Operations')
+	create sequence doc.SQ_Operations as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations')
+create table doc.Operations
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Operations_PK default(next value for doc.SQ_Operations),
+	Void bit not null 
+		constraint DF_Operations_Void default(0),
+	[Group] nvarchar(16),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[Agent] nchar(1),
+	[WarehouseFrom] nchar(1),
+	[WarehouseTo] nchar(1)
+		constraint PK_Operations primary key (TenantId, Id),
+		constraint FK_Operations_Group_OperationGroups foreign key (TenantId, [Group]) references doc.OperationGroups(TenantId, Id),
+);
+go
+
+/*
+drop table doc.Operations
+drop table doc.OperationGroups
+*/
 
 /*
 user interface
@@ -196,19 +263,23 @@ begin
 	values
 		(1,  null,  0, N'Main',         null,         null, null),
 		(10,    1,  10, N'@[Dashboard]',      N'dashboard',   N'dashboard-outline', null),
-		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'list', null),
+		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'shopping', null),
 		(12,    1,  12, N'@[StockPurchases]', N'purchase',    N'cart', null),
 		(13,    1,  13, N'@[Accounting]',     N'accounting',  N'calc', null),
-		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list', N'border-top'),
-		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', null),
-		(111,   11, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list',         N'border-top'),
+		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
+		(111,   11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(112,   11, 12, N'@[Operations]',     N'operation', N'file-content', N'border-top'),
 		(121,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(122,   12, 12, N'@[Operations]',     N'operation', N'file-content', N'border-top'),
 		(131,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account', null),
-		(301,   30, 10, N'@[Agents]',        N'agent',     N'users', null),
+		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account',    N'border-top'),
+		(133,   13, 10, N'@[Journal]',        N'journal',  N'file-content',  null),
+		(301,   30, 10, N'@[Agents]',        N'agent',     N'users',   null),
 		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline', null),
-		(309,   30, 90, N'@[Other]',         N'other',     N'items', N'border-top'),
-		(901,   90, 10, N'@[Operations]',    N'operation', N'list', null);
+		(309,   30, 90, N'@[Other]',         N'other',       N'items',   N'border-top'),
+		(901,   90, 10, N'@[AccountsPlan]',  N'accountplan', N'account',      null),
+		(902,   90, 11, N'@[Operations]',    N'operation',   N'file-content', null);
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 999;
 end
@@ -695,8 +766,179 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	declare @Agent [Agent.TableType];
+	declare @Agent cat.[Agent.TableType];
 	select [Agent!Agent!Metadata] = null, * from @Agent;
+end
+go
+
+/* Accounting plan */
+
+------------------------------------------------
+create or alter procedure acc.[Account.Index]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	with T(Id, Parent, [Level])
+	as (
+		select a.Id, Parent, 0 from
+			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null
+		union all 
+		select a.Id, a.Parent, T.[Level] + 1 
+		from acc.Accounts a
+			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
+		where a.TenantId = @TenantId
+	)
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
+		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent
+	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
+	order by T.[Level], a.Code;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Plan.Load]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	select [Account!TAccount!Object] = null, [Id!!Id] = Id, Code, [Name], [Memo], [Plan]
+	from acc.Accounts where TenantId = @TenantId and Id=@Id and [Plan] is null and [Parent] is null;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Load]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint = null,
+@Parent bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Account!TAccount!Object] = null, [Id!!Id] = Id, Code, [Name], [Memo], [Plan], 
+		ParentAccount = Parent
+	from acc.Accounts where TenantId = @TenantId and Id=@Id;
+
+	select [Params!TParam!Object] = null, ParentAccount = @Parent;
+end
+go
+------------------------------------------------
+drop procedure if exists acc.[Account.Plan.Metadata];
+drop procedure if exists acc.[Account.Plan.Update];
+drop procedure if exists acc.[Account.Metadata];
+drop procedure if exists acc.[Account.Update];
+drop type if exists acc.[Account.Plan.TableType];
+drop type if exists acc.[Account.TableType];
+go
+------------------------------------------------
+create type acc.[Account.Plan.TableType]
+as table (
+	Id bigint null,
+	[Name] nvarchar(255),
+	[Code] nvarchar(16),
+	[Memo] nvarchar(255)
+)
+go
+------------------------------------------------
+create type acc.[Account.TableType]
+as table (
+	Id bigint null,
+	[Name] nvarchar(255),
+	[Code] nvarchar(16),
+	[Memo] nvarchar(255),
+	[ParentAccount] bigint
+)
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Plan.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Account acc.[Account.Plan.TableType];
+	select [Account!Account!Metadata] = null, * from @Account;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Plan.Update]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Account acc.[Account.Plan.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	declare @rtable table(id bigint);
+	declare @id bigint;
+	merge acc.Accounts as t
+	using @Account as s
+	on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Code] = s.[Code],
+		t.[Memo] = s.Memo
+	when not matched by target then insert
+		(TenantId, Code, [Name], [Memo]) values
+		(@TenantId, s.Code, s.[Name], s.Memo)
+	output inserted.Id into @rtable(id);
+	select @id = id from @rtable;
+	exec acc.[Account.Plan.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, 
+		@UserId = @UserId, @Id = @id;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Account acc.[Account.TableType];
+	select [Account!Account!Metadata] = null, * from @Account;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Update]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Account acc.[Account.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	declare @rtable table(id bigint);
+	declare @id bigint;
+	declare @plan bigint;
+
+	-- get plan id
+	select @plan = isnull(p.[Plan], p.Id) from 
+		@Account a inner join acc.Accounts p on a.ParentAccount = p.Id;
+
+	merge acc.Accounts as t
+	using @Account as s
+	on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Code] = s.[Code],
+		t.[Memo] = s.Memo
+	when not matched by target then insert
+		(TenantId, [Plan], Parent, Code, [Name], [Memo]) values
+		(@TenantId, @plan, s.ParentAccount, s.Code, s.[Name], s.Memo)
+	output inserted.Id into @rtable(id);
+	select @id = id from @rtable;
+	exec acc.[Account.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, 
+		@UserId = @UserId, @Id = @id;
 end
 go
 
@@ -711,7 +953,119 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Operations!TOperation!Array] = null
+	select [Groups!TGroup!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
+		[Children!TOperation!LazyArray] = null
+	from doc.OperationGroups 
+	where TenantId = @TenantId
+	order by [Order];
+
+	-- children declaration. same as Children proc
+	select [!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo
+	from doc.Operations where 1 <> 1;
+end
+go
+-------------------------------------------------
+create or alter procedure doc.[Operation.Children]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id nvarchar(16)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Children!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo
+	from doc.Operations o 
+	where TenantId = @TenantId and [Group] = @Id
+	order by Id;
+end
+go
+-------------------------------------------------
+create or alter procedure doc.[Operation.Load]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint = null,
+@Parent nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
+		[Group]
+	from doc.Operations o 
+	where TenantId = @TenantId and Id=@Id;
+
+	select [Params!TParam!Object] = null, [ParentGroup] = @Parent;
+end
+go
+-------------------------------------------------
+drop procedure if exists doc.[Operation.Metadata];
+drop procedure if exists doc.[Operation.Update];
+drop type if exists doc.[Operation.TableType];
+go
+-------------------------------------------------
+create type doc.[Operation.TableType]
+as table(
+	Id bigint null,
+	[Group] nvarchar(16),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure doc.[Operation.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Operation doc.[Operation.TableType];
+	select [Operation!Operation!Metadata] = null, * from @Operation;
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Operation.Update]
+@TenantId bigint = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Operation doc.[Operation.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	
+	declare @rtable table(id bigint);
+	declare @Id bigint;
+
+	merge doc.Operations as t
+	using @Operation as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Memo] = s.[Memo]
+	when not matched by target then insert
+		(TenantId, [Group], [Name], Memo) values
+		(@TenantId, s.[Group], s.[Name], s.Memo)
+	output inserted.Id into @rtable(id);
+	select top(1) @Id = id from @rtable;
+	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,
+		@Id = @Id;
+end
+go
+
+/* Document */
+
+------------------------------------------------
+create or alter procedure doc.[Document.Index]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Group nvarchar(8)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 end
 go
 
@@ -767,10 +1121,24 @@ if not exists(select * from cat.ItemTree where Id=1)
 	insert into cat.ItemTree(TenantId, Id, Parent, [Root], [Name]) 
 	values(1, 1, 0, 0, N'(Default hierarchy)');
 go
-
--- AGENT TREE
-if not exists(select * from cat.AgentTree where Id=0)
-	insert into cat.AgentTree(TenantId, Id, Parent, [Root], [Name]) 
-	values(1, 0, 0, 0, N'Root');
+-------------------------------------------------
+-- OPERATION GROUPS
+begin
+	set nocount on;
+	declare @og table(Id nvarchar(16), [Order] int, [Name] nvarchar(255), Memo nvarchar(255));
+	insert into @og (Id, [Order], [Name], [Memo]) values
+		(N'Sales', 1, N'Продажі та маркетинг', N'Перелік операцій для продажів та маркетингу');
+	merge doc.OperationGroups as t
+	using @og as s on t.Id = s.Id and t.TenantId = 1
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.[Memo] = s.[Memo]
+	when not matched by target then insert
+		(TenantId, Id, [Order], [Name], [Memo]) values
+		(1, s.Id, s.[Order], s.[Name], s.Memo)
+	when not matched by source and t.TenantId = 1 then delete;
+end
 go
+
 

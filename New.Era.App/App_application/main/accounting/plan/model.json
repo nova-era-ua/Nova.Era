@@ -1,9 +1,11 @@
 ﻿{
-  "$schema": "../../@schemas/model-json-schema.json#",
-  "schema": "",
-  "model": "",
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "acc",
+  "model": "Account",
   "actions": {
     "index": {
+      "index": true,
+      "template": "index.template",
       "view": "index.view"
     }
   }

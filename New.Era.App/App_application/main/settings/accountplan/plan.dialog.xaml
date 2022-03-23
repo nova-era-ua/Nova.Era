@@ -1,0 +1,14 @@
+﻿<!-- Edit Account plan -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="{Bind Account.$Title, Format='@[Properties] [{0}]'}" Size="Small" Overflow="True">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid>
+		<TextBox Label="@[Code]" Value="{Bind Account.Code}" Width="13rem" UpdateTrigger="Input" Bold="True"/>
+		<TextBox Label="@[Name]" Value="{Bind Account.Name}" UpdateTrigger="Input" />
+		<TextBox Label="@[Memo]" Value="{Bind Account.Memo}" UpdateTrigger="Input" Multiline="True"/>
+	</Grid>
+</Dialog>
+

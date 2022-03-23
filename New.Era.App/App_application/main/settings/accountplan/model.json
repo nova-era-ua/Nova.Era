@@ -1,0 +1,26 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "acc",
+  "model": "Account",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "index.template",
+      "view": "index.view"
+    }
+  },
+  "dialogs": {
+    "editPlan": {
+      "model": "Account.Plan",
+      "template": "plan.template",
+      "view": "plan.dialog"
+    },
+    "edit": {
+      "template": "edit.template",
+      "view": "edit.dialog"
+    }
+  },
+  "commands": {
+
+  }
+}

@@ -1,0 +1,7 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Size="Max">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}" />
+	</Dialog.Buttons>
+
+</Dialog>

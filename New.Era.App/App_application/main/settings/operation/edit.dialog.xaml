@@ -13,11 +13,14 @@
 	<Block Margin="1rem">
 		<TabBar Value="{Bind Root.$Tab}" Margin="0">
 			<TabButton Content="Документ" ActiveValue="" />
-			<TabButton Content="Журнали" ActiveValue="Jourual" />
+			<TabButton Content="Бухгалтерський облік" ActiveValue="Jourual" />
 		</TabBar>
 		<Block Margin="1rem,0,0,0">
 			<Switch Expression="{Bind Root.$Tab}">
 				<Case Value="">
+					<ComboBox Label="Форма" ItemsSource="{Bind Forms}" Value="{Bind Operation.Form}">
+						<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+					</ComboBox>
 					<Grid Padding="0">
 						<ComboBox Label="@[Agent]">
 							<ComboBoxItem Content="Схований"/>

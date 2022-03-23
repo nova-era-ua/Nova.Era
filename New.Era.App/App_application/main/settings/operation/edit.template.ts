@@ -7,6 +7,7 @@
 		"Operation.Group"(this: any) { return this.Params.ParentGroup;}
 	},
 	validators: {
+		'Operation.Form': '@[Error.Required]',
 		'Operation.Name': '@[Error.Required]'
 	}
 };

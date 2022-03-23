@@ -1,10 +1,15 @@
 ﻿{
-  "$schema": "../../@schemas/model-json-schema.json#",
-  "schema": "",
-  "model": "",
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "doc",
+  "model": "Document",
   "actions": {
     "index": {
-      "view": "index.view"
+      "index": true,
+      "view": "../../document/index.view",
+      "template": "../../document/index.template",
+      "parameters": {
+        "Group": "Sales"
+      }
     }
   }
 }

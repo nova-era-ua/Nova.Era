@@ -1,0 +1,32 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Grid Height="100%" Rows="Auto,1*" Columns="MinMax(25rem;40rem),1px,MinMax(780px;1*)">
+		<Toolbar Style="Light" Padding="0">
+			<Button Icon="Plus">
+				<Button.DropDown>
+					<DropDownMenu>
+						<MenuItem Content="@[CreateAccountPlan]"
+							Command="{BindCmd Execute, CommandName=createPlan}"/>
+						<MenuItem Content="@[CreateAccount]"
+							Command="{BindCmd Execute, CommandName=createAccount, Argument={Bind Accounts.$selected}}"/>
+					</DropDownMenu>
+				</Button.DropDown>
+			</Button>
+			<Button Icon="Edit" 
+					Command="{BindCmd Execute, CommandName=edit, Argument={Bind Accounts.$selected}}"/>
+			<Separator />
+			<Button Icon="Reload" Command="{BindCmd Reload}"/>
+			<Button Icon="Menu" Toolbar.Align="Right">
+				<Button.DropDown>
+					<DropDownMenu Direction="DownLeft">
+						<MenuItem Content="@[Import]"/>
+					</DropDownMenu>
+				</Button.DropDown>
+			</Button>
+		</Toolbar>
+		<GridDivider Grid.Row="1" Grid.Col="2" Grid.RowSpan="2"/>
+		<TreeView Grid.Row="2" Grid.Col="1" Grid.VAlign="Stretch" FolderSelect="True" TestId="AccountPlan"
+						ItemsSource="{Bind Accounts}" AutoSelect="FirstItem">
+			<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}"/>
+		</TreeView>
+	</Grid>
+</Page>

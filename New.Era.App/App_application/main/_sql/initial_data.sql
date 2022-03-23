@@ -31,4 +31,24 @@ begin
 	when not matched by source and t.TenantId = 1 then delete;
 end
 go
+-------------------------------------------------
+-- DOCUMENT FORMS
+begin
+	set nocount on;
+	declare @df table(Id nvarchar(16), [Name] nvarchar(255), [Url] nvarchar(255));
+	insert into @df (Id, [Name], [Url]) values
+		(N'invoice',    N'Рахунок клієнту', N'invoice'),
+		(N'waybillout', N'Видаткова накладна', N'waybillout')
+	merge doc.DocumentForms as t
+	using @df as s on t.Id = s.Id and t.TenantId = 1
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Url] = s.[Url]
+	when not matched by target then insert
+		(TenantId, Id, [Name], [Url]) values
+		(1, s.Id, s.[Name], s.[Url])
+	when not matched by source and t.TenantId = 1 then delete;
+end
+go
+
 

@@ -14,8 +14,20 @@ if not exists(select * from a2sys.SysParams where [Name] = N'AppTitle')
 	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'New Era');
 go
 ------------------------------------------------
-create or alter procedure a2ui.[Menu.Simple.User.Load]
+create or alter procedure a2ui.[Menu.Companies]
 @TenantId int = 0,
+@UserId bigint = null
+as
+begin
+	-- all companies for the current user
+	select [Companies!TCompany!Array] = null, c.Id, c.[Name], 
+		[Current] = cast(1 as bit)
+	from comp.Companies c where TenantId = @TenantId;
+end
+go
+------------------------------------------------
+create or alter procedure a2ui.[Menu.Simple.User.Load]
+@TenantId int = 1,
 @UserId bigint = null,
 @Mobile bit = 0
 as
@@ -42,7 +54,7 @@ begin
 	order by RT.[Level], m.[Order], RT.[Id];
 
 	-- companies
-	exec a2security.[User.Companies] @UserId = @UserId;
+	exec a2ui.[Menu.Companies] @TenantId = @TenantId, @UserId = @UserId;
 
 	-- system parameters
 	select [SysParams!TParam!Object]= null, [AppTitle], [AppSubTitle], [SideBarMode], [NavBarMode], [Pages]
@@ -63,20 +75,23 @@ begin
 	values
 		(1,  null,  0, N'Main',         null,         null, null),
 		(10,    1,  10, N'@[Dashboard]',      N'dashboard',   N'dashboard-outline', null),
-		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'list', null),
+		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'shopping', null),
 		(12,    1,  12, N'@[StockPurchases]', N'purchase',    N'cart', null),
 		(13,    1,  13, N'@[Accounting]',     N'accounting',  N'calc', null),
-		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list', N'border-top'),
-		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', null),
+		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list',         N'border-top'),
+		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
 		(111,   11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(112,   11, 12, N'@[Operations]',     N'operation', N'list', null),
+		(112,   11, 12, N'@[Operations]',     N'operation', N'file-content', N'border-top'),
 		(121,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(122,   12, 12, N'@[Operations]',     N'operation', N'file-content', N'border-top'),
 		(131,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account', null),
-		(301,   30, 10, N'@[Agents]',        N'agent',     N'users', null),
+		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account',    N'border-top'),
+		(133,   13, 10, N'@[Journal]',        N'journal',  N'file-content',  null),
+		(301,   30, 10, N'@[Agents]',        N'agent',     N'users',   null),
 		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline', null),
-		(309,   30, 90, N'@[Other]',         N'other',     N'items', N'border-top'),
-		(901,   90, 10, N'@[Operations]',    N'operation', N'list', null);
+		(309,   30, 90, N'@[Other]',         N'other',       N'items',   N'border-top'),
+		(901,   90, 10, N'@[AccountsPlan]',  N'accountplan', N'account',      null),
+		(902,   90, 11, N'@[Operations]',    N'operation',   N'file-content', null);
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 999;
 end

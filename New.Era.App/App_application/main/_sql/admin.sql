@@ -14,24 +14,15 @@ begin
 end
 go
 ------------------------------------------------
-if not exists(select * from a2security.Companies)
+if not exists(select * from comp.Companies)
 begin
 	set nocount on;
 	set transaction isolation level read committed;
 
 	declare @rtable table(id bigint);
-	begin tran;
-	insert into a2security.Companies ([Name]) 
+
+	insert into comp.Companies (TenantId, [Name]) 
 	output inserted.Id into @rtable(id)
-	values (N'Моє підприємство');
-	
-	declare @comp bigint;
-	select @comp = id from @rtable;
-
-	insert into a2security.UserCompanies([User], Company, [Enabled])
-	values (99, @comp, 1);
-
-	update a2security.Users set Company = @comp where Id=99;
-	commit tran;
+	values (1, N'Моє підприємство');
 end
 go

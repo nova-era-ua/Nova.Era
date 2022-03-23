@@ -9,19 +9,24 @@
 @Warehouse=Склад
 @WarehouseFrom=Склад звідки
 @WarehouseTo=Склад куди
+@Journal=Журнал
 ;
 @Folder=Папка
 @Agents=Контрагенти
 @Items=Об'єкти обліку
 @CreateFolder=Створити папку
 @CreateSection=Створити розділ
+@CreateAccountPlan=Створити план рахунків
+@CreateAccount=Створити рахунок
 @ParentFolder=Знаходиться в папці
 @NewFolder=Нова папка
 @NewItem=Новий
 @NewItemW=Нова
+@Analysts=Aналітика
 @SearchResult=[Результат пошуку]
 @ItemProperties=Властивості елементу
 @OperationProperties=Властивості операції
+@Import=Імпортувати
 ;
 @Article=Артикул
 ;

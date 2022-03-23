@@ -1,14 +1,43 @@
 ﻿/*
 main structure
 */
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'cat')
 	exec sp_executesql N'create schema cat';
 go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'doc')
 	exec sp_executesql N'create schema doc';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'acc')
+	exec sp_executesql N'create schema acc';
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'comp')
+	exec sp_executesql N'create schema comp';
+go
+------------------------------------------------
+grant execute on schema::comp to public;
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
+grant execute on schema::acc to public;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'comp' and SEQUENCE_NAME = N'SQ_Companies')
+	create sequence comp.SQ_Companies as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'comp' and TABLE_NAME=N'Companies')
+create table comp.Companies
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Companies_PK default(next value for comp.SQ_Companies),
+	Void bit not null 
+		constraint DF_Companies_Void default(0),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Companies primary key (TenantId, Id),
+);
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -123,6 +152,27 @@ create table cat.Agents
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Accounts')
+	create sequence cat.SQ_Accounts as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'acc' and TABLE_NAME=N'Accounts')
+create table acc.Accounts (
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Accounts_PK default(next value for cat.SQ_Accounts),
+	Void bit not null 
+		constraint DF_Accounts_Void default(0),
+	[Plan] bigint null,
+	Parent bigint null,
+	[Code] nvarchar(16),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Accounts primary key (TenantId, Id),
+		constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationGroups')
 create table doc.OperationGroups
 (
@@ -132,6 +182,18 @@ create table doc.OperationGroups
 	[Order] int,
 	[Memo] nvarchar(255),
 		constraint PK_OperationGroups primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocumentForms')
+create table doc.DocumentForms
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Name] nvarchar(255),
+	[Url] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_DocumentForms primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -151,10 +213,34 @@ create table doc.Operations
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 	[Agent] nchar(1),
+	DocumentForm nvarchar(16),
 	[WarehouseFrom] nchar(1),
 	[WarehouseTo] nchar(1)
 		constraint PK_Operations primary key (TenantId, Id),
 		constraint FK_Operations_Group_OperationGroups foreign key (TenantId, [Group]) references doc.OperationGroups(TenantId, Id),
+		constraint FK_Operations_DocumentForm_OperationGroups foreign key (TenantId, [DocumentForm]) references doc.DocumentForms(TenantId, Id),
+);
+go
+
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')
+	create sequence doc.SQ_Documents as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents')
+create table doc.Documents
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Documents_PK default(next value for doc.SQ_Documents),
+	Company bigint,
+	[Date] datetime,
+	Operation bigint,
+	Agent bigint,
+		constraint PK_Documents primary key (TenantId, Id),
+		constraint FK_Documents_Company_Companies foreign key (TenantId, Company) references comp.Companies(TenantId, Id),
+		constraint FK_Documents_Operation_Operations foreign key (TenantId, [Operation]) references doc.Operations(TenantId, Id),
+		constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id)
 );
 go
 

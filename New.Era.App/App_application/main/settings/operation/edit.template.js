@@ -10,6 +10,7 @@ define(["require", "exports"], function (require, exports) {
             "Operation.Group"() { return this.Params.ParentGroup; }
         },
         validators: {
+            'Operation.Form': '@[Error.Required]',
             'Operation.Name': '@[Error.Required]'
         }
     };
