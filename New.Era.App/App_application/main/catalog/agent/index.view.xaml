@@ -10,7 +10,8 @@
 	</Page.CollectionView>
 	<Grid>
 		<Toolbar Style="Light" Padding="0">
-			<Button Icon="Plus" Content="@[Create]"/>
+			<Button Icon="Plus" Content="@[Create]"
+					Command="{BindCmd Dialog, Action=Append, Argument={Bind Agents}, Url='/catalog/agent/edit'}"/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Parent.ItemsSource}"
 				  GridLines="Horizontal" Hover="True">

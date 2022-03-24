@@ -22,7 +22,7 @@ begin
 	-- all companies for the current user
 	select [Companies!TCompany!Array] = null, c.Id, c.[Name], 
 		[Current] = cast(1 as bit)
-	from comp.Companies c where TenantId = @TenantId;
+	from cat.Agents c where TenantId = @TenantId and Void = 0 and c.Kind = N'Company';
 end
 go
 ------------------------------------------------

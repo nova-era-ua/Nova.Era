@@ -10,6 +10,7 @@
 @WarehouseFrom=Склад звідки
 @WarehouseTo=Склад куди
 @Journal=Журнал
+@Operation=Операція
 ;
 @Folder=Папка
 @Agents=Контрагенти

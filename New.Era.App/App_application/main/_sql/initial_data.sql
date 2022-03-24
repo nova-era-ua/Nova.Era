@@ -2,6 +2,20 @@
 initial data
 */
 
+------------------------------------------------
+if not exists(select * from cat.Agents where Kind=N'Company')
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @rtable table(id bigint);
+
+	insert into cat.Agents (TenantId, Kind, [Name]) 
+	output inserted.Id into @rtable(id)
+	values (1, N'Company', N'Моє підприємство');
+end
+go
+
 -- ITEM TREE
 if not exists(select * from cat.ItemTree where Id=0)
 	insert into cat.ItemTree(TenantId, Id, Parent, [Root], [Name]) 

@@ -12,32 +12,9 @@ if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'acc'
 	exec sp_executesql N'create schema acc';
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'comp')
-	exec sp_executesql N'create schema comp';
-go
-------------------------------------------------
-grant execute on schema::comp to public;
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
 grant execute on schema::acc to public;
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'comp' and SEQUENCE_NAME = N'SQ_Companies')
-	create sequence comp.SQ_Companies as bigint start with 100 increment by 1;
-go
--------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'comp' and TABLE_NAME=N'Companies')
-create table comp.Companies
-(
-	TenantId int not null,
-	Id bigint not null
-		constraint DF_Companies_PK default(next value for comp.SQ_Companies),
-	Void bit not null 
-		constraint DF_Companies_Void default(0),
-	[Name] nvarchar(255),
-	[Memo] nvarchar(255),
-		constraint PK_Companies primary key (TenantId, Id),
-);
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -145,6 +122,7 @@ create table cat.Agents
 		constraint DF_Agents_PK default(next value for cat.SQ_Agents),
 	Void bit not null 
 		constraint DF_Agents_Void default(0),
+	Kind nvarchar(16), /* Company, Agent */
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
@@ -233,12 +211,15 @@ create table doc.Documents
 	TenantId int not null,
 	Id bigint not null
 		constraint DF_Documents_PK default(next value for doc.SQ_Documents),
-	Company bigint,
+	Company bigint not null,
 	[Date] datetime,
-	Operation bigint,
+	Operation bigint not null,
+	[Sum] money not null
+		constraint DF_Documents_Sum default(0),
 	Agent bigint,
+	Memo nvarchar(255),
 		constraint PK_Documents primary key (TenantId, Id),
-		constraint FK_Documents_Company_Companies foreign key (TenantId, Company) references comp.Companies(TenantId, Id),
+		constraint FK_Documents_Company_Agents foreign key (TenantId, Company) references cat.Agents(TenantId, Id),
 		constraint FK_Documents_Operation_Operations foreign key (TenantId, [Operation]) references doc.Operations(TenantId, Id),
 		constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id)
 );
@@ -247,4 +228,6 @@ go
 /*
 drop table doc.Operations
 drop table doc.OperationGroups
+drop table doc.Documents
+drop table cat.Agents
 */

@@ -16,18 +16,23 @@ define(["require", "exports"], function (require, exports) {
         if (!sel)
             return;
         let url = `/document/${sel.Form.Url}/edit`;
-        let operation = await ctrl.$showDialog(url, null, { Operation: sel.Id });
-        console.dir(operation);
+        let docsrc = await ctrl.$showDialog(url, null, { Operation: sel.Id });
+        let doc = sel.Documents.$append(docsrc);
+        doc.$select();
     }
     function editSelected(docs) {
-        alert('editSelected');
-    }
-    async function edit(doc) {
-        const ctrl = this.$ctrl;
+        let doc = docs.$selected;
         if (!doc)
             return;
-        let url = `/document/${doc.FormUrl}/edit`;
+        alert(doc);
+        edit.call(this, doc);
+    }
+    async function edit(doc) {
+        if (!doc)
+            return;
+        const ctrl = this.$ctrl;
+        let url = `/document/${doc.Operation.Form.Url}/edit`;
         let rdoc = await ctrl.$showDialog(url, { Id: doc.Id });
-        console.dir(rdoc);
+        doc.$merge(rdoc);
     }
 });

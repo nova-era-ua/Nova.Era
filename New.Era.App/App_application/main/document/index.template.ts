@@ -18,18 +18,22 @@ async function create(this: TRoot) {
 	let sel = this.Operations.$selected;
 	if (!sel) return;
 	let url = `/document/${sel.Form.Url}/edit`
-	let operation = await ctrl.$showDialog(url, null, { Operation: sel.Id });
-	console.dir(operation);
+	let docsrc = await ctrl.$showDialog(url, null, { Operation: sel.Id });
+	let doc = sel.Documents.$append(docsrc);
+	doc.$select();
 }
 
 function editSelected(docs: TDocuments) {
-	alert('editSelected')
+	let doc = docs.$selected;
+	if (!doc) return;
+	alert(doc);
+	edit.call(this, doc);
 }
 
 async function edit(this: TRoot, doc: TDocument) {
-	const ctrl = this.$ctrl;
 	if (!doc) return;
-	let url = `/document/${doc.FormUrl}/edit`
+	const ctrl = this.$ctrl;
+	let url = `/document/${doc.Operation.Form.Url}/edit`
 	let rdoc = await ctrl.$showDialog(url, { Id: doc.Id });
-	console.dir(rdoc);
+	doc.$merge(rdoc);
 }

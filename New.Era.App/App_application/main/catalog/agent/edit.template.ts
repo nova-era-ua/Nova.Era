@@ -1,9 +1,10 @@
 ﻿
 const template: Template = {
 	properties: {
+		'TAgent.$Title'() {return this.Id || '@[NewItem]'}
 	},
 	validators: {
-		'Agent.Name': '@[Required]'
+		'Agent.Name': '@[Error.Required]'
 	}
 };
 

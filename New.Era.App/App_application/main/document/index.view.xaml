@@ -11,7 +11,7 @@
 		<GridDivider Grid.Col="2" Grid.Row="1" Grid.RowSpan="2"/>
 		<Toolbar Grid.Row="1" Grid.Col="3" Style="Light">
 			<Button Icon="Plus" Command="{BindCmd Execute, CommandName=create}"/>
-			<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editSelected, Argument={Bind Operations}}"/>
+			<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editSelected, Argument={Bind Operations.Selected(Documents)}}"/>
 			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload, Argument={Bind Operations.Selected(Documents)}}"/>
 		</Toolbar>
@@ -19,7 +19,9 @@
 			<DataGrid ItemsSource="{Bind Parent.ItemsSource}" Style="Light" GridLines="Horizontal" Hover="True">
 				<DataGridColumn Content="{Bind Id}" Role="Id"/>
 				<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
-				<DataGridColumn />
+				<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>
+				<DataGridColumn Header="@[Operation]" Content="{Bind Operation.Name}"/>
+				<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 				<DataGridColumn Fit="True" Wrap="NoWrap">
 					<CommandBar Visibility="Hover">
 						<Button Icon="Edit" Command="{BindCmd Execute, CommandName=edit, Argument={Bind}}"/>

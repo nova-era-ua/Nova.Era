@@ -91,6 +91,9 @@
     <Content Include="App_application\main\accounting\journal\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\catalog\agent\edit.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
