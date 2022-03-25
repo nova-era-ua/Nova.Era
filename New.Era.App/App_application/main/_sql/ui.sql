@@ -74,26 +74,51 @@ begin
 	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon, ClassName) 
 	values
 		(1,  null,  0, N'Main',         null,         null, null),
-		(10,    1,  10, N'@[Dashboard]',      N'dashboard',   N'dashboard-outline', null),
-		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'shopping', null),
-		(12,    1,  12, N'@[StockPurchases]', N'purchase',    N'cart', null),
-		(13,    1,  13, N'@[Accounting]',     N'accounting',  N'calc', null),
+		(10,    1,  10, N'@[Dashboard]',     N'dashboard',   N'dashboard-outline', null),
+		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
+		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', null),
+		(13,    1,  13, N'@[Purchases]',     N'purchase',    N'cart', null),
+		(14,    1,  14, N'@[Manufacturing]', N'manufacturing',  N'wrench', null),
+		(15,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
+		(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
+		(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
+		(18,    1,  18, N'@[MyCompany]',     N'mycompany', N'company', N'border-top'),
 		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list',         N'border-top'),
 		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
-		(111,   11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(112,   11, 12, N'@[Operations]',     N'operation', N'file-content', N'border-top'),
-		(121,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(122,   12, 12, N'@[Operations]',     N'operation', N'file-content', N'border-top'),
-		(131,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(132,   13, 10, N'@[AccountsPlan]',   N'plan',     N'account',    N'border-top'),
-		(133,   13, 10, N'@[Journal]',        N'journal',  N'file-content',  null),
+		-- CRM
+		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
+		-- Sales
+		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(1202,   12, 12, N'@[Sales]',          N'sales', N'shopping', N'border-top'),
+		(1204,   12, 14, N'@[Payment]',        N'payment',   N'currency-uah', null),
+		(1220,   12, 30, N'@[Customers]',      N'agent',     N'users', N'border-top'),
+		(1221,   12, 31, N'@[Items]',          N'item',      N'package-outline', null),
+		(1222,   12, 32, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1230,   12, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
+		(1231,   12, 41, N'@[Service]',        N'service',   N'gear-outline', null),
+		-- Purchase
+		(1301,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(1302,   13, 11, N'@[Purchases]',      N'purchase',  N'cart', N'border-top'),
+		(1303,   13, 12, N'@[Warehouse]',      N'warehouse', N'warehouse', null),
+		(1304,   13, 13, N'@[Payment]',        N'payment',   N'currency-uah', null),
+		(1310,   13, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
+		(1311,   13, 21, N'@[Prices]',         N'price',     N'chart-column', null),
+		(1320,   13, 30, N'@[Suppliers]',      N'agent',     N'users', N'border-top'),
+		(1321,   13, 31, N'@[Items]',          N'item',      N'package-outline', null),
+		(1322,   13, 32, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1330,   13, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
+		(1331,   13, 41, N'@[Service]',        N'service',   N'gear-outline', null),
+		-- Accounting
+		(152,   15, 10, N'@[AccountsPlan]',   N'plan',     N'account',    N'border-top'),
+		(153,   15, 12, N'@[Journal]',        N'journal',  N'file-content',  null),
 		(301,   30, 10, N'@[Agents]',        N'agent',     N'users',   null),
 		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline', null),
 		(309,   30, 90, N'@[Other]',         N'other',       N'items',   N'border-top'),
 		(901,   90, 10, N'@[AccountsPlan]',  N'accountplan', N'account',      null),
 		(902,   90, 11, N'@[Operations]',    N'operation',   N'file-content', null);
 
-	exec a2ui.[MenuModule.Merge] @menu, 1, 999;
+	exec a2ui.[MenuModule.Merge] @menu, 1, 9999;
 end
 go
 ------------------------------------------------

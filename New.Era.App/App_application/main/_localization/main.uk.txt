@@ -1,4 +1,8 @@
-﻿@Settings=Налаштування
+﻿@Crm=CRM
+@Sales=Продажі
+@Purchases=Закупівлі
+@Manufacturing=Виробництво
+@Settings=Налаштування
 @StockPurchases=Запаси та закупівлі
 @SalesMarketing=Продаж та маркетинг
 @Accounting=Бухгалтерія
@@ -11,6 +15,14 @@
 @WarehouseTo=Склад куди
 @Journal=Журнал
 @Operation=Операція
+@Payment=Розрахунки
+@CatalogOther=Інші довідники
+@Reports=Звіти
+@Service=Сервіс
+@Planning=Планування
+@Prices=Ціни
+@Suppliers=Постачальники
+@Customers=Покупці
 ;
 @Folder=Папка
 @Agents=Контрагенти

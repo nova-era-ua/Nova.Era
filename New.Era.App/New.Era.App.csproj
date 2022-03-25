@@ -144,6 +144,7 @@
     <None Include="App_application\main\document\waybillout\model.json" />
     <None Include="App_application\main\document\invoice\model.json" />
     <None Include="App_application\main\purchase\dashboard\model.json" />
+    <None Include="App_application\main\purchase\item\model.json" />
     <None Include="App_application\main\purchase\operation\model.json" />
     <None Include="App_application\main\sales\operation\model.json" />
     <None Include="App_application\main\sales\dashboard\model.json" />

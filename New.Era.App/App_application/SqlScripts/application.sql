@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1005
-generated: 24.03.2022 12:18:43
+generated: 25.03.2022 06:47:02
 */
 
 
@@ -316,10 +316,14 @@ begin
 	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon, ClassName) 
 	values
 		(1,  null,  0, N'Main',         null,         null, null),
-		(10,    1,  10, N'@[Dashboard]',      N'dashboard',   N'dashboard-outline', null),
-		(11,    1,  11, N'@[SalesMarketing]', N'sales',       N'shopping', null),
-		(12,    1,  12, N'@[StockPurchases]', N'purchase',    N'cart', null),
-		(13,    1,  13, N'@[Accounting]',     N'accounting',  N'calc', null),
+		(10,    1,  10, N'@[Dashboard]',  N'dashboard',   N'dashboard-outline', null),
+		(11,    1,  11, N'@[CRM]',        N'crm',   N'dashboard-outline', null),
+		(12,    1,  12, N'@[Sales]',      N'sales',       N'shopping', null),
+		(13,    1,  13, N'@[Purchases]',  N'purchase',    N'cart', null),
+		(14,    1,  14, N'@[Manufacturing]', N'manufacturing',  N'items', null),
+		(15,    1,  15, N'@[Accounting]',     N'accounting',  N'calc', null),
+		(16,    1,  16, N'@[Payroll]',     N'payroll',  N'calc', null),
+		(17,    1,  17, N'@[Tax]',     N'tax',  N'calc', null),
 		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list',         N'border-top'),
 		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
 		(111,   11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
