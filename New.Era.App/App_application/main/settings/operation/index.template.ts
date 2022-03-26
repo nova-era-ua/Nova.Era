@@ -1,6 +1,6 @@
 ﻿const template: Template = {
 	properties: {
-		'TRoot.$CreateData'() { return { Parent: this.Groups.$selected?.Id };}
+		'TRoot.$CreateData'() { return { Parent: this.Menu.$selected?.Id };}
 	},
 	validators: {
 	}

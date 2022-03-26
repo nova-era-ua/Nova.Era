@@ -7,7 +7,10 @@
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
 		<Taskpad Width="20rem" Collapsible="False" Margin="0,0,0,1rem">
-			<Static Label="Операція" Value="{Bind Document.Operation.Name}"/>
+			<ComboBox Label="Операція" ItemsSource="{Bind Operations}"
+					  Value="{Bind Document.Operation}">
+				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+			</ComboBox>
 		</Taskpad>
 	</Dialog.Taskpad>
 	<Header Content="Видаткова накладна" />

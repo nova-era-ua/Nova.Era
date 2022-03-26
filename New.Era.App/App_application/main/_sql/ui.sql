@@ -14,18 +14,6 @@ if not exists(select * from a2sys.SysParams where [Name] = N'AppTitle')
 	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'New Era');
 go
 ------------------------------------------------
-create or alter procedure a2ui.[Menu.Companies]
-@TenantId int = 0,
-@UserId bigint = null
-as
-begin
-	-- all companies for the current user
-	select [Companies!TCompany!Array] = null, c.Id, c.[Name], 
-		[Current] = cast(1 as bit)
-	from cat.Agents c where TenantId = @TenantId and Void = 0 and c.Kind = N'Company';
-end
-go
-------------------------------------------------
 create or alter procedure a2ui.[Menu.Simple.User.Load]
 @TenantId int = 1,
 @UserId bigint = null,
@@ -53,9 +41,6 @@ begin
 		inner join a2ui.Menu m on RT.Id=m.Id
 	order by RT.[Level], m.[Order], RT.[Id];
 
-	-- companies
-	exec a2ui.[Menu.Companies] @TenantId = @TenantId, @UserId = @UserId;
-
 	-- system parameters
 	select [SysParams!TParam!Object]= null, [AppTitle], [AppSubTitle], [SideBarMode], [NavBarMode], [Pages]
 	from (select [Name], [Value]=StringValue from a2sys.SysParams) as s
@@ -82,7 +67,6 @@ begin
 		(15,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
 		(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
 		(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
-		(18,    1,  18, N'@[MyCompany]',     N'mycompany', N'company', N'border-top'),
 		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list',         N'border-top'),
 		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
 		-- CRM
@@ -90,7 +74,8 @@ begin
 		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
 		-- Sales
 		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(1202,   12, 12, N'@[Sales]',          N'sales', N'shopping', N'border-top'),
+		(1202,   12, 12, N'@[Orders]',         N'order',     N'task-complete', N'border-top'),
+		(1203,   12, 13, N'@[Sales]',          N'sales',     N'shopping', null),
 		(1204,   12, 14, N'@[Payment]',        N'payment',   N'currency-uah', null),
 		(1220,   12, 30, N'@[Customers]',      N'agent',     N'users', N'border-top'),
 		(1221,   12, 31, N'@[Items]',          N'item',      N'package-outline', null),
@@ -100,7 +85,7 @@ begin
 		-- Purchase
 		(1301,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		(1302,   13, 11, N'@[Purchases]',      N'purchase',  N'cart', N'border-top'),
-		(1303,   13, 12, N'@[Warehouse]',      N'warehouse', N'warehouse', null),
+		(1303,   13, 12, N'@[Warehouse]',      N'stock',     N'warehouse', null),
 		(1304,   13, 13, N'@[Payment]',        N'payment',   N'currency-uah', null),
 		(1310,   13, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
 		(1311,   13, 21, N'@[Prices]',         N'price',     N'chart-column', null),
@@ -115,8 +100,11 @@ begin
 		(301,   30, 10, N'@[Agents]',        N'agent',     N'users',   null),
 		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline', null),
 		(309,   30, 90, N'@[Other]',         N'other',       N'items',   N'border-top'),
-		(901,   90, 10, N'@[AccountsPlan]',  N'accountplan', N'account',      null),
-		(902,   90, 11, N'@[Operations]',    N'operation',   N'file-content', null);
+
+		-- Settings
+		(9010,  90, 10, N'@[Companies]', N'company', N'company', null),
+		(901,   90, 14, N'@[AccountsPlan]',  N'accountplan', N'account',      N'border-top'),
+		(902,   90, 14, N'@[Operations]',    N'operation',   N'file-content', null);
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 9999;
 end
@@ -124,7 +112,6 @@ go
 ------------------------------------------------
 create or alter procedure a2ui.[Catalog.Other.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint
 as
 begin

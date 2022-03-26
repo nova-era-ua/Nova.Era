@@ -110,6 +110,25 @@ create table cat.ItemTreeItems
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Companies')
+	create sequence cat.SQ_Companies as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Companies')
+create table cat.Companies
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Companies_PK default(next value for cat.SQ_Companies),
+	Void bit not null 
+		constraint DF_Companies_Void default(0),
+	[Name] nvarchar(255),
+	[FullName] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Companies primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Agents')
 	create sequence cat.SQ_Agents as bigint start with 100 increment by 1;
 go
@@ -122,7 +141,6 @@ create table cat.Agents
 		constraint DF_Agents_PK default(next value for cat.SQ_Agents),
 	Void bit not null 
 		constraint DF_Agents_Void default(0),
-	Kind nvarchar(16), /* Company, Agent */
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
@@ -151,27 +169,27 @@ create table acc.Accounts (
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationGroups')
-create table doc.OperationGroups
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'FormsMenu')
+create table doc.FormsMenu
 (
 	TenantId int not null,
-	Id nvarchar(16) not null,
+	Id nvarchar(32) not null,
 	[Name] nvarchar(255),
+	[Category] nvarchar(32),
 	[Order] int,
 	[Memo] nvarchar(255),
-		constraint PK_OperationGroups primary key (TenantId, Id)
+		constraint PK_FormsMenu primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocumentForms')
-create table doc.DocumentForms
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Forms')
+create table doc.Forms
 (
 	TenantId int not null,
 	Id nvarchar(16) not null,
 	[Name] nvarchar(255),
-	[Url] nvarchar(255),
 	[Memo] nvarchar(255),
-		constraint PK_DocumentForms primary key (TenantId, Id)
+		constraint PK_Forms primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -185,21 +203,19 @@ create table doc.Operations
 	TenantId int not null,
 	Id bigint not null
 		constraint DF_Operations_PK default(next value for doc.SQ_Operations),
+	Menu nvarchar(32) not null,
 	Void bit not null 
 		constraint DF_Operations_Void default(0),
-	[Group] nvarchar(16),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 	[Agent] nchar(1),
-	DocumentForm nvarchar(16),
+	Form nvarchar(16) not null,
 	[WarehouseFrom] nchar(1),
 	[WarehouseTo] nchar(1)
 		constraint PK_Operations primary key (TenantId, Id),
-		constraint FK_Operations_Group_OperationGroups foreign key (TenantId, [Group]) references doc.OperationGroups(TenantId, Id),
-		constraint FK_Operations_DocumentForm_OperationGroups foreign key (TenantId, [DocumentForm]) references doc.DocumentForms(TenantId, Id),
+		constraint FK_Operations_Menu_FormsMenu foreign key (TenantId, [Menu]) references doc.FormsMenu(TenantId, Id)
 );
 go
-
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')
 	create sequence doc.SQ_Documents as bigint start with 100 increment by 1;
@@ -211,23 +227,24 @@ create table doc.Documents
 	TenantId int not null,
 	Id bigint not null
 		constraint DF_Documents_PK default(next value for doc.SQ_Documents),
-	Company bigint not null,
 	[Date] datetime,
 	Operation bigint not null,
 	[Sum] money not null
 		constraint DF_Documents_Sum default(0),
-	Agent bigint,
+	Company bigint null,
+	Agent bigint null,
 	Memo nvarchar(255),
 		constraint PK_Documents primary key (TenantId, Id),
-		constraint FK_Documents_Company_Agents foreign key (TenantId, Company) references cat.Agents(TenantId, Id),
 		constraint FK_Documents_Operation_Operations foreign key (TenantId, [Operation]) references doc.Operations(TenantId, Id),
+		constraint FK_Documents_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 		constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id)
 );
 go
 
 /*
-drop table doc.Operations
-drop table doc.OperationGroups
 drop table doc.Documents
+drop table doc.Operations
+drop table doc.Forms
+drop table doc.FormsMenu
 drop table cat.Agents
 */

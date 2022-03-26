@@ -4,7 +4,7 @@
 		'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]' }
 	},
 	defaults: {
-		"Operation.Group"(this: any) { return this.Params.ParentGroup;}
+		"Operation.Menu"(this: any) { return this.Params.ParentMenu;}
 	},
 	validators: {
 		'Operation.Form': '@[Error.Required]',

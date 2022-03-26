@@ -3,16 +3,16 @@ initial data
 */
 
 ------------------------------------------------
-if not exists(select * from cat.Agents where Kind=N'Company')
+if not exists(select * from cat.Companies)
 begin
 	set nocount on;
 	set transaction isolation level read committed;
 
 	declare @rtable table(id bigint);
 
-	insert into cat.Agents (TenantId, Kind, [Name]) 
+	insert into cat.Companies (TenantId, [Name]) 
 	output inserted.Id into @rtable(id)
-	values (1, N'Company', N'Моє підприємство');
+	values (1, N'Моє підприємство');
 end
 go
 
@@ -27,40 +27,50 @@ if not exists(select * from cat.ItemTree where Id=1)
 	values(1, 1, 0, 0, N'(Default hierarchy)');
 go
 -------------------------------------------------
--- OPERATION GROUPS
+-- FormsMenu
 begin
 	set nocount on;
-	declare @og table(Id nvarchar(16), [Order] int, [Name] nvarchar(255), Memo nvarchar(255));
-	insert into @og (Id, [Order], [Name], [Memo]) values
-		(N'Sales', 1, N'Продажі та маркетинг', N'Перелік операцій для продажів та маркетингу');
-	merge doc.OperationGroups as t
-	using @og as s on t.Id = s.Id and t.TenantId = 1
+	declare @fu table(Id nvarchar(32), [Order] int, Category nvarchar(32), [Name] nvarchar(255));
+	insert into @fu (Id, [Order], [Category], [Name]) values
+		(N'Sales.Order',   10, N'@[Sales]', N'@[Orders]'),
+		(N'Sales.Sales',   11, N'@[Sales]', N'@[Sales]'),
+		(N'Sales.Payment', 12, N'@[Sales]', N'@[Payment]'),
+		(N'Purchase.Purchase', 20, N'@[Purchases]', N'@[Purchase]'),
+		(N'Purchase.Stock',    21, N'@[Purchases]', N'@[Warehouse]'),
+		(N'Purchase.Payment',  22, N'@[Purchases]', N'@[Payment]');
+	merge doc.FormsMenu as t
+	using @fu as s on t.Id = s.Id and t.TenantId = 1
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Order] = s.[Order],
-		t.[Memo] = s.[Memo]
+		t.Category = s.Category
 	when not matched by target then insert
-		(TenantId, Id, [Order], [Name], [Memo]) values
-		(1, s.Id, s.[Order], s.[Name], s.Memo)
+		(TenantId, Id, [Name], [Order], Category) values
+		(1, s.Id, s.[Name], [Order], Category)
 	when not matched by source and t.TenantId = 1 then delete;
 end
 go
 -------------------------------------------------
--- DOCUMENT FORMS
+-- FORMS
 begin
 	set nocount on;
-	declare @df table(Id nvarchar(16), [Name] nvarchar(255), [Url] nvarchar(255));
-	insert into @df (Id, [Name], [Url]) values
-		(N'invoice',    N'Рахунок клієнту', N'invoice'),
-		(N'waybillout', N'Видаткова накладна', N'waybillout')
-	merge doc.DocumentForms as t
+	declare @df table(Id nvarchar(16), [Name] nvarchar(255));
+	insert into @df (Id, [Name]) values
+		-- Sales
+		(N'invoice',    N'Замовлення клієнта'),
+		(N'waybillout', N'Видаткова накладна'),
+		(N'complcert',  N'Акт виконаних робіт'),
+		-- 
+		(N'waybillin',  N'Прибуткова накладна'),
+		--
+		(N'payorder',  N'Платіжне доручення')
+	merge doc.Forms as t
 	using @df as s on t.Id = s.Id and t.TenantId = 1
 	when matched then update set
-		t.[Name] = s.[Name],
-		t.[Url] = s.[Url]
+		t.[Name] = s.[Name]
 	when not matched by target then insert
-		(TenantId, Id, [Name], [Url]) values
-		(1, s.Id, s.[Name], s.[Url])
+		(TenantId, Id, [Name]) values
+		(1, s.Id, s.[Name])
 	when not matched by source and t.TenantId = 1 then delete;
 end
 go

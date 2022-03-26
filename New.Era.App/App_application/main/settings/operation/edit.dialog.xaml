@@ -18,8 +18,9 @@
 		<Block Margin="1rem,0,0,0">
 			<Switch Expression="{Bind Root.$Tab}">
 				<Case Value="">
-					<ComboBox Label="Форма" ItemsSource="{Bind Forms}" Value="{Bind Operation.Form}">
-						<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+					<ComboBox Label="Форма" ItemsSource="{Bind Forms}" 
+							  Value="{Bind Operation.Form}">
+						<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
 					</ComboBox>
 					<Grid Padding="0">
 						<ComboBox Label="@[Agent]">

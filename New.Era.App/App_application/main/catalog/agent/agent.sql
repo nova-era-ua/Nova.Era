@@ -2,7 +2,6 @@
 -------------------------------------------------
 create or alter procedure cat.[Agent.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint
 as
 begin
@@ -12,13 +11,12 @@ begin
 	select [Agents!TAgent!Array] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
 		FullName, [Memo]
 	from cat.Agents a
-	where TenantId = @TenantId and a.Kind = N'Agent';
+	where TenantId = @TenantId;
 end
 go
 -------------------------------------------------
 create or alter procedure cat.[Agent.Load]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint = null
 as
@@ -59,7 +57,6 @@ go
 ------------------------------------------------
 create or alter procedure cat.[Agent.Update]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Agent cat.[Agent.TableType] readonly
 as
@@ -78,10 +75,10 @@ begin
 		t.[Memo] = s.[Memo],
 		t.[FullName] = s.[FullName]
 	when not matched by target then insert
-		(TenantId, Kind, [Name], FullName, Memo) values
-		(@TenantId, N'Agent', s.[Name], s.FullName, s.Memo)
+		(TenantId, [Name], FullName, Memo) values
+		(@TenantId, s.[Name], s.FullName, s.Memo)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
-	exec cat.[Agent.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId, @Id = @id;
+	exec cat.[Agent.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go

@@ -4,7 +4,7 @@ const dateUtils: UtilsDate = require("std:utils").date;
 const template: Template = {
 	defaults: {
 		'Document.Date': dateUtils.today(),
-		'Document.Operation'(this: any) { return this.Params.Operation;}
+		'Document.Operation'(this: any) { return this.Operations[0];}
 	},
 	properties: {
 	},

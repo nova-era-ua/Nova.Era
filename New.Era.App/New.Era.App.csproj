@@ -71,6 +71,12 @@
     <Content Include="App_application\main\document\document.sql" />
     <Content Include="App_application\main\settings\operation\operation.sql" />
     <Content Include="App_application\main\settings\accountplan\plan.sql" />
+    <Content Include="App_application\main\_assets\main.css">
+      <DependentUpon>main.less</DependentUpon>
+    </Content>
+    <Content Include="App_application\main\_assets\main.min.css">
+      <DependentUpon>main.css</DependentUpon>
+    </Content>
     <Content Include="App_application\main\_sql\initial_data.sql" />
     <Content Include="todo.txt" />
     <Content Include="App_application\main\catalog\item\editItem.dialog.xaml">
@@ -94,6 +100,9 @@
     <Content Include="App_application\main\catalog\agent\edit.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\crm\dashboard\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -113,9 +122,6 @@
     <Content Include="App_application\main\sales\operation\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\purchase\operation\index.view.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="App_application\main\settings\accountplan\edit.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -125,13 +131,31 @@
     <Content Include="App_application\main\settings\accountplan\plan.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\document\index.view.xaml">
+    <Content Include="App_application\main\document\stock.index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\document\invoice\edit.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\document\waybillout\edit.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\sales\report\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\sales\service\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\sales\catalog\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\purchase\catalog\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\purchase\report\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\purchase\service\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -141,19 +165,39 @@
     <None Include="App_application\%40schemas\model-json-schema.json" />
     <None Include="App_application\%40schemas\sql-json-schema.json" />
     <None Include="App_application\main\accounting\journal\model.json" />
+    <None Include="App_application\main\crm\dashboard\model.json" />
     <None Include="App_application\main\document\waybillout\model.json" />
     <None Include="App_application\main\document\invoice\model.json" />
+    <None Include="App_application\main\purchase\agent\model.json" />
+    <None Include="App_application\main\purchase\catalog\model.json" />
     <None Include="App_application\main\purchase\dashboard\model.json" />
     <None Include="App_application\main\purchase\item\model.json" />
-    <None Include="App_application\main\purchase\operation\model.json" />
+    <None Include="App_application\main\purchase\payment\model.json" />
+    <None Include="App_application\main\purchase\stock\model.json" />
+    <None Include="App_application\main\purchase\purchase\model.json" />
+    <None Include="App_application\main\purchase\report\model.json" />
+    <None Include="App_application\main\purchase\service\model.json" />
+    <None Include="App_application\main\sales\agent\model.json" />
+    <None Include="App_application\main\sales\catalog\model.json" />
+    <None Include="App_application\main\sales\item\model.json" />
+    <None Include="App_application\main\sales\service\model.json" />
+    <None Include="App_application\main\sales\report\model.json" />
     <None Include="App_application\main\sales\operation\model.json" />
     <None Include="App_application\main\sales\dashboard\model.json" />
+    <None Include="App_application\main\sales\order\model.json" />
+    <None Include="App_application\main\sales\payment\model.json" />
+    <None Include="App_application\main\sales\sales\model.json" />
     <None Include="App_application\main\settings\operation\model.json" />
     <None Include="App_application\main\accounting\dashboard\model.json" />
     <None Include="App_application\main\accounting\plan\model.json" />
     <None Include="App_application\main\catalog\agent\model.json" />
     <Content Include="App_application\main\catalog\item\item.sql" />
     <None Include="App_application\main\settings\accountplan\model.json" />
+    <None Include="App_application\main\_assets\main.less" />
+    <None Include="compilerconfig.json" />
+    <None Include="compilerconfig.json.defaults">
+      <DependentUpon>compilerconfig.json</DependentUpon>
+    </None>
     <None Include="packages.config" />
     <Content Include="tsconfig.json" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
@@ -174,7 +218,7 @@
     <None Include="App_application\sql.json" />
     <TypeScriptCompile Include="App_application\main\catalog\_common\tree.d.ts" />
     <TypeScriptCompile Include="App_application\main\document\index.d.ts" />
-    <TypeScriptCompile Include="App_application\main\document\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\stock.index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\invoice\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\waybillout\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\operation\index.template.ts" />

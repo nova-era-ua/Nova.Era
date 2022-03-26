@@ -2,12 +2,15 @@
 @Sales=Продажі
 @Purchases=Закупівлі
 @Manufacturing=Виробництво
+@Payroll=Зарплата
 @Settings=Налаштування
 @StockPurchases=Запаси та закупівлі
 @SalesMarketing=Продаж та маркетинг
 @Accounting=Бухгалтерія
 @AccountsPlan=Плани рахунків
 @Operations=Операції
+@Orders=Замовлення
+@Companies=Підприємства
 @Other=Інше
 @Agent=Контрагент
 @Warehouse=Склад
@@ -23,6 +26,7 @@
 @Prices=Ціни
 @Suppliers=Постачальники
 @Customers=Покупці
+@Leads=Ліди
 ;
 @Folder=Папка
 @Agents=Контрагенти

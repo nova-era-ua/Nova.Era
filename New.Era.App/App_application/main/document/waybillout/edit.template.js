@@ -5,7 +5,7 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         defaults: {
             'Document.Date': dateUtils.today(),
-            'Document.Operation'() { return this.Params.Operation; }
+            'Document.Operation'() { return this.Operations[0]; }
         },
         properties: {},
         commands: {

@@ -9,11 +9,11 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Groups!TGroup!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
+	select [Menu!TMenu!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo, Category,
 		[Children!TOperation!LazyArray] = null
-	from doc.OperationGroups 
+	from doc.FormsMenu
 	where TenantId = @TenantId
-	order by [Order];
+	order by [Order], Id;
 
 	-- children declaration. same as Children proc
 	select [!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo
@@ -25,7 +25,7 @@ create or alter procedure doc.[Operation.Children]
 @TenantId int = 1,
 @CompanyId bigint = 0,
 @UserId bigint,
-@Id nvarchar(16)
+@Id nvarchar(32)
 as
 begin
 	set nocount on;
@@ -33,7 +33,7 @@ begin
 
 	select [Children!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo
 	from doc.Operations o 
-	where TenantId = @TenantId and [Group] = @Id
+	where TenantId = @TenantId and Menu = @Id
 	order by Id;
 end
 go
@@ -49,19 +49,17 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
-		[Group],
-		[Form.Id!TForm!Id] = df.Id, [Form.Name!TForm!Name] = df.[Name]
+		[Menu], [Form]
 	from doc.Operations o 
-		left join doc.DocumentForms df on o.TenantId = df.TenantId and o.DocumentForm = df.Id
 	where o.TenantId = @TenantId and o.Id=@Id;
 
 
 	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name]
-	from doc.DocumentForms df
+	from doc.Forms df
 	where df.TenantId = @TenantId
 	order by df.Id;
 
-	select [Params!TParam!Object] = null, [ParentGroup] = @Parent;
+	select [Params!TParam!Object] = null, [ParentMenu] = @Parent;
 end
 go
 -------------------------------------------------
@@ -73,7 +71,7 @@ go
 create type doc.[Operation.TableType]
 as table(
 	Id bigint null,
-	[Group] nvarchar(16),
+	[Menu] nvarchar(32),
 	[Form] nvarchar(16),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255)
@@ -109,10 +107,10 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.[DocumentForm] = s.[Form]
+		t.[Form] = s.[Form]
 	when not matched by target then insert
-		(TenantId, [Group], [Name], DocumentForm, Memo) values
-		(@TenantId, s.[Group], s.[Name], s.Form, s.Memo)
+		(TenantId, [Menu], [Name], Form, Memo) values
+		(@TenantId, s.[Menu], s.[Name], s.Form, s.Memo)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,

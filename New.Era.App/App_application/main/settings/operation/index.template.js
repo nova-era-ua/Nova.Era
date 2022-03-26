@@ -3,7 +3,7 @@ define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
         properties: {
-            'TRoot.$CreateData'() { var _a; return { Parent: (_a = this.Groups.$selected) === null || _a === void 0 ? void 0 : _a.Id }; }
+            'TRoot.$CreateData'() { var _a; return { Parent: (_a = this.Menu.$selected) === null || _a === void 0 ? void 0 : _a.Id }; }
         },
         validators: {}
     };

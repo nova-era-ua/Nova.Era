@@ -1,6 +1,7 @@
-﻿export interface TForm extends IElement {
+﻿
+export interface TForm extends IElement {
 	readonly Id: string;
-	readonly Url: string;
+	readonly Name: string;
 }
 
 export interface TOperation extends IArrayElement {
@@ -20,5 +21,5 @@ declare type TDocuments = IElementArray<TDocument>;
 
 
 export interface TRoot extends IRoot {
-	readonly Operations: TOperations;
+	readonly Documents: TDocuments;
 }

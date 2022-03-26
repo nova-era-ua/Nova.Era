@@ -1,7 +1,10 @@
 ﻿
-import { TRoot, TDocument, TDocuments } from './index';
+import { TRoot, TDocument, TDocuments, TForm } from './index';
 
 const template: Template = {
+	options: {
+		persistSelect:['Documents']
+	},
 	properties: {
 	},
 	commands: {
@@ -13,13 +16,11 @@ const template: Template = {
 
 export default template;
 
-async function create(this: TRoot) {
+async function create(this: TRoot, form: TForm) {
 	const ctrl = this.$ctrl;
-	let sel = this.Operations.$selected;
-	if (!sel) return;
-	let url = `/document/${sel.Form.Url}/edit`
-	let docsrc = await ctrl.$showDialog(url, null, { Operation: sel.Id });
-	let doc = sel.Documents.$append(docsrc);
+	let url = `/document/${form.Id}/edit`
+	let docsrc = await ctrl.$showDialog(url, null, { Form: form.Id });
+	let doc = this.Documents.$append(docsrc);
 	doc.$select();
 }
 
@@ -33,7 +34,7 @@ function editSelected(docs: TDocuments) {
 async function edit(this: TRoot, doc: TDocument) {
 	if (!doc) return;
 	const ctrl = this.$ctrl;
-	let url = `/document/${doc.Operation.Form.Url}/edit`
+	let url = `/document/${doc.Operation.Form.Id}/edit`
 	let rdoc = await ctrl.$showDialog(url, { Id: doc.Id });
 	doc.$merge(rdoc);
 }

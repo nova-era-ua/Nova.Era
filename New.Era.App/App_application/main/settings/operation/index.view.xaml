@@ -5,21 +5,21 @@
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>
 		<List Grid.Row="2" Grid.Col="1" Grid.VAlign="Stretch"
-			ItemsSource="{Bind Groups}" AutoSelect="FirstItem"
-			Style="Underlined">
-			<ListItem Icon="ListBullet" Header="{Bind Name}"
+			ItemsSource="{Bind Menu}" AutoSelect="FirstItem"
+			Style="Underlined" GroupBy="Category">
+			<ListItem Icon="Menu" Header="{Bind Name}"
 				Content="{Bind Memo}">
 			</ListItem>
 		</List>
 		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
 		<Toolbar Grid.Row="1" Grid.Col="3" Style="Light" Padding="0">
 			<Button Icon="Plus" Content="@[Create]" 
-				Command="{BindCmd Dialog, Action=Append, Argument={Bind Groups.Selected(Children)}, 
+				Command="{BindCmd Dialog, Action=Append, Argument={Bind Menu.Selected(Children)}, 
 				Data={Bind Root.$CreateData}, Url='/settings/operation/edit'}"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" Grid.Col="3" Grid.VAlign="Stretch"
 				  GridLines="Horizontal" Striped="True"
-			ItemsSource="{Bind Groups.Selected(Children)}">
+			ItemsSource="{Bind Menu.Selected(Children)}">
 			<DataGridColumn Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>

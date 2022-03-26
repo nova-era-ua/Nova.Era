@@ -7,7 +7,7 @@ define(["require", "exports"], function (require, exports) {
             'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]'; }
         },
         defaults: {
-            "Operation.Group"() { return this.Params.ParentGroup; }
+            "Operation.Menu"() { return this.Params.ParentMenu; }
         },
         validators: {
             'Operation.Form': '@[Error.Required]',
