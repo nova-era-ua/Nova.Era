@@ -27,14 +27,13 @@ async function create(this: TRoot, form: TForm) {
 function editSelected(docs: TDocuments) {
 	let doc = docs.$selected;
 	if (!doc) return;
-	alert(doc);
 	edit.call(this, doc);
 }
 
 async function edit(this: TRoot, doc: TDocument) {
 	if (!doc) return;
 	const ctrl = this.$ctrl;
-	let url = `/document/${doc.Operation.Form.Id}/edit`
+	let url = `/document/${doc.Operation.Form}/edit`
 	let rdoc = await ctrl.$showDialog(url, { Id: doc.Id });
 	doc.$merge(rdoc);
 }

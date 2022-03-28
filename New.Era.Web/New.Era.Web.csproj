@@ -43,28 +43,28 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="A2v10.Data.Interfaces, Version=10.0.7270.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7831\lib\net48\A2v10.Data.Interfaces.dll</HintPath>
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7832\lib\net48\A2v10.Data.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Infrastructure, Version=10.0.7831.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7831\lib\net48\A2v10.Infrastructure.dll</HintPath>
+    <Reference Include="A2v10.Infrastructure, Version=10.0.7832.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7832\lib\net48\A2v10.Infrastructure.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Messaging, Version=10.0.7831.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7831\lib\net48\A2v10.Messaging.dll</HintPath>
+    <Reference Include="A2v10.Messaging, Version=10.0.7832.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7832\lib\net48\A2v10.Messaging.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Reports, Version=10.0.7831.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7831\lib\net48\A2v10.Reports.dll</HintPath>
+    <Reference Include="A2v10.Reports, Version=10.0.7832.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7832\lib\net48\A2v10.Reports.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Web.Mvc, Version=10.0.7831.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7831\lib\net48\A2v10.Web.Mvc.dll</HintPath>
+    <Reference Include="A2v10.Web.Mvc, Version=10.0.7832.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7832\lib\net48\A2v10.Web.Mvc.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Workflow, Version=10.0.7831.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7831\lib\net48\A2v10.Workflow.dll</HintPath>
+    <Reference Include="A2v10.Workflow, Version=10.0.7832.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7832\lib\net48\A2v10.Workflow.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml, Version=10.0.7831.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7831\lib\net48\A2v10.Xaml.dll</HintPath>
+    <Reference Include="A2v10.Xaml, Version=10.0.7832.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7832\lib\net48\A2v10.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7831.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7831\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7832.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7832\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Activities" />
@@ -167,12 +167,12 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="..\packages\A2v10.Web.Runtime.10.0.7831\build\A2v10.Web.Runtime.targets" Condition="Exists('..\packages\A2v10.Web.Runtime.10.0.7831\build\A2v10.Web.Runtime.targets')" />
+  <Import Project="..\packages\A2v10.Web.Runtime.10.0.7832\build\A2v10.Web.Runtime.targets" Condition="Exists('..\packages\A2v10.Web.Runtime.10.0.7832\build\A2v10.Web.Runtime.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\A2v10.Web.Runtime.10.0.7831\build\A2v10.Web.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.Web.Runtime.10.0.7831\build\A2v10.Web.Runtime.targets'))" />
+    <Error Condition="!Exists('..\packages\A2v10.Web.Runtime.10.0.7832\build\A2v10.Web.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.Web.Runtime.10.0.7832\build\A2v10.Web.Runtime.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

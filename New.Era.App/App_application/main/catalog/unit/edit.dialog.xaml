@@ -1,0 +1,14 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		Title="{Bind Unit.$Id, Format='@[ItemProperties] [{0}]'}">
+	<Dialog.Buttons>
+		<Button Style="Primary" Content="@[SaveAndClose]" 
+				Command="{BindCmd SaveAndClose, ValidRequired=True}"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid>
+		<TextBox Label="@[Short]" Value="{Bind Unit.Short}" Width="10rem"/>
+		<TextBox Label="@[Name]" Value="{Bind Unit.Name}"/>
+		<TextBox Label="@[Label.Unit.CodeUA]" Value="{Bind Unit.CodeUA}" Width="10rem" Number="True"/>
+		<TextBox Label="@[Memo]" Value="{Bind Unit.Memo}" Multiline="True" Rows="3"/>
+	</Grid>
+</Dialog>

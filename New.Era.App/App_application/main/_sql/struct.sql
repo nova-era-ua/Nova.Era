@@ -30,6 +30,7 @@ create table cat.Units
 	Void bit not null 
 		constraint DF_Units_Void default(0),
 	Short nvarchar(8),
+	CodeUA nchar(4),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Units primary key (TenantId, Id),
@@ -231,17 +232,49 @@ create table doc.Documents
 	Operation bigint not null,
 	[Sum] money not null
 		constraint DF_Documents_Sum default(0),
+	Done bit not null
+		constraint DF_Documents_Done default(0),
 	Company bigint null,
 	Agent bigint null,
 	Memo nvarchar(255),
+	DateApplied datetime,
 		constraint PK_Documents primary key (TenantId, Id),
 		constraint FK_Documents_Operation_Operations foreign key (TenantId, [Operation]) references doc.Operations(TenantId, Id),
 		constraint FK_Documents_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 		constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id)
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_DocDetails')
+	create sequence doc.SQ_DocDetails as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocDetails')
+create table doc.DocDetails
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_DocDetails_PK default(next value for doc.SQ_DocDetails),
+	[Document] bigint not null,
+	RowNo int,
+	Kind nchar(4),
+	Item bigint null,
+	Unit bigint null,
+	Qty float null
+		constraint DF_DocDetails_Qty default(0),
+	Price money null,
+	[Sum] money not null
+		constraint DF_DocDetails_Sum default(0),
+	Memo nvarchar(255),
+		constraint PK_DocDetails primary key (TenantId, Id),
+		constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
+		constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
+);
+go
 
 /*
+drop table doc.DocDetails
 drop table doc.Documents
 drop table doc.Operations
 drop table doc.Forms

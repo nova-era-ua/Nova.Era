@@ -1,6 +1,21 @@
 ﻿/*
 user interface
 */
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'a2ui' and TABLE_NAME=N'Catalog')
+create table a2ui.[Catalog]
+(
+	Id int not null
+		constraint PK_Catalog primary key,
+	Menu nvarchar(16),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[Icon] nvarchar(16),
+	[Url] nvarchar(255),
+	[Order] int,
+	[Category] nvarchar(16)
+);
+go
 ------------------------------------------------
 if not exists(select * from a2sys.SysParams where [Name] = N'NavBarMode')
 	insert into a2sys.SysParams ([Name], StringValue) values (N'NavBarMode', N'Menu');
@@ -60,18 +75,17 @@ begin
 	values
 		(1,  null,  0, N'Main',         null,         null, null),
 		(10,    1,  10, N'@[Dashboard]',     N'dashboard',   N'dashboard-outline', null),
-		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
-		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', null),
+		--(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
+		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
 		(13,    1,  13, N'@[Purchases]',     N'purchase',    N'cart', null),
-		(14,    1,  14, N'@[Manufacturing]', N'manufacturing',  N'wrench', null),
+		--(14,    1,  14, N'@[Manufacturing]', N'manufacturing',  N'wrench', null),
 		(15,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
-		(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
-		(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
-		(30,    1,  30, N'@[Catalogs]',       N'catalog',   N'list',         N'border-top'),
+		--(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
+		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
 		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
 		-- CRM
-		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
+		--(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		--(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
 		-- Sales
 		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		(1202,   12, 12, N'@[Orders]',         N'order',     N'task-complete', N'border-top'),
@@ -95,29 +109,37 @@ begin
 		(1330,   13, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1331,   13, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Accounting
-		(152,   15, 10, N'@[AccountsPlan]',   N'plan',     N'account',    N'border-top'),
-		(153,   15, 12, N'@[Journal]',        N'journal',  N'file-content',  null),
-		(301,   30, 10, N'@[Agents]',        N'agent',     N'users',   null),
-		(302,   30, 20, N'@[Items]',         N'item',      N'package-outline', null),
-		(309,   30, 90, N'@[Other]',         N'other',       N'items',   N'border-top'),
+		(1501,   15, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(1502,   15, 11, N'@[BankAccounts]',   N'bankacc',   N'bank',  N'border-top'),
+		(1503,   15, 12, N'@[AccountsPlan]',   N'plan',      N'account',  N'border-top'),
+		(1504,   15, 13, N'@[Agents]',         N'agent',     N'users',  null),
+		(1505,   15, 14, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1506,   15, 15, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
+		(1530,   15, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
+		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
 		-- Settings
 		(9010,  90, 10, N'@[Companies]', N'company', N'company', null),
+		(9011,  90, 12, N'@[Users]',     N'user',    N'user',    null),
 		(901,   90, 14, N'@[AccountsPlan]',  N'accountplan', N'account',      N'border-top'),
 		(902,   90, 14, N'@[Operations]',    N'operation',   N'file-content', null);
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 9999;
 end
 go
-------------------------------------------------
+-------------------------------------------------
 create or alter procedure a2ui.[Catalog.Other.Index]
 @TenantId int = 1,
-@UserId bigint
+@UserId bigint = null,
+@Mobile bit = 0,
+@Menu nvarchar(16)
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-
-	select [Catalog!TCatalog!Array] = null
+	select [Catalog!TCatalog!Array] = null, [Id!!Id] = Id,
+		[Name], [Memo], Icon, [Url], Category
+	from a2ui.[Catalog]
+	where Menu = @Menu order by [Order];
 end
 go

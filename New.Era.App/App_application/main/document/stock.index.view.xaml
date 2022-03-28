@@ -1,6 +1,12 @@
 ﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
 	<Page.CollectionView>
-		<CollectionView RunAt="ServerUrl" ItemsSource="{Bind Documents}" />
+		<CollectionView RunAt="ServerUrl" ItemsSource="{Bind Documents}">
+			<CollectionView.Filter>
+				<FilterDescription>
+					<FilterItem Property="Operation" DataType="Number"/>
+				</FilterDescription>
+			</CollectionView.Filter>
+		</CollectionView>
 	</Page.CollectionView>
 	<Grid Rows="Auto,1*,Auto" Height="100%" Gap=".5rem" Padding="1rem">
 		<Toolbar Grid.Row="1" Style="Light">
@@ -15,12 +21,15 @@
 			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>
-		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}" 
+		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True"
 					Style="Light" GridLines="Horizontal" Hover="True" FixedHeader="True">
-			<DataGridColumn Content="{Bind Id}" Role="Id"/>
-			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
-			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>
-			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
+			<DataGridColumn Content="{Bind Id}" Role="Id" Sort="False"/>
+			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date" SortProperty="date"/>
+			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number" SortProperty="sum"/>
+			<DataGridColumn Header="@[Operation]" Content="{Bind Operation.Name}" Sort="False"/>
+			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
+			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Sort="False"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
 					<Button Icon="Edit" Command="{BindCmd Execute, CommandName=edit, Argument={Bind}}"/>
@@ -31,7 +40,10 @@
 	</Grid>
 	<Page.Taskpad>
 		<Taskpad Collapsible="False" Width="20rem">
-			
+			<ComboBox Label="@[Operations]"
+				ItemsSource="{Bind Operations}" Value="{Bind Parent.Filter.Operation}">
+				<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
+			</ComboBox>
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

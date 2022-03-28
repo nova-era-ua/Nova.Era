@@ -1,0 +1,15 @@
+﻿<!-- Edit Folder -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="@[Browse.Agent]" Overflow="True" Padding="1rem">
+	<Dialog.Buttons>
+		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Agents}}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<DataGrid ItemsSource="{Bind Agents}"
+		Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True">
+		<DataGridColumn Content="{Bind Id}" Role="Id"/>
+		<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
+	</DataGrid>
+</Dialog>
+

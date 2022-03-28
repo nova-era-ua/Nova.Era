@@ -19,7 +19,12 @@
       "model": "Item.Item",
       "template": "edititem.template",
       "view": "edititem.dialog"
+    },
+    "browse": {
+      "model": "Item.Browse",
+      "view": "browse.dialog"
     }
+
   },
   "commands": {
     "getPath": {

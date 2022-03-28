@@ -2,7 +2,8 @@
 -------------------------------------------------
 create or alter procedure cat.[Agent.Index]
 @TenantId int = 1,
-@UserId bigint
+@UserId bigint,
+@Id bigint = null
 as
 begin
 	set nocount on;

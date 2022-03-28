@@ -1,0 +1,17 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "Unit",
+  "actions": {
+    "index": {
+      "index": true,
+      "view": "index.view"
+    }
+  },
+  "dialogs": {
+    "edit": {
+      "template": "edit.template",
+      "view": "edit.dialog"
+    }
+  }
+}

@@ -2111,9 +2111,9 @@ app.modules['std:accel'] = function () {
 		}
 	});
 })();
-// Copyright © 2015-2020 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2022 Alex Kukhtin. All rights reserved.
 
-// 20200505-7654
+// 20220327-7832
 // components/collectionview.js
 
 /*
@@ -2607,7 +2607,11 @@ TODO:
 				if (period.isPeriod(props.value))
 					this.filter[props.prop].assign(props.value);
 				else
-					this.Filter[props.prop] = props.value;
+					this.filter[props.prop] = props.value;
+			},
+			__clearFilter(props) {
+				if (this.ItemsSource !== props.source) return;
+				this.filter = this.initialFilter;
 			}
 		},
 		created() {
@@ -2630,9 +2634,11 @@ TODO:
 			this.$on('sort', this.doSort);
 
 			eventBus.$on('setFilter', this.__setFilter);
+			eventBus.$on('clearFilter', this.__clearFilter);
 		},
 		beforeDestroy() {
 			eventBus.$off('setFilter', this.__setFilter);
+			eventBus.$off('clearFilter', this.__clearFilter);
 		}
 	});
 
@@ -5076,7 +5082,7 @@ app.modules['std:impl:array'] = function () {
 
 // Copyright © 2015-2022 Alex Kukhtin. All rights reserved.
 
-/*20220320-7828*/
+/*20220327-7832*/
 // controllers/base.js
 
 (function () {
@@ -6053,6 +6059,9 @@ app.modules['std:impl:array'] = function () {
 				eventBus.$emit('setFilter', { source: obj, prop: prop, value: val });
 			},
 
+			$clearFilter(obj) {
+				eventBus.$emit('clearFilter', {source: obj});
+			},
 			$modalSelect(array, opts) {
 				if (!('$selected' in array)) {
 					console.error('Invalid array for $modalSelect');
@@ -6388,6 +6397,7 @@ app.modules['std:impl:array'] = function () {
 					$navigate: this.$navigate,
 					$defer: platform.defer,
 					$setFilter: this.$setFilter,
+					$clearFilter: this.$clearFilter,
 					$expand: this.$expand,
 					$focus: this.$focus,
 					$report: this.$report,

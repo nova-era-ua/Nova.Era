@@ -6,10 +6,8 @@
 		</Toolbar>
 		<List Grid.Row="2" Grid.Col="1" Grid.VAlign="Stretch"
 			ItemsSource="{Bind Menu}" AutoSelect="FirstItem"
-			Style="Underlined" GroupBy="Category">
-			<ListItem Icon="Menu" Header="{Bind Name}"
-				Content="{Bind Memo}">
-			</ListItem>
+				Style="List" GroupBy="Category">
+			<ListItemSimple Icon="list" Content="{Bind Name}"/>
 		</List>
 		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
 		<Toolbar Grid.Row="1" Grid.Col="3" Style="Light" Padding="0">

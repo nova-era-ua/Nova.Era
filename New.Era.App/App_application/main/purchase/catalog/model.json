@@ -1,10 +1,14 @@
 ﻿{
-  "$schema": "../../@schemas/model-json-schema.json#",
-  "schema": "",
-  "model": "",
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "a2ui",
+  "model": "Catalog.Other",
   "actions": {
     "index": {
-      "view": "index.view"
+      "index": true,
+      "view": "../../catalog/other/index.view",
+      "parameters": {
+        "Menu": "Purchase"
+      }
     }
   }
 }

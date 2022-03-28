@@ -24,14 +24,13 @@ define(["require", "exports"], function (require, exports) {
         let doc = docs.$selected;
         if (!doc)
             return;
-        alert(doc);
         edit.call(this, doc);
     }
     async function edit(doc) {
         if (!doc)
             return;
         const ctrl = this.$ctrl;
-        let url = `/document/${doc.Operation.Form.Id}/edit`;
+        let url = `/document/${doc.Operation.Form}/edit`;
         let rdoc = await ctrl.$showDialog(url, { Id: doc.Id });
         doc.$merge(rdoc);
     }

@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "Company",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "../../catalog/company/index.template",
+      "view": "../../catalog/company/index.view"
+    }
+  }
+}

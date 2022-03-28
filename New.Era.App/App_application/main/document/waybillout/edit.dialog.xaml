@@ -13,10 +13,57 @@
 			</ComboBox>
 		</Taskpad>
 	</Dialog.Taskpad>
-	<Header Content="Видаткова накладна" />
-	<Grid Padding="0" Columns="15rem,15rem,15rem,1*">
-		<DatePicker Label="@[Date]" Value="{Bind Document.Date}"/>
-		<TextBox Label="@[Sum]" Value="{Bind Document.Sum, DataType=Currency}" Align="Right"/>
+	<Grid Background="WhiteSmoke" Columns="Auto,Auto,1*,Auto">
+		<Header Content="Видаткова накладна" Size="Large" Grid.VAlign="Baseline"/>
+		<DatePicker Grid.Col="2" Label="@[Date]" Value="{Bind Document.Date}"/>
+		<ComboBox Grid.Col="4" Label="Операція" ItemsSource="{Bind Operations}"
+					  Value="{Bind Document.Operation}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
 	</Grid>
+	<Grid Padding="0" Columns="15rem,15rem,15rem,1*">
+		<TextBox Label="@[Sum]" Value="{Bind Document.Sum, DataType=Currency}" Align="Right"/>
+		<Selector Label="@[Company]" Value="{Bind Document.Company}" DisplayProperty="Name">
+			<Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
+			</Selector.AddOns>
+		</Selector>
+		<Selector Label="@[Agent]" Value="{Bind Document.Agent}" DisplayProperty="Name">
+			<Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
+			</Selector.AddOns>
+		</Selector>
+	</Grid>
+	<TabBar Value="{Bind Root.$TabNo}">
+		<TabButton Content="Товари та послуги" ActiveValue=""/>
+		<TabButton Content="Доставка" ActiveValue="D"/>
+	</TabBar>
+	<Toolbar Style="Light" Padding="0">
+		<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.Rows}}"/>
+	</Toolbar>
+	<Table ItemsSource="{Bind Document.Rows}" Background="Paper" GridLines="Both" Width="100%"
+		   Columns="Fit,Auto,10rem,10rem,10rem">
+		<Table.Header>
+			<TableRow>
+				<TableCell Content="#"/>
+				<TableCell/>
+				<TableCell Content="@[Qty]"/>
+				<TableCell Content="@[Price]"/>
+				<TableCell Content="@[Sum]"/>
+				<TableCell />
+			</TableRow>
+		</Table.Header>
+		<TableRow>
+			<TableCell Content="{Bind RowNo}"/>
+			<Selector Value="{Bind Item}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+			<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
+			<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
+			<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
+		</TableRow>
+	</Table>
 	<TextBox Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True"/>
 </Dialog>

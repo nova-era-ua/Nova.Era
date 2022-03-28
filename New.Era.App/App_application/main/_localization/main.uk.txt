@@ -11,6 +11,7 @@
 @Operations=Операції
 @Orders=Замовлення
 @Companies=Підприємства
+@Company=Підприємство
 @Other=Інше
 @Agent=Контрагент
 @Warehouse=Склад
@@ -31,6 +32,12 @@
 @Folder=Папка
 @Agents=Контрагенти
 @Items=Об'єкти обліку
+@BankAccounts=Рахунки в банках
+@Units=Одиниці виміру
+@Banks=Банки
+@Vendors=Виробники
+@Brands=Бренди
+@Currencies=Валюти
 @CreateFolder=Створити папку
 @CreateSection=Створити розділ
 @CreateAccountPlan=Створити план рахунків
@@ -39,6 +46,7 @@
 @NewFolder=Нова папка
 @NewItem=Новий
 @NewItemW=Нова
+@Short=Скорочення
 @Analysts=Aналітика
 @SearchResult=[Результат пошуку]
 @ItemProperties=Властивості елементу
@@ -47,8 +55,14 @@
 ;
 @Article=Артикул
 ;
+@Filter.AllOperations=<Всі операції>
+;
+@Browse.Agent=Вибір контрагента
+;
+@Label.Unit.CodeUA=Код за КСПОВО
 @Error.Required=Обов\'язкове поле
 @Error.Delete.Folder=Неможливо видалити папку.\nМожна видаляти тількі порожні папки.
+@Error.UnitCodeUA=Код має складатися з цифр та мати довжину 4 символа.
 ;
 @SearchItemsPlaceholder=Пощук за назвою, артикулом, приміткою
 ;
