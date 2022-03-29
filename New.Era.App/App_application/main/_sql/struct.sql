@@ -11,10 +11,14 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'acc')
 	exec sp_executesql N'create schema acc';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'jrn')
+	exec sp_executesql N'create schema jrn';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
 grant execute on schema::acc to public;
+grant execute on schema::jrn to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -218,6 +222,20 @@ create table doc.Operations
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpJournal')
+create table doc.OpJournal
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	Operation bigint not null,
+	ApplyIf nvarchar(16),
+	ApplyMode nchar(1), -- (S)um, (R)ow
+	Direction nchar(1), -- (I)n, (O)ut, B(oth)
+		constraint PK_OpJournal primary key (TenantId, Operation, Id),
+		constraint FK_OpJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')
 	create sequence doc.SQ_Documents as bigint start with 100 increment by 1;
 go
@@ -270,6 +288,32 @@ create table doc.DocDetails
 		constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 		constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
 		constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'jrn' and SEQUENCE_NAME = N'SQ_StockJournal')
+	create sequence jrn.SQ_StockJournal as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal')
+create table jrn.StockJournal
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_StockJournal_PK default(next value for jrn.SQ_StockJournal),
+	Document bigint,
+	Detail bigint,
+	Company bigint null,
+	Item bigint null,
+	Dir smallint not null,
+	Qty float null
+		constraint DF_StockJournal_Qty default(0),
+	[Sum] money not null
+		constraint DF_StockJournal_Sum default(0),
+		constraint PK_StockJournal primary key (TenantId, Id),
+		constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+		constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id)
 );
 go
 

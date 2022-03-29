@@ -411,4 +411,19 @@ begin
 	commit tran;
 end
 go
-
+-------------------------------------------------
+create or alter procedure cat.[Item.Browse.Index]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, 
+		[Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo
+	from cat.Items i
+	order by Id;
+end
+go

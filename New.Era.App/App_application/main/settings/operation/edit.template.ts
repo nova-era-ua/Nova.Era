@@ -8,7 +8,8 @@
 	},
 	validators: {
 		'Operation.Form': '@[Error.Required]',
-		'Operation.Name': '@[Error.Required]'
+		'Operation.Name': '@[Error.Required]',
+		'Operation.Journals[].Id': '@[Error.Required]'
 	}
 };
 

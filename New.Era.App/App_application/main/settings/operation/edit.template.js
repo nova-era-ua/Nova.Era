@@ -11,7 +11,8 @@ define(["require", "exports"], function (require, exports) {
         },
         validators: {
             'Operation.Form': '@[Error.Required]',
-            'Operation.Name': '@[Error.Required]'
+            'Operation.Name': '@[Error.Required]',
+            'Operation.Journals[].Id': '@[Error.Required]'
         }
     };
     exports.default = template;

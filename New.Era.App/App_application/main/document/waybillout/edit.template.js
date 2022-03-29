@@ -4,7 +4,7 @@ define(["require", "exports"], function (require, exports) {
     const dateUtils = require("std:utils").date;
     const template = {
         properties: {
-            'TRoot.$TabNo': String
+            'TRoot.$$TabNo': String
         },
         defaults: {
             'Document.Date': dateUtils.today(),
@@ -15,7 +15,10 @@ define(["require", "exports"], function (require, exports) {
         }
     };
     exports.default = template;
-    function apply() {
-        alert('apply');
+    async function apply() {
+        let ctrl = this.$ctrl;
+        let result = await ctrl.$invoke('apply', { Id: this.Document.Id });
+        alert(JSON.stringify(result));
+        ctrl.$requery();
     }
 });

@@ -21,6 +21,7 @@
       "view": "edititem.dialog"
     },
     "browse": {
+      "index": true,
       "model": "Item.Browse",
       "view": "browse.dialog"
     }

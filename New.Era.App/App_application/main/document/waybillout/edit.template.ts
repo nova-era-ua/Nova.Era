@@ -3,7 +3,7 @@ const dateUtils: UtilsDate = require("std:utils").date;
 // waybill out
 const template: Template = {
 	properties: {
-		'TRoot.$TabNo': String
+		'TRoot.$$TabNo': String
 	},
 	defaults: {
 		'Document.Date': dateUtils.today(),
@@ -16,7 +16,11 @@ const template: Template = {
 
 export default template;
 
-function apply() {
-	alert('apply');
+async function apply() {
+	let ctrl: IController = this.$ctrl;
+	let result = await ctrl.$invoke('apply', { Id: this.Document.Id });
+	alert(JSON.stringify(result));
+	ctrl.$requery();
+
 }
 

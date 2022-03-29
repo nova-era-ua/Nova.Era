@@ -13,7 +13,7 @@
 	<Block Margin="1rem">
 		<TabBar Value="{Bind Root.$Tab}" Margin="0">
 			<TabButton Content="Документ" ActiveValue="" />
-			<TabButton Content="Бухгалтерський облік" ActiveValue="Jourual" />
+			<TabButton Content="@[Journals]" ActiveValue="Jourual" />
 		</TabBar>
 		<Block Margin="1rem,0,0,0">
 			<Switch Expression="{Bind Root.$Tab}">
@@ -34,7 +34,21 @@
 					</Grid>
 				</Case>
 				<Case Value="Jourual">
-					<Text>Журнали</Text>
+					<Toolbar>
+						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Journals}}"/>
+					</Toolbar>
+					<Repeater ItemsSource="{Bind Operation.Journals}">
+						<Block Width="40rem">
+							<ComboBox Value="{Bind Id}" Label="Тип журналу">
+								<ComboBoxItem Content="Складські запаси" Value="Stock"/>
+							</ComboBox>
+							<ComboBox Value="{Bind Direction}" Label="Напрямок руху">
+								<ComboBoxItem Content="Прибуток" Value="I"/>
+								<ComboBoxItem Content="Видаток" Value="O"/>
+							</ComboBox>
+							<Line />
+						</Block>
+					</Repeater>
 				</Case>
 			</Switch>
 		</Block>

@@ -18,6 +18,7 @@
 @WarehouseFrom=Склад звідки
 @WarehouseTo=Склад куди
 @Journal=Журнал
+@Journals=Журнали
 @Operation=Операція
 @Payment=Розрахунки
 @CatalogOther=Інші довідники

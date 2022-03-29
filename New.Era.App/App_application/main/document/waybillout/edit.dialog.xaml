@@ -34,7 +34,7 @@
 			</Selector.AddOns>
 		</Selector>
 	</Grid>
-	<TabBar Value="{Bind Root.$TabNo}">
+	<TabBar Value="{Bind Root.$$TabNo}">
 		<TabButton Content="Товари та послуги" ActiveValue=""/>
 		<TabButton Content="Доставка" ActiveValue="D"/>
 	</TabBar>

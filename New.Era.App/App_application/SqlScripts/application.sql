@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1005
-generated: 28.03.2022 11:32:09
+generated: 29.03.2022 12:11:55
 */
 
 
@@ -252,8 +252,37 @@ create table doc.Documents
 		constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id)
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_DocDetails')
+	create sequence doc.SQ_DocDetails as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocDetails')
+create table doc.DocDetails
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_DocDetails_PK default(next value for doc.SQ_DocDetails),
+	[Document] bigint not null,
+	RowNo int,
+	Kind nchar(4),
+	Item bigint null,
+	Unit bigint null,
+	Qty float null
+		constraint DF_DocDetails_Qty default(0),
+	Price money null,
+	[Sum] money not null
+		constraint DF_DocDetails_Sum default(0),
+	Memo nvarchar(255),
+		constraint PK_DocDetails primary key (TenantId, Id),
+		constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
+		constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
+);
+go
 
 /*
+drop table doc.DocDetails
 drop table doc.Documents
 drop table doc.Operations
 drop table doc.Forms
@@ -342,8 +371,8 @@ begin
 	values
 		(1,  null,  0, N'Main',         null,         null, null),
 		(10,    1,  10, N'@[Dashboard]',     N'dashboard',   N'dashboard-outline', null),
-		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
-		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', null),
+		--(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
+		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
 		(13,    1,  13, N'@[Purchases]',     N'purchase',    N'cart', null),
 		--(14,    1,  14, N'@[Manufacturing]', N'manufacturing',  N'wrench', null),
 		(15,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
@@ -351,8 +380,8 @@ begin
 		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
 		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
 		-- CRM
-		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
+		--(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		--(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
 		-- Sales
 		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		(1202,   12, 12, N'@[Orders]',         N'order',     N'task-complete', N'border-top'),
@@ -441,6 +470,59 @@ begin
 	where c.TenantId = @TenantId and c.Id = @Id;
 end
 go
+-------------------------------------------------
+drop procedure if exists cat.[Company.Metadata];
+drop procedure if exists cat.[Company.Update];
+drop type if exists cat.[Company.TableType];
+go
+-------------------------------------------------
+create type cat.[Company.TableType]
+as table(
+	Id bigint null,
+	[Name] nvarchar(255),
+	[FullName] nvarchar(255),
+	[Memo] nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure cat.[Company.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Company cat.[Company.TableType];
+	select [Company!Company!Metadata] = null, * from @Company;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Company.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Company cat.[Company.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @rtable table(id bigint);
+	declare @id bigint;
+
+	merge cat.Companies as t
+	using @Company as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Memo] = s.[Memo],
+		t.[FullName] = s.[FullName]
+	when not matched by target then insert
+		(TenantId, [Name], FullName, Memo) values
+		(@TenantId, s.[Name], s.FullName, s.Memo)
+	output inserted.Id into @rtable(id);
+	select top(1) @id = id from @rtable;
+	exec cat.[Company.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+
 /* Item */
 -------------------------------------------------
 create or alter procedure cat.[Item.Index]
@@ -854,8 +936,22 @@ begin
 	commit tran;
 end
 go
-
-
+-------------------------------------------------
+create or alter procedure cat.[Item.Browse.Index]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, 
+		[Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo
+	from cat.Items i
+	order by Id;
+end
+go
 /* Agent */
 -------------------------------------------------
 create or alter procedure cat.[Agent.Index]
@@ -1375,12 +1471,13 @@ begin
 
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo],
 		[Operation!TOperation!RefId] = d.Operation, 
-		[Agent!TAgent!RefId] = d.Agent, [Company!TComp!RefId] = d.Company,
+		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[!!RowCount] = t.rowcnt
 	from @docs t inner join 
 		doc.Documents d on d.TenantId = @TenantId and d.Id = t.id
 	order by t.rowno;
 
+	-- maps
 	with T as (select op from @docs group by op)
 	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
 	from doc.Operations o 
@@ -1391,7 +1488,12 @@ begin
 	from cat.Agents a 
 		inner join T t on a.TenantId = @TenantId and a.Id = agent;
 
-	-- TODO: order by
+	with T as (select comp from @docs group by comp)
+	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.Companies c 
+		inner join T t on c.TenantId = @TenantId and c.Id = comp;
+
+	-- filters
 	select [Forms!TForm!Array] = null, [Id!!Id] = f.Id, [Name!!Name] = f.[Name]
 	from doc.Operations o
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
@@ -1400,7 +1502,6 @@ begin
 	order by f.Id desc;
 
 	-- filters
-
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, [!Order] = -1
 	union all
 	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], [!Order] = o.Id
@@ -1438,6 +1539,17 @@ begin
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
+	declare @rows table(id bigint, item bigint);
+	insert into @rows (id, item)
+	select Id, Item from doc.DocDetails dd
+	where dd.TenantId = @TenantId and dd.Document = @Id;
+
+	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
+		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit,
+		[!TDocument.Rows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
+	from doc.DocDetails dd
+	where dd.TenantId=@TenantId and dd.Document = @Id;
+
 	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
 	from doc.Operations o 
 		left join doc.Documents d on d.TenantId = o.TenantId and d.Operation = o.Id
@@ -1451,6 +1563,11 @@ begin
 	from cat.Companies c inner join doc.Documents d on d.TenantId = c.TenantId and d.Company = c.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
+	with T as (select item from @rows group by item)
+	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = [Name]
+	from cat.Items i inner join T on i.Id = T.item and i.TenantId = @TenantId
+	where i.TenantId = @TenantId;
+
 	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Form]
 	from doc.Operations where Form = @Form or Form=@docform
 	order by Id;
@@ -1460,6 +1577,7 @@ go
 drop procedure if exists doc.[Document.Stock.Metadata];
 drop procedure if exists doc.[Document.Stock.Update];
 drop type if exists cat.[Document.Stock.TableType];
+drop type if exists cat.[Document.Stock.Row.TableType];
 go
 ------------------------------------------------
 create type cat.[Document.Stock.TableType]
@@ -1474,20 +1592,36 @@ as table(
 )
 go
 ------------------------------------------------
+create type cat.[Document.Stock.Row.TableType]
+as table(
+	Id bigint null,
+	ParentId bigint,
+	RowNo int,
+	Item bigint,
+	[Qty] float,
+	[Price] money,
+	[Sum] money,
+	Memo nvarchar(255)
+)
+go
+------------------------------------------------
 create or alter procedure doc.[Document.Stock.Metadata]
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	declare @Document cat.[Document.Stock.TableType];
+	declare @Rows cat.[Document.Stock.Row.TableType]
 	select [Document!Document!Metadata] = null, * from @Document;
+	select [Rows!Document.Rows!Metadata] = null, * from @Rows;
 end
 go
 ------------------------------------------------
 create or alter procedure doc.[Document.Stock.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Document cat.[Document.Stock.TableType] readonly
+@Document cat.[Document.Stock.TableType] readonly,
+@Rows cat.[Document.Stock.Row.TableType] readonly
 as
 begin
 	set nocount on;
@@ -1500,6 +1634,7 @@ begin
 	using @Document as s
 	on t.TenantId = @TenantId and t.Id = s.Id
 	when matched then update set
+		t.Operation = s.Operation,
 		t.[Date] = s.[Date],
 		t.[Sum] = s.[Sum],
 		t.Company = s.Company,
@@ -1510,6 +1645,20 @@ begin
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, s.Memo)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
+
+	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id)
+	merge DD as t
+	using @Rows as s on t.Id = s.Id
+	when matched then update set
+		t.RowNo = s.RowNo,
+		t.Item = s.Item,
+		t.Qty = s.Qty,
+		t.Price = s.Price,
+		t.[Sum] = s.[Sum]
+	when not matched by target then insert
+		(TenantId, Document, RowNo, Item, Qty, Price, [Sum]) values
+		(@TenantId, @id, s.RowNo, s.Item, s.Qty, s.Price, s.[Sum])
+	when not matched by source and t.TenantId = @TenantId and t.Document = @id then delete;
 
 	exec doc.[Document.Stock.Load] @TenantId = @TenantId, 
 	@UserId = @UserId, @Id = @id;

@@ -245,3 +245,60 @@ begin
 	@UserId = @UserId, @Id = @id;
 end
 go
+------------------------------------------------
+create or alter procedure doc.[Document.Apply.Stock]
+@TenantId int = 1,
+@UserId bigint,
+@Operation bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	declare @dir nchar(1);
+	select @dir = Direction from doc.OpJournal where TenantId = @TenantId and Operation = @Operation and Id=N'Stock';
+
+	declare @journal table(Document bigint, Detail bigint, Company bigint, Item bigint, Qty float, [Sum] money);
+	insert into @journal(Document, Detail, Company, Item, Qty, [Sum])
+	select d.Id, dd.Id, d.Company, dd.Item, dd.Qty, dd.[Sum]
+	from doc.DocDetails dd 
+		inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
+	where d.TenantId = @TenantId and d.Id = @Id;
+
+	-- in, out, inout
+	if @dir = N'O' or @dir = N'B'
+		insert into jrn.StockJournal(TenantId, Dir, Document, Detail, Company, Item, Qty, [Sum])
+		select @TenantId, -1, Document, Detail, Company, Item, Qty, [Sum]
+		from @journal;
+	else if @dir = N'I' or @dir = N'B'
+		insert into jrn.StockJournal(TenantId, Dir, Document, Detail, Company, Item, Qty, [Sum])
+		select @TenantId, 1, Document, Detail, Company, Item, Qty, [Sum]
+		from @journal;
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.Stock.Apply]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	declare @operation bigint;
+	declare @done bit;
+	select @operation = Operation, @done = Done from doc.Documents where TenantId = @TenantId and Id=@Id;
+	if 1 = @done
+		throw 60000, N'UI:@[Error.Document.AlreadyApplied]', 0;
+	begin tran
+		if exists(select * from doc.OpJournal where TenantId = @TenantId and Operation = @operation and Id=N'Stock')
+			exec doc.[Document.Apply.Stock] @TenantId = @TenantId, @UserId=@UserId,
+				@Operation = @operation, @Id = @Id;
+		update doc.Documents set Done = 1, DateApplied = getdate() 
+			where TenantId = @TenantId and Id = @Id;
+	commit tran
+
+end
+go
+
