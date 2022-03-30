@@ -4,6 +4,7 @@
 @Manufacturing=Виробництво
 @Payroll=Зарплата
 @Settings=Налаштування
+@Stock=Запаси
 @StockPurchases=Запаси та закупівлі
 @SalesMarketing=Продаж та маркетинг
 @Accounting=Бухгалтерія

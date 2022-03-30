@@ -3,7 +3,7 @@ define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
         properties: {
-            'TRoot.$Tab': String,
+            'TRoot.$$Tab': String,
             'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]'; }
         },
         defaults: {
@@ -13,7 +13,17 @@ define(["require", "exports"], function (require, exports) {
             'Operation.Form': '@[Error.Required]',
             'Operation.Name': '@[Error.Required]',
             'Operation.Journals[].Id': '@[Error.Required]'
+        },
+        events: {
+            'Operation.Form.change': formChange
         }
     };
     exports.default = template;
+    function formChange(op) {
+        let rk = (op.Form.RowKinds || '').split(',');
+        let jrnStore = rk.map(k => { return { RowKind: k }; });
+        console.dir(jrnStore);
+        op.JournalStore.$empty();
+        op.JournalStore.$append(jrnStore);
+    }
 });

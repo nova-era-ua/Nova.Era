@@ -76,6 +76,8 @@ create table cat.Items
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
+	IsStock bit not null
+		constraint DF_Items_IsStock default(0),
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
 		constraint PK_Items primary key (TenantId, Id),
@@ -192,6 +194,7 @@ create table doc.Forms
 (
 	TenantId int not null,
 	Id nvarchar(16) not null,
+	RowKinds nvarchar(255),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Forms primary key (TenantId, Id)
@@ -233,6 +236,25 @@ create table doc.OpJournal
 	Direction nchar(1), -- (I)n, (O)ut, B(oth)
 		constraint PK_OpJournal primary key (TenantId, Operation, Id),
 		constraint FK_OpJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpJournalStore')
+	create sequence doc.SQ_OpJournalStore as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpJournalStore')
+create table doc.OpJournalStore
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_OpJournalStore_PK default(next value for doc.SQ_OpJournalStore),
+	Operation bigint not null,
+	RowKind nchar(4),
+	IsIn bit,
+	IsOut bit,
+		constraint PK_OpJournalStore primary key (TenantId, Id, Operation),
+		constraint FK_OpJournalStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------

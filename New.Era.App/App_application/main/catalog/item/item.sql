@@ -149,7 +149,8 @@ as table(
 	[Name] nvarchar(255),
 	Article nvarchar(32),
 	FullName nvarchar(255),
-	[Memo] nvarchar(255)
+	[Memo] nvarchar(255),
+	IsStock bit
 );
 go
 -------------------------------------------------
@@ -237,6 +238,7 @@ begin
 	if @Parent is null
 		select @Parent = Parent from cat.ItemTreeItems where Item =@Id;
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
+		i.IsStock,
 		[ParentFolder.Id!TParentFolder!Id] = iti.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name]
 	from cat.Items i 
 		inner join cat.ItemTreeItems iti on i.Id = iti.Item and i.TenantId = iti.TenantId
@@ -287,10 +289,11 @@ begin
 			t.[Name] = s.[Name],
 			t.FullName = s.FullName,
 			t.[Article] = s.[Article],
-			t.Memo = s.Memo
+			t.Memo = s.Memo,
+			t.IsStock = s.IsStock
 	when not matched by target then 
-		insert (TenantId, [Name], FullName, [Article], Memo)
-		values (@TenantId, s.[Name], FullName, Article, Memo)
+		insert (TenantId, [Name], FullName, [Article], Memo, IsStock)
+		values (@TenantId, s.[Name], FullName, Article, Memo, IsStock)
 	output 
 		$action op, inserted.Id id
 	into @output(op, id);

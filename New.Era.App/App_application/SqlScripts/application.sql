@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1005
-generated: 29.03.2022 12:11:55
+generated: 30.03.2022 13:26:46
 */
 
 
@@ -19,10 +19,14 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'acc')
 	exec sp_executesql N'create schema acc';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'jrn')
+	exec sp_executesql N'create schema jrn';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
 grant execute on schema::acc to public;
+grant execute on schema::jrn to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -80,6 +84,8 @@ create table cat.Items
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
+	IsStock bit not null
+		constraint DF_Items_IsStock default(0),
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
 		constraint PK_Items primary key (TenantId, Id),
@@ -196,6 +202,7 @@ create table doc.Forms
 (
 	TenantId int not null,
 	Id nvarchar(16) not null,
+	RowKinds nvarchar(255),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Forms primary key (TenantId, Id)
@@ -223,6 +230,39 @@ create table doc.Operations
 	[WarehouseTo] nchar(1)
 		constraint PK_Operations primary key (TenantId, Id),
 		constraint FK_Operations_Menu_FormsMenu foreign key (TenantId, [Menu]) references doc.FormsMenu(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpJournal')
+create table doc.OpJournal
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	Operation bigint not null,
+	ApplyIf nvarchar(16),
+	ApplyMode nchar(1), -- (S)um, (R)ow
+	Direction nchar(1), -- (I)n, (O)ut, B(oth)
+		constraint PK_OpJournal primary key (TenantId, Operation, Id),
+		constraint FK_OpJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpJournalStore')
+	create sequence doc.SQ_OpJournalStore as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpJournalStore')
+create table doc.OpJournalStore
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_OpJournalStore_PK default(next value for doc.SQ_OpJournalStore),
+	Operation bigint not null,
+	RowKind nchar(4),
+	IsIn bit,
+	IsOut bit,
+		constraint PK_OpJournalStore primary key (TenantId, Id, Operation),
+		constraint FK_OpJournalStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -278,6 +318,32 @@ create table doc.DocDetails
 		constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 		constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
 		constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'jrn' and SEQUENCE_NAME = N'SQ_StockJournal')
+	create sequence jrn.SQ_StockJournal as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal')
+create table jrn.StockJournal
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_StockJournal_PK default(next value for jrn.SQ_StockJournal),
+	Document bigint,
+	Detail bigint,
+	Company bigint null,
+	Item bigint null,
+	Dir smallint not null,
+	Qty float null
+		constraint DF_StockJournal_Qty default(0),
+	[Sum] money not null
+		constraint DF_StockJournal_Sum default(0),
+		constraint PK_StockJournal primary key (TenantId, Id),
+		constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+		constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id)
 );
 go
 
@@ -674,7 +740,8 @@ as table(
 	[Name] nvarchar(255),
 	Article nvarchar(32),
 	FullName nvarchar(255),
-	[Memo] nvarchar(255)
+	[Memo] nvarchar(255),
+	IsStock bit
 );
 go
 -------------------------------------------------
@@ -762,6 +829,7 @@ begin
 	if @Parent is null
 		select @Parent = Parent from cat.ItemTreeItems where Item =@Id;
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
+		i.IsStock,
 		[ParentFolder.Id!TParentFolder!Id] = iti.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name]
 	from cat.Items i 
 		inner join cat.ItemTreeItems iti on i.Id = iti.Item and i.TenantId = iti.TenantId
@@ -812,10 +880,11 @@ begin
 			t.[Name] = s.[Name],
 			t.FullName = s.FullName,
 			t.[Article] = s.[Article],
-			t.Memo = s.Memo
+			t.Memo = s.Memo,
+			t.IsStock = s.IsStock
 	when not matched by target then 
-		insert (TenantId, [Name], FullName, [Article], Memo)
-		values (@TenantId, s.[Name], FullName, Article, Memo)
+		insert (TenantId, [Name], FullName, [Article], Memo, IsStock)
+		values (@TenantId, s.[Name], FullName, Article, Memo, IsStock)
 	output 
 		$action op, inserted.Id id
 	into @output(op, id);
@@ -1315,7 +1384,8 @@ begin
 	order by [Order], Id;
 
 	-- children declaration. same as Children proc
-	select [!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo
+	select [!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
+		[Journals!TOpJournal!Array] = null
 	from doc.Operations where 1 <> 1;
 end
 go
@@ -1348,10 +1418,21 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
-		[Menu], [Form]
+		[Menu], [Form],
+		[Journals!TOpJournal!Array] = null,
+		[JournalStore!TOpJournalStore!Array] = null
 	from doc.Operations o 
 	where o.TenantId = @TenantId and o.Id=@Id;
 
+	select [!TOpJournal!Array]  =null, [Id!!Id] = Id,
+		ApplyIf, ApplyMode, Direction,
+		[!TOperation.Journals!ParentId] = oj.Operation
+	from doc.OpJournal oj where oj.TenantId = @TenantId and oj.Operation = @Id;
+
+	select [!TOpJournalStore!Array] = null, [Id!!Id] = Id, RowKind, IsIn, IsOut,
+		[!TOperation.JournalStore!ParentId] = ojs.Operation
+	from doc.OpJournalStore ojs 
+	where ojs.TenantId = @TenantId and ojs.Operation = @Id;
 
 	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name]
 	from doc.Forms df
@@ -1365,6 +1446,8 @@ go
 drop procedure if exists doc.[Operation.Metadata];
 drop procedure if exists doc.[Operation.Update];
 drop type if exists doc.[Operation.TableType];
+drop type if exists doc.[OpJournal.TableType];
+drop type if exists doc.[OpJournalStore.TableType];
 go
 -------------------------------------------------
 create type doc.[Operation.TableType]
@@ -1376,6 +1459,25 @@ as table(
 	[Memo] nvarchar(255)
 )
 go
+-------------------------------------------------
+create type doc.[OpJournal.TableType]
+as table(
+	Id nvarchar(16),
+	Operation bigint,
+	ApplyIf nvarchar(16),
+	ApplyMode nchar(1),
+	Direction nchar(1)
+)
+go
+-------------------------------------------------
+create type doc.[OpJournalStore.TableType]
+as table(
+	Id bigint,
+	RowKind nchar(4),
+	IsIn bit,
+	IsOut bit
+)
+go
 ------------------------------------------------
 create or alter procedure doc.[Operation.Metadata]
 as
@@ -1383,7 +1485,11 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	declare @Operation doc.[Operation.TableType];
+	declare @Journals doc.[OpJournal.TableType];
+	declare @JournalStore doc.[OpJournalStore.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
+	select [Journals!Operation.Journals!Metadata] = null, * from @Journals;
+	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
 end
 go
 ------------------------------------------------
@@ -1391,7 +1497,9 @@ create or alter procedure doc.[Operation.Update]
 @TenantId bigint = 1,
 @CompanyId bigint = 0,
 @UserId bigint,
-@Operation doc.[Operation.TableType] readonly
+@Operation doc.[Operation.TableType] readonly,
+@Journals doc.[OpJournal.TableType] readonly,
+@JournalStore doc.[OpJournalStore.TableType] readonly
 as
 begin
 	set nocount on;
@@ -1412,6 +1520,29 @@ begin
 		(@TenantId, s.[Menu], s.[Name], s.Form, s.Memo)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
+
+	merge doc.OpJournal as t
+	using @Journals as s
+	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
+	when matched then update set 
+		t.Direction = s.Direction
+	when not matched by target then insert
+		(TenantId, Operation, Id, Direction) values
+		(@TenantId, @Id, s.Id, s.Direction)
+	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
+
+	merge doc.OpJournalStore as t
+	using @JournalStore as s
+	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
+	when matched then update set 
+		t.RowKind = s.RowKind,
+		t.IsIn = s.IsIn,
+		t.IsOut = s.IsOut
+	when not matched by target then insert
+		(TenantId, Operation, RowKind, IsIn, IsOut) values
+		(@TenantId, @Id, RowKind, s.IsIn, s.IsOut)
+	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
+
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,
 		@Id = @Id;
 end
@@ -1664,6 +1795,63 @@ begin
 	@UserId = @UserId, @Id = @id;
 end
 go
+------------------------------------------------
+create or alter procedure doc.[Document.Apply.Stock]
+@TenantId int = 1,
+@UserId bigint,
+@Operation bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	declare @dir nchar(1);
+	select @dir = Direction from doc.OpJournal where TenantId = @TenantId and Operation = @Operation and Id=N'Stock';
+
+	declare @journal table(Document bigint, Detail bigint, Company bigint, Item bigint, Qty float, [Sum] money);
+	insert into @journal(Document, Detail, Company, Item, Qty, [Sum])
+	select d.Id, dd.Id, d.Company, dd.Item, dd.Qty, dd.[Sum]
+	from doc.DocDetails dd 
+		inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
+	where d.TenantId = @TenantId and d.Id = @Id;
+
+	-- in, out, inout
+	if @dir = N'O' or @dir = N'B'
+		insert into jrn.StockJournal(TenantId, Dir, Document, Detail, Company, Item, Qty, [Sum])
+		select @TenantId, -1, Document, Detail, Company, Item, Qty, [Sum]
+		from @journal;
+	else if @dir = N'I' or @dir = N'B'
+		insert into jrn.StockJournal(TenantId, Dir, Document, Detail, Company, Item, Qty, [Sum])
+		select @TenantId, 1, Document, Detail, Company, Item, Qty, [Sum]
+		from @journal;
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.Stock.Apply]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	declare @operation bigint;
+	declare @done bit;
+	select @operation = Operation, @done = Done from doc.Documents where TenantId = @TenantId and Id=@Id;
+	if 1 = @done
+		throw 60000, N'UI:@[Error.Document.AlreadyApplied]', 0;
+	begin tran
+		if exists(select * from doc.OpJournal where TenantId = @TenantId and Operation = @operation and Id=N'Stock')
+			exec doc.[Document.Apply.Stock] @TenantId = @TenantId, @UserId=@UserId,
+				@Operation = @operation, @Id = @Id;
+		update doc.Documents set Done = 1, DateApplied = getdate() 
+			where TenantId = @TenantId and Id = @Id;
+	commit tran
+
+end
+go
+
 
 /*
 admin

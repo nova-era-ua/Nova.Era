@@ -54,23 +54,27 @@ go
 -- FORMS
 begin
 	set nocount on;
-	declare @df table(Id nvarchar(16), [Name] nvarchar(255));
-	insert into @df (Id, [Name]) values
+	declare @df table(Id nvarchar(16), [Name] nvarchar(255), RowKinds nvarchar(255));
+	insert into @df (Id, [Name], RowKinds) values
 		-- Sales
-		(N'invoice',    N'Замовлення клієнта'),
-		(N'waybillout', N'Видаткова накладна'),
-		(N'complcert',  N'Акт виконаних робіт'),
+		(N'invoice',    N'Замовлення клієнта', null),
+		(N'waybillout', N'Видаткова накладна', null),
+		(N'complcert',  N'Акт виконаних робіт', null),
 		-- 
-		(N'waybillin',  N'Прибуткова накладна'),
+		(N'waybillin',  N'Прибуткова накладна', null),
 		--
-		(N'payorder',  N'Платіжне доручення')
+		(N'payorder',  N'Платіжне доручення', null),
+		-- 
+		(N'manufact',  N'Виробничий акт-звіт', N'PROD,STCK');
+
 	merge doc.Forms as t
 	using @df as s on t.Id = s.Id and t.TenantId = 1
 	when matched then update set
-		t.[Name] = s.[Name]
+		t.[Name] = s.[Name],
+		t.[RowKinds] = s.[RowKinds]
 	when not matched by target then insert
-		(TenantId, Id, [Name]) values
-		(1, s.Id, s.[Name])
+		(TenantId, Id, [Name], RowKinds) values
+		(1, s.Id, s.[Name], RowKinds)
 	when not matched by source and t.TenantId = 1 then delete;
 end
 go

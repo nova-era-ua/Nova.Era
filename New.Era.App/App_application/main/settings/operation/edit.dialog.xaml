@@ -7,21 +7,21 @@
 				Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid>
+	<Grid AutoFlow="Row">
 		<TextBox Label="@[Name]" Value="{Bind Operation.Name}" UpdateTrigger="Input" Bold="True"/>
+		<ComboBox Label="Форма" ItemsSource="{Bind Forms}" Value="{Bind Operation.Form}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
 	</Grid>
 	<Block Margin="1rem">
-		<TabBar Value="{Bind Root.$Tab}" Margin="0">
+		<TabBar Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton Content="Документ" ActiveValue="" />
-			<TabButton Content="@[Journals]" ActiveValue="Jourual" />
+			<TabButton Content="Управліньский облік" ActiveValue="Management" />
+			<TabButton Content="Бухгалтерскький облік" ActiveValue="Accounting" />
 		</TabBar>
-		<Block Margin="1rem,0,0,0">
-			<Switch Expression="{Bind Root.$Tab}">
+		<Block Margin="1rem,0,0,0" Height="20rem">
+			<Switch Expression="{Bind Root.$$Tab}">
 				<Case Value="">
-					<ComboBox Label="Форма" ItemsSource="{Bind Forms}" 
-							  Value="{Bind Operation.Form}">
-						<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
-					</ComboBox>
 					<Grid Padding="0">
 						<ComboBox Label="@[Agent]">
 							<ComboBoxItem Content="Схований"/>
@@ -33,7 +33,34 @@
 						<ComboBox Label="@[WarehouseTo]"/>
 					</Grid>
 				</Case>
-				<Case Value="Jourual">
+				<Case Value="Management">
+					<Header Grid.Row="1" Bold="False">Складські запаси</Header>
+					<Table ItemsSource="{Bind Operation.JournalStore}" CellSpacing="Medium" 
+						   Columns="10rem,1px,1px">
+						<Table.Header>
+							<TableRow>
+								<TableCell Content="Блок рядків"/>
+								<TableCell Content="Прибуток"/>
+								<TableCell Content="Видаток"/>
+							</TableRow>
+						</Table.Header>
+						<TableRow VAlign="Middle">
+							<TableCell>
+								<ComboBox Value="{Bind RowKind}">
+									<ComboBoxItem Content="Запаси" Value="STCK"/>
+									<ComboBoxItem Content="Продукція" Value="PROD"/>
+								</ComboBox>
+							</TableCell>
+							<TableCell Align="Center">
+								<CheckBox Value="{Bind IsIn}"/>
+							</TableCell>
+							<TableCell Align="Center">
+								<CheckBox Value="{Bind IsOut}"/>
+							</TableCell>
+						</TableRow>
+					</Table>
+				</Case>
+				<Case Value="Jourual2">
 					<Toolbar>
 						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Journals}}"/>
 					</Toolbar>
