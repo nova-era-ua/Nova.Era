@@ -16,6 +16,9 @@
 @Other=Інше
 @Agent=Контрагент
 @Warehouse=Склад
+@Warehouses=Склади
+@Department=Підрозділ
+@Departments=Підрозділи
 @WarehouseFrom=Склад звідки
 @WarehouseTo=Склад куди
 @Journal=Журнал
@@ -30,6 +33,7 @@
 @Suppliers=Постачальники
 @Customers=Покупці
 @Leads=Ліди
+@Defaults=Замовчування
 ;
 @Folder=Папка
 @Agents=Контрагенти

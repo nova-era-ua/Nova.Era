@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../@schemas/model-json-schema.json#",
+  "schema": "usr",
+  "model": "Default",
+  "actions": {
+    "index": {
+      "template": "default.template",
+      "view": "default.view"
+    }
+  }
+}

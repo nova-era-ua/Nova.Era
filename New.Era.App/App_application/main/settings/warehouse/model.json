@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "Warehouse",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "../../catalog/warehouse/index.template",
+      "view": "../../catalog/warehouse/index.view"
+    }
+  }
+}

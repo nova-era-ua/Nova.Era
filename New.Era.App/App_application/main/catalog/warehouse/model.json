@@ -1,0 +1,15 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "Warehouse",
+  "dialogs": {
+    "edit": {
+      "template": "edit.template",
+      "view": "edit.dialog"
+    },
+    "browse": {
+      "index": true,
+      "view": "browse.dialog"
+    }
+  }
+}

@@ -8,7 +8,8 @@ create or alter procedure doc.[Document.Stock.Index]
 @PageSize int = 20,
 @Order nvarchar(255) = N'date',
 @Dir nvarchar(20) = N'asc',
-@Operation bigint = -1
+@Operation bigint = -1,
+@Agent bigint = null
 as
 begin
 	set nocount on;
@@ -17,15 +18,16 @@ begin
 	set @Dir = lower(@Dir);
 
 	declare @docs table(rowno int identity(1, 1), id bigint, op bigint, agent bigint, 
-		comp bigint, rowcnt int);
+		comp bigint, whfrom bigint, whto bigint, rowcnt int);
 
-	insert into @docs(id, op, agent, comp, rowcnt)
-	select d.Id, d.Operation, d.Agent, d.Company, 
+	insert into @docs(id, op, agent, comp, whfrom, whto, rowcnt)
+	select d.Id, d.Operation, d.Agent, d.Company, d.WhFrom, d.WhTo,
 		count(*) over()
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and o.Menu = @Menu
 		and (@Operation = -1 or d.Operation = @Operation)
+		and (@Agent is null or d.Agent = @Agent)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -53,6 +55,7 @@ begin
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo],
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
+		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
 		[!!RowCount] = t.rowcnt
 	from @docs t inner join 
 		doc.Documents d on d.TenantId = @TenantId and d.Id = t.id
@@ -69,12 +72,18 @@ begin
 	from cat.Agents a 
 		inner join T t on a.TenantId = @TenantId and a.Id = agent;
 
+	with W as (select wh = whfrom from @docs union all select wh = whto from @docs),
+	T as (select wh from W group by wh)
+	select [!TWarehouse!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from cat.Warehouses a 
+		inner join T t on a.TenantId = @TenantId and a.Id = wh;
+
 	with T as (select comp from @docs group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c 
 		inner join T t on c.TenantId = @TenantId and c.Id = comp;
 
-	-- filters
+	-- menu
 	select [Forms!TForm!Array] = null, [Id!!Id] = f.Id, [Name!!Name] = f.[Name]
 	from doc.Operations o
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
@@ -93,7 +102,7 @@ begin
 
 	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
 		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
-		[!Documents.Operation!Filter] = @Operation;
+		[!Documents.Operation!Filter] = @Operation, [!Documents.Agent!Filter] = @Agent
 end
 go
 ------------------------------------------------
@@ -115,7 +124,8 @@ begin
 
 	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.[Sum],
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
-		[Company!TCompany!RefId] = d.Company,
+		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
+		[WhTo!TWarehouse!RefId] = d.WhTo,
 		[Rows!TRow!Array] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
@@ -139,6 +149,11 @@ begin
 	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
 	from cat.Agents a inner join doc.Documents d on d.TenantId = a.TenantId and d.Agent = a.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
+
+	select [!TWarehouse!Map] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name]
+	from cat.Warehouses w inner join doc.Documents d on d.TenantId = w.TenantId and w.Id in (d.WhFrom, d.WhTo)
+	where d.Id = @Id and d.TenantId = @TenantId
+	group by w.Id, w.[Name];
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join doc.Documents d on d.TenantId = c.TenantId and d.Company = c.Id
@@ -169,6 +184,8 @@ as table(
 	Operation bigint,
 	Agent bigint,
 	Company bigint,
+	WhFrom bigint,
+	WhTo bigint,
 	Memo nvarchar(255)
 )
 go
@@ -220,10 +237,12 @@ begin
 		t.[Sum] = s.[Sum],
 		t.Company = s.Company,
 		t.Agent = s.Agent,
+		t.WhFrom = s.WhFrom,
+		t.WhTo = s.WhTo,
 		t.Memo = s.Memo
 	when not matched by target then insert
-		(TenantId, Operation, [Date], [Sum], Company, Agent, Memo) values
-		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, s.Memo)
+		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, Memo, UserCreated) values
+		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, WhTo, s.Memo, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

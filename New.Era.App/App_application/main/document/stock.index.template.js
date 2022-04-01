@@ -5,7 +5,9 @@ define(["require", "exports"], function (require, exports) {
         options: {
             persistSelect: ['Documents']
         },
-        properties: {},
+        properties: {
+            'TDocument.$Warehouse'() { return this.WhFrom.Id ? this.WhFrom.Name : this.WhTo.Name; }
+        },
         commands: {
             create,
             editSelected,

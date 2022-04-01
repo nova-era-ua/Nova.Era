@@ -6,7 +6,8 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<DataGrid ItemsSource="{Bind Agents}"
-		Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True">
+			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
+			DoubleClick="{BindCmd Select, Argument={Bind Agents}}">
 		<DataGridColumn Content="{Bind Id}" Role="Id"/>
 		<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />

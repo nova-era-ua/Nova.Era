@@ -1,4 +1,14 @@
 ﻿
+13. Default Company/Warehouse in profile
+16. DocList -> Done & Markerks
+17. DocList -> Agent.Filter
+18. DocList -> Company.Filter
+19. DocList -> Period
+20. StockDoc -> Apply.Warehouse
+21. DocDetails -> Unit
+22. DocList -> Warehouse filter
+23. 
+
 Items
 =====
 1. TreeView: DoubleClick
@@ -12,4 +22,10 @@ Agents
 
 Catalog-Other
 =============
-1. Units
+1. Branks
+2. Banks
+3. Vendors
+4. Countries
+
+
+

@@ -29,6 +29,7 @@
 			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number" SortProperty="sum"/>
 			<DataGridColumn Header="@[Operation]" Content="{Bind Operation.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
+			<DataGridColumn Header="@[Warehouse]" Content="{Bind $Warehouse}" Sort="False"/>
 			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Sort="False"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">

@@ -22,7 +22,6 @@ define(["require", "exports"], function (require, exports) {
     function formChange(op) {
         let rk = (op.Form.RowKinds || '').split(',');
         let jrnStore = rk.map(k => { return { RowKind: k }; });
-        console.dir(jrnStore);
         op.JournalStore.$empty();
         op.JournalStore.$append(jrnStore);
     }

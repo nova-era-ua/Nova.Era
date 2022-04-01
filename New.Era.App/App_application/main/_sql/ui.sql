@@ -82,7 +82,8 @@ begin
 		(15,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
 		--(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
 		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
-		(90,    1,  90, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
+		(88,    1,  88, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
+		(90,    1,  90, N'@[Profile]',        N'profile',   N'user', null),
 		-- CRM
 		--(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		--(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
@@ -119,10 +120,13 @@ begin
 		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
 		-- Settings
-		(9010,  90, 10, N'@[Companies]', N'company', N'company', null),
-		(9011,  90, 12, N'@[Users]',     N'user',    N'user',    null),
-		(901,   90, 14, N'@[AccountsPlan]',  N'accountplan', N'account',      N'border-top'),
-		(902,   90, 14, N'@[Operations]',    N'operation',   N'file-content', null);
+		(8811,  88, 11, N'@[Companies]',  N'company',   N'company', null),
+		(8812,  88, 12, N'@[Warehouses]', N'warehouse', N'warehouse', null),
+		(8813,  88, 13, N'@[Users]',     N'user',    N'user',    N'border-top'),
+		(8814,  88, 14, N'@[AccountsPlan]',  N'accountplan', N'account',      N'border-top'),
+		(8815,  88, 15, N'@[Operations]',   N'operation',   N'file-content', null),
+		-- Profile
+		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 9999;
 end

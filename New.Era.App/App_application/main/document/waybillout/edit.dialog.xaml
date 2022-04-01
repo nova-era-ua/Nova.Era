@@ -4,7 +4,7 @@
 		<Button Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
 		<Button Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
 		<Separator />
-		<Button Content="@[Cancel]" Command="{BindCmd Close}" />
+		<Button Content="@[Close]" Command="{BindCmd Close}" />
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
 		<Taskpad Width="20rem" Collapsible="False" Margin="0,0,0,1rem">
@@ -32,6 +32,11 @@
 		<Selector Label="@[Agent]" Value="{Bind Document.Agent}" DisplayProperty="Name">
 			<Selector.AddOns>
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
+			</Selector.AddOns>
+		</Selector>
+		<Selector Label="@[Warehouse]" Value="{Bind Document.WhFrom}" DisplayProperty="Name">
+			<Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
 			</Selector.AddOns>
 		</Selector>
 	</Grid>

@@ -21,7 +21,7 @@ export default template;
 function formChange(op) {
 	let rk = (op.Form.RowKinds || '').split(',');
 	let jrnStore = rk.map(k => { return { RowKind: k }; });
-	console.dir(jrnStore);
+	//console.dir(jrnStore);
 	op.JournalStore.$empty();
 	op.JournalStore.$append(jrnStore);
 }

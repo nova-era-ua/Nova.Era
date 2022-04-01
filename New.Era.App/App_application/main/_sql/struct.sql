@@ -14,11 +14,15 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'jrn')
 	exec sp_executesql N'create schema jrn';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'usr')
+	exec sp_executesql N'create schema usr';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
 grant execute on schema::acc to public;
 grant execute on schema::jrn to public;
+grant execute on schema::usr to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -135,6 +139,26 @@ create table cat.Companies
 		constraint PK_Companies primary key (TenantId, Id)
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Warehouses')
+	create sequence cat.SQ_Warehouses as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Warehouses')
+create table cat.Warehouses
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Warehouses_PK default(next value for cat.SQ_Warehouses),
+	Void bit not null 
+		constraint DF_Warehouses_Void default(0),
+	[Name] nvarchar(255),
+	[FullName] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Warehouses primary key (TenantId, Id)
+);
+go
+
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Agents')
 	create sequence cat.SQ_Agents as bigint start with 100 increment by 1;
@@ -276,12 +300,20 @@ create table doc.Documents
 		constraint DF_Documents_Done default(0),
 	Company bigint null,
 	Agent bigint null,
+	WhFrom bigint null,
+	WhTo bigint  null,
 	Memo nvarchar(255),
 	DateApplied datetime,
-		constraint PK_Documents primary key (TenantId, Id),
-		constraint FK_Documents_Operation_Operations foreign key (TenantId, [Operation]) references doc.Operations(TenantId, Id),
-		constraint FK_Documents_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id)
+	UserCreated bigint not null,
+	UtcDateCreated datetime not null 
+		constraint DF_Documents_UtcDateCreated default(getutcdate()),
+	constraint PK_Documents primary key (TenantId, Id),
+	constraint FK_Documents_Operation_Operations foreign key (TenantId, [Operation]) references doc.Operations(TenantId, Id),
+	constraint FK_Documents_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Documents_WhFrom_Warehouses foreign key (TenantId, WhFrom) references cat.Warehouses(TenantId, Id),
+	constraint FK_Documents_WhTo_Warehouses foreign key (TenantId, WhTo) references cat.Warehouses(TenantId, Id),
+	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id)
 );
 go
 ------------------------------------------------
@@ -326,6 +358,7 @@ create table jrn.StockJournal
 	Document bigint,
 	Detail bigint,
 	Company bigint null,
+	Warehouse bigint null,
 	Item bigint null,
 	Dir smallint not null,
 	Qty float null
@@ -335,11 +368,13 @@ create table jrn.StockJournal
 		constraint PK_StockJournal primary key (TenantId, Id),
 		constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
-		constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id)
+		constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
 );
 go
 
 /*
+drop table jrn.StockJournal
 drop table doc.DocDetails
 drop table doc.Documents
 drop table doc.Operations

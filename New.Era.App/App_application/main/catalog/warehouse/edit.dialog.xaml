@@ -1,0 +1,13 @@
+﻿<!-- Edit Warhouse -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="{Bind Warehouse.$Id, Format='@[Properties] [{0}]'}" Overflow="True">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid>
+		<TextBox Label="@[Name]" Value="{Bind Warehouse.Name}" UpdateTrigger="Input" Bold="True"/>
+		<TextBox Label="@[Memo]" Value="{Bind Warehouse.Memo}" UpdateTrigger="Input" Multiline="True"/>
+	</Grid>
+</Dialog>
+

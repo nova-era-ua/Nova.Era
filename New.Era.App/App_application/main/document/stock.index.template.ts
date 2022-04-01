@@ -6,6 +6,7 @@ const template: Template = {
 		persistSelect:['Documents']
 	},
 	properties: {
+		'TDocument.$Warehouse'() { return this.WhFrom.Id ? this.WhFrom.Name : this.WhTo.Name;}
 	},
 	commands: {
 		create,
