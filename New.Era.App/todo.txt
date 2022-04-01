@@ -1,13 +1,10 @@
 ﻿
-13. Default Company/Warehouse in profile
-16. DocList -> Done & Markerks
-17. DocList -> Agent.Filter
-18. DocList -> Company.Filter
 19. DocList -> Period
 20. StockDoc -> Apply.Warehouse
 21. DocDetails -> Unit
-22. DocList -> Warehouse filter
-23. 
+23. Browse.Items - Unit
+24. Document.Row - Item.Unit, Item.Article,
+25. Document.Apply - event in list (update)
 
 Items
 =====
@@ -22,7 +19,7 @@ Agents
 
 Catalog-Other
 =============
-1. Branks
+1. Brands
 2. Banks
 3. Vendors
 4. Countries

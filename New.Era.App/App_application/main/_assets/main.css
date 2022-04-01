@@ -1,3 +1,6 @@
 ﻿.a2-pager.page-pager {
   padding: 0.5rem 0.5rem 0 0.5rem;
 }
+.dialog-grid-content {
+  overflow: auto;
+}

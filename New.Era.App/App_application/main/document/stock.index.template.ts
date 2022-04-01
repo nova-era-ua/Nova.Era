@@ -6,9 +6,11 @@ const template: Template = {
 		persistSelect:['Documents']
 	},
 	properties: {
+		'TDocument.$Mark'(this: TDocument) { return this.Done ? 'green' : undefined; },
 		'TDocument.$Warehouse'() { return this.WhFrom.Id ? this.WhFrom.Name : this.WhTo.Name;}
 	},
 	commands: {
+		clearFilter,
 		create,
 		editSelected,
 		edit
@@ -37,4 +39,9 @@ async function edit(this: TRoot, doc: TDocument) {
 	let url = `/document/${doc.Operation.Form}/edit`
 	let rdoc = await ctrl.$showDialog(url, { Id: doc.Id });
 	doc.$merge(rdoc);
+}
+
+function clearFilter(elem) {
+	elem.Id = 0;
+	elem.Name = '';
 }

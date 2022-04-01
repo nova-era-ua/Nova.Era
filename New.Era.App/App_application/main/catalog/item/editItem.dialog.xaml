@@ -15,6 +15,11 @@
 			</Static.AddOns>
 			-->
 		</Static>
+		<Selector Label="@[Unit]" Value="{Bind Item.Unit}" DisplayProperty="Short">
+			<Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>
+			</Selector.AddOns>
+		</Selector>
 		<FieldSet>
 			<Radio Label="Запас" Value="{Bind Item.IsStock}" CheckedValue="true"/>
 			<Radio Label="Послуга або робота" Value="{Bind Item.IsStock}" CheckedValue="false"/>

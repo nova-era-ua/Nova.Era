@@ -92,6 +92,17 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure appsec.FindUserByEmail
+@Email nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select * from appsec.ViewUsers where Email=@Email;
+end
+go
+------------------------------------------------
 create or alter procedure appsec.FindUserByName
 @UserName nvarchar(255)
 as

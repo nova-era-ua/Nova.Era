@@ -40,10 +40,12 @@ begin
 
 	-- Children recordset declaration
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[ParentFolder.Id!TParentFolder!Id] = iti.Parent, [ParentFolder.Name!TParentFolder!Name] = it.[Name]
 	from cat.Items i 
 		inner join cat.ItemTreeItems iti on iti.Item = i.Id and iti.TenantId = i.TenantId
 		inner join cat.ItemTree it on iti.Parent = it.Parent and iti.TenantId = it.TenantId
+		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where 0 <> 0;
 end
 go
@@ -111,9 +113,11 @@ begin
 	) select [Children!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
 		i.FullName, i.Article, i.Memo, 
 		[ParentFolder.Id!TParentFolder!Id] = T.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name],
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[!!RowCount]  = (select count(1) from T)
 	from T inner join cat.Items i on T.Id = i.Id and i.TenantId = @TenantId
 		inner join cat.ItemTree t on T.Parent = t.Id and t.TenantId = @TenantId
+		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	order by RowNumber offset (@Offset) rows fetch next (@PageSize) rows only;
 
 	-- system data
@@ -150,7 +154,8 @@ as table(
 	Article nvarchar(32),
 	FullName nvarchar(255),
 	[Memo] nvarchar(255),
-	IsStock bit
+	IsStock bit,
+	Unit bigint
 );
 go
 -------------------------------------------------
@@ -239,8 +244,10 @@ begin
 		select @Parent = Parent from cat.ItemTreeItems where Item =@Id;
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
 		i.IsStock,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[ParentFolder.Id!TParentFolder!Id] = iti.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name]
 	from cat.Items i 
+		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
 		inner join cat.ItemTreeItems iti on i.Id = iti.Item and i.TenantId = iti.TenantId
 		inner join cat.ItemTree t on iti.Parent = t.Id and iti.TenantId = t.TenantId
 	where i.TenantId = @TenantId and iti.TenantId=@TenantId and t.TenantId = @TenantId 
@@ -290,10 +297,11 @@ begin
 			t.FullName = s.FullName,
 			t.[Article] = s.[Article],
 			t.Memo = s.Memo,
-			t.IsStock = s.IsStock
+			t.IsStock = s.IsStock,
+			t.Unit = s.Unit
 	when not matched by target then 
-		insert (TenantId, [Name], FullName, [Article], Memo, IsStock)
-		values (@TenantId, s.[Name], FullName, Article, Memo, IsStock)
+		insert (TenantId, [Name], FullName, [Article], Memo, IsStock, Unit)
+		values (@TenantId, s.[Name], s.FullName, s.Article, s.Memo, s.IsStock, s.Unit)
 	output 
 		$action op, inserted.Id id
 	into @output(op, id);

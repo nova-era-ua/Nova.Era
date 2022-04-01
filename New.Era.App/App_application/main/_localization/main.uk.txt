@@ -35,6 +35,7 @@
 @Leads=Ліди
 @Defaults=Замовчування
 ;
+@Unit=Од.вим.
 @Folder=Папка
 @Agents=Контрагенти
 @Items=Об'єкти обліку
@@ -63,14 +64,25 @@
 ;
 @Filter.AllOperations=<Всі операції>
 ;
+@Placeholder.AllCompanies=<Всі підприємства>
+@Placeholder.AllAgents=<Всі контрагенти>
+@Placeholder.AllWarehouses=<Всі склади>
+;
+@Browse.Company=Вибір підприємства
+@Browse.Warehouse=Вибір складу
 @Browse.Agent=Вибір контрагента
+@Browse.Item=Вибір об'єкта обліку
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
 @Error.Required=Обов\'язкове поле
 @Error.Delete.Folder=Неможливо видалити папку.\nМожна видаляти тількі порожні папки.
 @Error.UnitCodeUA=Код має складатися з цифр та мати довжину 4 символа.
+@Error.Document.AlreadyApplied=Документ вже проведено в обліку.
 ;
 @SearchItemsPlaceholder=Пощук за назвою, артикулом, приміткою
 ;
 @Confirm.Delete.Folder=Ви дійсно бажаєте видалити папку?
 @Confirm.Delete.Element=Ви дійсно бажаєте видалити елемент?
+;
+@Default.Company.Changed=Підприємство за замовчуванням змінено
+@Default.Warehouse.Changed=Склад за замовчуванням змінено

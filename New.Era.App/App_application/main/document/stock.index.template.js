@@ -6,9 +6,11 @@ define(["require", "exports"], function (require, exports) {
             persistSelect: ['Documents']
         },
         properties: {
+            'TDocument.$Mark'() { return this.Done ? 'green' : undefined; },
             'TDocument.$Warehouse'() { return this.WhFrom.Id ? this.WhFrom.Name : this.WhTo.Name; }
         },
         commands: {
+            clearFilter,
             create,
             editSelected,
             edit
@@ -35,5 +37,9 @@ define(["require", "exports"], function (require, exports) {
         let url = `/document/${doc.Operation.Form}/edit`;
         let rdoc = await ctrl.$showDialog(url, { Id: doc.Id });
         doc.$merge(rdoc);
+    }
+    function clearFilter(elem) {
+        elem.Id = 0;
+        elem.Name = '';
     }
 });

@@ -4,6 +4,9 @@
 			<CollectionView.Filter>
 				<FilterDescription>
 					<FilterItem Property="Operation" DataType="Number"/>
+					<FilterItem Property="Agent" DataType="Object"/>
+					<FilterItem Property="Company" DataType="Object"/>
+					<FilterItem Property="Warehouse" DataType="Object"/>
 				</FilterDescription>
 			</CollectionView.Filter>
 		</CollectionView>
@@ -22,8 +25,9 @@
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True"
-				Style="Light" GridLines="Horizontal" Hover="True" FixedHeader="True"
-				DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}">
+				Style="Light" GridLines="Horizontal" Hover="True" FixedHeader="True" Striped="True"
+				DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"
+				  Mark="{Bind $Mark}" MarkerStyle="Marker">
 			<DataGridColumn Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date" SortProperty="date"/>
 			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number" SortProperty="sum"/>
@@ -35,6 +39,7 @@
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
 					<Button Icon="Edit" Command="{BindCmd Execute, CommandName=edit, Argument={Bind}}"/>
+					<Button Icon="Delete" Command="{BindCmd Execute, CommandName=delete, Argument={Bind}}"/>
 				</CommandBar>
 			</DataGridColumn>
 		</DataGrid>
@@ -46,6 +51,30 @@
 				ItemsSource="{Bind Operations}" Value="{Bind Parent.Filter.Operation}">
 				<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
 			</ComboBox>
+			<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+					<Hyperlink If="{Bind Parent.Filter.Company.Id}"
+						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Selector Label="@[Warehouse]" Placeholder="@[Placeholder.AllWarehouses]"
+					  Value="{Bind Parent.Filter.Warehouse}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Warehouse}, Url='/catalog/warehouse/browse'}"/>
+					<Hyperlink If="{Bind Parent.Filter.Warehouse.Id}"
+						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Warehouse}}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Selector Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
+					  Value="{Bind Parent.Filter.Agent}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Agent}, Url='/catalog/agent/browse'}"/>
+					<Hyperlink If="{Bind Parent.Filter.Agent.Id}"
+						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Agent}}"/>
+				</Selector.AddOns>
+			</Selector>
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

@@ -9,7 +9,9 @@ create or alter procedure doc.[Document.Stock.Index]
 @Order nvarchar(255) = N'date',
 @Dir nvarchar(20) = N'asc',
 @Operation bigint = -1,
-@Agent bigint = null
+@Agent bigint = null,
+@Warehouse bigint = null,
+@Company bigint = null
 as
 begin
 	set nocount on;
@@ -28,6 +30,8 @@ begin
 	where d.TenantId = @TenantId and o.Menu = @Menu
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
+		and (@Company is null or d.Company = @Company)
+		and (@Warehouse is null or d.WhFrom = @Warehouse or d.WhTo = @Warehouse)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -52,7 +56,7 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo],
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
@@ -99,10 +103,12 @@ begin
 	where o.TenantId = @TenantId and o.Menu = @Menu
 	order by [!Order];
 
-
 	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
 		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
-		[!Documents.Operation!Filter] = @Operation, [!Documents.Agent!Filter] = @Agent
+		[!Documents.Operation!Filter] = @Operation, 
+		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
+		[!Documents.Company.Id!Filter] = @Company, [!Documents.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
+		[!Documents.Warehouse.Id!Filter] = @Warehouse, [!Documents.Warehouse.Name!Filter] = cat.fn_GetWarehouseName(@TenantId, @Warehouse)
 end
 go
 ------------------------------------------------
@@ -167,6 +173,8 @@ begin
 	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Form]
 	from doc.Operations where Form = @Form or Form=@docform
 	order by Id;
+
+	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 end
 go
 ------------------------------------------------

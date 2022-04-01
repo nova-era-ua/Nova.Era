@@ -143,6 +143,9 @@
     <Content Include="App_application\main\catalog\bank\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\catalog\unit\browse.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -211,6 +214,10 @@
     <None Include="App_application\main\catalog\company\model.json" />
     <None Include="App_application\main\catalog\vendor\model.json" />
     <Content Include="App_application\main\catalog\company\company.sql" />
+    <Content Include="App_application\main\profile\default\default.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <TypeScriptCompile Include="App_application\main\profile\default\default.template.ts" />
     <None Include="App_application\main\profile\default\model.json" />
     <None Include="App_application\main\settings\warehouse\model.json" />
     <None Include="App_application\main\settings\company\model.json" />

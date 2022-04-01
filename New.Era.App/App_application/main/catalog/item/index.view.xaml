@@ -58,10 +58,12 @@
 							Command="{BindCmd Reload, Argument={Bind Folders.Selected(Children)}}" />
 				</Toolbar>
 				<DataGrid Grid.Row="2" Grid.Col="1" FixedHeader="True" Sort="True"
-						GridLines="Horizontal" Hover="True" ItemsSource="{Bind Parent.ItemsSource}">
+						GridLines="Horizontal" Hover="True" ItemsSource="{Bind Parent.ItemsSource}"
+						DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Parent.ItemsSource}, Url='/catalog/item/editItem'}">
 					<DataGridColumn Header="Id" Content="{Bind Id}" Role="Id"/>
 					<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 					<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+					<DataGridColumn Header="@[Unit]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap"/>
 					<DataGridColumn Sort="False" Header="@[Folder]">
 						<Group>
 							<Label Content="{Bind ParentFolder.Name}" If="{Bind !Root.$IsSeachFolder}"/>

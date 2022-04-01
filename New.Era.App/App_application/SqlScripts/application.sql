@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1005
-generated: 01.04.2022 08:19:50
+generated: 01.04.2022 17:01:44
 */
 
 
@@ -507,6 +507,23 @@ create table jrn.StockJournal
 );
 go
 
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'usr' and TABLE_NAME=N'Defaults')
+create table usr.Defaults
+(
+	TenantId int not null,
+	UserId bigint not null,
+	Company bigint,
+	Warehouse bigint null,
+	PeriodFrom date,
+	PeriodTo date,
+		constraint PK_Defaults primary key (TenantId, UserId),
+		constraint FK_Defaults_UserId_Users foreign key (TenantId, UserId) references appsec.Users(Tenant, Id),
+		constraint FK_Defaults_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_Defaults_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+);
+go
+
 /*
 drop table jrn.StockJournal
 drop table doc.DocDetails
@@ -520,6 +537,39 @@ drop table cat.Agents
 /*
 common
 */
+------------------------------------------------
+create or alter function cat.fn_GetAgentName(@TenantId int, @Id bigint)
+returns nvarchar(255)
+as
+begin
+	declare @name nvarchar(255);
+	if @Id is not null
+		select @name = [Name] from cat.Agents where TenantId=@TenantId and Id=@Id;
+	return @name;
+end
+go
+------------------------------------------------
+create or alter function cat.fn_GetWarehouseName(@TenantId int, @Id bigint)
+returns nvarchar(255)
+as
+begin
+	declare @name nvarchar(255);
+	if @Id is not null
+		select @name = [Name] from cat.Warehouses where TenantId=@TenantId and Id=@Id;
+	return @name;
+end
+go
+------------------------------------------------
+create or alter function cat.fn_GetCompanyName(@TenantId int, @Id bigint)
+returns nvarchar(255)
+as
+begin
+	declare @name nvarchar(255);
+	if @Id is not null
+		select @name = [Name] from cat.Companies where TenantId=@TenantId and Id=@Id;
+	return @name;
+end
+go
 
 /*
 user interface
@@ -668,6 +718,64 @@ begin
 		[Name], [Memo], Icon, [Url], Category
 	from a2ui.[Catalog]
 	where Menu = @Menu order by [Order];
+end
+go
+/* Profile.Default */
+------------------------------------------------
+create or alter procedure usr.[Default.Load]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Default!TDefault!Object] = null,
+		[Company.Id!TCompany!Id] = d.Company, [Company.Name!TCompany!Name] = c.[Name],
+		[Warehouse.Id!TWarehouse!Id] = d.Warehouse, [Warehouse.Name!TWarehouse!Name] = w.[Name]
+	from usr.Defaults d
+		left join cat.Companies c on d.TenantId = c.TenantId and d.Company = c.Id
+		left join cat.Warehouses w on d.TenantId = w.TenantId and d.Warehouse = w.Id
+	where d.TenantId = @TenantId and d.UserId = @UserId;
+end
+go
+create or alter procedure usr.[Default.Ensure] 
+@TenantId int = 1, 
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	if not exists(select * from usr.Defaults where TenantId = @TenantId and UserId = @UserId)
+		insert into usr.Defaults(TenantId, UserId) values (@TenantId, @UserId);
+end
+go
+------------------------------------------------
+create or alter procedure usr.[Default.SetCompany]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	exec usr.[Default.Ensure] @TenantId = @TenantId, @UserId = @UserId;
+	update usr.Defaults set Company = @Id where TenantId = @TenantId and UserId = @UserId;
+end
+go
+------------------------------------------------
+create or alter procedure usr.[Default.SetWarehouse]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	exec usr.[Default.Ensure] @TenantId = @TenantId, @UserId = @UserId;
+	update usr.Defaults set Warehouse = @Id where TenantId = @TenantId and UserId = @UserId;
 end
 go
 -- Company
@@ -878,10 +986,12 @@ begin
 
 	-- Children recordset declaration
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[ParentFolder.Id!TParentFolder!Id] = iti.Parent, [ParentFolder.Name!TParentFolder!Name] = it.[Name]
 	from cat.Items i 
 		inner join cat.ItemTreeItems iti on iti.Item = i.Id and iti.TenantId = i.TenantId
 		inner join cat.ItemTree it on iti.Parent = it.Parent and iti.TenantId = it.TenantId
+		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where 0 <> 0;
 end
 go
@@ -949,9 +1059,11 @@ begin
 	) select [Children!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
 		i.FullName, i.Article, i.Memo, 
 		[ParentFolder.Id!TParentFolder!Id] = T.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name],
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[!!RowCount]  = (select count(1) from T)
 	from T inner join cat.Items i on T.Id = i.Id and i.TenantId = @TenantId
 		inner join cat.ItemTree t on T.Parent = t.Id and t.TenantId = @TenantId
+		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	order by RowNumber offset (@Offset) rows fetch next (@PageSize) rows only;
 
 	-- system data
@@ -988,7 +1100,8 @@ as table(
 	Article nvarchar(32),
 	FullName nvarchar(255),
 	[Memo] nvarchar(255),
-	IsStock bit
+	IsStock bit,
+	Unit bigint
 );
 go
 -------------------------------------------------
@@ -1077,8 +1190,10 @@ begin
 		select @Parent = Parent from cat.ItemTreeItems where Item =@Id;
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
 		i.IsStock,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[ParentFolder.Id!TParentFolder!Id] = iti.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name]
 	from cat.Items i 
+		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
 		inner join cat.ItemTreeItems iti on i.Id = iti.Item and i.TenantId = iti.TenantId
 		inner join cat.ItemTree t on iti.Parent = t.Id and iti.TenantId = t.TenantId
 	where i.TenantId = @TenantId and iti.TenantId=@TenantId and t.TenantId = @TenantId 
@@ -1128,10 +1243,11 @@ begin
 			t.FullName = s.FullName,
 			t.[Article] = s.[Article],
 			t.Memo = s.Memo,
-			t.IsStock = s.IsStock
+			t.IsStock = s.IsStock,
+			t.Unit = s.Unit
 	when not matched by target then 
-		insert (TenantId, [Name], FullName, [Article], Memo, IsStock)
-		values (@TenantId, s.[Name], FullName, Article, Memo, IsStock)
+		insert (TenantId, [Name], FullName, [Article], Memo, IsStock, Unit)
+		values (@TenantId, s.[Name], s.FullName, s.Article, s.Memo, s.IsStock, s.Unit)
 	output 
 		$action op, inserted.Id id
 	into @output(op, id);
@@ -1373,7 +1489,8 @@ go
 ------------------------------------------------
 create or alter procedure cat.[Unit.Index]
 @TenantId int = 1,
-@UserId bigint
+@UserId bigint,
+@Id bigint = null
 as
 begin
 	set nocount on;
@@ -1799,18 +1916,6 @@ begin
 end
 go
 
-/* Profile.Default */
-------------------------------------------------
-create or alter procedure usr.[Default.Load]
-@TenantId int = 1,
-@UserId bigint
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-end
-go
-
 /* Document */
 ------------------------------------------------
 create or alter procedure doc.[Document.Stock.Index]
@@ -1822,7 +1927,9 @@ create or alter procedure doc.[Document.Stock.Index]
 @Order nvarchar(255) = N'date',
 @Dir nvarchar(20) = N'asc',
 @Operation bigint = -1,
-@Agent bigint = null
+@Agent bigint = null,
+@Warehouse bigint = null,
+@Company bigint = null
 as
 begin
 	set nocount on;
@@ -1841,6 +1948,8 @@ begin
 	where d.TenantId = @TenantId and o.Menu = @Menu
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
+		and (@Company is null or d.Company = @Company)
+		and (@Warehouse is null or d.WhFrom = @Warehouse or d.WhTo = @Warehouse)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -1865,7 +1974,7 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo],
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
@@ -1912,10 +2021,12 @@ begin
 	where o.TenantId = @TenantId and o.Menu = @Menu
 	order by [!Order];
 
-
 	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
 		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
-		[!Documents.Operation!Filter] = @Operation, [!Documents.Agent!Filter] = @Agent
+		[!Documents.Operation!Filter] = @Operation, 
+		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
+		[!Documents.Company.Id!Filter] = @Company, [!Documents.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
+		[!Documents.Warehouse.Id!Filter] = @Warehouse, [!Documents.Warehouse.Name!Filter] = cat.fn_GetWarehouseName(@TenantId, @Warehouse)
 end
 go
 ------------------------------------------------
@@ -1980,6 +2091,8 @@ begin
 	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Form]
 	from doc.Operations where Form = @Form or Form=@docform
 	order by Id;
+
+	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 end
 go
 ------------------------------------------------

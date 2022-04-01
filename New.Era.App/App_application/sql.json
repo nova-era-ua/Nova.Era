@@ -8,6 +8,7 @@
       "main/_sql/struct.sql",
       "main/_sql/common.sql",
       "main/_sql/ui.sql",
+      "main/profile/default/default.sql",
       "main/catalog/company/company.sql",
       "main/catalog/warehouse/warehouse.sql",
       "main/catalog/item/item.sql",
@@ -16,7 +17,6 @@
       "main/catalog/unit/unit.sql",
       "main/settings/accountplan/plan.sql",
       "main/settings/operation/operation.sql",
-      "main/profile/default/default.sql",
       "main/document/document.sql",
       "main/_sql/admin.sql",
       "main/_sql/initial_data.sql"

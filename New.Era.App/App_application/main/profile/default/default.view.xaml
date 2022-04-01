@@ -1,0 +1,19 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Block Width="40rem">
+	<Grid AutoFlow="Row">
+		<Header>@[Defaults]</Header>
+		<Selector Label="@[Company]" Value="{Bind Default.Company}" DisplayProperty="Name">
+			<Selector.AddOns>
+				<Hyperlink Icon="Search" 
+					Command="{BindCmd Browse, Argument={Bind Default.Company}, Url='/catalog/company/browse'}"/>
+			</Selector.AddOns>
+		</Selector>
+			<Selector Label="@[Warehouse]" Value="{Bind Default.Warehouse}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" 
+					Command="{BindCmd Browse, Argument={Bind Default.Warehouse}, Url='/catalog/warehouse/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+		</Grid>
+	</Block>
+</Page>

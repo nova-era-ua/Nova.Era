@@ -1,16 +1,16 @@
-﻿<!-- Browse Items -->
+﻿<!-- Browse Unit-->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="@[Browse.Item]" Overflow="True" Padding="1rem" Width="40rem">
+		Title="@[Browse]" Overflow="True" Padding="1rem">
 	<Dialog.Buttons>
-		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Items}}" Style="Primary"/>
+		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Units}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<DataGrid ItemsSource="{Bind Items}"
+	<DataGrid ItemsSource="{Bind Units}"
 			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
-			DoubleClick="{BindCmd Select, Argument={Bind Items}}">
+			DoubleClick="{BindCmd Select, Argument={Bind Units}}">
 		<DataGridColumn Content="{Bind Id}" Role="Id"/>
-		<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
 		<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+		<DataGridColumn Header="@[Short]" Content="{Bind Short}" Fit="True" Wrap="NoWrap"/>
 		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 	</DataGrid>
 </Dialog>

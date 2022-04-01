@@ -373,6 +373,23 @@ create table jrn.StockJournal
 );
 go
 
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'usr' and TABLE_NAME=N'Defaults')
+create table usr.Defaults
+(
+	TenantId int not null,
+	UserId bigint not null,
+	Company bigint,
+	Warehouse bigint null,
+	PeriodFrom date,
+	PeriodTo date,
+		constraint PK_Defaults primary key (TenantId, UserId),
+		constraint FK_Defaults_UserId_Users foreign key (TenantId, UserId) references appsec.Users(Tenant, Id),
+		constraint FK_Defaults_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_Defaults_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+);
+go
+
 /*
 drop table jrn.StockJournal
 drop table doc.DocDetails

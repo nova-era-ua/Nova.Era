@@ -14,7 +14,8 @@ declare type TOperations = IElementArray<TOperation>;
 
 export interface TDocument extends IArrayElement {
 	readonly Id: number;
-	Date: Date,
+	Date: Date;
+	Done: boolean;
 	Operation: TOperation;
 }
 declare type TDocuments = IElementArray<TDocument>;

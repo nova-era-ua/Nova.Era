@@ -10,7 +10,9 @@ define(["require", "exports"], function (require, exports) {
         },
         defaults: {
             'Document.Date': dateUtils.today(),
-            'Document.Operation'() { return this.Operations[0]; }
+            'Document.Operation'() { return this.Operations[0]; },
+            'Document.Company'() { return this.Default.Company; },
+            'Document.WhFrom'() { return this.Default.Warehouse; }
         },
         events: {
             'Document.Rows[].add'(rows, row) { row.Qty = 1; }

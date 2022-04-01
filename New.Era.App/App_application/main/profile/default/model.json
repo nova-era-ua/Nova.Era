@@ -7,5 +7,15 @@
       "template": "default.template",
       "view": "default.view"
     }
+  },
+  "commands": {
+    "setCompany": {
+      "type": "sql",
+      "procedure": "Default.SetCompany"
+    },
+    "setWarehouse": {
+      "type": "sql",
+      "procedure": "Default.SetWarehouse"
+    }
   }
 }

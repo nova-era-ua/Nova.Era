@@ -9,7 +9,9 @@ const template: Template = {
 	},
 	defaults: {
 		'Document.Date': dateUtils.today(),
-		'Document.Operation'(this: any) { return this.Operations[0]; }
+		'Document.Operation'(this: any) { return this.Operations[0]; },
+		'Document.Company'(this: any) { return this.Default.Company;},
+		'Document.WhFrom'(this: any) { return this.Default.Warehouse; }
 	},
 	events: {
 		'Document.Rows[].add'(rows, row) { row.Qty = 1;}
