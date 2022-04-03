@@ -5,12 +5,13 @@
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Items}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<DataGrid ItemsSource="{Bind Items}"
-			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
+	<DataGrid ItemsSource="{Bind Items}" XamlStyle="{StyleResource DataGridSimple}"
+			Height="30rem" FixedHeader="True"
 			DoubleClick="{BindCmd Select, Argument={Bind Items}}">
 		<DataGridColumn Content="{Bind Id}" Role="Id"/>
 		<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
 		<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+		<DataGridColumn Header="@[Unit]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap" Align="Center"/>
 		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 	</DataGrid>
 </Dialog>

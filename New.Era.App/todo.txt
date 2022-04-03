@@ -2,9 +2,12 @@
 19. DocList -> Period
 20. StockDoc -> Apply.Warehouse
 21. DocDetails -> Unit
-23. Browse.Items - Unit
 24. Document.Row - Item.Unit, Item.Article,
 25. Document.Apply - event in list (update)
+26. MultiTenant - OnCreateTenant
+27. MultiTenant - Scripts
+28. Platform script without security
+29. 
 
 Items
 =====

@@ -5,17 +5,6 @@ if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'apps
 go
 grant execute on schema::appsec to public;
 go
-------------------------------------------------
-create or alter procedure a2security.SetTenantId
-@TenantId int
-as
-begin
-	set nocount on;
-	update appsec.Tenants set TransactionCount = TransactionCount + 1, LastTransactionDate = getutcdate() where Id = @TenantId;
-	exec sp_set_session_context @key=N'TenantId', @value=@TenantId, @read_only=0;
-end
-go
-------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'appsec' and SEQUENCE_NAME=N'SQ_Tenants')
 	create sequence appsec.SQ_Tenants as bigint start with 100 increment by 1;
 go
@@ -146,66 +135,67 @@ begin
 end
 go
 ------------------------------------------------
-create or alter procedure appsec.CreateTenantUser
-@Id bigint,
+create or alter procedure appsec.CreateUser
 @UserName nvarchar(255),
-@Tenant int,
-@PersonName nvarchar(255),
-@RegisterHost nvarchar(255) = null,
+@PasswordHash nvarchar(max) = null,
+@SecurityStamp nvarchar(max),
+@Email nvarchar(255) = null,
 @PhoneNumber nvarchar(255) = null,
+@Tenant int = null,
+@PersonName nvarchar(255) = null,
+@RegisterHost nvarchar(255) = null,
 @Memo nvarchar(255) = null,
 @TariffPlan nvarchar(255) = null,
-@TenantRoles nvarchar(max) = null,
-@Locale nvarchar(255) = null
+@Locale nvarchar(255) = null,
+@RetId bigint output
+as
+begin
+	-- from account/register only
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	
+	set @Locale = isnull(@Locale, N'uk-UA')
+
+	declare @userId bigint; 
+
+	declare @tenants table(id int);
+	declare @users table(id bigint);
+	declare @tenantId int;
+
+	begin tran;
+	insert into appsec.Tenants([Admin], Locale)
+		output inserted.Id into @tenants(id)
+	values (null, @Locale);
+
+	select top(1) @tenantId = id from @tenants;
+
+	insert into appsec.ViewUsers(UserName, PasswordHash, SecurityStamp, Email, PhoneNumber, Tenant, PersonName, 
+		RegisterHost, Memo, Segment, Locale)
+		output inserted.Id into @users(id)
+		values (@UserName, @PasswordHash, @SecurityStamp, @Email, @PhoneNumber, @tenantId, @PersonName, 
+			@RegisterHost, @Memo, a2security.fn_GetCurrentSegment(), @Locale);
+	select top(1) @userId = id from @users;
+
+	update appsec.Tenants set [Admin] = @userId where Id=@tenantId;
+
+	commit tran;
+	set @RetId = @userId;
+end
+go
+------------------------------------------------
+if exists (select * from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA=N'appsec' and ROUTINE_NAME=N'ConfirmEmail')
+	drop procedure appsec.ConfirmEmail
+go
+------------------------------------------------
+create procedure appsec.ConfirmEmail
+@Id bigint
 as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
 	set xact_abort on;
 
-	if not exists(select * from appsec.Tenants where Id = @Tenant)
-	begin
-		declare @sql nvarchar(255);
-		declare @prms nvarchar(255);
-
-		if exists(select * from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = N'appsec' and ROUTINE_NAME=N'OnCreateTenant')
-		begin
-			set @sql = N'appsec.OnCreateTenant @TenantId';
-			set @prms = N'@TenantId int';
-		end
-
-		begin tran;
-
-		insert into appsec.Tenants(Id, [Admin], Locale) values (@Tenant, @Id, @Locale);
-
-		insert into appsec.Users(Tenant, Id, UserName, PersonName, RegisterHost, PhoneNumber, Memo, Locale, 
-				SecurityStamp, PasswordHash) 
-			values(@Tenant, @Id, @UserName, @PersonName, @RegisterHost, @PhoneNumber, @Memo, @Locale, 
-				N'', N'');
-		/* system user */
-		insert into appsec.Users(Tenant, Id, UserName, SecurityStamp, PasswordHash) values (@Tenant, 0, N'System', N'', N'');
-
-		if @sql is not null
-			exec sp_executesql @sql, @prms, @Tenant;
-
-		commit tran;
-	end
-	else
-	begin
-		-- add new user to current tenant
-		begin tran
-		-- inherit RegisterHost, TariffPlan, Locale
-		declare @TenantLocale nvarchar(32);
-
-		select @RegisterHost = RegisterHost, @TenantLocale=t.Locale 
-		from appsec.Tenants t inner join appsec.Users u on t.[Admin] = u.Id
-		where t.Id = @Tenant;
-
-		insert into appsec.Users(Tenant, Id, UserName, PersonName, RegisterHost, PhoneNumber, Memo, Locale, 
-				SecurityStamp, PasswordHash) 
-			values(@Tenant, @Id, @UserName, @PersonName, @RegisterHost, @PhoneNumber, @Memo, isnull(@Locale, @TenantLocale),
-				N'', N'');
-		commit tran;
-	end
+	update appsec.ViewUsers set EmailConfirmed = 1 where Id=@Id;
 end
 go

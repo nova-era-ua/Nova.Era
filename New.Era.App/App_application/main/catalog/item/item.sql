@@ -433,8 +433,10 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, 
-		[Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo
+		[Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i
-	order by Id;
+		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
+	order by i.Id;
 end
 go

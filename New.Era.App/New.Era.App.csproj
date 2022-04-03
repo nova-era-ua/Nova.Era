@@ -198,6 +198,9 @@
     <Content Include="App_application\main\catalog\company\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\styles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="App_application\%40schemas\api-model-json-schema.json" />
