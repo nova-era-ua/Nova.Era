@@ -92,7 +92,7 @@ go
 create type doc.[OpJournalStore.TableType]
 as table(
 	Id bigint,
-	RowKind nchar(4),
+	RowKind nvarchar(8),
 	IsIn bit,
 	IsOut bit,
 	IsStorno bit
@@ -142,13 +142,13 @@ begin
 	using @JournalStore as s
 	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
 	when matched then update set 
-		t.RowKind = s.RowKind,
+		t.RowKind = isnull(s.RowKind, N''),
 		t.IsIn = s.IsIn,
 		t.IsOut = s.IsOut,
 		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
 	when not matched by target then insert
 		(TenantId, Operation, RowKind, IsIn, IsOut, Factor) values
-		(@TenantId, @Id, RowKind, s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
+		(@TenantId, @Id, isnull(RowKind, N''), s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,

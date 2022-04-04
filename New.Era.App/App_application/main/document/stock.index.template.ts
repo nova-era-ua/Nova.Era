@@ -10,7 +10,8 @@ const template: Template = {
 		'TDocument.$Warehouse'() { return this.WhFrom.Id ? this.WhFrom.Name : this.WhTo.Name;}
 	},
 	events: {
-		'app.document.saved': docSaved
+		'app.document.saved': handleSaved,
+		'app.document.apply': handleApply
 	},
 	commands: {
 		clearFilter,
@@ -47,7 +48,7 @@ function clearFilter(elem) {
 }
 
 // events
-function docSaved(savedRoot) {
+function handleSaved(savedRoot) {
 	const savedDoc = savedRoot.Document;
 	let found = this.Documents.find(d => d.Id == savedDoc.Id);
 	if (found)
@@ -56,4 +57,10 @@ function docSaved(savedRoot) {
 		let newDoc = this.Documents.$append(savedDoc);
 		newDoc.$select();
 	}
+}
+
+function handleApply(elem) {
+	let found = this.Documents.find(d => d.Id == elem.Id);
+	if (!found) return;
+	found.Done = elem.Done;
 }

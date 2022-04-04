@@ -48,6 +48,7 @@
 						<TableRow VAlign="Middle">
 							<TableCell>
 								<ComboBox Value="{Bind RowKind}">
+									<ComboBoxItem Content="Всі рядки" Value=""/>
 									<ComboBoxItem Content="Запаси" Value="Stock"/>
 									<ComboBoxItem Content="Продукція" Value="Product"/>
 								</ComboBox>

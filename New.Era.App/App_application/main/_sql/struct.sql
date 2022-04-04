@@ -382,6 +382,7 @@ go
 drop table jrn.StockJournal
 drop table doc.DocDetails
 drop table doc.Documents
+drop table doc.OpJournalStore
 drop table doc.Operations
 drop table doc.Forms
 drop table doc.FormsMenu

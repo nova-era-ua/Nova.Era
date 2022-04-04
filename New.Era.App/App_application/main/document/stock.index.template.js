@@ -10,7 +10,8 @@ define(["require", "exports"], function (require, exports) {
             'TDocument.$Warehouse'() { return this.WhFrom.Id ? this.WhFrom.Name : this.WhTo.Name; }
         },
         events: {
-            'app.document.saved': docSaved
+            'app.document.saved': handleSaved,
+            'app.document.apply': handleApply
         },
         commands: {
             clearFilter,
@@ -42,7 +43,7 @@ define(["require", "exports"], function (require, exports) {
         elem.Id = 0;
         elem.Name = '';
     }
-    function docSaved(savedRoot) {
+    function handleSaved(savedRoot) {
         const savedDoc = savedRoot.Document;
         let found = this.Documents.find(d => d.Id == savedDoc.Id);
         if (found)
@@ -51,5 +52,11 @@ define(["require", "exports"], function (require, exports) {
             let newDoc = this.Documents.$append(savedDoc);
             newDoc.$select();
         }
+    }
+    function handleApply(elem) {
+        let found = this.Documents.find(d => d.Id == elem.Id);
+        if (!found)
+            return;
+        found.Done = elem.Done;
     }
 });

@@ -31,12 +31,14 @@ function docSum() {
 async function apply() {
 	let ctrl: IController = this.$ctrl;
 	let result = await ctrl.$invoke('apply', { Id: this.Document.Id });
+	ctrl.$emitCaller('app.document.apply', { Id: this.Document.Id, Done: true });
 	ctrl.$requery();
 }
 
 async function unApply() {
 	let ctrl: IController = this.$ctrl;
 	let result = await ctrl.$invoke('unApply', { Id: this.Document.Id });
+	ctrl.$emitCaller('app.document.apply', { Id: this.Document.Id, Done: false });
 	ctrl.$requery();
 }
 
