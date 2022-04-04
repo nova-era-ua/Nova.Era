@@ -249,20 +249,6 @@ create table doc.Operations
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpJournal')
-create table doc.OpJournal
-(
-	TenantId int not null,
-	Id nvarchar(16) not null,
-	Operation bigint not null,
-	ApplyIf nvarchar(16),
-	ApplyMode nchar(1), -- (S)um, (R)ow
-	Direction nchar(1), -- (I)n, (O)ut, B(oth)
-		constraint PK_OpJournal primary key (TenantId, Operation, Id),
-		constraint FK_OpJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
-);
-go
-------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpJournalStore')
 	create sequence doc.SQ_OpJournalStore as bigint start with 100 increment by 1;
 go
@@ -274,9 +260,11 @@ create table doc.OpJournalStore
 	Id bigint not null
 		constraint DF_OpJournalStore_PK default(next value for doc.SQ_OpJournalStore),
 	Operation bigint not null,
-	RowKind nchar(4),
-	IsIn bit,
-	IsOut bit,
+	RowKind nvarchar(8) not null,
+	IsIn bit not null,
+	IsOut bit not null,
+	Factor smallint -- 1 normal, -1 storno
+		constraint CK_OpJournalStore_Factor check (Factor in (1, -1)),
 		constraint PK_OpJournalStore primary key (TenantId, Id, Operation),
 		constraint FK_OpJournalStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );

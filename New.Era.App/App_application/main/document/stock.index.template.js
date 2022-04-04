@@ -9,6 +9,9 @@ define(["require", "exports"], function (require, exports) {
             'TDocument.$Mark'() { return this.Done ? 'green' : undefined; },
             'TDocument.$Warehouse'() { return this.WhFrom.Id ? this.WhFrom.Name : this.WhTo.Name; }
         },
+        events: {
+            'app.document.saved': docSaved
+        },
         commands: {
             clearFilter,
             create,
@@ -20,9 +23,7 @@ define(["require", "exports"], function (require, exports) {
     async function create(form) {
         const ctrl = this.$ctrl;
         let url = `/document/${form.Id}/edit`;
-        let docsrc = await ctrl.$showDialog(url, null, { Form: form.Id });
-        let doc = this.Documents.$append(docsrc);
-        doc.$select();
+        await ctrl.$showDialog(url, null, { Form: form.Id });
     }
     function editSelected(docs) {
         let doc = docs.$selected;
@@ -35,11 +36,20 @@ define(["require", "exports"], function (require, exports) {
             return;
         const ctrl = this.$ctrl;
         let url = `/document/${doc.Operation.Form}/edit`;
-        let rdoc = await ctrl.$showDialog(url, { Id: doc.Id });
-        doc.$merge(rdoc);
+        await ctrl.$showDialog(url, { Id: doc.Id });
     }
     function clearFilter(elem) {
         elem.Id = 0;
         elem.Name = '';
+    }
+    function docSaved(savedRoot) {
+        const savedDoc = savedRoot.Document;
+        let found = this.Documents.find(d => d.Id == savedDoc.Id);
+        if (found)
+            found.$merge(savedDoc);
+        else {
+            let newDoc = this.Documents.$append(savedDoc);
+            newDoc.$select();
+        }
     }
 });

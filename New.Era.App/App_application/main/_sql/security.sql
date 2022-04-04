@@ -142,7 +142,23 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
-	update appsec.ViewUsers set LastLoginDate = @LastLoginDate, LastLoginHost = @LastLoginHost where Id=@Id;
+	update appsec.ViewUsers set LastLoginDate = @LastLoginDate, LastLoginHost = @LastLoginHost 
+	where Id=@Id;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.UpdateUserLockout
+@Id bigint,
+@AccessFailedCount int,
+@LockoutEndDateUtc datetimeoffset
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	update appsec.ViewUsers set 
+		AccessFailedCount = @AccessFailedCount, LockoutEndDateUtc = @LockoutEndDateUtc
+	where Id=@Id;
 end
 go
 ------------------------------------------------

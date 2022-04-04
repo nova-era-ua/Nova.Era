@@ -34,21 +34,22 @@
 					</Grid>
 				</Case>
 				<Case Value="Management">
-					<Header Grid.Row="1" Bold="False">Складські запаси</Header>
+					<Header Bold="False">Складські запаси</Header>
 					<Table ItemsSource="{Bind Operation.JournalStore}" CellSpacing="Medium" 
-						   Columns="10rem,1px,1px">
+						   Columns="10rem,1px,1px,1px">
 						<Table.Header>
 							<TableRow>
 								<TableCell Content="Блок рядків"/>
 								<TableCell Content="Прибуток"/>
 								<TableCell Content="Видаток"/>
+								<TableCell Content="Сторно"/>
 							</TableRow>
 						</Table.Header>
 						<TableRow VAlign="Middle">
 							<TableCell>
 								<ComboBox Value="{Bind RowKind}">
-									<ComboBoxItem Content="Запаси" Value="STCK"/>
-									<ComboBoxItem Content="Продукція" Value="PROD"/>
+									<ComboBoxItem Content="Запаси" Value="Stock"/>
+									<ComboBoxItem Content="Продукція" Value="Product"/>
 								</ComboBox>
 							</TableCell>
 							<TableCell Align="Center">
@@ -56,6 +57,9 @@
 							</TableCell>
 							<TableCell Align="Center">
 								<CheckBox Value="{Bind IsOut}"/>
+							</TableCell>
+							<TableCell Align="Center">
+								<CheckBox Value="{Bind IsStorno}"/>
 							</TableCell>
 						</TableRow>
 					</Table>

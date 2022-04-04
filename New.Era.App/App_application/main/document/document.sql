@@ -123,12 +123,13 @@ begin
 	set transaction isolation level read uncommitted;
 
 	declare @docform nvarchar(16);
+	declare @done bit;
 	if @Id is not null
 		select @docform = o.Form 
 		from doc.Documents d inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 		where d.TenantId = @TenantId and d.Id = @Id;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.[Sum],
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo,
@@ -175,6 +176,9 @@ begin
 	order by Id;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
+
+	select [!$System!] = null, [!!ReadOnly] = d.Done
+	from doc.Documents d where TenantId = @TenantId and Id = @Id;
 end
 go
 ------------------------------------------------
@@ -281,25 +285,47 @@ create or alter procedure doc.[Document.Apply.Stock]
 as
 begin
 	set nocount on;
-	declare @dir nchar(1);
-	select @dir = Direction from doc.OpJournal where TenantId = @TenantId and Operation = @Operation and Id=N'Stock';
 
-	declare @journal table(Document bigint, Detail bigint, Company bigint, Item bigint, Qty float, [Sum] money);
-	insert into @journal(Document, Detail, Company, Item, Qty, [Sum])
-	select d.Id, dd.Id, d.Company, dd.Item, dd.Qty, dd.[Sum]
+	declare @journal table(
+		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint,
+		Item bigint, Qty float, [Sum] money, Kind nchar(4)
+	);
+	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind)
+	select d.Id, dd.Id, d.Company, d.WhFrom, d.WhTo, dd.Item, dd.Qty, dd.[Sum], isnull(dd.Kind, N'')
 	from doc.DocDetails dd 
 		inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 	where d.TenantId = @TenantId and d.Id = @Id;
 
-	-- in, out, inout
-	if @dir = N'O' or @dir = N'B'
-		insert into jrn.StockJournal(TenantId, Dir, Document, Detail, Company, Item, Qty, [Sum])
-		select @TenantId, -1, Document, Detail, Company, Item, Qty, [Sum]
-		from @journal;
-	else if @dir = N'I' or @dir = N'B'
-		insert into jrn.StockJournal(TenantId, Dir, Document, Detail, Company, Item, Qty, [Sum])
-		select @TenantId, 1, Document, Detail, Company, Item, Qty, [Sum]
-		from @journal;
+	-- out
+	insert into jrn.StockJournal(TenantId, Dir, Warehouse, Document, Detail, Company, Item, Qty, [Sum])
+	select @TenantId, -1, j.WhFrom, j.Document, j.Detail, j.Company, j.Item, j.Qty, 
+		j.[Sum] * js.Factor
+	from @journal j inner join doc.OpJournalStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
+	where js.TenantId = @TenantId and js.Operation = @Operation and js.IsOut = 1;
+
+	-- in
+	insert into jrn.StockJournal(TenantId, Dir, Warehouse, Document, Detail, Company, Item, Qty, [Sum])
+	select @TenantId, 1, j.WhTo, j.Document, j.Detail, j.Company, j.Item, j.Qty, 
+		j.[Sum] * js.Factor
+	from @journal j inner join doc.OpJournalStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
+	where js.TenantId = @TenantId and js.Operation = @Operation and js.IsIn = 1;
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.Stock.UnApply]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	begin tran
+	delete from jrn.StockJournal where TenantId = @TenantId and Document = @Id;
+	update doc.Documents set Done = 0, DateApplied = null
+		where TenantId = @TenantId and Id = @Id;
+	commit tran
 end
 go
 ------------------------------------------------
@@ -318,8 +344,17 @@ begin
 	select @operation = Operation, @done = Done from doc.Documents where TenantId = @TenantId and Id=@Id;
 	if 1 = @done
 		throw 60000, N'UI:@[Error.Document.AlreadyApplied]', 0;
+	
+	declare @stock bit; -- stock journal
+	declare @pay bit;   -- pay journal
+	declare @acc bit;   -- acc journal
+
+	if exists(select * from doc.OpJournalStore 
+			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
+		set @stock = 1
+
 	begin tran
-		if exists(select * from doc.OpJournal where TenantId = @TenantId and Operation = @operation and Id=N'Stock')
+		if @stock = 1
 			exec doc.[Document.Apply.Stock] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;
 		update doc.Documents set Done = 1, DateApplied = getdate() 

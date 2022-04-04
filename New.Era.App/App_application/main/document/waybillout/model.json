@@ -12,6 +12,10 @@
     "apply": {
       "type": "sql",
       "procedure": "Document.Stock.Apply"
+    },
+    "unapply": {
+      "type": "sql",
+      "procedure": "Document.Stock.UnApply"
     }
   }
 }

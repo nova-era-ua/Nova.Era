@@ -17,7 +17,8 @@ const template: Template = {
 		'Document.Rows[].add'(rows, row) { row.Qty = 1;}
 	},
 	commands: {
-		apply
+		apply,
+		unApply
 	}
 };
 
@@ -30,9 +31,12 @@ function docSum() {
 async function apply() {
 	let ctrl: IController = this.$ctrl;
 	let result = await ctrl.$invoke('apply', { Id: this.Document.Id });
-	alert(JSON.stringify(result));
 	ctrl.$requery();
-
 }
 
+async function unApply() {
+	let ctrl: IController = this.$ctrl;
+	let result = await ctrl.$invoke('unApply', { Id: this.Document.Id });
+	ctrl.$requery();
+}
 

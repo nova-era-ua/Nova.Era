@@ -58,12 +58,8 @@ begin
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 	where o.TenantId = @TenantId and o.Id=@Id;
 
-	select [!TOpJournal!Array]  =null, [Id!!Id] = Id,
-		ApplyIf, ApplyMode, Direction,
-		[!TOperation.Journals!ParentId] = oj.Operation
-	from doc.OpJournal oj where oj.TenantId = @TenantId and oj.Operation = @Id;
-
-	select [!TOpJournalStore!Array] = null, [Id!!Id] = Id, RowKind, IsIn, IsOut,
+	select [!TOpJournalStore!Array] = null, [Id!!Id] = Id, RowKind, IsIn, IsOut, 
+		IsStorno = case when ojs.Factor = -1 then 1 else 0 end,
 		[!TOperation.JournalStore!ParentId] = ojs.Operation
 	from doc.OpJournalStore ojs 
 	where ojs.TenantId = @TenantId and ojs.Operation = @Id;
@@ -80,7 +76,6 @@ go
 drop procedure if exists doc.[Operation.Metadata];
 drop procedure if exists doc.[Operation.Update];
 drop type if exists doc.[Operation.TableType];
-drop type if exists doc.[OpJournal.TableType];
 drop type if exists doc.[OpJournalStore.TableType];
 go
 -------------------------------------------------
@@ -94,22 +89,13 @@ as table(
 )
 go
 -------------------------------------------------
-create type doc.[OpJournal.TableType]
-as table(
-	Id nvarchar(16),
-	Operation bigint,
-	ApplyIf nvarchar(16),
-	ApplyMode nchar(1),
-	Direction nchar(1)
-)
-go
--------------------------------------------------
 create type doc.[OpJournalStore.TableType]
 as table(
 	Id bigint,
 	RowKind nchar(4),
 	IsIn bit,
-	IsOut bit
+	IsOut bit,
+	IsStorno bit
 )
 go
 ------------------------------------------------
@@ -119,10 +105,8 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	declare @Operation doc.[Operation.TableType];
-	declare @Journals doc.[OpJournal.TableType];
 	declare @JournalStore doc.[OpJournalStore.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
-	select [Journals!Operation.Journals!Metadata] = null, * from @Journals;
 	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
 end
 go
@@ -132,7 +116,6 @@ create or alter procedure doc.[Operation.Update]
 @CompanyId bigint = 0,
 @UserId bigint,
 @Operation doc.[Operation.TableType] readonly,
-@Journals doc.[OpJournal.TableType] readonly,
 @JournalStore doc.[OpJournalStore.TableType] readonly
 as
 begin
@@ -155,26 +138,17 @@ begin
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 
-	merge doc.OpJournal as t
-	using @Journals as s
-	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
-	when matched then update set 
-		t.Direction = s.Direction
-	when not matched by target then insert
-		(TenantId, Operation, Id, Direction) values
-		(@TenantId, @Id, s.Id, s.Direction)
-	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
-
 	merge doc.OpJournalStore as t
 	using @JournalStore as s
 	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
 	when matched then update set 
 		t.RowKind = s.RowKind,
 		t.IsIn = s.IsIn,
-		t.IsOut = s.IsOut
+		t.IsOut = s.IsOut,
+		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
 	when not matched by target then insert
-		(TenantId, Operation, RowKind, IsIn, IsOut) values
-		(@TenantId, @Id, RowKind, s.IsIn, s.IsOut)
+		(TenantId, Operation, RowKind, IsIn, IsOut, Factor) values
+		(@TenantId, @Id, RowKind, s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,

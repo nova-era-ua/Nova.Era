@@ -18,7 +18,8 @@ define(["require", "exports"], function (require, exports) {
             'Document.Rows[].add'(rows, row) { row.Qty = 1; }
         },
         commands: {
-            apply
+            apply,
+            unApply
         }
     };
     exports.default = template;
@@ -28,7 +29,11 @@ define(["require", "exports"], function (require, exports) {
     async function apply() {
         let ctrl = this.$ctrl;
         let result = await ctrl.$invoke('apply', { Id: this.Document.Id });
-        alert(JSON.stringify(result));
+        ctrl.$requery();
+    }
+    async function unApply() {
+        let ctrl = this.$ctrl;
+        let result = await ctrl.$invoke('unApply', { Id: this.Document.Id });
         ctrl.$requery();
     }
 });

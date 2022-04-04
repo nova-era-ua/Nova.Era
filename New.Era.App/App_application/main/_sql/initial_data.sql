@@ -65,7 +65,7 @@ begin
 		--
 		(N'payorder',  N'Платіжне доручення', null),
 		-- 
-		(N'manufact',  N'Виробничий акт-звіт', N'PROD,STCK');
+		(N'manufact',  N'Виробничий акт-звіт', N'Product,Stock');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.Id and t.TenantId = 1
