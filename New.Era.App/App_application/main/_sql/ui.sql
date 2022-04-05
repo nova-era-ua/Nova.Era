@@ -102,8 +102,8 @@ begin
 		(1302,   13, 11, N'@[Purchases]',      N'purchase',  N'cart', N'border-top'),
 		(1303,   13, 12, N'@[Warehouse]',      N'stock',     N'warehouse', null),
 		(1304,   13, 13, N'@[Payment]',        N'payment',   N'currency-uah', null),
-		(1310,   13, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
-		(1311,   13, 21, N'@[Prices]',         N'price',     N'chart-column', null),
+		--(1310,   13, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
+		(1311,   13, 21, N'@[Prices]',         N'price',     N'chart-column', N'border-top'),
 		(1320,   13, 30, N'@[Suppliers]',      N'agent',     N'users', N'border-top'),
 		(1321,   13, 31, N'@[Items]',          N'item',      N'package-outline', null),
 		(1322,   13, 32, N'@[CatalogOther]',   N'catalog',   N'list', null),
@@ -129,6 +129,39 @@ begin
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 
 	exec a2ui.[MenuModule.Merge] @menu, 1, 9999;
+end
+go
+-------------------------------------------------
+-- Catalog
+begin
+	set nocount on;
+	declare @cat table(Id int, Menu nvarchar(16), [Name] nvarchar(255), 
+		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
+	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
+	(100, N'Sales', 10, N'@[Items]', N'@[Units]',    N'/catalog/unit/index', N'list',  N''),
+	--(101, N'Sales', 11, N'@[Items]', N'@[Vendors]',  N'/catalog/vendor/index', N'list',  N''),
+	--(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
+
+	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
+	(201, N'Purchase',   10, N'@[Items]',  N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N''),
+	-- accounting
+	(300, N'Accounting', 10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
+	(301, N'Accounting', 10, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N'');
+
+	merge a2ui.[Catalog] as t
+	using @cat as s on t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.Category = s.Category,
+		t.Menu = s.Menu,
+		t.Memo = s.Memo,
+		t.[Url] = s.[Url],
+		t.Icon = s.Icon
+	when not matched by target then insert
+		(Id, [Name], [Order], Category, Menu, Memo, [Url], Icon) values
+		(s.Id, s.[Name], [Order], Category, Menu, Memo, [Url], Icon)
+	when not matched by source then delete;
 end
 go
 -------------------------------------------------

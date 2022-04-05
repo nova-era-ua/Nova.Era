@@ -63,6 +63,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\catalog\bank\bank.sql" />
+    <Content Include="App_application\main\catalog\pricelist\pricelist.sql" />
     <Content Include="App_application\main\catalog\warehouse\warehouse.sql" />
     <Content Include="App_application\main\catalog\item\index.view.xaml">
       <SubType>Designer</SubType>
@@ -183,7 +184,7 @@
     <Content Include="App_application\main\document\waybillout\edit.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\sales\report\index.view.xaml">
+    <Content Include="App_application\main\report\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\sales\service\index.view.xaml">
@@ -207,6 +208,7 @@
     <None Include="App_application\%40schemas\app-json-schema.json" />
     <None Include="App_application\%40schemas\model-json-schema.json" />
     <None Include="App_application\%40schemas\sql-json-schema.json" />
+    <None Include="App_application\main\accounting\agent\model.json" />
     <None Include="App_application\main\accounting\catalog\model.json" />
     <None Include="App_application\main\accounting\journal\model.json" />
     <Content Include="App_application\main\catalog\unit\unit.sql" />
@@ -214,6 +216,8 @@
     <None Include="App_application\main\accounting\service\model.json" />
     <None Include="App_application\main\catalog\bank\model.json" />
     <None Include="App_application\main\catalog\brand\model.json" />
+    <None Include="App_application\main\catalog\currency\model.json" />
+    <None Include="App_application\main\catalog\pricelist\model.json" />
     <None Include="App_application\main\catalog\warehouse\model.json" />
     <None Include="App_application\main\catalog\company\model.json" />
     <None Include="App_application\main\catalog\vendor\model.json" />
@@ -221,10 +225,14 @@
     <Content Include="App_application\main\profile\default\default.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="App_application\main\purchase\price\model.json" />
     <None Include="packages.config" />
     <Content Include="tsconfig.json" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\bank\edit.d.ts" />
+    <Content Include="App_application\main\catalog\bank\downloadbanks.server.js" />
+    <TypeScriptCompile Include="App_application\main\catalog\bank\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\profile\default\default.template.ts" />
     <None Include="App_application\main\profile\default\model.json" />
     <None Include="App_application\main\settings\warehouse\model.json" />

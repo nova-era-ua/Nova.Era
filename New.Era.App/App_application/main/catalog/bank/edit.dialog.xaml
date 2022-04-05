@@ -6,7 +6,10 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
+		<TextBox Label="МФО" Value="{Bind Bank.BankCode}" Width="10rem"/>
 		<TextBox Label="@[Name]" Value="{Bind Bank.Name}"/>
+		<TextBox Label="@[FullName]" Value="{Bind Bank.FullName}" Multiline="True" Rows="3"/>
+		<TextBox Label="ЄДПРОУ" Value="{Bind Bank.Code}" Width="10rem"/>
 		<TextBox Label="@[Memo]" Value="{Bind Bank.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
 </Dialog>

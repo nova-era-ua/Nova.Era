@@ -8,4 +8,7 @@
 		<Setter Property="GridLines" Value="Horizontal" />
 		<Setter Property="UserSelect" Value="True"/>
 	</Style>
+	<Style x:Key="ToolbarLight">
+		<Setter Property="Style" Value="Light"/>
+	</Style>
 </Styles>

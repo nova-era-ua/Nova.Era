@@ -1,11 +1,14 @@
-﻿// unit.template
+﻿// bank.template
+
+import {TBank} from './edit'
 
 const template: Template = {
 	properties: {
-		'TBank.$Id'() { return this.Id ? this.Id : '@[NewItem]' }
+		'TBank.$Id'(this: TBank) { return this.Id ? this.Id : '@[NewItem]' }
 	},
 	validators: {
 		'Bank.Name': '@[Error.Required]',
+		'Bank.BankCode': '@[Error.Required]',
 	}
 };
 

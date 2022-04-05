@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1005
-generated: 04.04.2022 08:57:10
+generated: 05.04.2022 19:24:07
 */
 
 
@@ -253,12 +253,16 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'usr')
 	exec sp_executesql N'create schema usr';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'rep')
+	exec sp_executesql N'create schema rep';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
 grant execute on schema::acc to public;
 grant execute on schema::jrn to public;
 grant execute on schema::usr to public;
+grant execute on schema::rep to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -296,6 +300,28 @@ create table cat.Vendors
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Vendors primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'cat' and SEQUENCE_NAME=N'SQ_Banks')
+	create sequence cat.SQ_Banks as int start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Banks')
+create table cat.Banks
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Banks_Id default(next value for cat.SQ_Banks),
+	Void bit not null 
+		constraint DF_Banks_Void default(0),
+	[BankCode] nvarchar(16),
+	[Code] nvarchar(16),
+	[Name] nvarchar(255) null,
+	[FullName] nvarchar(255) null,
+	[Memo] nvarchar(255) null,
+	IdExt nvarchar(64) null,
+		constraint PK_Banks primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -412,6 +438,26 @@ create table cat.Agents
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Agents primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Reports')
+	create sequence rep.SQ_Reports as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'rep' and TABLE_NAME=N'Reports')
+create table rep.Reports
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Reports_PK default(next value for rep.SQ_Reports),
+	Void bit not null 
+		constraint DF_Reports_Void default(0),
+	[Menu] nvarchar(255),
+	[Name] nvarchar(255),
+	[Url] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Reports primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -618,6 +664,7 @@ go
 drop table jrn.StockJournal
 drop table doc.DocDetails
 drop table doc.Documents
+drop table doc.OpJournalStore
 drop table doc.Operations
 drop table doc.Forms
 drop table doc.FormsMenu
@@ -765,8 +812,8 @@ begin
 		(1302,   13, 11, N'@[Purchases]',      N'purchase',  N'cart', N'border-top'),
 		(1303,   13, 12, N'@[Warehouse]',      N'stock',     N'warehouse', null),
 		(1304,   13, 13, N'@[Payment]',        N'payment',   N'currency-uah', null),
-		(1310,   13, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
-		(1311,   13, 21, N'@[Prices]',         N'price',     N'chart-column', null),
+		--(1310,   13, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
+		(1311,   13, 21, N'@[Prices]',         N'price',     N'chart-column', N'border-top'),
 		(1320,   13, 30, N'@[Suppliers]',      N'agent',     N'users', N'border-top'),
 		(1321,   13, 31, N'@[Items]',          N'item',      N'package-outline', null),
 		(1322,   13, 32, N'@[CatalogOther]',   N'catalog',   N'list', null),
@@ -795,6 +842,39 @@ begin
 end
 go
 -------------------------------------------------
+-- Catalog
+begin
+	set nocount on;
+	declare @cat table(Id int, Menu nvarchar(16), [Name] nvarchar(255), 
+		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
+	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
+	(100, N'Sales', 10, N'@[Items]', N'@[Units]',    N'/catalog/unit/index', N'list',  N''),
+	--(101, N'Sales', 11, N'@[Items]', N'@[Vendors]',  N'/catalog/vendor/index', N'list',  N''),
+	--(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
+
+	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
+	(201, N'Purchase',   10, N'@[Items]',  N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N''),
+	-- accounting
+	(300, N'Accounting', 10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
+	(301, N'Accounting', 10, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N'');
+
+	merge a2ui.[Catalog] as t
+	using @cat as s on t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.Category = s.Category,
+		t.Menu = s.Menu,
+		t.Memo = s.Memo,
+		t.[Url] = s.[Url],
+		t.Icon = s.Icon
+	when not matched by target then insert
+		(Id, [Name], [Order], Category, Menu, Memo, [Url], Icon) values
+		(s.Id, s.[Name], [Order], Category, Menu, Memo, [Url], Icon)
+	when not matched by source then delete;
+end
+go
+-------------------------------------------------
 create or alter procedure a2ui.[Catalog.Other.Index]
 @TenantId int = 1,
 @UserId bigint = null,
@@ -810,6 +890,7 @@ begin
 	where Menu = @Menu order by [Order];
 end
 go
+
 /* Profile.Default */
 ------------------------------------------------
 create or alter procedure usr.[Default.Load]
@@ -1563,6 +1644,214 @@ end
 go
 
 /* BANK */
+------------------------------------------------
+create or alter procedure cat.[Bank.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Offset int = 0,
+@PageSize int = 20,
+@Order nvarchar(32) = N'name',
+@Dir nvarchar(5) = N'asc',
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + upper(@Fragment) + N'%';
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
+	with T(Id, [RowCount], RowNo) as (
+	select b.Id, count(*) over (),
+		RowNo = row_number() over (order by 
+		case when @Dir = N'asc' then
+			case @Order
+				when N'code' then b.[Code]
+				when N'bankcode' then b.[BankCode]
+				when N'name' then b.[Name]
+				when N'memo' then b.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'code' then b.[Code]
+				when N'bankcode' then b.[BankCode]
+				when N'name' then b.[Name]
+				when N'memo' then b.[Memo]
+			end
+		end desc,
+		case when @Dir = N'asc' then
+			case @Order
+				when N'id' then b.[Id]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'id' then b.[Id]
+			end
+		end desc,
+		b.Id
+		)
+	from cat.Banks b
+	where TenantId = @TenantId and (@fr is null or b.BankCode like @fr or b.Code like @fr 
+		or b.[Name] like @fr or b.FullName like @fr or b.Memo like @fr)
+	)
+	select [Banks!TBank!Array] = null,
+		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.FullName, 
+		b.Code, b.BankCode, b.Memo,
+		[!!RowCount] = t.[RowCount]
+	from cat.Banks b
+	inner join T t on t.Id = b.Id
+	order by t.RowNo
+	offset @Offset rows fetch next @PageSize rows only;
+
+	select [!$System!] = null, [!Banks!Offset] = @Offset, [!Banks!PageSize] = @PageSize, 
+		[!Banks!SortOrder] = @Order, [!Banks!SortDir] = @Dir,
+		[!Banks.Fragment!Filter] = @Fragment
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Bank.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Bank!TBank!Object] = null,
+		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo, b.[Code], b.FullName, b.BankCode
+	from cat.Banks b
+	where TenantId = @TenantId and b.Id = @Id;
+end
+go
+---------------------------------------------
+drop procedure if exists cat.[Bank.Upload.Metadata];
+drop procedure if exists cat.[Bank.Upload.Update];
+drop procedure if exists cat.[Bank.Metadata];
+drop procedure if exists cat.[Bank.Update];
+drop type if exists cat.[Bank.Upload.TableType];
+drop type if exists cat.[Bank.TableType];
+go
+---------------------------------------------
+create type cat.[Bank.Upload.TableType] as table
+(
+	Id bigint,
+	[GLMFO] nvarchar(255),
+	[SHORTNAME] nvarchar(255),
+	[FULLNAME] nvarchar(255),
+	[KOD_EDRPOU] nvarchar(50)
+)
+go
+------------------------------------------------
+create type cat.[Bank.TableType] as table
+(
+	Id bigint,
+	[Code] nvarchar(16),
+	[BankCode] nvarchar(16),
+	[Name] nvarchar(255),
+	[FullName] nvarchar(255),
+	[Memo] nvarchar(255)
+)
+go
+---------------------------------------------
+create or alter procedure cat.[Bank.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @Bank cat.[Bank.TableType];
+	select [Bank!Bank!Metadata] = null, * from @Bank;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Bank.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Bank cat.[Bank.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	
+	declare @output  table (op sysname, id bigint);
+	declare @id bigint;
+
+	merge cat.Banks as t
+	using @Bank as s on (t.TenantId = @TenantId and t.Id = s.Id)
+	when matched then update set
+		t.[Name] = s.[Name], 
+		t.[Memo] = s.[Memo], 
+		t.[BankCode] = s.[BankCode],
+		t.[FullName] = s.[FullName], 
+		t.[Code] = s.[Code]
+	when not matched by target then insert
+		(TenantId, [Name], Memo, BankCode, FullName, Code) values
+		(@TenantId, [Name], Memo, BankCode, FullName, Code)
+	output $action, inserted.Id into @output (op, id);
+
+	select top(1) @id = id from @output;
+	exec cat.[Bank.Load] @UserId = @UserId, @Id = @id;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Bank.Upload.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @Banks cat.[Bank.Upload.TableType];
+	select [Banks!Banks!Metadata] = null, * from @Banks;
+end
+go
+
+---------------------------------------------
+create or alter procedure cat.[Bank.Upload.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Banks cat.[Bank.Upload.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	merge cat.Banks as t
+	using @Banks as s
+	on t.TenantId = @TenantId and t.BankCode = s.[GLMFO]
+	when matched then update set
+		t.BankCode = s.[GLMFO],
+		t.[Name] =  s.[SHORTNAME],
+		t.[Code] = s.KOD_EDRPOU,
+		t.[FullName] = s.FULLNAME,
+		t.Void = 0
+	when not matched by target then insert
+		(TenantId, BankCode, [Name], [Code], [FullName]) values
+		(@TenantId, s.[GLMFO], [SHORTNAME], KOD_EDRPOU, FULLNAME);
+
+	select [Result!TResult!Object] = null, Loaded = (select count(*) from @Banks);
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Bank.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update cat.Banks set Void = 1 where TenantId = @TenantId and Id = @Id;
+end
+go
+
+
 
 /* UNIT */
 drop procedure if exists cat.[Unit.Metadata];
@@ -1652,6 +1941,8 @@ begin
 	exec cat.[Unit.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
+
+/* PRICELIST */
 
 /* Accounting plan */
 
@@ -1918,7 +2209,7 @@ go
 create type doc.[OpJournalStore.TableType]
 as table(
 	Id bigint,
-	RowKind nchar(4),
+	RowKind nvarchar(8),
 	IsIn bit,
 	IsOut bit,
 	IsStorno bit
@@ -1968,13 +2259,13 @@ begin
 	using @JournalStore as s
 	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
 	when matched then update set 
-		t.RowKind = s.RowKind,
+		t.RowKind = isnull(s.RowKind, N''),
 		t.IsIn = s.IsIn,
 		t.IsOut = s.IsOut,
 		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
 	when not matched by target then insert
 		(TenantId, Operation, RowKind, IsIn, IsOut, Factor) values
-		(@TenantId, @Id, RowKind, s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
+		(@TenantId, @Id, isnull(RowKind, N''), s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,
@@ -2455,37 +2746,5 @@ begin
 end
 go
 
--------------------------------------------------
--- Catalog
-begin
-	set nocount on;
-	declare @cat table(Id int, Menu nvarchar(16), [Name] nvarchar(255), 
-		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
-	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
-	(100, N'Sales', 10, N'@[Items]', N'@[Units]',    N'/catalog/unit/index', N'list',  N''),
-	(101, N'Sales', 11, N'@[Items]', N'@[Vendors]',  N'/catalog/vendor/index', N'list',  N''),
-	(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
-
-	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]', N'/catalog/unit/index', N'list',  N''),
-	-- accounting
-	(300, N'Accounting', 10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
-	(301, N'Accounting', 10, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N'');
-
-	merge a2ui.[Catalog] as t
-	using @cat as s on t.Id = s.Id
-	when matched then update set
-		t.[Name] = s.[Name],
-		t.[Order] = s.[Order],
-		t.Category = s.Category,
-		t.Menu = s.Menu,
-		t.Memo = s.Memo,
-		t.[Url] = s.[Url],
-		t.Icon = s.Icon
-	when not matched by target then insert
-		(Id, [Name], [Order], Category, Menu, Memo, [Url], Icon) values
-		(s.Id, s.[Name], [Order], Category, Menu, Memo, [Url], Icon)
-	when not matched by source then delete;
-end
-go
 
 

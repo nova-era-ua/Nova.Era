@@ -79,36 +79,4 @@ begin
 end
 go
 
--------------------------------------------------
--- Catalog
-begin
-	set nocount on;
-	declare @cat table(Id int, Menu nvarchar(16), [Name] nvarchar(255), 
-		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
-	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
-	(100, N'Sales', 10, N'@[Items]', N'@[Units]',    N'/catalog/unit/index', N'list',  N''),
-	(101, N'Sales', 11, N'@[Items]', N'@[Vendors]',  N'/catalog/vendor/index', N'list',  N''),
-	(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
-
-	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]', N'/catalog/unit/index', N'list',  N''),
-	-- accounting
-	(300, N'Accounting', 10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
-	(301, N'Accounting', 10, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N'');
-
-	merge a2ui.[Catalog] as t
-	using @cat as s on t.Id = s.Id
-	when matched then update set
-		t.[Name] = s.[Name],
-		t.[Order] = s.[Order],
-		t.Category = s.Category,
-		t.Menu = s.Menu,
-		t.Memo = s.Memo,
-		t.[Url] = s.[Url],
-		t.Icon = s.Icon
-	when not matched by target then insert
-		(Id, [Name], [Order], Category, Menu, Memo, [Url], Icon) values
-		(s.Id, s.[Name], [Order], Category, Menu, Memo, [Url], Icon)
-	when not matched by source then delete;
-end
-go
 

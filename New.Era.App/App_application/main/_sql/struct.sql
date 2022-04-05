@@ -17,12 +17,16 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'usr')
 	exec sp_executesql N'create schema usr';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'rep')
+	exec sp_executesql N'create schema rep';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
 grant execute on schema::acc to public;
 grant execute on schema::jrn to public;
 grant execute on schema::usr to public;
+grant execute on schema::rep to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -60,6 +64,28 @@ create table cat.Vendors
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Vendors primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'cat' and SEQUENCE_NAME=N'SQ_Banks')
+	create sequence cat.SQ_Banks as int start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Banks')
+create table cat.Banks
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Banks_Id default(next value for cat.SQ_Banks),
+	Void bit not null 
+		constraint DF_Banks_Void default(0),
+	[BankCode] nvarchar(16),
+	[Code] nvarchar(16),
+	[Name] nvarchar(255) null,
+	[FullName] nvarchar(255) null,
+	[Memo] nvarchar(255) null,
+	IdExt nvarchar(64) null,
+		constraint PK_Banks primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -176,6 +202,26 @@ create table cat.Agents
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Agents primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Reports')
+	create sequence rep.SQ_Reports as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'rep' and TABLE_NAME=N'Reports')
+create table rep.Reports
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Reports_PK default(next value for rep.SQ_Reports),
+	Void bit not null 
+		constraint DF_Reports_Void default(0),
+	[Menu] nvarchar(255),
+	[Name] nvarchar(255),
+	[Url] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Reports primary key (TenantId, Id)
 );
 go
 ------------------------------------------------

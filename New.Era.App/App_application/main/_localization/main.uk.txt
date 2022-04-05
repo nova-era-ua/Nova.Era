@@ -36,15 +36,16 @@
 @Defaults=Замовчування
 ;
 @Unit=Од.вим.
+@Units=Одиниці виміру
 @Folder=Папка
 @Agents=Контрагенти
 @Items=Об'єкти обліку
 @BankAccounts=Рахунки в банках
-@Units=Одиниці виміру
 @Banks=Банки
 @Vendors=Виробники
 @Brands=Бренди
 @Currencies=Валюти
+@PriceLists=Прайс-листи
 @CreateFolder=Створити папку
 @CreateSection=Створити розділ
 @CreateAccountPlan=Створити план рахунків
@@ -59,8 +60,12 @@
 @ItemProperties=Властивості елементу
 @OperationProperties=Властивості операції
 @Import=Імпортувати
+@DownloadFromNBU=Завантажити з сайта НБУ
+@BanksDownloaded=Завантажено банків
 ;
 @Article=Артикул
+@CodeUA=ЄДПРПОУ
+@CodeBankUA=МФО
 ;
 @Filter.AllOperations=<Всі операції>
 ;

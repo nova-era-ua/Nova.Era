@@ -1,11 +1,10 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "cat",
-  "model": "Bank",
+  "model": "Currency",
   "actions": {
     "index": {
       "index": true,
-      "template": "index.template",
       "view": "index.view"
     }
   },
@@ -13,12 +12,6 @@
     "edit": {
       "template": "edit.template",
       "view": "edit.dialog"
-    }
-  },
-  "commands": {
-    "downloadBanks": {
-      "type": "javascript",
-      "file": "downloadbanks.server"
     }
   }
 }

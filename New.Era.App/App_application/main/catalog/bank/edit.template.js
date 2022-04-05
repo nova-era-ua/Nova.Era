@@ -7,6 +7,7 @@ define(["require", "exports"], function (require, exports) {
         },
         validators: {
             'Bank.Name': '@[Error.Required]',
+            'Bank.BankCode': '@[Error.Required]',
         }
     };
     exports.default = template;

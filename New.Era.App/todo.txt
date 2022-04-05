@@ -1,6 +1,5 @@
 ﻿
-19. DocList -> Period
-20. StockDoc -> Apply.Warehouse
+19. DocList -> Period Filter
 21. DocDetails -> Unit
 24. Document.Row - Item.Unit, Item.Article,
 26. MultiTenant - OnCreateTenant
@@ -9,6 +8,9 @@
 30. StockDoc -> Apply.Payment
 31. Unit: Pager, Filter, Sort
 32. Unit.Delete
+33. Reports: List
+34. StockReports: turnover
+35. Item -> RemoveTree -> Make Plain
 
 Items
 =====
@@ -22,10 +24,16 @@ Agents
 
 Catalog-Other
 =============
-1. Brands
-2. Banks
-3. Vendors
-4. Countries
+1. *Brands
+3. *Vendors
+4. *Countries
+5. Currencies
 
 
-
+!!!PLATFORM!!!!
+==================
+1. Toolbar XamlStyle -> Padding -> Exception "String to Thickness"
+2. .dialog-grid-content {overflow:auto;}
+3. .a2-include.full-height {overflow:hidden;}
+4. useUnsafeHeaderParsing??? javascript fetch -> Accept header from params to WebRequest.
+5. 

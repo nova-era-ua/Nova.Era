@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "Agent",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "../../catalog/agent/index.template",
+      "view": "../../catalog/agent/index.view"
+    }
+  }
+}

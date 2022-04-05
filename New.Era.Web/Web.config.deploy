@@ -18,7 +18,13 @@
 		<compilation debug="true" targetFramework="4.8" />
 		<httpRuntime targetFramework="4.8" />
 	</system.web>
-	
+
+	<system.net>
+		<settings>
+			<httpWebRequest useUnsafeHeaderParsing="true" />
+		</settings>
+	</system.net>
+
 	<system.webServer>
 		<modules runAllManagedModulesForAllRequests="true">
 			<remove name="FormsAuthentication" />

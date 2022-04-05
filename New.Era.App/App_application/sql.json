@@ -15,6 +15,7 @@
       "main/catalog/agent/agent.sql",
       "main/catalog/bank/bank.sql",
       "main/catalog/unit/unit.sql",
+      "main/catalog/pricelist/pricelist.sql",
       "main/settings/accountplan/plan.sql",
       "main/settings/operation/operation.sql",
       "main/document/document.sql",
