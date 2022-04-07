@@ -3,6 +3,7 @@
 		<CollectionView RunAt="ServerUrl" ItemsSource="{Bind Documents}">
 			<CollectionView.Filter>
 				<FilterDescription>
+					<FilterItem Property="Period" DataType="Period" />
 					<FilterItem Property="Operation" DataType="Number"/>
 					<FilterItem Property="Agent" DataType="Object"/>
 					<FilterItem Property="Company" DataType="Object"/>
@@ -46,7 +47,10 @@
 		<Pager Grid.Row="3" Source="{Bind Parent.Pager}" Padding=".5rem,.5rem,0,.5rem"/>
 	</Grid>
 	<Page.Taskpad>
-		<Taskpad Collapsible="False" Width="20rem">
+		<Taskpad Collapsible="False" Width="20rem" Overflow="True">
+			<PeriodPicker Label="@[Period]" Display="Name" Placement="BottomRight"
+				Value="{Bind Parent.Filter.Period}"
+				Description="{Bind Parent.Filter.Period.Name}"/>
 			<ComboBox Label="@[Operations]"
 				ItemsSource="{Bind Operations}" Value="{Bind Parent.Filter.Operation}">
 				<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>

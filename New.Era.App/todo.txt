@@ -1,5 +1,4 @@
 ﻿
-19. DocList -> Period Filter
 21. DocDetails -> Unit
 24. Document.Row - Item.Unit, Item.Article,
 26. MultiTenant - OnCreateTenant

@@ -4,7 +4,8 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         events: {
             'Default.Company.change': companyChange,
-            'Default.Warehouse.change': warehouseChange
+            'Default.Warehouse.change': warehouseChange,
+            'Default.Period.change': periodChange
         }
     };
     exports.default = template;
@@ -17,5 +18,10 @@ define(["require", "exports"], function (require, exports) {
         let ctrl = this.$ctrl;
         await ctrl.$invoke('setWarehouse', { Id: wh.Id });
         ctrl.$toast('@[Default.Warehouse.Changed]', "success");
+    }
+    async function periodChange(def, period) {
+        let ctrl = this.$ctrl;
+        await ctrl.$invoke('setPeriod', { From: period.From, To: period.To });
+        ctrl.$toast('@[Default.Period.Changed]', "success");
     }
 });

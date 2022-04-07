@@ -11,11 +11,18 @@ create or alter procedure doc.[Document.Stock.Index]
 @Operation bigint = -1,
 @Agent bigint = null,
 @Warehouse bigint = null,
-@Company bigint = null
+@Company bigint = null,
+@From date = null,
+@To date = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date;
+	set @end = dateadd(day, 1, @To);
+
 	set @Order = lower(@Order);
 	set @Dir = lower(@Dir);
 
@@ -28,6 +35,7 @@ begin
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and o.Menu = @Menu
+		and (d.[Date] >= @From and d.[Date] < @end)
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
 		and (@Company is null or d.Company = @Company)
@@ -105,6 +113,7 @@ begin
 
 	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
 		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
+		[!Documents.Period.From!Filter] = @From, [!Documents.Period.To!Filter] = @To,
 		[!Documents.Operation!Filter] = @Operation, 
 		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
 		[!Documents.Company.Id!Filter] = @Company, [!Documents.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),

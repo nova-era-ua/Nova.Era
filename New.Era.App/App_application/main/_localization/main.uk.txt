@@ -15,6 +15,7 @@
 @Company=Підприємство
 @Other=Інше
 @Agent=Контрагент
+@Period=Період
 @Warehouse=Склад
 @Warehouses=Склади
 @Department=Підрозділ
@@ -91,3 +92,4 @@
 ;
 @Default.Company.Changed=Підприємство за замовчуванням змінено
 @Default.Warehouse.Changed=Склад за замовчуванням змінено
+@Default.Period.Changed=Період за замовчуванням змінено

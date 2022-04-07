@@ -16,6 +16,10 @@
     "setWarehouse": {
       "type": "sql",
       "procedure": "Default.SetWarehouse"
+    },
+    "setPeriod": {
+      "type": "sql",
+      "procedure": "Default.SetPeriod"
     }
   }
 }

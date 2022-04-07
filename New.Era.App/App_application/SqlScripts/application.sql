@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1005
-generated: 05.04.2022 19:24:07
+generated: 07.04.2022 22:18:55
 */
 
 
@@ -910,6 +910,7 @@ begin
 	where d.TenantId = @TenantId and d.UserId = @UserId;
 end
 go
+------------------------------------------------
 create or alter procedure usr.[Default.Ensure] 
 @TenantId int = 1, 
 @UserId bigint
@@ -949,6 +950,28 @@ begin
 	update usr.Defaults set Warehouse = @Id where TenantId = @TenantId and UserId = @UserId;
 end
 go
+------------------------------------------------
+create or alter procedure usr.[Default.GetUserPeriod]
+@TenantId int = 1,
+@UserId bigint,
+@From date output,
+@To date output
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	if @From is not null and @To is not null
+		return;
+	exec usr.[Default.Ensure] @TenantId = @TenantId, @UserId = @UserId;
+	select @From = [PeriodFrom], @To = [PeriodTo] from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	if @From is null or @To is null
+	begin
+		update usr.Defaults set @From = getdate(), @To = getdate() where TenantId = @TenantId and UserId = @UserId;
+		select @From = [PeriodFrom], @To = [PeriodTo] from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	end
+end
+go
+
 -- Company
 ------------------------------------------------
 create or alter procedure cat.[Company.Index]
@@ -2286,11 +2309,15 @@ create or alter procedure doc.[Document.Stock.Index]
 @Operation bigint = -1,
 @Agent bigint = null,
 @Warehouse bigint = null,
-@Company bigint = null
+@Company bigint = null,
+@From date = null,
+@To date = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+
 	set @Order = lower(@Order);
 	set @Dir = lower(@Dir);
 
@@ -2380,6 +2407,7 @@ begin
 
 	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
 		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
+		[!Documents.Period.From!Filter] = @From, [!Documents.Period.To!Filter] = @To,
 		[!Documents.Operation!Filter] = @Operation, 
 		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
 		[!Documents.Company.Id!Filter] = @Company, [!Documents.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
