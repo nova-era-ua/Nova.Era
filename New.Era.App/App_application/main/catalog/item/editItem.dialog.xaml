@@ -7,14 +7,6 @@
 	</Dialog.Buttons>
 	<Grid>
 		<TextBox Label="@[Name]" Value="{Bind Item.Name}" UpdateTrigger="Input" Bold="True"/>
-		<Static Label="@[ParentFolder]" Value="{Bind Item.ParentFolder.Name}">
-			<!--
-			<Static.AddOns>
-				<Hyperlink Icon="Search" 
-					Command="{BindCmd Dialog, Action=Browse, Argument={Bind Item.ParentFolder}, Url='/catalog/item/browseFolder'}"/>
-			</Static.AddOns>
-			-->
-		</Static>
 		<Selector Label="@[Unit]" Value="{Bind Item.Unit}" DisplayProperty="Short">
 			<Selector.AddOns>
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>

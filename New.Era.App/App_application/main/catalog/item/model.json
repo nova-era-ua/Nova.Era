@@ -1,12 +1,12 @@
 ﻿{
   "$schema": "../../@schemas/model-json-schema.json#",
   "schema": "cat",
-  "model": "Item",
+  "model": "Item.Plain",
   "actions": {
     "index": {
       "index": true,
-      "template": "index.template",
-      "view": "index.view"
+      "template": "index.plain.template",
+      "view": "index.plain.view"
     }
   },
   "dialogs": {

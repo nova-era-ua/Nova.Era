@@ -5,10 +5,16 @@ admin
 if not exists(select * from appsec.Tenants where Id <> 0)
 begin
 	set nocount on;
-	set transaction isolation level read committed;
 
-	insert into appsec.Tenants(Id)
-	values (1);
+	insert into appsec.Tenants(Id) values (1);
+end
+go
+------------------------------------------------
+if not exists(select * from appsec.Tenants where Id = 0)
+begin
+	set nocount on;
+
+	insert into appsec.Tenants(Id) values (0);
 end
 go
 ------------------------------------------------

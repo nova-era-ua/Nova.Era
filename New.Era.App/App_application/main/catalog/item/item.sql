@@ -129,6 +129,84 @@ begin
 		[!Children.Fragment!Filter] = @Fragment
 end
 go
+-------------------------------------------------
+create or alter procedure cat.[Item.Plain.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Offset int = 0,
+@PageSize int = 20,
+@Order nvarchar(255) = N'date',
+@Dir nvarchar(20) = N'asc',
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+	
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Fragment + N'%';
+
+
+	declare @items table(rowno int identity(1, 1), id bigint, unit bigint, rowcnt int);
+
+	insert into @items(id, unit, rowcnt)
+	select i.Id, i.Unit, 
+		count(*) over()
+	from cat.Items i
+	where i.TenantId = @TenantId
+		and (@fr is null or i.Name like @fr or i.FullName like @fr or i.Memo like @fr or i.Article like @fr)
+	order by 
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'id' then i.[Id]
+			end
+		end asc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'name' then i.[Name]
+				when N'fullname' then i.[FullName]
+				when N'article' then i.[Article]
+				when N'memo' then i.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'id' then i.[Id]
+			end
+		end desc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'name' then i.[Name]
+				when N'fullname' then i.[FullName]
+				when N'article' then i.[Article]
+				when N'memo' then i.[Memo]
+			end
+		end desc
+	offset @Offset rows fetch next @PageSize rows only
+	option (recompile);
+
+	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
+		i.IsStock,
+		[Unit!TUnit!RefId] = i.Unit,
+		[!!RowCount] = t.rowcnt
+	from @items t inner join cat.Items i on i.TenantId = @TenantId and t.id = i.Id
+	order by t.rowno;
+
+	-- maps
+	with T as (select unit from @items group by unit)
+	select [!TUnit!Map] = null, [Id!!Id] = u.Id, u.[Short]
+	from cat.Units u 
+		inner join T t on u.TenantId = @TenantId and u.Id = unit;
+
+	-- filter
+	select [!$System!] = null, [!Items!Offset] = @Offset, [!Items!PageSize] = @PageSize, 
+		[!Items!SortOrder] = @Order, [!Items!SortDir] = @Dir,
+		[!Items.Fragment!Filter] = @Fragment;
+end
+go
 ------------------------------------------------
 drop procedure if exists cat.[Item.Folder.Metadata];
 drop procedure if exists cat.[Item.Folder.Update];
@@ -149,7 +227,6 @@ go
 create type cat.[Item.Item.TableType]
 as table(
 	Id bigint null,
-	ParentFolder bigint,
 	[Name] nvarchar(255),
 	Article nvarchar(32),
 	FullName nvarchar(255),
@@ -244,18 +321,11 @@ begin
 		select @Parent = Parent from cat.ItemTreeItems where Item =@Id;
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
 		i.IsStock,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
-		[ParentFolder.Id!TParentFolder!Id] = iti.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name]
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i 
 		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
-		inner join cat.ItemTreeItems iti on i.Id = iti.Item and i.TenantId = iti.TenantId
-		inner join cat.ItemTree t on iti.Parent = t.Id and iti.TenantId = t.TenantId
-	where i.TenantId = @TenantId and iti.TenantId=@TenantId and t.TenantId = @TenantId 
-		and i.Id=@Id and i.Void = 0;
+	where i.TenantId = @TenantId and i.Id=@Id and i.Void = 0;
 	
-	select [ParentFolder!TParentFolder!Object] = null,  [Id!!Id] = Id, [Name!!Name] = [Name]
-	from cat.ItemTree t
-	where Id = @Parent and TenantId = @TenantId;
 end
 go
 -------------------------------------------------
@@ -307,13 +377,6 @@ begin
 	into @output(op, id);
 
 	select top(1) @RetId = id from @output;
-
-	merge cat.ItemTreeItems  as t
-	using (select Item = @RetId, ParentFolder from @Item) as s
-	on (t.Item = s.Item and t.Parent = s.ParentFolder and t.TenantId = @TenantId)
-	when not matched by target then insert (TenantId, Parent, Item)
-	values (@TenantId, s.ParentFolder, s.Item)
-	when not matched by source and t.TenantId = @TenantId and t.Item = @RetId then delete;
 
 	commit tran;
 

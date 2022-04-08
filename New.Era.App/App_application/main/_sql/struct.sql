@@ -20,6 +20,9 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'rep')
 	exec sp_executesql N'create schema rep';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'ini')
+	exec sp_executesql N'create schema ini';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -27,6 +30,7 @@ grant execute on schema::acc to public;
 grant execute on schema::jrn to public;
 grant execute on schema::usr to public;
 grant execute on schema::rep to public;
+grant execute on schema::ini to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -424,13 +428,3 @@ create table usr.Defaults
 );
 go
 
-/*
-drop table jrn.StockJournal
-drop table doc.DocDetails
-drop table doc.Documents
-drop table doc.OpJournalStore
-drop table doc.Operations
-drop table doc.Forms
-drop table doc.FormsMenu
-drop table cat.Agents
-*/

@@ -176,6 +176,8 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
+	set @TenantId= a2sys.fn_GetCurrentTenant(@TenantId);
+
 	merge cat.Banks as t
 	using @Banks as s
 	on t.TenantId = @TenantId and t.BankCode = s.[GLMFO]

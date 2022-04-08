@@ -78,6 +78,7 @@
 @Browse.Warehouse=Вибір складу
 @Browse.Agent=Вибір контрагента
 @Browse.Item=Вибір об'єкта обліку
+@Browse.Unit=Вибір одиниці виміру
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
 @Error.Required=Обов\'язкове поле

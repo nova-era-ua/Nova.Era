@@ -29,5 +29,12 @@
     "inputFiles": [
       "main/_sql/catalog/catalog_security.sql"
     ]
+  },
+  {
+    "version": "10.1.1012",
+    "outputFile": "SqlScripts/multitenant.sql",
+    "inputFiles": [
+      "main/_sql/startup_mt.sql"
+    ]
   }
 ]

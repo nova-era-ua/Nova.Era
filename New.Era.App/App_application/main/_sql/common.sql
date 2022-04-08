@@ -34,3 +34,13 @@ begin
 	return @name;
 end
 go
+------------------------------------------------
+create or alter function a2sys.fn_GetCurrentTenant(@TenantId int)
+returns int
+as
+begin
+	if @TenantId is null
+		set @TenantId = isnull(cast(session_context(N'TenantId') as int), 1);
+	return @TenantId;
+end
+go

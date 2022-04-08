@@ -7,9 +7,6 @@ const template: Template = {
 	},
 	validators: {
 		'Item.Name': '@[Error.Required]'
-	},
-	defaults: {
-		"Item.ParentFolder"(this: TRoot) { return this.ParentFolder; }
 	}
 };
 

@@ -1,31 +1,14 @@
 ﻿
 21. DocDetails -> Unit
 24. Document.Row - Item.Unit, Item.Article,
-26. MultiTenant - OnCreateTenant
-27. MultiTenant - Scripts
-28. Platform script without security
 30. StockDoc -> Apply.Payment
 31. Unit: Pager, Filter, Sort
 32. Unit.Delete
 33. Reports: List
 34. StockReports: turnover
-35. Item -> RemoveTree -> Make Plain
+37. Agent.List
+39. Замовлення - нет в списке.
 
-Items
-=====
-1. TreeView: DoubleClick
-3. EditFolder: ParentFolder
-9. ItemList - Delete
-
-Agents
-======
-1. Create/Edit/Delete
-
-Catalog-Other
-=============
-1. *Brands
-3. *Vendors
-4. *Countries
 5. Currencies
 
 
@@ -36,3 +19,14 @@ Catalog-Other
 3. .a2-include.full-height {overflow:hidden;}
 4. useUnsafeHeaderParsing??? javascript fetch -> Accept header from params to WebRequest.
 5. 
+
+Future: Common
+==============
+1. TreeView: DoubleClick
+3. EditFolder: ParentFolder
+
+Future: Catalog-Other
+=====================
+1. *Brands
+3. *Vendors
+4. *Countries

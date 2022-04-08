@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 08.04.2022 08:11:33
+generated: 08.04.2022 10:28:53
 */
 
 
@@ -256,6 +256,9 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'rep')
 	exec sp_executesql N'create schema rep';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'ini')
+	exec sp_executesql N'create schema ini';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -263,6 +266,7 @@ grant execute on schema::acc to public;
 grant execute on schema::jrn to public;
 grant execute on schema::usr to public;
 grant execute on schema::rep to public;
+grant execute on schema::ini to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -660,16 +664,6 @@ create table usr.Defaults
 );
 go
 
-/*
-drop table jrn.StockJournal
-drop table doc.DocDetails
-drop table doc.Documents
-drop table doc.OpJournalStore
-drop table doc.Operations
-drop table doc.Forms
-drop table doc.FormsMenu
-drop table cat.Agents
-*/
 
 /*
 common
@@ -705,6 +699,16 @@ begin
 	if @Id is not null
 		select @name = [Name] from cat.Companies where TenantId=@TenantId and Id=@Id;
 	return @name;
+end
+go
+------------------------------------------------
+create or alter function a2sys.fn_GetCurrentTenant(@TenantId int)
+returns int
+as
+begin
+	if @TenantId is null
+		set @TenantId = isnull(cast(session_context(N'TenantId') as int), 1);
+	return @TenantId;
 end
 go
 
@@ -1860,6 +1864,8 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
+	set @TenantId= a2sys.fn_GetCurrentTenant(@TenantId);
+
 	merge cat.Banks as t
 	using @Banks as s
 	on t.TenantId = @TenantId and t.BankCode = s.[GLMFO]
@@ -2277,6 +2283,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
+	set xact_abort on;
 	
 	declare @rtable table(id bigint);
 	declare @Id bigint;
@@ -2695,10 +2702,16 @@ admin
 if not exists(select * from appsec.Tenants where Id <> 0)
 begin
 	set nocount on;
-	set transaction isolation level read committed;
 
-	insert into appsec.Tenants(Id)
-	values (1);
+	insert into appsec.Tenants(Id) values (1);
+end
+go
+------------------------------------------------
+if not exists(select * from appsec.Tenants where Id = 0)
+begin
+	set nocount on;
+
+	insert into appsec.Tenants(Id) values (0);
 end
 go
 ------------------------------------------------
@@ -2716,35 +2729,26 @@ go
 /*
 initial data
 */
-
 ------------------------------------------------
-if not exists(select * from cat.Companies)
+-- Default catalogs
+create or alter procedure ini.[Cat.OnCreateTenant]
+@TenantId int
+as
 begin
-	set nocount on;
-	set transaction isolation level read committed;
-
-	declare @rtable table(id bigint);
-
-	insert into cat.Companies (TenantId, [Name]) 
-	output inserted.Id into @rtable(id)
-	values (1, N'Моє підприємство');
+	if not exists(select * from cat.Companies where TenantId = @TenantId)
+		insert into cat.Companies (TenantId, [Name]) values (@TenantId, N'Моє підприємство');
+	if not exists(select * from cat.Warehouses where TenantId = @TenantId)
+		insert into cat.Warehouses(TenantId, [Name]) values (@TenantId, N'Основний склад');
 end
-go
-
--- ITEM TREE
-if not exists(select * from cat.ItemTree where Id=0)
-	insert into cat.ItemTree(TenantId, Id, Parent, [Root], [Name]) 
-	values(1, 0, 0, 0, N'Root');
-go
--------------------------------------------------
-if not exists(select * from cat.ItemTree where Id=1)
-	insert into cat.ItemTree(TenantId, Id, Parent, [Root], [Name]) 
-	values(1, 1, 0, 0, N'(Default hierarchy)');
 go
 -------------------------------------------------
 -- FormsMenu
+create or alter procedure ini.[Forms.OnCreateTenant]
+@TenantId int
+as
 begin
 	set nocount on;
+	-- for ALL tenants (Id = 0)
 	declare @fu table(Id nvarchar(32), [Order] int, Category nvarchar(32), [Name] nvarchar(255));
 	insert into @fu (Id, [Order], [Category], [Name]) values
 		(N'Sales.Order',   10, N'@[Sales]', N'@[Orders]'),
@@ -2754,21 +2758,16 @@ begin
 		(N'Purchase.Stock',    21, N'@[Purchases]', N'@[Warehouse]'),
 		(N'Purchase.Payment',  22, N'@[Purchases]', N'@[Payment]');
 	merge doc.FormsMenu as t
-	using @fu as s on t.Id = s.Id and t.TenantId = 1
+	using @fu as s on t.Id = s.Id and t.TenantId = 0
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Order] = s.[Order],
 		t.Category = s.Category
 	when not matched by target then insert
 		(TenantId, Id, [Name], [Order], Category) values
-		(1, s.Id, s.[Name], [Order], Category)
-	when not matched by source and t.TenantId = 1 then delete;
-end
-go
--------------------------------------------------
--- FORMS
-begin
-	set nocount on;
+		(@TenantId, s.Id, s.[Name], [Order], Category)
+	when not matched by source and t.TenantId = @TenantId then delete;
+
 	declare @df table(Id nvarchar(16), [Name] nvarchar(255), RowKinds nvarchar(255));
 	insert into @df (Id, [Name], RowKinds) values
 		-- Sales
@@ -2783,16 +2782,21 @@ begin
 		(N'manufact',  N'Виробничий акт-звіт', N'Product,Stock');
 
 	merge doc.Forms as t
-	using @df as s on t.Id = s.Id and t.TenantId = 1
+	using @df as s on t.Id = s.Id and t.TenantId = 0
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[RowKinds] = s.[RowKinds]
 	when not matched by target then insert
 		(TenantId, Id, [Name], RowKinds) values
-		(1, s.Id, s.[Name], RowKinds)
-	when not matched by source and t.TenantId = 1 then delete;
+		(@TenantId, s.Id, s.[Name], RowKinds)
+	when not matched by source and t.TenantId = @TenantId then delete;
 end
 go
+------------------------------------------------
+exec ini.[Cat.OnCreateTenant] @TenantId = 1;
+exec ini.[Forms.OnCreateTenant] @TenantId = 1;
+go
+
 
 
 

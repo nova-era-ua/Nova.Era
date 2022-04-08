@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 08.04.2022 08:11:33
+generated: 08.04.2022 10:28:53
 */
 
 
@@ -193,11 +193,7 @@ begin
 end
 go
 ------------------------------------------------
-if exists (select * from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA=N'appsec' and ROUTINE_NAME=N'ConfirmEmail')
-	drop procedure appsec.ConfirmEmail
-go
-------------------------------------------------
-create procedure appsec.ConfirmEmail
+create or alter procedure appsec.ConfirmEmail
 @Id bigint
 as
 begin
@@ -206,6 +202,21 @@ begin
 	set xact_abort on;
 
 	update appsec.ViewUsers set EmailConfirmed = 1 where Id=@Id;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.UpdateUserLockout
+@Id bigint,
+@AccessFailedCount int,
+@LockoutEndDateUtc datetimeoffset
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update appsec.ViewUsers set 
+		AccessFailedCount = @AccessFailedCount, LockoutEndDateUtc = @LockoutEndDateUtc
+	where Id=@Id;
 end
 go
 

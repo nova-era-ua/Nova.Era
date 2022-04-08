@@ -121,6 +121,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
+	set xact_abort on;
 	
 	declare @rtable table(id bigint);
 	declare @Id bigint;
