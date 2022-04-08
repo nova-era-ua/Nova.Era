@@ -1,3 +1,11 @@
+﻿/*
+version: 10.1.1012
+generated: 08.04.2022 07:24:40
+*/
+
+
+/* SqlScripts/catalog.sql */
+
 -- security schema
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'appsec')
@@ -200,3 +208,4 @@ begin
 	update appsec.ViewUsers set EmailConfirmed = 1 where Id=@Id;
 end
 go
+

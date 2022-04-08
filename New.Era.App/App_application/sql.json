@@ -1,7 +1,7 @@
 ﻿[
   {
     "$schema": "@schemas/sql-json-schema.json#",
-    "version": "10.1.1005",
+    "version": "10.1.1012",
     "outputFile": "SqlScripts/application.sql",
     "inputFiles": [
       "main/_sql/security.sql",
@@ -21,6 +21,13 @@
       "main/document/document.sql",
       "main/_sql/admin.sql",
       "main/_sql/initial_data.sql"
+    ]
+  },
+  {
+    "version": "10.1.1012",
+    "outputFile": "SqlScripts/catalog.sql",
+    "inputFiles": [
+      "main/_sql/catalog/catalog_security.sql"
     ]
   }
 ]

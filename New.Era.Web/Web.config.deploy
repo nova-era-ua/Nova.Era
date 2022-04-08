@@ -2,6 +2,7 @@
 <configuration>
 	<connectionStrings>
 		<add name="Default" connectionString="Data Source=localhost;Initial Catalog=newera;Integrated Security=True" providerName="System.Data.SqlClient" />
+		<add name="Catalog" connectionString="Data Source=localhost;Initial Catalog=newera_catalog;Integrated Security=True" providerName="System.Data.SqlClient" />
 	</connectionStrings>
 	
 	<appSettings>
@@ -10,6 +11,7 @@
 		<add key="configuration" value="debug" />
 		<add key="theme" value="advance.blue"/>
 		<add key="customUserMenu" value="a2ui.[Menu.Simple.User.Load]"/>
+		<add key="mailSettings" value="{from:'from@domain.com', host:'mail.domain.com', port:111, userName:'userName', password:'userPassword', enableSsl:false,  deliveryMethod: 'SpecifiedPickupDirectory', pickupDirectoryLocation: 'c:/temp'}" />
 	</appSettings>
 
 	<system.web>

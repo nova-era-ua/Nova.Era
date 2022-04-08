@@ -1,6 +1,6 @@
 ﻿/*
-version: 10.1.1005
-generated: 07.04.2022 22:18:55
+version: 10.1.1012
+generated: 08.04.2022 07:24:40
 */
 
 
@@ -903,7 +903,8 @@ begin
 
 	select [Default!TDefault!Object] = null,
 		[Company.Id!TCompany!Id] = d.Company, [Company.Name!TCompany!Name] = c.[Name],
-		[Warehouse.Id!TWarehouse!Id] = d.Warehouse, [Warehouse.Name!TWarehouse!Name] = w.[Name]
+		[Warehouse.Id!TWarehouse!Id] = d.Warehouse, [Warehouse.Name!TWarehouse!Name] = w.[Name],
+		[Period.From!TPeriod!] = isnull(d.PeriodFrom, getdate()), [Period.To!TPeriod!] = isnull(d.PeriodTo, getdate())
 	from usr.Defaults d
 		left join cat.Companies c on d.TenantId = c.TenantId and d.Company = c.Id
 		left join cat.Warehouses w on d.TenantId = w.TenantId and d.Warehouse = w.Id
@@ -951,6 +952,21 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure usr.[Default.SetPeriod]
+@TenantId int = 1,
+@UserId bigint,
+@From date,
+@To date
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	exec usr.[Default.Ensure] @TenantId = @TenantId, @UserId = @UserId;
+	update usr.Defaults set PeriodFrom = @From, PeriodTo=@To where TenantId = @TenantId and UserId = @UserId;
+end
+go
+------------------------------------------------
 create or alter procedure usr.[Default.GetUserPeriod]
 @TenantId int = 1,
 @UserId bigint,
@@ -966,7 +982,7 @@ begin
 	select @From = [PeriodFrom], @To = [PeriodTo] from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
 	if @From is null or @To is null
 	begin
-		update usr.Defaults set @From = getdate(), @To = getdate() where TenantId = @TenantId and UserId = @UserId;
+		update usr.Defaults set PeriodFrom = getdate(), PeriodTo = getdate() where TenantId = @TenantId and UserId = @UserId;
 		select @From = [PeriodFrom], @To = [PeriodTo] from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
 	end
 end
@@ -2316,7 +2332,10 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
 	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date;
+	set @end = dateadd(day, 1, @To);
 
 	set @Order = lower(@Order);
 	set @Dir = lower(@Dir);
@@ -2330,6 +2349,7 @@ begin
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and o.Menu = @Menu
+		and (d.[Date] >= @From and d.[Date] < @end)
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
 		and (@Company is null or d.Company = @Company)

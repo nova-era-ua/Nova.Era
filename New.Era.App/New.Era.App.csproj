@@ -81,8 +81,11 @@
     <Content Include="App_application\main\_assets\main.min.css">
       <DependentUpon>main.css</DependentUpon>
     </Content>
+    <Content Include="App_application\main\_sql\catalog\catalog_security.sql" />
     <Content Include="App_application\main\_sql\initial_data.sql" />
     <Content Include="App_application\main\_sql\common.sql" />
+    <Content Include="App_application\main\_sql\security.sql" />
+    <Content Include="App_application\SqlScripts\catalog.sql" />
     <Content Include="todo.txt" />
     <Content Include="App_application\main\catalog\item\editItem.dialog.xaml">
       <SubType>Designer</SubType>
