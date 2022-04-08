@@ -11,4 +11,9 @@
 	<Style x:Key="ToolbarLight">
 		<Setter Property="Style" Value="Light"/>
 	</Style>
+	<Style x:Key="TaskpadPage">
+		<Setter Property="Collapsible" Value="False"/>
+		<Setter Property="Background" Value="WhiteSmoke"/>
+		<Setter Property="Overflow" Value="True"/>
+	</Style>
 </Styles>

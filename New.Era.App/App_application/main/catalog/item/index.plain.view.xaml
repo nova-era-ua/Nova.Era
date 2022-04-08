@@ -40,7 +40,7 @@
 		<Pager Grid.Row="3" Source="{Bind Parent.Pager}" CssClass="pager-grid"/>
 	</Grid>
 	<Page.Taskpad>
-		<Taskpad Width="20rem" Collapsible="False">
+		<Taskpad Width="20rem" XamlStyle="{StyleResource TaskpadPage}">
 			<StackPanel Padding="1rem">
 			</StackPanel>
 		</Taskpad>

@@ -8,8 +8,7 @@
 34. StockReports: turnover
 37. Agent.List
 39. Замовлення - нет в списке.
-
-5. Currencies
+40. Catalog.Currencies
 
 
 !!!PLATFORM!!!!
@@ -18,7 +17,7 @@
 2. .dialog-grid-content {overflow:auto;}
 3. .a2-include.full-height {overflow:hidden;}
 4. useUnsafeHeaderParsing??? javascript fetch -> Accept header from params to WebRequest.
-5. 
+5. export to csv
 
 Future: Common
 ==============
