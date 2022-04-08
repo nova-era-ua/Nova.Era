@@ -82,8 +82,6 @@
       <DependentUpon>main.css</DependentUpon>
     </Content>
     <Content Include="App_application\main\_sql\catalog\catalog_security.sql" />
-    <Content Include="App_application\main\_sql\catalog\catalog_sys.sql" />
-    <Content Include="App_application\main\_sql\catalog\catalog_ui.sql" />
     <Content Include="App_application\main\_sql\initial_data.sql" />
     <Content Include="App_application\main\_sql\common.sql" />
     <Content Include="App_application\main\_sql\security.sql" />
