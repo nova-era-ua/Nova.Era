@@ -3,7 +3,12 @@
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'appsec')
 	exec sp_executesql N'create schema appsec';
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2security')
+	exec sp_executesql N'create schema a2security';
+go
 grant execute on schema::appsec to public;
+grant execute on schema::a2security to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'appsec' and SEQUENCE_NAME=N'SQ_Tenants')
@@ -198,5 +203,28 @@ begin
 	set xact_abort on;
 
 	update appsec.ViewUsers set EmailConfirmed = 1 where Id=@Id;
+end
+go
+------------------------------------------------
+create or alter procedure a2security.[User.CheckRegister]
+@UserName nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	declare @Id bigint;
+
+	select @Id = Id from appsec.Users where UserName=@UserName and EmailConfirmed = 0 and PhoneNumberConfirmed = 0;
+
+	if @Id is not null
+	begin
+		declare @uid nvarchar(255);
+		set @uid = N'_' + convert(nvarchar(255), newid());
+		update appsec.Users set Void=1, UserName = UserName + @uid, 
+			Email = Email + @uid, PhoneNumber = PhoneNumber + @uid, PasswordHash = null, SecurityStamp = N''
+		where Id=@Id and EmailConfirmed = 0  and PhoneNumberConfirmed = 0 and UserName=@UserName;
+	end
 end
 go

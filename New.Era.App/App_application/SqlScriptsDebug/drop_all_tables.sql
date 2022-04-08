@@ -19,4 +19,4 @@ drop table if exists cat.Companies
 drop table if exists cat.Warehouses
 drop table if exists cat.Vendors
 drop table if exists cat.Units
-
+go
