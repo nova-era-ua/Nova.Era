@@ -1,7 +1,8 @@
 ﻿const template: Template = {
 	properties: {
 		'TRoot.$$Tab': String,
-		'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]' }
+		'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]' },
+		'TOpTrans.$PlanArg'() { return { Plan: this.Plan.Id };}
 	},
 	defaults: {
 		"Operation.Menu"(this: any) { return this.Params.ParentMenu;}

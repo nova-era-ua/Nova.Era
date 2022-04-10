@@ -52,8 +52,8 @@ begin
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
 		[Menu], 
 		[Form.Id!TForm!Id] = o.Form, [Form.RowKinds!TForm!] = f.RowKinds,
-		[Journals!TOpJournal!Array] = null,
-		[JournalStore!TOpJournalStore!Array] = null
+		[JournalStore!TOpJournalStore!Array] = null,
+		[Trans!TOpTrans!Array] = null
 	from doc.Operations o
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 	where o.TenantId = @TenantId and o.Id=@Id;
@@ -63,6 +63,20 @@ begin
 		[!TOperation.JournalStore!ParentId] = ojs.Operation
 	from doc.OpJournalStore ojs 
 	where ojs.TenantId = @TenantId and ojs.Operation = @Id;
+
+	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
+		[Plan!TAccount!RefId] = [Plan], [Dt!TAccount!RefId] = Dt, [Ct!TAccount!RefId] = Ct, 
+		DtFormula, CtFormula,
+		[!TOperation.Trans!ParentId] = ot.Operation
+	from doc.OpTrans ot 
+	where ot.TenantId = @TenantId and ot.Operation = @Id
+	order by ot.RowKind
+
+	select [!TAccount!Map] = null, [Id!!Id] = a.Id, a.Code, [Name!!Name] = a.[Name]
+	from doc.OpTrans ot 
+		left join acc.Accounts a on ot.TenantId = a.TenantId and a.Id in (ot.[Plan], ot.Dt, ot.Ct)
+	where ot.TenantId = @TenantId and ot.Operation = @Id
+	group by a.Id, a.Code, a.[Name];
 
 	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], RowKinds
 	from doc.Forms df
@@ -77,6 +91,7 @@ drop procedure if exists doc.[Operation.Metadata];
 drop procedure if exists doc.[Operation.Update];
 drop type if exists doc.[Operation.TableType];
 drop type if exists doc.[OpJournalStore.TableType];
+drop type if exists doc.[OpTrans.TableType];
 go
 -------------------------------------------------
 create type doc.[Operation.TableType]
@@ -98,6 +113,17 @@ as table(
 	IsStorno bit
 )
 go
+-------------------------------------------------
+create type doc.[OpTrans.TableType]
+as table(
+	Id bigint,
+	RowNo int,
+	RowKind nvarchar(8),
+	[Plan] bigint,
+	[Dt] bigint,
+	[Ct] bigint
+)
+go
 ------------------------------------------------
 create or alter procedure doc.[Operation.Metadata]
 as
@@ -106,8 +132,10 @@ begin
 	set transaction isolation level read uncommitted;
 	declare @Operation doc.[Operation.TableType];
 	declare @JournalStore doc.[OpJournalStore.TableType];
+	declare @OpTrans doc.[OpTrans.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
 	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
+	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 end
 go
 ------------------------------------------------
@@ -116,7 +144,8 @@ create or alter procedure doc.[Operation.Update]
 @CompanyId bigint = 0,
 @UserId bigint,
 @Operation doc.[Operation.TableType] readonly,
-@JournalStore doc.[OpJournalStore.TableType] readonly
+@JournalStore doc.[OpJournalStore.TableType] readonly,
+@Trans doc.[OpTrans.TableType] readonly
 as
 begin
 	set nocount on;
@@ -150,6 +179,20 @@ begin
 	when not matched by target then insert
 		(TenantId, Operation, RowKind, IsIn, IsOut, Factor) values
 		(@TenantId, @Id, isnull(RowKind, N''), s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
+	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
+
+	merge doc.OpTrans as t
+	using @Trans as s
+	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
+	when matched then update set 
+		t.RowNo = s.RowNo,
+		t.RowKind = isnull(s.RowKind, N''),
+		t.[Plan] = s.[Plan],
+		t.[Dt] = s.[Dt],
+		t.[Ct] = s.[Ct]
+	when not matched by target then insert
+		(TenantId, Operation, RowKind, [Plan], Dt, Ct) values
+		(@TenantId, @Id, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,

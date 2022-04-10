@@ -4,7 +4,8 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         properties: {
             'TRoot.$$Tab': String,
-            'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]'; }
+            'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]'; },
+            'TOpTrans.$PlanArg'() { return { Plan: this.Plan.Id }; }
         },
         defaults: {
             "Operation.Menu"() { return this.Params.ParentMenu; }

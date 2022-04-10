@@ -112,7 +112,7 @@ begin
 		-- Accounting
 		(1501,   15, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		(1502,   15, 11, N'@[BankAccounts]',   N'bankacc',   N'bank',  N'border-top'),
-		(1503,   15, 12, N'@[AccountsPlan]',   N'plan',      N'account',  N'border-top'),
+		(1503,   15, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
 		(1504,   15, 13, N'@[Agents]',         N'agent',     N'users',  null),
 		(1505,   15, 14, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		(1506,   15, 15, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
@@ -123,7 +123,7 @@ begin
 		(8811,  88, 11, N'@[Companies]',  N'company',   N'company', null),
 		(8812,  88, 12, N'@[Warehouses]', N'warehouse', N'warehouse', null),
 		(8813,  88, 13, N'@[Users]',     N'user',    N'user',    N'border-top'),
-		(8814,  88, 14, N'@[AccountsPlan]',  N'accountplan', N'account',      N'border-top'),
+		(8814,  88, 14, N'@[AccountPlans]',  N'accountplan', N'account',      N'border-top'),
 		(8815,  88, 15, N'@[Operations]',   N'operation',   N'file-content', null),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);

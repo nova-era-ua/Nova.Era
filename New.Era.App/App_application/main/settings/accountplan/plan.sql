@@ -3,7 +3,6 @@
 ------------------------------------------------
 create or alter procedure acc.[Account.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint
 as
 begin
@@ -43,7 +42,6 @@ go
 ------------------------------------------------
 create or alter procedure acc.[Account.Load]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint = null,
 @Parent bigint = null
@@ -99,7 +97,6 @@ go
 ------------------------------------------------
 create or alter procedure acc.[Account.Plan.Update]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Account acc.[Account.Plan.TableType] readonly
 as
@@ -120,7 +117,7 @@ begin
 		(@TenantId, s.Code, s.[Name], s.Memo)
 	output inserted.Id into @rtable(id);
 	select @id = id from @rtable;
-	exec acc.[Account.Plan.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, 
+	exec acc.[Account.Plan.Load] @TenantId = @TenantId,
 		@UserId = @UserId, @Id = @id;
 end
 go
@@ -137,7 +134,6 @@ go
 ------------------------------------------------
 create or alter procedure acc.[Account.Update]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Account acc.[Account.TableType] readonly
 as
@@ -164,7 +160,49 @@ begin
 		(@TenantId, @plan, s.ParentAccount, s.Code, s.[Name], s.Memo)
 	output inserted.Id into @rtable(id);
 	select @id = id from @rtable;
-	exec acc.[Account.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, 
+	exec acc.[Account.Load] @TenantId = @TenantId,
 		@UserId = @UserId, @Id = @id;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Plan.Browse.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	select [Accounts!TAccount!Array] = null, [Id!!Id] = Id, Code, [Name!!Name] = a.[Name]
+	from acc.Accounts a
+	where a.TenantId = @TenantId and Void = 0 and [Plan] is null and Parent is null
+	order by a.Id;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Browse.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Plan bigint = null,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	with T(Id, Parent, [Level])
+	as (
+		select a.Id, Parent, 0 from
+			acc.Accounts a where TenantId=@TenantId and a.Parent = @Plan and a.[Plan] = @Plan
+		union all 
+		select a.Id, a.Parent, T.[Level] + 1 
+		from acc.Accounts a
+			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
+		where a.TenantId = @TenantId and a.[Plan] = [Plan]
+	)
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
+		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent
+	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
+	order by T.[Level], a.Code;
 end
 go

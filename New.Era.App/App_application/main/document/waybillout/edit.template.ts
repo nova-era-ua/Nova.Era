@@ -13,8 +13,15 @@ const template: Template = {
 		'Document.Company'(this: any) { return this.Default.Company;},
 		'Document.WhFrom'(this: any) { return this.Default.Warehouse; }
 	},
+	validators: {
+		'Document.Company': '@[Error.Required]',
+		'Document.Agent': '@[Error.Required]',
+		'Document.WhFrom': '@[Error.Required]'
+	},
 	events: {
-		'Document.Rows[].add'(rows, row) { row.Qty = 1;}
+		'Document.Rows[].add'(rows, row) { row.Qty = 1; },
+		'Document.Rows[].Item.change': itemChange,
+		'Document.Rows[].Item.Article.change': articleChange
 	},
 	commands: {
 		apply,
@@ -28,8 +35,23 @@ function docSum() {
 	return this.Rows.reduce((p, c) => p + c.Sum, 0);
 }
 
+// events
+function itemChange(row, val) {
+	row.Unit = val.Unit;
+}
+
+async function articleChange(item, val) {
+	if (!val) {
+		item.$empty();
+		return;
+	};
+	const ctrl: IController = this.$ctrl;
+	let result = await ctrl.$invoke('findArticle', { Text: val }, '/catalog/item');
+	result?.Item ? item.$merge(result.Item) : item.$empty();
+}
+
 async function apply() {
-	let ctrl: IController = this.$ctrl;
+	const ctrl: IController = this.$ctrl;
 	let result = await ctrl.$invoke('apply', { Id: this.Document.Id });
 	ctrl.$emitCaller('app.document.apply', { Id: this.Document.Id, Done: true });
 	ctrl.$requery();

@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 08.04.2022 22:17:59
+generated: 09.04.2022 12:47:06
 */
 
 
@@ -556,6 +556,32 @@ create table doc.OpJournalStore
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpTrans')
+	create sequence doc.SQ_OpTrans as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpTrans')
+create table doc.OpTrans
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_SQ_OpTrans_PK default(next value for doc.SQ_OpTrans),
+	Operation bigint not null,
+	RowNo int,
+	RowKind nvarchar(8) not null,
+	[Plan] bigint not null,
+	Dt bigint null,
+	Ct bigint null,
+	DtFormula nchar(16),
+	CtFormula nchar(16),
+		constraint PK_OpTrans primary key (TenantId, Id, Operation),
+		constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
+		constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
+		constraint FK_OpTrans_Dt_Accounts foreign key (TenantId, [Dt]) references acc.Accounts(TenantId, Id),
+		constraint FK_OpTrans_Ct_Accounts foreign key (TenantId, [Ct]) references acc.Accounts(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')
 	create sequence doc.SQ_Documents as bigint start with 100 increment by 1;
 go
@@ -826,7 +852,7 @@ begin
 		-- Accounting
 		(1501,   15, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		(1502,   15, 11, N'@[BankAccounts]',   N'bankacc',   N'bank',  N'border-top'),
-		(1503,   15, 12, N'@[AccountsPlan]',   N'plan',      N'account',  N'border-top'),
+		(1503,   15, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
 		(1504,   15, 13, N'@[Agents]',         N'agent',     N'users',  null),
 		(1505,   15, 14, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		(1506,   15, 15, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
@@ -837,7 +863,7 @@ begin
 		(8811,  88, 11, N'@[Companies]',  N'company',   N'company', null),
 		(8812,  88, 12, N'@[Warehouses]', N'warehouse', N'warehouse', null),
 		(8813,  88, 13, N'@[Users]',     N'user',    N'user',    N'border-top'),
-		(8814,  88, 14, N'@[AccountsPlan]',  N'accountplan', N'account',      N'border-top'),
+		(8814,  88, 14, N'@[AccountPlans]',  N'accountplan', N'account',      N'border-top'),
 		(8815,  88, 15, N'@[Operations]',   N'operation',   N'file-content', null),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
@@ -1159,6 +1185,16 @@ end
 go
 
 /* Item */
+-------------------------------------------------
+create or alter view cat.[view_Items]
+as
+select [Id!!Id] = i.Id, 
+	[Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
+	[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+	[!TenantId] = i.TenantId
+from cat.Items i
+	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
+go
 -------------------------------------------------
 create or alter procedure cat.[Item.Index]
 @TenantId int = 1,
@@ -1648,19 +1684,32 @@ go
 -------------------------------------------------
 create or alter procedure cat.[Item.Browse.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, 
-		[Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
-	from cat.Items i
-		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
-	order by i.Id;
+
+	select [Items!TItem!Array] = null, *
+	from cat.view_Items v
+	where v.[!TenantId] = @TenantId
+	order by v.[Id!!Id]
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Item.Find.Article]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select top(1) [Item!TItem!Object] = null, *
+	from cat.view_Items v
+	where v.[!TenantId] = @TenantId and v.Article = @Text;
 end
 go
 /* Agent */
@@ -2057,7 +2106,6 @@ go
 ------------------------------------------------
 create or alter procedure acc.[Account.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint
 as
 begin
@@ -2097,7 +2145,6 @@ go
 ------------------------------------------------
 create or alter procedure acc.[Account.Load]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint = null,
 @Parent bigint = null
@@ -2153,7 +2200,6 @@ go
 ------------------------------------------------
 create or alter procedure acc.[Account.Plan.Update]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Account acc.[Account.Plan.TableType] readonly
 as
@@ -2174,7 +2220,7 @@ begin
 		(@TenantId, s.Code, s.[Name], s.Memo)
 	output inserted.Id into @rtable(id);
 	select @id = id from @rtable;
-	exec acc.[Account.Plan.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, 
+	exec acc.[Account.Plan.Load] @TenantId = @TenantId,
 		@UserId = @UserId, @Id = @id;
 end
 go
@@ -2191,7 +2237,6 @@ go
 ------------------------------------------------
 create or alter procedure acc.[Account.Update]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Account acc.[Account.TableType] readonly
 as
@@ -2218,11 +2263,52 @@ begin
 		(@TenantId, @plan, s.ParentAccount, s.Code, s.[Name], s.Memo)
 	output inserted.Id into @rtable(id);
 	select @id = id from @rtable;
-	exec acc.[Account.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, 
+	exec acc.[Account.Load] @TenantId = @TenantId,
 		@UserId = @UserId, @Id = @id;
 end
 go
+------------------------------------------------
+create or alter procedure acc.[Account.Plan.Browse.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	select [Accounts!TAccount!Array] = null, [Id!!Id] = Id, Code, [Name!!Name] = a.[Name]
+	from acc.Accounts a
+	where a.TenantId = @TenantId and Void = 0 and [Plan] is null and Parent is null
+	order by a.Id;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Browse.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Plan bigint = null,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
 
+	with T(Id, Parent, [Level])
+	as (
+		select a.Id, Parent, 0 from
+			acc.Accounts a where TenantId=@TenantId and a.Parent = @Plan and a.[Plan] = @Plan
+		union all 
+		select a.Id, a.Parent, T.[Level] + 1 
+		from acc.Accounts a
+			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
+		where a.TenantId = @TenantId and a.[Plan] = [Plan]
+	)
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
+		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent
+	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
+	order by T.[Level], a.Code;
+end
+go
 /* Operation */
 -------------------------------------------------
 create or alter procedure doc.[Operation.Index]
@@ -2277,8 +2363,8 @@ begin
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
 		[Menu], 
 		[Form.Id!TForm!Id] = o.Form, [Form.RowKinds!TForm!] = f.RowKinds,
-		[Journals!TOpJournal!Array] = null,
-		[JournalStore!TOpJournalStore!Array] = null
+		[JournalStore!TOpJournalStore!Array] = null,
+		[Trans!TOpTrans!Array] = null
 	from doc.Operations o
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 	where o.TenantId = @TenantId and o.Id=@Id;
@@ -2288,6 +2374,20 @@ begin
 		[!TOperation.JournalStore!ParentId] = ojs.Operation
 	from doc.OpJournalStore ojs 
 	where ojs.TenantId = @TenantId and ojs.Operation = @Id;
+
+	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
+		[Plan!TAccount!RefId] = [Plan], [Dt!TAccount!RefId] = Dt, [Ct!TAccount!RefId] = Ct, 
+		DtFormula, CtFormula,
+		[!TOperation.Trans!ParentId] = ot.Operation
+	from doc.OpTrans ot 
+	where ot.TenantId = @TenantId and ot.Operation = @Id
+	order by ot.RowKind
+
+	select [!TAccount!Map] = null, [Id!!Id] = a.Id, a.Code, [Name!!Name] = a.[Name]
+	from doc.OpTrans ot 
+		left join acc.Accounts a on ot.TenantId = a.TenantId and a.Id in (ot.[Plan], ot.Dt, ot.Ct)
+	where ot.TenantId = @TenantId and ot.Operation = @Id
+	group by a.Id, a.Code, a.[Name];
 
 	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], RowKinds
 	from doc.Forms df
@@ -2302,6 +2402,7 @@ drop procedure if exists doc.[Operation.Metadata];
 drop procedure if exists doc.[Operation.Update];
 drop type if exists doc.[Operation.TableType];
 drop type if exists doc.[OpJournalStore.TableType];
+drop type if exists doc.[OpTrans.TableType];
 go
 -------------------------------------------------
 create type doc.[Operation.TableType]
@@ -2323,6 +2424,17 @@ as table(
 	IsStorno bit
 )
 go
+-------------------------------------------------
+create type doc.[OpTrans.TableType]
+as table(
+	Id bigint,
+	RowNo int,
+	RowKind nvarchar(8),
+	[Plan] bigint,
+	[Dt] bigint,
+	[Ct] bigint
+)
+go
 ------------------------------------------------
 create or alter procedure doc.[Operation.Metadata]
 as
@@ -2331,8 +2443,10 @@ begin
 	set transaction isolation level read uncommitted;
 	declare @Operation doc.[Operation.TableType];
 	declare @JournalStore doc.[OpJournalStore.TableType];
+	declare @OpTrans doc.[OpTrans.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
 	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
+	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 end
 go
 ------------------------------------------------
@@ -2341,7 +2455,8 @@ create or alter procedure doc.[Operation.Update]
 @CompanyId bigint = 0,
 @UserId bigint,
 @Operation doc.[Operation.TableType] readonly,
-@JournalStore doc.[OpJournalStore.TableType] readonly
+@JournalStore doc.[OpJournalStore.TableType] readonly,
+@Trans doc.[OpTrans.TableType] readonly
 as
 begin
 	set nocount on;
@@ -2375,6 +2490,20 @@ begin
 	when not matched by target then insert
 		(TenantId, Operation, RowKind, IsIn, IsOut, Factor) values
 		(@TenantId, @Id, isnull(RowKind, N''), s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
+	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
+
+	merge doc.OpTrans as t
+	using @Trans as s
+	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
+	when matched then update set 
+		t.RowNo = s.RowNo,
+		t.RowKind = isnull(s.RowKind, N''),
+		t.[Plan] = s.[Plan],
+		t.[Dt] = s.[Dt],
+		t.[Ct] = s.[Ct]
+	when not matched by target then insert
+		(TenantId, Operation, RowKind, [Plan], Dt, Ct) values
+		(@TenantId, @Id, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,
@@ -2530,9 +2659,9 @@ begin
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
-	declare @rows table(id bigint, item bigint);
-	insert into @rows (id, item)
-	select Id, Item from doc.DocDetails dd
+	declare @rows table(id bigint, item bigint, unit bigint);
+	insert into @rows (id, item, unit)
+	select Id, Item, Unit from doc.DocDetails dd
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
@@ -2560,12 +2689,19 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId;
 
 	with T as (select item from @rows group by item)
-	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = [Name]
+	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short
 	from cat.Items i inner join T on i.Id = T.item and i.TenantId = @TenantId
+		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId;
 
+	with T as (select unit from @rows group by unit)
+	select [!TUnit!Map] = null, [Id!!Id] = u.Id, u.Short
+	from cat.Units u inner join T on u.Id = T.unit and u.TenantId = @TenantId
+	where u.TenantId = @TenantId;
+
 	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Form]
-	from doc.Operations where Form = @Form or Form=@docform
+	from doc.Operations where TenantId = @TenantId and (Form = @Form or Form=@docform)
 	order by Id;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
@@ -2601,6 +2737,7 @@ as table(
 	ParentId bigint,
 	RowNo int,
 	Item bigint,
+	Unit bigint,
 	[Qty] float,
 	[Price] money,
 	[Sum] money,
@@ -2657,12 +2794,13 @@ begin
 	when matched then update set
 		t.RowNo = s.RowNo,
 		t.Item = s.Item,
+		t.Unit = s.Unit,
 		t.Qty = s.Qty,
 		t.Price = s.Price,
 		t.[Sum] = s.[Sum]
 	when not matched by target then insert
-		(TenantId, Document, RowNo, Item, Qty, Price, [Sum]) values
-		(@TenantId, @id, s.RowNo, s.Item, s.Qty, s.Price, s.[Sum])
+		(TenantId, Document, RowNo, Item, Unit, Qty, Price, [Sum]) values
+		(@TenantId, @id, s.RowNo, s.Item, s.Unit, s.Qty, s.Price, s.[Sum])
 	when not matched by source and t.TenantId = @TenantId and t.Document = @id then delete;
 
 	exec doc.[Document.Stock.Load] @TenantId = @TenantId, 

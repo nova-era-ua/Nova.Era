@@ -1,5 +1,5 @@
 ﻿{
-  "$schema": "../../@schemas/model-json-schema.json#",
+  "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "cat",
   "model": "Item.Plain",
   "actions": {
@@ -43,6 +43,10 @@
     "deleteItem": {
       "type": "sql",
       "procedure": "Item.Item.Delete"
+    },
+    "findArticle": {
+      "type": "sql",
+      "procedure": "Item.Find.Article"
     }
   }
 }

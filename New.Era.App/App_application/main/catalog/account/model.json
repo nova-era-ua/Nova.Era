@@ -1,0 +1,17 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "acc",
+  "dialogs": {
+    "browse": {
+      "index": true,
+      "template": "browse.template",
+      "model": "Account.Browse",
+      "view": "browse.dialog"
+    },
+    "browseplan": {
+      "index": true,
+      "model": "Account.Plan.Browse",
+      "view": "browseplan.dialog"
+    }
+  }
+}

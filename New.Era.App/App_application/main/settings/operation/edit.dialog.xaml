@@ -65,6 +65,47 @@
 						</TableRow>
 					</Table>
 				</Case>
+				<Case Value="Accounting">
+					<Toolbar Padding="0" Style="Light">
+						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Trans}}"/>
+					</Toolbar>
+					<Table ItemsSource="{Bind Operation.Trans}" Margin="6,-6"
+						   Columns="Fit,5rem,5rem,5rem,5rem" CellSpacing="Medium">
+						<Table.Header>
+							<TableRow>
+								<TableCell Content="@[AccountPlan]" Wrap="NoWrap" RowSpan="2"/>
+								<TableCell ColSpan="3">@[Dt]</TableCell>
+								<TableCell ColSpan="3">Кредит</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>@[Account]</TableCell>
+								<TableCell></TableCell>
+								<TableCell></TableCell>
+								<TableCell>@[Account]</TableCell>
+								<TableCell></TableCell>
+							</TableRow>
+						</Table.Header>
+						<TableRow>
+							<Selector Value="{Bind Plan}" DisplayProperty="Code">
+								<Selector.AddOns>
+									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
+								</Selector.AddOns>
+							</Selector>
+							<Selector Value="{Bind Dt}" DisplayProperty="Code">
+								<Selector.AddOns>
+									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Dt}, Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
+								</Selector.AddOns>
+							</Selector>
+							<TableCell />
+							<TableCell />
+							<Selector Value="{Bind Ct}" DisplayProperty="Code">
+								<Selector.AddOns>
+									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Ct}, Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
+								</Selector.AddOns>
+							</Selector>
+						</TableRow>
+					</Table>
+				</Case>
 				<Case Value="Jourual2">
 					<Toolbar>
 						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Journals}}"/>

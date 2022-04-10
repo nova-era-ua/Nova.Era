@@ -1,14 +1,29 @@
 ﻿
 21. DocDetails -> Unit
-24. Document.Row - Item.Unit, Item.Article,
 30. StockDoc -> Apply.Payment
 31. Unit: Pager, Filter, Sort
 32. Unit.Delete
 33. Reports: List
 34. StockReports: turnover
 37. Agent.List
-39. Замовлення - нет в списке.
 40. Catalog.Currencies
+41. Apply/Unapply. Confirm
+42. Document:Number
+43. Document.ShowTransactions
+44. Document.PriceList
+45. DocList.EditSelected -> disabled
+46. Catalog.Contracts
+47. Catalog.Departments
+48. Agent.BankAccounts
+
+
+Sample
+======
+Видаткова накладна
+dt - 361 (sum) ct:281 (rows,material)
+
+Прибуткова накладна
+dt:281 (rows,material) ct:631 (sum)
 
 
 !!!PLATFORM!!!!

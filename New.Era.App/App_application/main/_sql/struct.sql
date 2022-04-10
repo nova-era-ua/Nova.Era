@@ -320,6 +320,32 @@ create table doc.OpJournalStore
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpTrans')
+	create sequence doc.SQ_OpTrans as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpTrans')
+create table doc.OpTrans
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_SQ_OpTrans_PK default(next value for doc.SQ_OpTrans),
+	Operation bigint not null,
+	RowNo int,
+	RowKind nvarchar(8) not null,
+	[Plan] bigint not null,
+	Dt bigint null,
+	Ct bigint null,
+	DtFormula nchar(16),
+	CtFormula nchar(16),
+		constraint PK_OpTrans primary key (TenantId, Id, Operation),
+		constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
+		constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
+		constraint FK_OpTrans_Dt_Accounts foreign key (TenantId, [Dt]) references acc.Accounts(TenantId, Id),
+		constraint FK_OpTrans_Ct_Accounts foreign key (TenantId, [Ct]) references acc.Accounts(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')
 	create sequence doc.SQ_Documents as bigint start with 100 increment by 1;
 go

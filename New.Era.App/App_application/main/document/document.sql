@@ -146,9 +146,9 @@ begin
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
-	declare @rows table(id bigint, item bigint);
-	insert into @rows (id, item)
-	select Id, Item from doc.DocDetails dd
+	declare @rows table(id bigint, item bigint, unit bigint);
+	insert into @rows (id, item, unit)
+	select Id, Item, Unit from doc.DocDetails dd
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
@@ -176,12 +176,19 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId;
 
 	with T as (select item from @rows group by item)
-	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = [Name]
+	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short
 	from cat.Items i inner join T on i.Id = T.item and i.TenantId = @TenantId
+		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId;
 
+	with T as (select unit from @rows group by unit)
+	select [!TUnit!Map] = null, [Id!!Id] = u.Id, u.Short
+	from cat.Units u inner join T on u.Id = T.unit and u.TenantId = @TenantId
+	where u.TenantId = @TenantId;
+
 	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Form]
-	from doc.Operations where Form = @Form or Form=@docform
+	from doc.Operations where TenantId = @TenantId and (Form = @Form or Form=@docform)
 	order by Id;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
@@ -217,6 +224,7 @@ as table(
 	ParentId bigint,
 	RowNo int,
 	Item bigint,
+	Unit bigint,
 	[Qty] float,
 	[Price] money,
 	[Sum] money,
@@ -273,12 +281,13 @@ begin
 	when matched then update set
 		t.RowNo = s.RowNo,
 		t.Item = s.Item,
+		t.Unit = s.Unit,
 		t.Qty = s.Qty,
 		t.Price = s.Price,
 		t.[Sum] = s.[Sum]
 	when not matched by target then insert
-		(TenantId, Document, RowNo, Item, Qty, Price, [Sum]) values
-		(@TenantId, @id, s.RowNo, s.Item, s.Qty, s.Price, s.[Sum])
+		(TenantId, Document, RowNo, Item, Unit, Qty, Price, [Sum]) values
+		(@TenantId, @id, s.RowNo, s.Item, s.Unit, s.Qty, s.Price, s.[Sum])
 	when not matched by source and t.TenantId = @TenantId and t.Document = @id then delete;
 
 	exec doc.[Document.Stock.Load] @TenantId = @TenantId, 
