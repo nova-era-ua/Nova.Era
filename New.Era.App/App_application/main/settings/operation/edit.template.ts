@@ -2,27 +2,26 @@
 	properties: {
 		'TRoot.$$Tab': String,
 		'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]' },
-		'TOpTrans.$PlanArg'() { return { Plan: this.Plan.Id };}
-	},
+		'TOpTrans.$PlanArg'() { return { Plan: this.Plan.Id }; },
+		'TOpTrans.$DtAccDisabled'() { return !this.Plan.Id || !!this.DtAccMode; }
+},
 	defaults: {
-		"Operation.Menu"(this: any) { return this.Params.ParentMenu;}
+		"Operation.Menu"(this: any) { return this.Params.ParentMenu; }
 	},
 	validators: {
 		'Operation.Form': '@[Error.Required]',
-		'Operation.Name': '@[Error.Required]',
-		'Operation.Journals[].Id': '@[Error.Required]'
+		'Operation.Name': '@[Error.Required]'
 	},
 	events: {
-		'Operation.Form.change': formChange
+		'Operation.Form.change': formChange,
+		'Operation.Trans[].DtAccMode.change'(elem) { elem.Dt.$empty(); },
+		'Operation.Trans[].CtAccMode.change'(elem) { elem.Ct.$empty(); }
 	}
 };
 
 export default template;
 
-function formChange(op) {
-	let rk = (op.Form.RowKinds || '').split(',');
-	let jrnStore = rk.map(k => { return { RowKind: k }; });
-	//console.dir(jrnStore);
-	op.JournalStore.$empty();
-	op.JournalStore.$append(jrnStore);
+function formChange() {
+	// todo: reset all row kinds
+	alert(1);
 }

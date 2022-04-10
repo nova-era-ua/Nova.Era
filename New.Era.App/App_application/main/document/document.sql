@@ -330,6 +330,62 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure doc.[Document.Apply.Account]
+@TenantId int = 1,
+@UserId bigint,
+@Operation bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+
+	-- ensure empty journal
+	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
+
+	-- TODO: WhFrom, WhTo
+
+	declare @tr table([date] datetime, detail bigint, trno int, rowno int, acc bigint,
+		dtct smallint, [sum] money, qty float, item bigint, comp bigint, agent bigint, wh bigint);
+
+	declare @rowno int, @rowkind nvarchar(16), @plan bigint, @dt bigint, @ct bigint, @dtrow nchar(1), @ctrow nchar(1);
+
+	declare cur cursor local forward_only read_only fast_forward for
+		select RowNo, RowKind, [Plan], [Dt], [Ct], 
+			isnull(DtRow, N''), isnull(CtRow, N'')
+		from doc.OpTrans where TenantId = @TenantId and Operation = @Operation;
+	open cur;
+	fetch next from cur into @rowno, @rowkind, @plan, @dt, @ct, @dtrow, @ctrow;
+	while @@fetch_status = 0
+	begin
+		-- debit
+		if @dtrow = N'R'
+			insert into @tr([date], detail, trno, rowno, dtct, acc, item, qty, [sum], comp, agent)
+				select d.[Date], dd.Id, @rowno, dd.RowNo, 1, @dt, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent
+				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
+				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
+		-- credit
+		if @ctrow = N'R'
+			insert into @tr([date], detail, trno, rowno, dtct, acc, item, qty, [sum], comp, agent)
+				select d.[Date], dd.Id, @rowno, dd.RowNo, -1, @ct, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent
+				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
+				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
+		else if @ctrow = N''
+			insert into @tr([date], trno, dtct, acc, [sum], comp, agent)
+				select d.[Date], @rowno, -1, @ct, d.[Sum], d.Company, d.Agent
+					from doc.Documents d where TenantId = @TenantId and Id = @Id;
+		fetch next from cur into @rowno, @rowkind, @plan, @dt, @ct, @dtrow, @ctrow;
+	end
+	close cur;
+	deallocate cur;
+
+	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date],  Company, Warehouse, Agent, Item, 
+		DtCt, Account, Qty, [Sum])
+	select @TenantId, @Id, detail, trno, rowno, [date], comp, null, agent, item, 
+		dtct, acc, qty, [sum]
+	from @tr;
+end
+go
+------------------------------------------------
 create or alter procedure doc.[Document.Stock.UnApply]
 @TenantId int = 1,
 @UserId bigint,
@@ -341,6 +397,7 @@ begin
 	set xact_abort on;
 	begin tran
 	delete from jrn.StockJournal where TenantId = @TenantId and Document = @Id;
+	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
 	update doc.Documents set Done = 0, DateApplied = null
 		where TenantId = @TenantId and Id = @Id;
 	commit tran
@@ -369,11 +426,17 @@ begin
 
 	if exists(select * from doc.OpJournalStore 
 			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
-		set @stock = 1
+		set @stock = 1;
+	if exists(select * from doc.OpTrans 
+			where TenantId = @TenantId and Operation = @operation)
+		set @acc = 1;
 
 	begin tran
 		if @stock = 1
 			exec doc.[Document.Apply.Stock] @TenantId = @TenantId, @UserId=@UserId,
+				@Operation = @operation, @Id = @Id;
+		if @acc = 1
+			exec doc.[Document.Apply.Account] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;
 		update doc.Documents set Done = 1, DateApplied = getdate() 
 			where TenantId = @TenantId and Id = @Id;

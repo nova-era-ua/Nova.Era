@@ -17,6 +17,12 @@
 48. Agent.BankAccounts
 
 
+Small fixes
+===========
+1. BrowseAccount - DblClick
+2. BrowseAccount - Search
+
+
 Sample
 ======
 Видаткова накладна

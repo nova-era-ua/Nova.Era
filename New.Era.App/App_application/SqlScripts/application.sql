@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 09.04.2022 12:47:06
+generated: 10.04.2022 10:31:39
 */
 
 
@@ -572,8 +572,12 @@ create table doc.OpTrans
 	[Plan] bigint not null,
 	Dt bigint null,
 	Ct bigint null,
-	DtFormula nchar(16),
-	CtFormula nchar(16),
+	DtAccMode nchar(1), -- ()Fixed, (I)tem, R(ole)
+	DtSum nchar(1), -- ()Sum, (D)iscount, (W)Without discount, (V)at
+	DtRow nchar(1), -- ()Rows, (S)um
+	CtAccMode nchar(1),
+	CtSum nchar(1),
+	CtRow nchar(1),
 		constraint PK_OpTrans primary key (TenantId, Id, Operation),
 		constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
 		constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
@@ -2377,7 +2381,7 @@ begin
 
 	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
 		[Plan!TAccount!RefId] = [Plan], [Dt!TAccount!RefId] = Dt, [Ct!TAccount!RefId] = Ct, 
-		DtFormula, CtFormula,
+		DtAccMode, DtSum, CtAccMode, CtSum,
 		[!TOperation.Trans!ParentId] = ot.Operation
 	from doc.OpTrans ot 
 	where ot.TenantId = @TenantId and ot.Operation = @Id
@@ -2432,7 +2436,9 @@ as table(
 	RowKind nvarchar(8),
 	[Plan] bigint,
 	[Dt] bigint,
-	[Ct] bigint
+	[Ct] bigint,
+	DtAccMode nchar(1),
+	CtAccMode nchar(1)
 )
 go
 ------------------------------------------------
@@ -2500,10 +2506,12 @@ begin
 		t.RowKind = isnull(s.RowKind, N''),
 		t.[Plan] = s.[Plan],
 		t.[Dt] = s.[Dt],
-		t.[Ct] = s.[Ct]
+		t.[Ct] = s.[Ct],
+		t.DtAccMode = s.DtAccMode,
+		t.CtAccMode = s.CtAccMode
 	when not matched by target then insert
-		(TenantId, Operation, RowKind, [Plan], Dt, Ct) values
-		(@TenantId, @Id, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct)
+		(TenantId, Operation, RowKind, [Plan], Dt, Ct, DtAccMode, CtAccMode) values
+		(@TenantId, @Id, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct, s.DtAccMode, s.CtAccMode)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,

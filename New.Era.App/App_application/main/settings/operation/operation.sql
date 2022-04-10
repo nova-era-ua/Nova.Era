@@ -49,13 +49,14 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
+
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
 		[Menu], 
-		[Form.Id!TForm!Id] = o.Form, [Form.RowKinds!TForm!] = f.RowKinds,
+		[Form!TForm!RefId] = o.Form,
 		[JournalStore!TOpJournalStore!Array] = null,
 		[Trans!TOpTrans!Array] = null
 	from doc.Operations o
-		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 	where o.TenantId = @TenantId and o.Id=@Id;
 
 	select [!TOpJournalStore!Array] = null, [Id!!Id] = Id, RowKind, IsIn, IsOut, 
@@ -66,7 +67,7 @@ begin
 
 	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
 		[Plan!TAccount!RefId] = [Plan], [Dt!TAccount!RefId] = Dt, [Ct!TAccount!RefId] = Ct, 
-		DtFormula, CtFormula,
+		DtAccMode, DtSum, DtRow, CtAccMode, CtSum, CtRow,
 		[!TOperation.Trans!ParentId] = ot.Operation
 	from doc.OpTrans ot 
 	where ot.TenantId = @TenantId and ot.Operation = @Id
@@ -78,10 +79,15 @@ begin
 	where ot.TenantId = @TenantId and ot.Operation = @Id
 	group by a.Id, a.Code, a.[Name];
 
-	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], RowKinds
+	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], 
+		[RowKinds!TRowKind!Array] = null
 	from doc.Forms df
 	where df.TenantId = @TenantId
 	order by df.Id;
+
+	select [!TRowKind!Array] = null, [Id!!Id] = rk.Id, [Name!!Name] = rk.[Name], [!TForm.RowKinds!ParentId] = rk.Form
+	from doc.FormRowKinds rk where rk.TenantId = @TenantId
+	order by rk.[Order];
 
 	select [Params!TParam!Object] = null, [ParentMenu] = @Parent;
 end
@@ -121,7 +127,13 @@ as table(
 	RowKind nvarchar(8),
 	[Plan] bigint,
 	[Dt] bigint,
-	[Ct] bigint
+	[Ct] bigint,
+	DtAccMode nchar(1),
+	DtRow nchar(1),
+	DtSum nchar(1),
+	CtAccMode nchar(1),
+	CtRow nchar(1),
+	CtSum nchar(1)
 )
 go
 ------------------------------------------------
@@ -189,10 +201,16 @@ begin
 		t.RowKind = isnull(s.RowKind, N''),
 		t.[Plan] = s.[Plan],
 		t.[Dt] = s.[Dt],
-		t.[Ct] = s.[Ct]
+		t.[Ct] = s.[Ct],
+		t.DtAccMode = s.DtAccMode,
+		t.CtAccMode = s.CtAccMode,
+		t.DtRow = s.DtRow,
+		t.CtRow = s.CtRow,
+		t.DtSum = s.DtSum,
+		t.CtSum = s.CtSum
 	when not matched by target then insert
-		(TenantId, Operation, RowKind, [Plan], Dt, Ct) values
-		(@TenantId, @Id, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct)
+		(TenantId, Operation, RowKind, [Plan], Dt, Ct, DtAccMode, CtAccMode, DtRow, CtRow, DtSum, CtSum) values
+		(@TenantId, @Id, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct, s.DtAccMode, s.CtAccMode, s.DtRow, s.CtRow, s.DtSum, s.CtSum)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,

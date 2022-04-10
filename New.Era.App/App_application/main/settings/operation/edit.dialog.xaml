@@ -1,25 +1,26 @@
 ﻿<!-- Edit Folder -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
 		Title="{Bind Operation.$Title, Format='@[OperationProperties] [{0}]'}" Overflow="True"
-		Width="70rem">
+		Width="90rem">
 	<Dialog.Buttons>
 		<Button Content="@[SaveAndClose]" 
 				Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid AutoFlow="Row">
-		<TextBox Label="@[Name]" Value="{Bind Operation.Name}" UpdateTrigger="Input" Bold="True"/>
-		<ComboBox Label="Форма" ItemsSource="{Bind Forms}" Value="{Bind Operation.Form}">
+	<Grid Columns="1*,1*,1*,1*">
+		<TextBox Grid.Row="1" Grid.Col="1" Grid.ColSpan="2"
+			Label="@[Name]" Value="{Bind Operation.Name}" UpdateTrigger="Input" Bold="True"/>
+		<ComboBox Grid.Row="1" Grid.Col="4" Label="Форма" ItemsSource="{Bind Forms}" Value="{Bind Operation.Form}">
 			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 		</ComboBox>
 	</Grid>
-	<Block Margin="1rem">
+	<Block Margin="0, 1rem, 1rem, 1rem">
 		<TabBar Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton Content="Документ" ActiveValue="" />
 			<TabButton Content="Управліньский облік" ActiveValue="Management" />
-			<TabButton Content="Бухгалтерскький облік" ActiveValue="Accounting" />
+			<TabButton Content="Проводки по рахунках" ActiveValue="Accounting" />
 		</TabBar>
-		<Block Margin="1rem,0,0,0" Height="20rem">
+		<Block Margin="6,-6" Height="30rem" Scroll="True">
 			<Switch Expression="{Bind Root.$$Tab}">
 				<Case Value="">
 					<Grid Padding="0">
@@ -47,10 +48,8 @@
 						</Table.Header>
 						<TableRow VAlign="Middle">
 							<TableCell>
-								<ComboBox Value="{Bind RowKind}">
-									<ComboBoxItem Content="Всі рядки" Value=""/>
-									<ComboBoxItem Content="Запаси" Value="Stock"/>
-									<ComboBoxItem Content="Продукція" Value="Product"/>
+								<ComboBox Value="{Bind RowKind}" ItemsSource="{Bind Root.Operation.Form.RowKinds}">
+									<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
 								</ComboBox>
 							</TableCell>
 							<TableCell Align="Center">
@@ -66,23 +65,26 @@
 					</Table>
 				</Case>
 				<Case Value="Accounting">
-					<Toolbar Padding="0" Style="Light">
+					<Toolbar Padding="0,6" Style="Light">
 						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Trans}}"/>
 					</Toolbar>
-					<Table ItemsSource="{Bind Operation.Trans}" Margin="6,-6"
-						   Columns="Fit,5rem,5rem,5rem,5rem" CellSpacing="Medium">
+					<Table ItemsSource="{Bind Operation.Trans}"
+						   Columns="1rem,7rem,7rem,10rem,5rem,10rem,7rem,10rem,5rem,10rem,Fit" CellSpacing="Medium">
 						<Table.Header>
 							<TableRow>
 								<TableCell Content="@[AccountPlan]" Wrap="NoWrap" RowSpan="2"/>
-								<TableCell ColSpan="3">@[Dt]</TableCell>
-								<TableCell ColSpan="3">Кредит</TableCell>
+								<TableCell Content="Блок рядків" Wrap="NoWrap" RowSpan="2"/>
+								<TableCell ColSpan="4">@[Debit]</TableCell>
+								<TableCell ColSpan="4">@[Credit]</TableCell>
+								<TableCell RowSpan="2"/>
 							</TableRow>
 							<TableRow>
-								<TableCell>@[Account]</TableCell>
-								<TableCell></TableCell>
-								<TableCell></TableCell>
-								<TableCell>@[Account]</TableCell>
-								<TableCell></TableCell>
+								<TableCell Content="Режим"/>
+								<TableCell ColSpan="2">@[Account]</TableCell>
+								<TableCell Content="Сума"/>
+								<TableCell Content="Режим"/>
+								<TableCell ColSpan="2">@[Account]</TableCell>
+								<TableCell Content="Сума"/>
 							</TableRow>
 						</Table.Header>
 						<TableRow>
@@ -91,18 +93,50 @@
 									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
 								</Selector.AddOns>
 							</Selector>
-							<Selector Value="{Bind Dt}" DisplayProperty="Code">
+							<ComboBox Value="{Bind RowKind}"
+								ItemsSource="{Bind Root.Operation.Form.RowKinds}">
+								<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
+							</ComboBox>
+							<ComboBox Value="{Bind DtRow}">
+								<ComboBoxItem Content="Сума" Value=""/>
+								<ComboBoxItem Content="По рядках" Value="R"/>
+							</ComboBox>
+							<ComboBox Value="{Bind DtAccMode}">
+								<ComboBoxItem Content="Фіксований" Value=""/>
+								<ComboBoxItem Content="З об'екту обліку" Value="I"/>
+								<ComboBoxItem Content="З ролі в обліку" Value="R"/>
+							</ComboBox>
+							<Selector Value="{Bind Dt}" DisplayProperty="Code" Disabled="{Bind $DtAccDisabled}">
 								<Selector.AddOns>
 									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Dt}, Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
 								</Selector.AddOns>
 							</Selector>
-							<TableCell />
-							<TableCell />
+							<ComboBox Value="{Bind DtSum}">
+								<ComboBoxItem Content="Сума" Value=""/>
+								<ComboBoxItem Content="Сума без знижки" Value="W"/>
+								<ComboBoxItem Content="Знижка" Value="D"/>
+							</ComboBox>
+							<!--Credit -->
+							<ComboBox Value="{Bind CtRow}">
+								<ComboBoxItem Content="Сума" Value=""/>
+								<ComboBoxItem Content="По рядках" Value="R"/>
+							</ComboBox>
+							<ComboBox Value="{Bind CtAccMode}">
+								<ComboBoxItem Content="Фіксований" Value=""/>
+								<ComboBoxItem Content="Об'ект обліку" Value="I"/>
+								<ComboBoxItem Content="Роль в обліку" Value="R"/>
+							</ComboBox>
 							<Selector Value="{Bind Ct}" DisplayProperty="Code">
 								<Selector.AddOns>
 									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Ct}, Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
 								</Selector.AddOns>
 							</Selector>
+							<ComboBox Value="{Bind CtSum}">
+								<ComboBoxItem Content="Сума" Value=""/>
+								<ComboBoxItem Content="Сума без знижки" Value="W"/>
+								<ComboBoxItem Content="Знижка" Value="D"/>
+							</ComboBox>
+							<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
 						</TableRow>
 					</Table>
 				</Case>
@@ -126,8 +160,6 @@
 			</Switch>
 		</Block>
 	</Block>
-	<Grid>
-		<TextBox Label="@[Memo]" Value="{Bind Operation.Memo}" UpdateTrigger="Input" Multiline="True"/>
-	</Grid>
+	<TextBox Label="@[Memo]" Value="{Bind Operation.Memo}" UpdateTrigger="Input" Multiline="True" Margin="1rem"/>
 </Dialog>
 

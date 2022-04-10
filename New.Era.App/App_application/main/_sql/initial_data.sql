@@ -40,28 +40,48 @@ begin
 		(@TenantId, s.Id, s.[Name], [Order], Category)
 	when not matched by source and t.TenantId = @TenantId then delete;
 
-	declare @df table(Id nvarchar(16), [Name] nvarchar(255), RowKinds nvarchar(255));
-	insert into @df (Id, [Name], RowKinds) values
+	-- forms
+	declare @df table(Id nvarchar(16), [Name] nvarchar(255));
+	insert into @df (Id, [Name]) values
 		-- Sales
-		(N'invoice',    N'Замовлення клієнта', null),
-		(N'waybillout', N'Видаткова накладна', null),
-		(N'complcert',  N'Акт виконаних робіт', null),
+		(N'invoice',    N'Замовлення клієнта'),
+		(N'waybillout', N'Видаткова накладна'),
+		(N'complcert',  N'Акт виконаних робіт'),
 		-- 
-		(N'waybillin',  N'Прибуткова накладна', null),
+		(N'waybillin',  N'Прибуткова накладна'),
 		--
-		(N'payorder',  N'Платіжне доручення', null),
+		(N'payorder',  N'Платіжне доручення'),
 		-- 
-		(N'manufact',  N'Виробничий акт-звіт', N'Product,Stock');
+		(N'manufact',  N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
-	using @df as s on t.Id = s.Id and t.TenantId = 0
+	using @df as s on t.Id = s.Id and t.TenantId = @TenantId
 	when matched then update set
-		t.[Name] = s.[Name],
-		t.[RowKinds] = s.[RowKinds]
+		t.[Name] = s.[Name]
 	when not matched by target then insert
-		(TenantId, Id, [Name], RowKinds) values
-		(@TenantId, s.Id, s.[Name], RowKinds)
+		(TenantId, Id, [Name]) values
+		(@TenantId, s.Id, s.[Name])
 	when not matched by source and t.TenantId = @TenantId then delete;
+
+	-- form row kinds
+	declare @rk table(Id nvarchar(16), [Order] int, Form nvarchar(16), [Name] nvarchar(255));
+	insert into @rk([Form], [Order], Id, [Name]) values
+	(N'waybillout', 1, N'', N'Всі рядки'),
+	(N'invoice',    1, N'', N'Всі рядки'),
+	(N'manufact',   1, N'', N'Всі рядки'),
+	(N'manufact',   2, N'Stock', N'Запаси'),
+	(N'manufact',   3, N'Product', N'Продукція');
+
+	merge doc.FormRowKinds as t
+	using @rk as s on t.Id = s.Id and t.Form = s.Form and t.TenantId = @TenantId
+	when matched then update set 
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order]
+	when not matched by target then insert
+		(TenantId, Id, [Form], [Name], [Order]) values
+		(@TenantId, s.Id, s.[Form], s.[Name], s.[Order])
+	when not matched by source and t.TenantId = @TenantId then delete;
+
 end
 go
 ------------------------------------------------

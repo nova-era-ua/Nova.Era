@@ -3,12 +3,14 @@ drop table if exists usr.Defaults;
 drop table if exists acc.Accounts;
 --
 drop table if exists jrn.StockJournal;
+drop table if exists jrn.Journal;
 drop table if exists doc.DocDetails;
 drop table if exists doc.Documents
 drop table if exists doc.OpJournalStore
 drop table if exists doc.Operations
 drop table if exists doc.DocumentForms
 drop table if exists doc.OperationGroups
+drop table if exists doc.FormRowKinds
 drop table if exists doc.Forms
 drop table if exists doc.FormsMenu
 --
@@ -21,4 +23,8 @@ drop table if exists cat.Companies
 drop table if exists cat.Warehouses
 drop table if exists cat.Vendors
 drop table if exists cat.Units
+go
+
+drop sequence if exists doc.SQ_OpTrans;
+drop sequence if exists doc.SQ_Operations;
 go

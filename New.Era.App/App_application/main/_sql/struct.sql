@@ -268,15 +268,27 @@ create table doc.Forms
 (
 	TenantId int not null,
 	Id nvarchar(16) not null,
-	RowKinds nvarchar(255),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Forms primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'FormRowKinds')
+create table doc.FormRowKinds
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	Form nvarchar(16) not null,
+	[Order] int,
+	[Name] nvarchar(255),
+		constraint PK_FormRowKinds primary key (TenantId, Form, Id),
+		constraint FK_FormRowKinds_Form_Forms foreign key (TenantId, [Form]) references doc.Forms(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Operations')
-	create sequence doc.SQ_Operations as bigint start with 100 increment by 1;
+	create sequence doc.SQ_Operations as bigint start with 1000 increment by 1;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations')
@@ -310,7 +322,7 @@ create table doc.OpJournalStore
 	Id bigint not null
 		constraint DF_OpJournalStore_PK default(next value for doc.SQ_OpJournalStore),
 	Operation bigint not null,
-	RowKind nvarchar(8) not null,
+	RowKind nvarchar(16) not null,
 	IsIn bit not null,
 	IsOut bit not null,
 	Factor smallint -- 1 normal, -1 storno
@@ -321,7 +333,7 @@ create table doc.OpJournalStore
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpTrans')
-	create sequence doc.SQ_OpTrans as bigint start with 100 increment by 1;
+	create sequence doc.SQ_OpTrans as bigint start with 1000 increment by 1;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpTrans')
@@ -332,12 +344,16 @@ create table doc.OpTrans
 		constraint DF_SQ_OpTrans_PK default(next value for doc.SQ_OpTrans),
 	Operation bigint not null,
 	RowNo int,
-	RowKind nvarchar(8) not null,
+	RowKind nvarchar(16) not null,
 	[Plan] bigint not null,
 	Dt bigint null,
 	Ct bigint null,
-	DtFormula nchar(16),
-	CtFormula nchar(16),
+	DtAccMode nchar(1), -- ()Fixed, (I)tem, R(ole)
+	DtSum nchar(1), -- ()Sum, (D)iscount, (W)Without discount, (V)at
+	DtRow nchar(1), -- ()Sum, (R)ows
+	CtAccMode nchar(1),
+	CtSum nchar(1),
+	CtRow nchar(1),
 		constraint PK_OpTrans primary key (TenantId, Id, Operation),
 		constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
 		constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
@@ -434,6 +450,40 @@ create table jrn.StockJournal
 		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
 		constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 		constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'jrn' and SEQUENCE_NAME = N'SQ_Journal')
+	create sequence jrn.SQ_Journal as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'Journal')
+create table jrn.Journal
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Journal_PK default(next value for jrn.SQ_Journal),
+	TrNo int not null,
+	RowNo int,
+	[Date] datetime,
+	Document bigint,
+	Detail bigint,
+	DtCt smallint not null,
+	Account bigint not null,
+	Company bigint null,
+	Warehouse bigint null,
+	Agent bigint null,
+	Item bigint null,
+	Qty float null,
+	[Sum] money not null
+		constraint DF_Journal_Sum default(0),
+		constraint PK_Journal primary key (TenantId, Id),
+		constraint FK_Journal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_Journal_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id),
+		constraint FK_Journal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+		constraint FK_Journal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_Journal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+		constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
 );
 go
 

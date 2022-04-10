@@ -69,6 +69,8 @@
 ; Actions
 @Add=Додати
 ;
+@Debit=Дебет
+@Credit=Кредит
 @Article=Артикул
 @CodeUA=ЄДПРПОУ
 @CodeBankUA=МФО
