@@ -8,6 +8,13 @@
 
 .sheet-page {
     font-size:13px;
+    padding:1px;
+}
+
+@media print {
+    .printable-outside {
+        grid-template-columns: 0 0 1fr !important;
+    }
 }
 
 .overflow-hidden {

@@ -7,27 +7,38 @@
 		</CollectionView.Filter>
 		<Grid Rows="Auto,1*" Height="100%" Padding="0" Gap="6" AlignItems="Top">
 			<Toolbar Grid.Row="1" Style="Light" Padding="0">
-				<PeriodPicker Label="@[Period]" Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
+				<PeriodPicker Label="@[Period]" ShowAllData="False"
+							  Width="28rem" Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
+				<Button Icon="Reload" Command="{BindCmd Reload}" />
+				<Separator />
 				<Button Icon="Print" Command="{BindCmd Print}" />
 				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel}" />
-				<Button Icon="Close" Command="{BindCmd Close}" />
 			</Toolbar>
-			<Block Scroll="True" Height="100%">
-				<SheetPage Padding="0">
-				<Sheet GridLines="Both" Striped="True" Columns="15rem,15rem,Fit,Fit">
+			<Block Scroll="True" Height="100%" CssClass="sheet-page">
+				<Sheet GridLines="Both" Columns="Auto,15rem,1rem,12rem+Y,Auto">
 					<SheetSection>
 						<SheetRow Style="Title">
-							<SheetCell Content="{Bind Report.Name}"></SheetCell>
+							<SheetCell ColSpan="2" Content="{Bind Report.Name}"></SheetCell>
 						</SheetRow>
-						<SheetRow Style="Parameter">
+						<SheetRow Style="LastParameter">
 							<SheetCell Content="{Bind Parent.Filter.Period.Name}"></SheetCell>
 						</SheetRow>
 					</SheetSection>
-					<SheetSection>
+					<SheetSection >
 						<SheetRow Style="Header">
-							<SheetCell>1</SheetCell>
-							<SheetCell>2</SheetCell>
-							<SheetCell>3</SheetCell>
+							<SheetCell ColSpan="3">@[Item]</SheetCell>
+							<SheetCell>
+								<Text>Залишок на
+									<Span Content="{Bind Parent.Filter.Period.From, DataType=Date}" Bold="True"/>
+								</Text></SheetCell>
+							<SheetCell>Прибуток</SheetCell>
+							<SheetCell>Видаток</SheetCell>
+							<SheetCell>Залишок на</SheetCell>
+						</SheetRow>
+						<SheetRow Style="Header">
+							<SheetCell>@[Article]</SheetCell>
+							<SheetCell>@[Name]</SheetCell>
+							<SheetCell>@[Unit]</SheetCell>
 							<SheetCell>4</SheetCell>
 						</SheetRow>
 					</SheetSection>
@@ -44,9 +55,7 @@
 
 					</SheetSection>
 				</Sheet>
-				</SheetPage>
 			</Block>
 		</Grid>
-
 	</CollectionView>
 </Partial>
