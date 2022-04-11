@@ -19,6 +19,7 @@
       "main/settings/accountplan/plan.sql",
       "main/settings/operation/operation.sql",
       "main/document/document.sql",
+      "main/report/report.sql",
       "main/_sql/admin.sql",
       "main/_sql/initial_data.sql"
     ]

@@ -73,11 +73,12 @@ begin
 	where ot.TenantId = @TenantId and ot.Operation = @Id
 	order by ot.RowKind
 
-	select [!TAccount!Map] = null, [Id!!Id] = a.Id, a.Code, [Name!!Name] = a.[Name]
+	select [!TAccount!Map] = null, [Id!!Id] = a.Id, a.Code, [Name!!Name] = a.[Name],
+		a.IsItem, a.IsAgent, a.IsWarehouse, a.IsBankAccount, a.IsCash
 	from doc.OpTrans ot 
 		left join acc.Accounts a on ot.TenantId = a.TenantId and a.Id in (ot.[Plan], ot.Dt, ot.Ct)
 	where ot.TenantId = @TenantId and ot.Operation = @Id
-	group by a.Id, a.Code, a.[Name];
+	group by a.Id, a.Code, a.[Name], a.IsItem, a.IsAgent, a.IsWarehouse, a.IsBankAccount, a.IsCash;
 
 	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], 
 		[RowKinds!TRowKind!Array] = null
@@ -209,8 +210,10 @@ begin
 		t.DtSum = s.DtSum,
 		t.CtSum = s.CtSum
 	when not matched by target then insert
-		(TenantId, Operation, RowKind, [Plan], Dt, Ct, DtAccMode, CtAccMode, DtRow, CtRow, DtSum, CtSum) values
-		(@TenantId, @Id, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct, s.DtAccMode, s.CtAccMode, s.DtRow, s.CtRow, s.DtSum, s.CtSum)
+		(TenantId, Operation, RowNo, RowKind, [Plan], Dt, Ct, DtAccMode, CtAccMode, DtRow, CtRow, 
+			DtSum, CtSum) values
+		(@TenantId, @Id, RowNo, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct, s.DtAccMode, s.CtAccMode, s.DtRow, s.CtRow, 
+			s.DtSum, s.CtSum)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,

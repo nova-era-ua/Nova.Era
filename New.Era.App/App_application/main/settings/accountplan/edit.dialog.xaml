@@ -13,6 +13,11 @@
 	<TabBar Value="{Bind Root.$TabMode}">
 		<TabButton Content="@[Analysts]"/>
 	</TabBar>
+	<Grid AutoFlow="Row" Padding="0, 0, 1rem, 0">
+		<CheckBox Label="@[Agent]" Value="{Bind Account.IsAgent}"/>
+		<CheckBox Label="@[Item]" Value="{Bind Account.IsItem}"/>
+		<CheckBox Label="@[Warehouse]" Value="{Bind Account.IsWarehouse}"/>
+	</Grid>
 	<TextBox Label="@[Memo]" Value="{Bind Account.Memo}" UpdateTrigger="Input" Multiline="True"/>
 </Dialog>
 

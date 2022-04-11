@@ -1,5 +1,16 @@
 ﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<EmptyPanel Icon="SmileSad">
-		Yet not implemented
-	</EmptyPanel>
+	<Grid Rows="Auto,1*">
+		<Toolbar Grid.Row="1" Style="Light" Padding="0">
+			<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Dialog, Action=Append, 
+				Argument={Bind Reports}, Url='/report/edit'}"/>
+			<Button Icon="Reload" Command="{BindCmd Reload}"/>
+		</Toolbar>
+		<List Grid.Row="2" Style="ThreeColumnsGrid" ItemsSource="{Bind Reports}">
+			<ListItem Icon="Report" Header="{Bind Name}" Content="{Bind Memo}">
+				<ListItem.CommandBar>
+					<CommandBar />
+				</ListItem.CommandBar>
+			</ListItem>
+		</List>
+	</Grid>
 </Page>

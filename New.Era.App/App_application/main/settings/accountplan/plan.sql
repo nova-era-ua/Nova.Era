@@ -51,7 +51,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Account!TAccount!Object] = null, [Id!!Id] = Id, Code, [Name], [Memo], [Plan], 
-		ParentAccount = Parent
+		ParentAccount = Parent, IsItem, IsWarehouse, IsAgent
 	from acc.Accounts where TenantId = @TenantId and Id=@Id;
 
 	select [Params!TParam!Object] = null, ParentAccount = @Parent;
@@ -81,7 +81,10 @@ as table (
 	[Name] nvarchar(255),
 	[Code] nvarchar(16),
 	[Memo] nvarchar(255),
-	[ParentAccount] bigint
+	[ParentAccount] bigint,
+	IsItem bit,
+	IsWarehouse bit,
+	IsAgent bit
 )
 go
 ------------------------------------------------
@@ -154,10 +157,13 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Code] = s.[Code],
-		t.[Memo] = s.Memo
+		t.[Memo] = s.Memo,
+		t.IsItem = s.IsItem,
+		t.IsAgent = s.IsAgent,
+		t.IsWarehouse = s.IsWarehouse
 	when not matched by target then insert
-		(TenantId, [Plan], Parent, Code, [Name], [Memo]) values
-		(@TenantId, @plan, s.ParentAccount, s.Code, s.[Name], s.Memo)
+		(TenantId, [Plan], Parent, Code, [Name], [Memo], IsItem, IsAgent, IsWarehouse) values
+		(@TenantId, @plan, s.ParentAccount, s.Code, s.[Name], s.Memo, s.IsItem, s.IsAgent, s.IsWarehouse)
 	output inserted.Id into @rtable(id);
 	select @id = id from @rtable;
 	exec acc.[Account.Load] @TenantId = @TenantId,
@@ -190,19 +196,22 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	with T(Id, Parent, [Level])
+	with T(Id, Parent, Anchor, [Level])
 	as (
-		select a.Id, Parent, 0 from
+		select a.Id, cast(null as bigint), Parent, 0 from
 			acc.Accounts a where TenantId=@TenantId and a.Parent = @Plan and a.[Plan] = @Plan
 		union all 
-		select a.Id, a.Parent, T.[Level] + 1 
+		select a.Id, a.Parent, a.Parent, T.[Level] + 1 
 		from acc.Accounts a
 			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
 		where a.TenantId = @TenantId and a.[Plan] = [Plan]
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
-		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent
+		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
+		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
 end
 go
+
+exec acc.[Account.Browse.Index] 1, 99, 113

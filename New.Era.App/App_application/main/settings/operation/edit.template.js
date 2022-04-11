@@ -23,6 +23,5 @@ define(["require", "exports"], function (require, exports) {
     };
     exports.default = template;
     function formChange() {
-        alert(1);
     }
 });

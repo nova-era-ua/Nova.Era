@@ -69,7 +69,7 @@
 						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Trans}}"/>
 					</Toolbar>
 					<Table ItemsSource="{Bind Operation.Trans}"
-						   Columns="1rem,7rem,7rem,10rem,5rem,10rem,7rem,10rem,5rem,10rem,Fit" CellSpacing="Medium">
+						   Columns="1rem,7rem,  7rem,10rem,5rem,10rem,  7rem,10rem,5rem,10rem, Fit" CellSpacing="Medium">
 						<Table.Header>
 							<TableRow>
 								<TableCell Content="@[AccountPlan]" Wrap="NoWrap" RowSpan="2"/>
@@ -82,6 +82,7 @@
 								<TableCell Content="Режим"/>
 								<TableCell ColSpan="2">@[Account]</TableCell>
 								<TableCell Content="Сума"/>
+								<!---->
 								<TableCell Content="Режим"/>
 								<TableCell ColSpan="2">@[Account]</TableCell>
 								<TableCell Content="Сума"/>
@@ -136,6 +137,7 @@
 								<ComboBoxItem Content="Сума без знижки" Value="W"/>
 								<ComboBoxItem Content="Знижка" Value="D"/>
 							</ComboBox>
+							<!---->
 							<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
 						</TableRow>
 					</Table>

@@ -15,6 +15,7 @@
 46. Catalog.Contracts
 47. Catalog.Departments
 48. Agent.BankAccounts
+49. AccountPlan -> IsGroup & edit dialog
 
 
 Small fixes

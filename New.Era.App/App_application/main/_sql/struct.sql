@@ -245,6 +245,11 @@ create table acc.Accounts (
 	[Code] nvarchar(16),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
+	IsItem bit,
+	IsAgent bit,
+	IsWarehouse bit,
+	IsBankAccount bit,
+	IsCash bit
 		constraint PK_Accounts primary key (TenantId, Id),
 		constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
 );
@@ -351,9 +356,11 @@ create table doc.OpTrans
 	DtAccMode nchar(1), -- ()Fixed, (I)tem, R(ole)
 	DtSum nchar(1), -- ()Sum, (D)iscount, (W)Without discount, (V)at
 	DtRow nchar(1), -- ()Sum, (R)ows
+	DtWarehouse nchar(1),
 	CtAccMode nchar(1),
 	CtSum nchar(1),
 	CtRow nchar(1),
+	CtWarehouse nchar(1),
 		constraint PK_OpTrans primary key (TenantId, Id, Operation),
 		constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
 		constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),

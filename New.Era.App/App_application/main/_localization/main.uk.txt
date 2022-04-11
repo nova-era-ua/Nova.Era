@@ -17,7 +17,6 @@
 @Companies=Підприємства
 @Company=Підприємство
 @Other=Інше
-@Agent=Контрагент
 @Period=Період
 @Warehouse=Склад
 @Warehouses=Склади
@@ -43,7 +42,9 @@
 @Units=Одиниці виміру
 @Folder=Папка
 @Agents=Контрагенти
+@Agent=Контрагент
 @Items=Об'єкти обліку
+@Item=Об'єкт обліку
 @BankAccounts=Рахунки в банках
 @Banks=Банки
 @Vendors=Виробники

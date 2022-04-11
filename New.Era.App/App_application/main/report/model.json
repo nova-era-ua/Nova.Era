@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../@schemas/model-json-schema.json#",
+  "schema": "rep",
+  "model": "Report",
+  "dialogs": {
+    "edit": {
+      "template": "edit.template",
+      "view": "edit.dialog"
+    }
+  }  
+}

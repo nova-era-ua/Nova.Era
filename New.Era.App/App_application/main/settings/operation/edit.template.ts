@@ -23,5 +23,4 @@ export default template;
 
 function formChange() {
 	// todo: reset all row kinds
-	alert(1);
 }

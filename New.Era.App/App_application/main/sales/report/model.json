@@ -1,7 +1,7 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "rep",
-  "model": "Reports",
+  "model": "Report",
   "actions": {
     "index": {
       "index": true,

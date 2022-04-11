@@ -67,8 +67,8 @@ begin
 	declare @rk table(Id nvarchar(16), [Order] int, Form nvarchar(16), [Name] nvarchar(255));
 	insert into @rk([Form], [Order], Id, [Name]) values
 	(N'waybillout', 1, N'', N'Всі рядки'),
+	(N'waybillin',  1, N'', N'Всі рядки'),
 	(N'invoice',    1, N'', N'Всі рядки'),
-	(N'manufact',   1, N'', N'Всі рядки'),
 	(N'manufact',   2, N'Stock', N'Запаси'),
 	(N'manufact',   3, N'Product', N'Продукція');
 

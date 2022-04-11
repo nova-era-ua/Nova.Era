@@ -342,36 +342,40 @@ begin
 	-- ensure empty journal
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
 
-	-- TODO: WhFrom, WhTo
-
 	declare @tr table([date] datetime, detail bigint, trno int, rowno int, acc bigint,
 		dtct smallint, [sum] money, qty float, item bigint, comp bigint, agent bigint, wh bigint);
 
 	declare @rowno int, @rowkind nvarchar(16), @plan bigint, @dt bigint, @ct bigint, @dtrow nchar(1), @ctrow nchar(1);
+
+	-- todo: temportary source and accounts from other tables
 
 	declare cur cursor local forward_only read_only fast_forward for
 		select RowNo, RowKind, [Plan], [Dt], [Ct], 
 			isnull(DtRow, N''), isnull(CtRow, N'')
 		from doc.OpTrans where TenantId = @TenantId and Operation = @Operation;
 	open cur;
-	fetch next from cur into @rowno, @rowkind, @plan, @dt, @ct, @dtrow, @ctrow;
+	fetch next from cur into @rowno, @rowkind, @plan, @dt, @ct, @dtrow, @ctrow
 	while @@fetch_status = 0
 	begin
 		-- debit
 		if @dtrow = N'R'
-			insert into @tr([date], detail, trno, rowno, dtct, acc, item, qty, [sum], comp, agent)
-				select d.[Date], dd.Id, @rowno, dd.RowNo, 1, @dt, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent
+			insert into @tr([date], detail, trno, rowno, dtct, acc, item, qty, [sum], comp, agent, wh)
+				select d.[Date], dd.Id, @rowno, dd.RowNo, 1, @dt, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhTo
 				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
+		else if @dtrow = N''
+			insert into @tr([date], trno, dtct, acc, [sum], comp, agent, wh)
+				select d.[Date], @rowno, -1, @dt, d.[Sum], d.Company, d.Agent, d.WhTo
+					from doc.Documents d where TenantId = @TenantId and Id = @Id;
 		-- credit
 		if @ctrow = N'R'
-			insert into @tr([date], detail, trno, rowno, dtct, acc, item, qty, [sum], comp, agent)
-				select d.[Date], dd.Id, @rowno, dd.RowNo, -1, @ct, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent
+			insert into @tr([date], detail, trno, rowno, dtct, acc, item, qty, [sum], comp, agent, wh)
+				select d.[Date], dd.Id, @rowno, dd.RowNo, -1, @ct, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhFrom
 				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
 		else if @ctrow = N''
-			insert into @tr([date], trno, dtct, acc, [sum], comp, agent)
-				select d.[Date], @rowno, -1, @ct, d.[Sum], d.Company, d.Agent
+			insert into @tr([date], trno, dtct, acc, [sum], comp, agent, wh)
+				select d.[Date], @rowno, -1, @ct, d.[Sum], d.Company, d.Agent, d.WhFrom
 					from doc.Documents d where TenantId = @TenantId and Id = @Id;
 		fetch next from cur into @rowno, @rowkind, @plan, @dt, @ct, @dtrow, @ctrow;
 	end
@@ -380,7 +384,7 @@ begin
 
 	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date],  Company, Warehouse, Agent, Item, 
 		DtCt, Account, Qty, [Sum])
-	select @TenantId, @Id, detail, trno, rowno, [date], comp, null, agent, item, 
+	select @TenantId, @Id, detail, trno, rowno, [date], comp, wh, agent, item, 
 		dtct, acc, qty, [sum]
 	from @tr;
 end
