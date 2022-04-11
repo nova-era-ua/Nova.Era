@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 11.04.2022 12:28:56
+generated: 11.04.2022 20:51:06
 */
 
 
@@ -445,26 +445,6 @@ create table cat.Agents
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Reports')
-	create sequence rep.SQ_Reports as bigint start with 1000 increment by 1;
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'rep' and TABLE_NAME=N'Reports')
-create table rep.Reports
-(
-	TenantId int not null,
-	Id bigint not null
-		constraint DF_Reports_PK default(next value for rep.SQ_Reports),
-	Void bit not null 
-		constraint DF_Reports_Void default(0),
-	[Menu] nvarchar(255),
-	[Name] nvarchar(255),
-	[Url] nvarchar(255),
-	[Memo] nvarchar(255),
-		constraint PK_Reports primary key (TenantId, Id)
-);
-go
-------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Accounts')
 	create sequence cat.SQ_Accounts as bigint start with 100 increment by 1;
 go
@@ -729,7 +709,28 @@ create table jrn.Journal
 		constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
 );
 go
-
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Reports')
+	create sequence rep.SQ_Reports as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'rep' and TABLE_NAME=N'Reports')
+create table rep.Reports
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Reports_PK default(next value for rep.SQ_Reports),
+	Void bit not null 
+		constraint DF_Reports_Void default(0),
+	Account bigint,
+	[Menu] nvarchar(32),
+	[Name] nvarchar(255),
+	[Url] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Reports primary key (TenantId, Id),
+		constraint FK_Reports_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id)
+);
+go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'usr' and TABLE_NAME=N'Defaults')
 create table usr.Defaults
@@ -2349,7 +2350,7 @@ go
 create or alter procedure acc.[Account.Browse.Index]
 @TenantId int = 1,
 @UserId bigint,
-@Plan bigint = null,
+@Plan bigint,
 @Id bigint = null
 as
 begin
@@ -2373,8 +2374,34 @@ begin
 	order by T.[Level], a.Code;
 end
 go
+------------------------------------------------
+create or alter procedure acc.[Account.BrowseAll.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
 
-exec acc.[Account.Browse.Index] 1, 99, 113
+	with T(Id, Parent, Anchor, [Level])
+	as (
+		select a.Id, cast(null as bigint), Parent, 0 from
+			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null
+		union all 
+		select a.Id, a.Parent, a.Parent, T.[Level] + 1 
+		from acc.Accounts a
+			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
+		where a.TenantId = @TenantId and a.[Plan] = [Plan]
+	)
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
+		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
+		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
+	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
+	order by T.[Level], a.Code;
+end
+go
+
 
 /* Operation */
 -------------------------------------------------
@@ -3052,13 +3079,124 @@ go
 
 
 -- reports
+-------------------------------------------------
 create or alter procedure rep.[Report.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Menu nvarchar(32)
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
+	select [Reports!TReport!Array] = null, [Id!!Id] = r.Id, [Name!!Name] = [Name], Memo,
+		Menu, [Url], r.Account
+	from rep.Reports r
+	where TenantId = @TenantId and [Menu] = @Menu;
+
+	select [Params!TParam!Object] = null, Menu = @Menu;
 end
 go
+-------------------------------------------------
+create or alter procedure rep.[Report.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Menu nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Report!TReport!Object] = null, [Id!!Id] = r.Id, [Name!!Name] = [Name], Memo,
+		[Menu], [Url], [Account!TAccount!RefId] = Account
+	from rep.Reports r
+	where r.TenantId = @TenantId and r.Id = @Id;
+
+	select [!TAccount!Map] = null, [Id!!Id] = a.Id, [Code], [Name!!Name] = a.[Name],
+		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
+	from acc.Accounts a inner join rep.Reports r on a.TenantId = r.TenantId and a.Id = r.Account
+	where r.TenantId = @TenantId and r.Id = @Id;
+
+	select [Params!TParam!Object] = null, Menu = @Menu;
+end
+go
+-------------------------------------------------
+drop procedure if exists rep.[Report.Metadata];
+drop procedure if exists rep.[Report.Update];
+drop type if exists rep.[Report.TableType];
+go
+-------------------------------------------------
+create type rep.[Report.TableType] as table (
+	Id bigint,
+	[Menu] nvarchar(32),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	Account bigint,
+	[Url] nvarchar(255)
+);
+go
+-------------------------------------------------
+create or alter procedure rep.[Report.Metadata]
+as
+begin
+	set nocount on;
+	declare @Report rep.[Report.TableType];
+	select [Report!Report!Metadata] = null, * from @Report;
+end
+go
+-------------------------------------------------
+create or alter procedure rep.[Report.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Report rep.[Report.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	set xact_abort on;
+	
+	declare @output  table (op sysname, id bigint);
+	declare @id bigint;
+
+	merge rep.Reports as t
+	using @Report as s on (t.TenantId = @TenantId and t.Id = s.Id)
+	when matched then update set
+		t.[Name] = s.[Name], 
+		t.[Memo] = s.[Memo],
+		t.Account = s.Account,
+		t.[Url] = s.[Url]
+	when not matched by target then insert
+		(TenantId, Menu, [Name], Memo, Account, [Url]) values
+		(@TenantId, s.Menu, [Name], Memo, Account, [Url])
+	output $action, inserted.Id into @output (op, id);
+
+	select top(1) @id = id from @output;
+	exec rep.[Report.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+-- reports stock
+-------------------------------------------------
+create or alter procedure rep.[Report.Turnover.Item.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint /* report id */
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	-- turnover
+	declare @acc bigint;
+	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
+
+
+	select [Report!TReport!Object] = null, [Name!!Name] = [Name]
+	from rep.Reports where TenantId = @TenantId and Id = @Id;
+	select [Data!TData!Array] = null
+end
+go
+
 /*
 admin
 */

@@ -5,9 +5,10 @@
   "actions": {
     "index": {
       "index": true,
-      "view": "../../report/index.view",
+      "template": "../../reports/index.template",
+      "view": "../../reports/index.view",
       "parameters": {
-         "Menu": "Sales"
+        "Menu": "Sales"
       }
     }
   }

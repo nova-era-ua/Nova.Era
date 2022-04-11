@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "rep",
+  "model": "",
+  "actions": {
+    "rto_items": {
+      "model": "Report.Turnover.Item",
+      "view": "turnover.item.view"
+    }
+  }
+}

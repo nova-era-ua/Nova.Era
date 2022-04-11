@@ -73,6 +73,9 @@
     </Content>
     <Content Include="App_application\main\document\document.sql" />
     <Content Include="App_application\main\profile\default\default.sql" />
+    <Content Include="App_application\main\reports\stock\report.stock.sql">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="App_application\main\settings\operation\operation.sql" />
     <Content Include="App_application\main\settings\accountplan\plan.sql" />
     <Content Include="App_application\main\_assets\main.css">
@@ -197,7 +200,7 @@
     <Content Include="App_application\main\document\waybillout\edit.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\report\index.view.xaml">
+    <Content Include="App_application\main\reports\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\sales\service\index.view.xaml">
@@ -218,7 +221,13 @@
     <Content Include="App_application\main\settings\user\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\report\report.sql">
+    <Content Include="App_application\main\reports\report.sql">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\reports\edit.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\reports\stock\turnover.item.view.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -246,7 +255,10 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="App_application\main\purchase\price\model.json" />
-    <None Include="App_application\main\report\model.json" />
+    <TypeScriptCompile Include="App_application\main\reports\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\reports\edit.template.ts" />
+    <None Include="App_application\main\reports\stock\model.json" />
+    <None Include="App_application\main\reports\model.json" />
     <None Include="packages.config" />
     <Content Include="tsconfig.json" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />

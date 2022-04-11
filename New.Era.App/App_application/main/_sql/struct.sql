@@ -209,26 +209,6 @@ create table cat.Agents
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Reports')
-	create sequence rep.SQ_Reports as bigint start with 1000 increment by 1;
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'rep' and TABLE_NAME=N'Reports')
-create table rep.Reports
-(
-	TenantId int not null,
-	Id bigint not null
-		constraint DF_Reports_PK default(next value for rep.SQ_Reports),
-	Void bit not null 
-		constraint DF_Reports_Void default(0),
-	[Menu] nvarchar(255),
-	[Name] nvarchar(255),
-	[Url] nvarchar(255),
-	[Memo] nvarchar(255),
-		constraint PK_Reports primary key (TenantId, Id)
-);
-go
-------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Accounts')
 	create sequence cat.SQ_Accounts as bigint start with 100 increment by 1;
 go
@@ -493,7 +473,28 @@ create table jrn.Journal
 		constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
 );
 go
-
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Reports')
+	create sequence rep.SQ_Reports as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'rep' and TABLE_NAME=N'Reports')
+create table rep.Reports
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Reports_PK default(next value for rep.SQ_Reports),
+	Void bit not null 
+		constraint DF_Reports_Void default(0),
+	Account bigint,
+	[Menu] nvarchar(32),
+	[Name] nvarchar(255),
+	[Url] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Reports primary key (TenantId, Id),
+		constraint FK_Reports_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id)
+);
+go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'usr' and TABLE_NAME=N'Defaults')
 create table usr.Defaults

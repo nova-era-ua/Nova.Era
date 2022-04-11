@@ -189,7 +189,7 @@ go
 create or alter procedure acc.[Account.Browse.Index]
 @TenantId int = 1,
 @UserId bigint,
-@Plan bigint = null,
+@Plan bigint,
 @Id bigint = null
 as
 begin
@@ -213,5 +213,31 @@ begin
 	order by T.[Level], a.Code;
 end
 go
+------------------------------------------------
+create or alter procedure acc.[Account.BrowseAll.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
 
-exec acc.[Account.Browse.Index] 1, 99, 113
+	with T(Id, Parent, Anchor, [Level])
+	as (
+		select a.Id, cast(null as bigint), Parent, 0 from
+			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null
+		union all 
+		select a.Id, a.Parent, a.Parent, T.[Level] + 1 
+		from acc.Accounts a
+			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
+		where a.TenantId = @TenantId and a.[Plan] = [Plan]
+	)
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
+		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
+		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
+	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
+	order by T.[Level], a.Code;
+end
+go
+
