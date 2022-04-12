@@ -3,7 +3,6 @@
 		<CollectionView.Filter>
 			<FilterDescription>
 				<FilterItem Property="Company" DataType="Object" />
-				<FilterItem Property="Warehouse" DataType="Object" />
 				<FilterItem Property="Period" DataType="Period"/>
 			</FilterDescription>
 		</CollectionView.Filter>
@@ -15,12 +14,6 @@
 								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
 					</Selector.AddOns>
 				</Selector>
-				<Selector Value="{Bind Parent.Filter.Warehouse}" DisplayProperty="Name" Width="15rem">
-					<Selector.AddOns>
-						<Hyperlink Icon="Search" 
-								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Warehouse}, Url='/catalog/warehouse/browse'}"/>
-					</Selector.AddOns>
-				</Selector>
 				<PeriodPicker ShowAllData="False"
 							  Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
 				<Button Icon="Reload" Command="{BindCmd Reload}" />
@@ -29,7 +22,7 @@
 				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel}" />
 			</Toolbar>
 			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
-				<Sheet GridLines="Both" Columns="Auto,15rem,Auto,Auto+A,Auto+A">
+				<Sheet GridLines="Both" Columns="Auto,20rem,8rem+A,8rem,8rem,8rem+A">
 					<SheetSection>
 						<SheetRow Style="Title">
 							<SheetCell ColSpan="4" Content="{Bind Report.Name}"></SheetCell>
@@ -38,10 +31,6 @@
 							<SheetCell Content="@[Period]"></SheetCell>
 							<SheetCell Content="{Bind Parent.Filter.Period.Name}"></SheetCell>
 						</SheetRow>
-						<SheetRow Style="Parameter">
-							<SheetCell Content="@[Warehouse]"></SheetCell>
-							<SheetCell Content="{Bind Parent.Filter.Warehouse.Name}"></SheetCell>
-						</SheetRow>
 						<SheetRow Style="LastParameter">
 							<SheetCell Content="@[Company]"></SheetCell>
 							<SheetCell Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
@@ -49,62 +38,38 @@
 					</SheetSection>
 					<SheetSection >
 						<SheetRow Style="Header">
-							<SheetCell ColSpan="3">@[Item]</SheetCell>
-							<SheetCell Wrap="NoWrap" ColSpan="2">
+							<SheetCell ColSpan="2">@[Agent]</SheetCell>
+							<SheetCell Wrap="NoWrap">
 								<Text>На
 									<Span Content="{Bind Parent.Filter.Period.From, DataType=Date}" Bold="True"/>
 								</Text>
 							</SheetCell>
-							<SheetCell ColSpan="2">Прибуток</SheetCell>
-							<SheetCell ColSpan="2">Видаток</SheetCell>
-							<SheetCell ColSpan="2" Wrap="NoWrap">
+							<SheetCell>Оплата</SheetCell>
+							<SheetCell>Заборгованість</SheetCell>
+							<SheetCell Wrap="NoWrap">
 								<Text>На
 									<Span Content="{Bind Parent.Filter.Period.To, DataType=Date}" Bold="True"/>
 								</Text>
 							</SheetCell>
 						</SheetRow>
-						<SheetRow Style="Header" Wrap="NoWrap">
-							<SheetCell>@[Article]</SheetCell>
-							<SheetCell>@[Name]</SheetCell>
-							<SheetCell>@[Unit]</SheetCell>
-							<SheetCell>@[QtyS]</SheetCell>
-							<SheetCell>@[Sum]</SheetCell>
-							<SheetCell>@[QtyS]</SheetCell>
-							<SheetCell>@[Sum]</SheetCell>
-							<SheetCell>@[QtyS]</SheetCell>
-							<SheetCell>@[Sum]</SheetCell>
-							<SheetCell>@[QtyS]</SheetCell>
-							<SheetCell>@[Sum]</SheetCell>
-						</SheetRow>
 					</SheetSection>
 					<SheetSection>
 						<SheetRow Style="Total" Align="Right" Wrap="NoWrap">
-							<SheetCell ColSpan="3" Align="Left">@[Total]</SheetCell>
-							<SheetCell Content="{Bind RepData.StartQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
-							<SheetCell />
-							<SheetCell Content="{Bind RepData.InQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
-							<SheetCell />
-							<SheetCell Content="{Bind RepData.OutQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
-							<SheetCell />
-							<SheetCell Content="{Bind RepData.EndQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
-							<SheetCell />
+							<SheetCell ColSpan="2" Align="Left">@[Total]</SheetCell>
+							<SheetCell Content="{Bind RepData.StartSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
+							<SheetCell Content="{Bind RepData.InSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
+							<SheetCell Content="{Bind RepData.OutSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
+							<SheetCell Content="{Bind RepData.EndSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 						</SheetRow>
 					</SheetSection>
 					<SheetSection ItemsSource="{Bind RepData.Items}">
 						<SheetRow Align="Right" Wrap="NoWrap">
-							<SheetCell Content="{Bind Item.Article}" Align="Left"/>
-							<SheetCell Content="{Bind Item.Name}" Align="Left"/>
-							<SheetCell />
-							<SheetCell Content="{Bind StartQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
+							<SheetCell ColSpan="2" Content="{Bind Agent.Name}" Align="Left"/>
 							<SheetCell Content="{Bind StartSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
-							<SheetCell Content="{Bind InQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell Content="{Bind InSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
-							<SheetCell Content="{Bind OutQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell Content="{Bind OutSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
-							<SheetCell Content="{Bind EndQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell Content="{Bind EndSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 						</SheetRow>
-
 					</SheetSection>
 				</Sheet>
 			</Block>

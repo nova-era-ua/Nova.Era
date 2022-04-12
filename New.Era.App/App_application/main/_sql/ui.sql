@@ -120,11 +120,19 @@ begin
 		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
 		-- Settings
-		(8811,  88, 11, N'@[Companies]',  N'company',   N'company', null),
-		(8812,  88, 12, N'@[Warehouses]', N'warehouse', N'warehouse', null),
-		(8813,  88, 13, N'@[Users]',     N'user',    N'user',    N'border-top'),
-		(8814,  88, 14, N'@[AccountPlans]',  N'accountplan', N'account',      N'border-top'),
-		(8815,  88, 15, N'@[Operations]',   N'operation',   N'file-content', null),
+		(880,   88, 10, N'@[Catalogs]',     null, null, null),
+		(8811, 880, 11, N'@[Companies]',    N'company',   N'company', null),
+		(8812, 880, 12, N'@[Warehouses]',   N'warehouse', N'warehouse', null),
+		(8813, 880, 13, N'@[BankAccounts]', N'bankacc',   N'bank', null),
+		(8814, 880, 14, N'@[CashAccounts]', N'cashacc',   N'currency-uah', null),
+		(8815, 880, 15, N'@[Agents]',       N'agent',     N'users', null),
+		(8816, 880, 16, N'@[Items]',        N'item',      N'package-outline', null),
+		(8817, 880, 16, N'@[CatalogOther]', N'catalog',   N'list', null),
+		(881,   88, 11, N'@[Settings]',     null, null, null),
+		(8820, 881, 17, N'@[AccountPlans]', N'accountplan', N'account',  null),
+		(8821, 881, 18, N'@[Operations]',   N'operation',   N'file-content', null),
+		(882,   88, 12, N'@[Administration]', null, null, null),
+		(8830, 882, 16, N'@[Users]',        N'user',    N'user',  null),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 
@@ -143,10 +151,15 @@ begin
 	--(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
 
 	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
-	(201, N'Purchase',   10, N'@[Items]',  N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N''),
+	(201, N'Purchase',   11, N'@[Items]',  N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N''),
 	-- accounting
 	(300, N'Accounting', 10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
-	(301, N'Accounting', 10, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N'');
+	(301, N'Accounting', 11, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
+	-- settings
+	(900, N'Settings',  10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
+	(901, N'Settings',  11, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
+	(902, N'Settings',  12, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
+	(903, N'Settings',  13, N'@[Items]',  N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N'');
 
 	merge a2ui.[Catalog] as t
 	using @cat as s on t.Id = s.Id

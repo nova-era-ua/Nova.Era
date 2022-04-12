@@ -51,7 +51,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Account!TAccount!Object] = null, [Id!!Id] = Id, Code, [Name], [Memo], [Plan], 
-		ParentAccount = Parent, IsItem, IsWarehouse, IsAgent
+		ParentAccount = Parent, IsItem, IsWarehouse, IsAgent, IsBankAccount, IsCash
 	from acc.Accounts where TenantId = @TenantId and Id=@Id;
 
 	select [Params!TParam!Object] = null, ParentAccount = @Parent;
@@ -84,7 +84,9 @@ as table (
 	[ParentAccount] bigint,
 	IsItem bit,
 	IsWarehouse bit,
-	IsAgent bit
+	IsAgent bit,
+	IsBankAccount bit,
+	IsCash bit
 )
 go
 ------------------------------------------------
@@ -160,10 +162,14 @@ begin
 		t.[Memo] = s.Memo,
 		t.IsItem = s.IsItem,
 		t.IsAgent = s.IsAgent,
-		t.IsWarehouse = s.IsWarehouse
+		t.IsWarehouse = s.IsWarehouse,
+		t.IsBankAccount = s.IsBankAccount,
+		t.IsCash = s.IsCash
 	when not matched by target then insert
-		(TenantId, [Plan], Parent, Code, [Name], [Memo], IsItem, IsAgent, IsWarehouse) values
-		(@TenantId, @plan, s.ParentAccount, s.Code, s.[Name], s.Memo, s.IsItem, s.IsAgent, s.IsWarehouse)
+		(TenantId, [Plan], Parent, Code, [Name], [Memo], IsItem, IsAgent, IsWarehouse, 
+			IsBankAccount, IsCash) values
+		(@TenantId, @plan, s.ParentAccount, s.Code, s.[Name], s.Memo, s.IsItem, s.IsAgent, s.IsWarehouse,
+			s.IsBankAccount, s.IsCash)
 	output inserted.Id into @rtable(id);
 	select @id = id from @rtable;
 	exec acc.[Account.Load] @TenantId = @TenantId,

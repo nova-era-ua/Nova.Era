@@ -7,6 +7,8 @@
 					Argument={Bind Reports}, Data={Bind Root.Params}, Url='/reports/edit'}"/>
 				<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, 
 					Argument={Bind Reports}, Data={Bind Root.Params}, Url='/reports/edit'}"/>
+				<Button Icon="Delete" Command="{BindCmd DbRemoveSelected, 
+					Argument={Bind Reports}, Confirm='@[Confirm.Delete.Element]'}"/>
 				<Button Icon="Reload" Command="{BindCmd Reload}" Toolbar.Align="Right"/>
 			</Toolbar>
 			<List ItemsSource="{Bind Reports}" Style="List" Grid.Row="2" Grid.Col="1" Height="100%"

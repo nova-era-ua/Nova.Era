@@ -6,6 +6,11 @@ const template: Template = {
 	properties: {
 		'TAccount.$Title'() { return `${this.Code} ${this.Name}`; },
 		'TReport.$RepTypes': repTypes
+	},
+	validators: {
+		'Report.Name': '@[Error.Required]',
+		'Report.Account': '@[Error.Required]',
+		'Report.Url': '@[Error.Required]'
 	}
 }
 
@@ -18,5 +23,7 @@ function repTypes() {
 		r.push({ Name: 'Оборотная ведомость "Товар"', Url: '/reports/stock/rto_items' });
 	if (acc.IsWarehouse)
 		r.push({ Name: 'Оборотная ведомость "Склад+товар"', Url: '/reports/stock/rto_whitems' });
+	if (acc.IsAgent)
+		r.push({ Name: 'Оборотная ведомость "Контрагент"', Url: '/reports/agent/rto_agents' });
 	return r;
 }

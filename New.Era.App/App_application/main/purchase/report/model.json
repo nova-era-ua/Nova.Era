@@ -1,10 +1,15 @@
 ﻿{
-  "$schema": "../../@schemas/model-json-schema.json#",
-  "schema": "",
-  "model": "",
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "rep",
+  "model": "Report",
   "actions": {
     "index": {
-      "view": "index.view"
+      "index": true,
+      "template": "../../reports/index.template",
+      "view": "../../reports/index.view",
+      "parameters": {
+        "Menu": "Purchase"
+      }
     }
   }
 }

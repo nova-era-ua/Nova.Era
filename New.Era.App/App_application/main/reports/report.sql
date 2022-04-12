@@ -96,3 +96,16 @@ begin
 	exec rep.[Report.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
+-------------------------------------------------
+create or alter procedure rep.[Report.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint,
+@Menu nvarchar(32)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	delete from rep.Reports where TenantId = @TenantId and Id = @Id;
+end
+go

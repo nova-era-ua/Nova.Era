@@ -93,6 +93,23 @@ create table cat.Banks
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Currencies')
+create table cat.Currencies
+(
+	TenantId int not null,
+	Id bigint not null,
+	Void bit not null 
+		constraint DF_Currencies_Void default(0),
+	[Alpha3] nchar(3),
+	[Number3] nchar(3),
+	[Char] nchar(1),
+	[Denom] int,
+	[Name] nvarchar(255) null,
+	[Memo] nvarchar(255) null,
+		constraint PK_Currencies primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Items')
 	create sequence cat.SQ_Items as bigint start with 100 increment by 1;
 go
@@ -188,7 +205,6 @@ create table cat.Warehouses
 		constraint PK_Warehouses primary key (TenantId, Id)
 );
 go
-
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Agents')
 	create sequence cat.SQ_Agents as bigint start with 100 increment by 1;
@@ -206,6 +222,53 @@ create table cat.Agents
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Agents primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_BankAccounts')
+	create sequence cat.SQ_BankAccounts as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'BankAccounts')
+create table cat.BankAccounts
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_BankAccounts_PK default(next value for cat.SQ_BankAccounts),
+	Void bit not null 
+		constraint DF_BankAccounts_Void default(0),
+	Company bigint not null,
+	Currency bigint not null,
+	[Name] nvarchar(255),
+	[Bank] bigint,
+	[AccountNo] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_BankAccounts primary key (TenantId, Id),
+		constraint FK_BankAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_BankAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
+		constraint FK_BankAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_CashAccounts')
+	create sequence cat.SQ_CashAccounts as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'CashAccounts')
+create table cat.CashAccounts
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_CashAccounts_PK default(next value for cat.SQ_CashAccounts),
+	Void bit not null 
+		constraint DF_CashAccounts_Void default(0),
+	Company bigint not null,
+	Currency bigint not null,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_CashAccounts primary key (TenantId, Id),
+		constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -457,20 +520,26 @@ create table jrn.Journal
 	Detail bigint,
 	DtCt smallint not null,
 	Account bigint not null,
+	CorrAccount bigint not null,
 	Company bigint null,
 	Warehouse bigint null,
 	Agent bigint null,
 	Item bigint null,
+	BankAccount bigint null,
+	CashAccount bigint null,
 	Qty float null,
 	[Sum] money not null
 		constraint DF_Journal_Sum default(0),
 		constraint PK_Journal primary key (TenantId, Id),
 		constraint FK_Journal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 		constraint FK_Journal_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id),
+		constraint FK_Journal_CorrAccount_Accounts foreign key (TenantId, CorrAccount) references acc.Accounts(TenantId, Id),
 		constraint FK_Journal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
 		constraint FK_Journal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 		constraint FK_Journal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
-		constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+		constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id),
+		constraint FK_Journal_BankAccount_BankAccounts foreign key (TenantId, BankAccount) references cat.BankAccounts(TenantId, Id),
+		constraint FK_Journal_BankAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id)
 );
 go
 ------------------------------------------------

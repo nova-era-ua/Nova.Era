@@ -4,6 +4,7 @@
 @Manufacturing=Виробництво
 @Payroll=Зарплата
 @Settings=Налаштування
+@Administration=Администрування
 @Stock=Запаси
 @StockPurchases=Запаси та закупівлі
 @SalesMarketing=Продаж та маркетинг
@@ -39,6 +40,7 @@
 @Defaults=Замовчування
 ;
 @Unit=Од.вим.
+@QtyS=К-ть
 @Units=Одиниці виміру
 @Folder=Папка
 @Agents=Контрагенти
@@ -46,6 +48,10 @@
 @Items=Об'єкти обліку
 @Item=Об'єкт обліку
 @BankAccounts=Рахунки в банках
+@BankAccount=Рахунок в банку
+@AccountNo=Номер рахунку
+@CashAccounts=Каси
+@CashAccount=Каса
 @Banks=Банки
 @Vendors=Виробники
 @Brands=Бренди
@@ -60,6 +66,7 @@
 @NewItem=Новий
 @NewItemW=Нова
 @Short=Скорочення
+@Total=Всього
 @Analysts=Aналітика
 @SearchResult=[Результат пошуку]
 @ItemProperties=Властивості елементу

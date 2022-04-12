@@ -14,13 +14,16 @@
       "main/catalog/item/item.sql",
       "main/catalog/agent/agent.sql",
       "main/catalog/bank/bank.sql",
+      "main/catalog/bankaccount/bankaccount.sql",
       "main/catalog/unit/unit.sql",
+      "main/catalog/currency/currency.sql",
       "main/catalog/pricelist/pricelist.sql",
       "main/settings/accountplan/plan.sql",
       "main/settings/operation/operation.sql",
       "main/document/document.sql",
       "main/reports/report.sql",
       "main/reports/stock/report.stock.sql",
+      "main/reports/agent/report.agent.sql",
       "main/_sql/admin.sql",
       "main/_sql/initial_data.sql"
     ]

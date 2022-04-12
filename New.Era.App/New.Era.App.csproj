@@ -62,6 +62,7 @@
     <Content Include="App_application\main\catalog\agent\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\catalog\bankaccount\bankaccount.sql" />
     <Content Include="App_application\main\catalog\bank\bank.sql" />
     <Content Include="App_application\main\catalog\pricelist\pricelist.sql" />
     <Content Include="App_application\main\catalog\warehouse\warehouse.sql" />
@@ -73,6 +74,7 @@
     </Content>
     <Content Include="App_application\main\document\document.sql" />
     <Content Include="App_application\main\profile\default\default.sql" />
+    <Content Include="App_application\main\reports\agent\report.agent.sql" />
     <Content Include="App_application\main\reports\stock\report.stock.sql">
       <SubType>Designer</SubType>
     </Content>
@@ -118,9 +120,6 @@
     <Content Include="App_application\main\catalog\unit\edit.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\accounting\report\index.view.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="App_application\main\accounting\service\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -161,6 +160,15 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\catalog\account\browse.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\bankaccount\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\bankaccount\edit.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\currency\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
@@ -206,9 +214,6 @@
     <Content Include="App_application\main\sales\service\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\purchase\report\index.view.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="App_application\main\purchase\service\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -230,6 +235,9 @@
     <Content Include="App_application\main\reports\stock\turnover.item.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\reports\agent\turnover.agent.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="App_application\%40schemas\api-model-json-schema.json" />
@@ -243,6 +251,7 @@
     <None Include="App_application\main\accounting\report\model.json" />
     <None Include="App_application\main\accounting\service\model.json" />
     <None Include="App_application\main\catalog\account\model.json" />
+    <None Include="App_application\main\catalog\bankaccount\model.json" />
     <None Include="App_application\main\catalog\bank\model.json" />
     <None Include="App_application\main\catalog\brand\model.json" />
     <None Include="App_application\main\catalog\currency\model.json" />
@@ -255,10 +264,17 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="App_application\main\purchase\price\model.json" />
+    <TypeScriptCompile Include="App_application\main\catalog\bankaccount\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\bankaccount\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\edit.template.ts" />
+    <None Include="App_application\main\purchase\report\model.json" />
+    <None Include="App_application\main\reports\agent\model.json" />
     <None Include="App_application\main\reports\stock\model.json" />
     <None Include="App_application\main\reports\model.json" />
+    <None Include="App_application\main\settings\cashacc\model.json" />
+    <None Include="App_application\main\settings\bankacc\model.json" />
+    <None Include="App_application\main\settings\catalog\model.json" />
     <None Include="packages.config" />
     <Content Include="tsconfig.json" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
@@ -292,7 +308,6 @@
     <None Include="App_application\main\purchase\payment\model.json" />
     <None Include="App_application\main\purchase\stock\model.json" />
     <None Include="App_application\main\purchase\purchase\model.json" />
-    <None Include="App_application\main\purchase\report\model.json" />
     <None Include="App_application\main\purchase\service\model.json" />
     <None Include="App_application\main\sales\agent\model.json" />
     <None Include="App_application\main\sales\catalog\model.json" />
