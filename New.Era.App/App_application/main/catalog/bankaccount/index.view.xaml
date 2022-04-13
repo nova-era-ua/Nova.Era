@@ -8,8 +8,8 @@
 			</CollectionView.Filter>
 		</CollectionView>
 	</Page.CollectionView>
-	<Grid>
-		<Toolbar Style="Light" Padding="0">
+	<Grid Height="100%" Rows="Auto,1*,Auto" Gap=".5rem" Padding="1rem">
+		<Toolbar Grid.Row="1" Style="Light" Padding="0">
 			<Button Icon="Plus" Content="@[Create]"
 					Command="{BindCmd Dialog, Action=Append, Argument={Bind BankAccounts}, Url='/catalog/bankaccount/edit'}"/>
 			<Separator />
@@ -20,11 +20,13 @@
 			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}" />
 		</Toolbar>
-		<DataGrid ItemsSource="{Bind Parent.ItemsSource}"
-				  GridLines="Horizontal" Hover="True">
+		<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True"
+				  ItemsSource="{Bind Parent.ItemsSource}" Sort="True">
 			<DataGridColumn Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[AccountNo]" Content="{Bind AccountNo}" Wrap="NoWrap" Fit="True"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
-			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
+			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Width="20rem"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
 					<Button Icon="Edit" 
@@ -32,5 +34,6 @@
 				</CommandBar>
 			</DataGridColumn>
 		</DataGrid>
+		<Pager Grid.Row="3" Source="{Bind Parent.Pager}" CssClass="pager-grid"/>
 	</Grid>
 </Page>

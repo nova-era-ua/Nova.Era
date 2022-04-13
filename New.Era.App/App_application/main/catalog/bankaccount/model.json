@@ -9,6 +9,7 @@
     },
     "browse": {
       "index": true,
+      "model": "BankAccount.Simple",
       "view": "browse.dialog"
     }
   }

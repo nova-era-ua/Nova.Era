@@ -38,7 +38,7 @@ begin
 		and [Date] < @end
 	group by rollup(Item);
 
-	update #tmp set EndQty = StartQty + InQty - OutQty, EndSum = StartSum + InSum - EndSum;
+	update #tmp set EndQty = StartQty + InQty - OutQty, EndSum = StartSum + InSum - OutSum;
 
 	-- turnover
 

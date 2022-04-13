@@ -1,7 +1,7 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "doc",
-  "model": "Document.Stock",
+  "model": "Document.Pay",
   "dialogs": {
     "edit": {
       "template": "edit.template",

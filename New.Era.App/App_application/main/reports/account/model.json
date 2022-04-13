@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "rep",
+  "model": "",
+  "actions": {
+    "rto_accdate": {
+      "model": "Report.Turnover.Account.Date",
+      "view": "turnover.acc.date.view"
+    }
+  }
+}

@@ -116,6 +116,8 @@
 								<ComboBoxItem Content="Сума" Value=""/>
 								<ComboBoxItem Content="Сума без знижки" Value="W"/>
 								<ComboBoxItem Content="Знижка" Value="D"/>
+								<ComboBoxItem Content="Собівартість" Value="S"/>
+								<ComboBoxItem Content="Маржа" Value="R"/>
 							</ComboBox>
 							<!--Credit -->
 							<ComboBox Value="{Bind CtRow}">
@@ -136,6 +138,8 @@
 								<ComboBoxItem Content="Сума" Value=""/>
 								<ComboBoxItem Content="Сума без знижки" Value="W"/>
 								<ComboBoxItem Content="Знижка" Value="D"/>
+								<ComboBoxItem Content="Собівартість" Value="S"/>
+								<ComboBoxItem Content="Маржа" Value="R"/>
 							</ComboBox>
 							<!---->
 							<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>

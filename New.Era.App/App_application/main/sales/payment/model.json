@@ -1,12 +1,12 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "doc",
-  "model": "Document.Stock",
+  "model": "Document.Pay",
   "actions": {
     "index": {
       "index": true,
-      "template": "../../document/stock.index.template",
-      "view": "../../document/stock.index.view",
+      "template": "../../document/pay.index.template",
+      "view": "../../document/pay.index.view",
       "parameters": {
         "Menu": "Sales.Payment"
       }

@@ -33,4 +33,5 @@ go
 
 drop sequence if exists doc.SQ_OpTrans;
 drop sequence if exists doc.SQ_Operations;
-go
+drop sequence if exists cat.SQ_Accounts;
+drop sequence if exists acc.SQ_Accounts;

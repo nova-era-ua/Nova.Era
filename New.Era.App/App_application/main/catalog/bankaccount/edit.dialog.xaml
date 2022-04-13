@@ -12,8 +12,15 @@
 					Command="{BindCmd Browse, Argument={Bind BankAccount.Company}, Url='/catalog/company/browse'}"/>
 			</Selector.AddOns>
 		</Selector>
+		<TextBox Label="@[AccountNo]" Value="{Bind BankAccount.AccountNo}"/>
+		<Selector Label="@[Currency]" Width="10rem" DisplayProperty="Short"
+				  Value="{Bind BankAccount.Currency}" Disabled="True">
+			<Selector.AddOns>
+				<Hyperlink Icon="Search" 
+					Command="{BindCmd Browse, Argument={Bind BankAccount.Currency}, Url='/catalog/currency/browse'}"/>
+			</Selector.AddOns>
+		</Selector>
 		<TextBox Label="@[Name]" Value="{Bind BankAccount.Name}" Bold="True"/>
-		<TextBox Label="@[AccountNo]" Value="{Bind BankAccount.AccountNo}" />
 		<TextBox Label="@[Memo]" Value="{Bind BankAccount.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>

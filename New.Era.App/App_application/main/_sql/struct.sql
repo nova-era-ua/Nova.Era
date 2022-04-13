@@ -100,6 +100,7 @@ create table cat.Currencies
 	Id bigint not null,
 	Void bit not null 
 		constraint DF_Currencies_Void default(0),
+	Short nvarchar(8),
 	[Alpha3] nchar(3),
 	[Number3] nchar(3),
 	[Char] nchar(1),
@@ -272,19 +273,21 @@ create table cat.CashAccounts
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Accounts')
-	create sequence cat.SQ_Accounts as bigint start with 100 increment by 1;
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'acc' and SEQUENCE_NAME = N'SQ_Accounts')
+	create sequence acc.SQ_Accounts as bigint start with 10000 increment by 1;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'acc' and TABLE_NAME=N'Accounts')
 create table acc.Accounts (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Accounts_PK default(next value for cat.SQ_Accounts),
+		constraint DF_Accounts_PK default(next value for acc.SQ_Accounts),
 	Void bit not null 
 		constraint DF_Accounts_Void default(0),
 	[Plan] bigint null,
 	Parent bigint null,
+	IsFolder bit not null
+		constraint DF_Accounts_IsFolder default(0),
 	[Code] nvarchar(16),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
@@ -292,7 +295,8 @@ create table acc.Accounts (
 	IsAgent bit,
 	IsWarehouse bit,
 	IsBankAccount bit,
-	IsCash bit
+	IsCash bit,
+	IsContract bit,
 		constraint PK_Accounts primary key (TenantId, Id),
 		constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
 );
@@ -430,8 +434,13 @@ create table doc.Documents
 		constraint DF_Documents_Done default(0),
 	Company bigint null,
 	Agent bigint null,
+	Currency bigint null,
 	WhFrom bigint null,
 	WhTo bigint  null,
+	BankAccFrom bigint null,
+	BankAccTo bigint null,
+	CashAccFrom bigint null,
+	CashAccTo bigint null,
 	Memo nvarchar(255),
 	DateApplied datetime,
 	UserCreated bigint not null,
@@ -441,8 +450,13 @@ create table doc.Documents
 	constraint FK_Documents_Operation_Operations foreign key (TenantId, [Operation]) references doc.Operations(TenantId, Id),
 	constraint FK_Documents_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 	constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Documents_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 	constraint FK_Documents_WhFrom_Warehouses foreign key (TenantId, WhFrom) references cat.Warehouses(TenantId, Id),
 	constraint FK_Documents_WhTo_Warehouses foreign key (TenantId, WhTo) references cat.Warehouses(TenantId, Id),
+	constraint FK_Documents_BankAccFrom_BankAccounts foreign key (TenantId, BankAccFrom) references cat.BankAccounts(TenantId, Id),
+	constraint FK_Documents_BankAccTo_BankAccounts foreign key (TenantId, BankAccTo) references cat.BankAccounts(TenantId, Id),
+	constraint FK_Documents_CashAccFrom_CashAccounts foreign key (TenantId, CashAccFrom) references cat.CashAccounts(TenantId, Id),
+	constraint FK_Documents_CashAccTo_CashAccounts foreign key (TenantId, CashAccTo) references cat.CashAccounts(TenantId, Id),
 	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id)
 );
 go

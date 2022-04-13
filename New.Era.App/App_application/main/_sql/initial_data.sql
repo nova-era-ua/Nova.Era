@@ -7,10 +7,14 @@ create or alter procedure ini.[Cat.OnCreateTenant]
 @TenantId int
 as
 begin
+	set nocount on;
 	if not exists(select * from cat.Companies where TenantId = @TenantId)
 		insert into cat.Companies (TenantId, [Name]) values (@TenantId, N'Моє підприємство');
 	if not exists(select * from cat.Warehouses where TenantId = @TenantId)
 		insert into cat.Warehouses(TenantId, [Name]) values (@TenantId, N'Основний склад');
+	if not exists(select * from cat.Currencies where Id=980)
+		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Char], Denom, [Name]) values
+			(@TenantId, 980, N'грн', N'UAH', N'980', N'₴', 1, N'Українська гривня');
 end
 go
 -------------------------------------------------
@@ -51,6 +55,9 @@ begin
 		(N'waybillin',  N'Прибуткова накладна'),
 		--
 		(N'payorder',  N'Платіжне доручення'),
+		(N'payin',     N'Вхідний платіж'),
+		(N'cashin',    N'Прибутковий касовий ордер'),
+		(N'cashout',   N'Видатковий касовий ордер'),
 		-- 
 		(N'manufact',  N'Виробничий акт-звіт');
 

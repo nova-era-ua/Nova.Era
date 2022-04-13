@@ -43,6 +43,7 @@
 @QtyS=К-ть
 @Units=Одиниці виміру
 @Folder=Папка
+@Group=Група
 @Agents=Контрагенти
 @Agent=Контрагент
 @Items=Об'єкти обліку
@@ -52,9 +53,12 @@
 @AccountNo=Номер рахунку
 @CashAccounts=Каси
 @CashAccount=Каса
+@Contracts=Договори
+@Contract=Договор
 @Banks=Банки
 @Vendors=Виробники
 @Brands=Бренди
+@Currency=Валюта
 @Currencies=Валюти
 @PriceLists=Прайс-листи
 @CreateFolder=Створити папку

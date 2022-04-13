@@ -17,7 +17,9 @@ define(["require", "exports"], function (require, exports) {
     };
     exports.default = template;
     function repTypes() {
-        let r = [];
+        let r = [
+            { Name: 'Оборотна відомість по рахунку (по датах)', Url: '/reports/account/rto_accdate' }
+        ];
         let acc = this.Account;
         if (acc.IsItem)
             r.push({ Name: 'Оборотная ведомость "Товар"', Url: '/reports/stock/rto_items' });

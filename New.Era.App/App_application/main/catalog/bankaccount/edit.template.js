@@ -5,8 +5,13 @@ define(["require", "exports"], function (require, exports) {
         properties: {
             'TBankAccount.$Id'() { return this.Id || '@[NewItem]'; }
         },
+        defaults: {
+            'BankAccount.Currency'() { return this.Params.Currency; }
+        },
         validators: {
-            'BankAccount.Name': '@[Error.Required]'
+            'BankAccount.AccountNo': '@[Error.Required]',
+            'BankAccount.Company': '@[Error.Required]',
+            'BankAccount.Currency': '@[Error.Required]'
         }
     };
     exports.default = template;

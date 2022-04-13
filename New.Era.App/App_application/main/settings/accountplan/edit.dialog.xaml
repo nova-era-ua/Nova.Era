@@ -7,8 +7,9 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid Padding="0">
-		<TextBox Label="@[Code]" Value="{Bind Account.Code}" Width="13rem" UpdateTrigger="Input" Bold="True"/>
-		<TextBox Label="@[Name]" Value="{Bind Account.Name}" UpdateTrigger="Input" />
+		<TextBox Label="@[Code]" Value="{Bind Account.Code}" Width="13rem" Bold="True"/>
+		<TextBox Label="@[Name]" Value="{Bind Account.Name}" />
+		<CheckBox Label="@[Group]" Value="{Bind Account.IsFolder}" />
 	</Grid>
 	<TabBar Value="{Bind Root.$TabMode}">
 		<TabButton Content="@[Analysts]"/>
@@ -17,6 +18,7 @@
 		<CheckBox Grid.Row="1" Grid.Col="1" Label="@[Agent]" Value="{Bind Account.IsAgent}"/>
 		<CheckBox Grid.Row="2" Grid.Col="1" Label="@[Item]" Value="{Bind Account.IsItem}"/>
 		<CheckBox Grid.Row="3" Grid.Col="1" Label="@[Warehouse]" Value="{Bind Account.IsWarehouse}"/>
+		<CheckBox Grid.Row="4" Grid.Col="1" Label="@[Contract]" Value="{Bind Account.IsContract}" />
 		<CheckBox Grid.Row="1" Grid.Col="2" Label="@[BankAccount]" Value="{Bind Account.IsBankAccount}" />
 		<CheckBox Grid.Row="2" Grid.Col="2" Label="@[CashAccount]" Value="{Bind Account.IsCash}" />
 	</Grid>

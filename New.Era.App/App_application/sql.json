@@ -20,10 +20,13 @@
       "main/catalog/pricelist/pricelist.sql",
       "main/settings/accountplan/plan.sql",
       "main/settings/operation/operation.sql",
-      "main/document/document.sql",
+      "main/document/document.stock.sql",
+      "main/document/document.pay.sql",
+      "main/document/document.apply.sql",
       "main/reports/report.sql",
       "main/reports/stock/report.stock.sql",
       "main/reports/agent/report.agent.sql",
+      "main/reports/account/report.account.sql",
       "main/_sql/admin.sql",
       "main/_sql/initial_data.sql"
     ]
