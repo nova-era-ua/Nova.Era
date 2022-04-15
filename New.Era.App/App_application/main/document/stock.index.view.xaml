@@ -16,9 +16,14 @@
 		<Toolbar Grid.Row="1" Style="Light">
 			<Button Icon="Plus" Content="@[Create]">
 				<Button.DropDown>
-					<DropDownMenu ItemsSource="{Bind Forms}">
+					<DropDownMenu ItemsSource="{Bind Menu}">
 						<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=create, Argument={Bind}}"/>
 					</DropDownMenu>
+					<!--
+					<DropDownMegaMenu ItemsSource="{Bind Menu}" GroupBy="FormName" Columns="2">
+						<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=create, Argument={Bind}}"/>
+					</DropDownMegaMenu>
+					-->
 				</Button.DropDown>
 			</Button>
 			<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"/>

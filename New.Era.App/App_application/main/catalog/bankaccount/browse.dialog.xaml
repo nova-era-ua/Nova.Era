@@ -5,7 +5,8 @@
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind BankAccounts}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Static Label="@[Company]" Value="{Bind Company.Name}"/>
+	<TextBox Label="@[Company]" Value="{Bind Company.Name}" Placeholder="@[Placeholder.AllBankAccounts]"
+			 Disabled="True"/>
 	<DataGrid ItemsSource="{Bind BankAccounts}"
 			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
 			DoubleClick="{BindCmd Select, Argument={Bind BankAccounts}}">

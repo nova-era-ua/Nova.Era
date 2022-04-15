@@ -28,6 +28,20 @@
 						ItemsSource="{Bind Accounts}" AutoSelect="FirstItem"
 				DoubleClick="{BindCmd Execute, CommandName=edit, Argument={Bind Accounts.$selected}}">
 			<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}"/>
+			<TreeView.ContextMenu>
+				<DropDownMenu>
+					<MenuItem Content="@[CreateAccountPlan]"
+							Command="{BindCmd Execute, CommandName=createPlan}"/>
+					<MenuItem Content="@[CreateAccount]"
+							Command="{BindCmd Execute, CommandName=createAccount, Argument={Bind Accounts.$selected}}"/>
+					<Separator />
+					<MenuItem Content="@[Edit]" Command="{BindCmd Execute, CommandName=edit, 
+						Argument={Bind Accounts.$selected}}"/>
+				</DropDownMenu>
+			</TreeView.ContextMenu>
 		</TreeView>
+		<EmptyPanel Grid.Row="1" Grid.Col="3" Grid.RowSpan="2" Icon="HelpOutline" Grid.VAlign="Top">
+			Треба поміркувати, що тут має бути
+		</EmptyPanel>
 	</Grid>
 </Page>

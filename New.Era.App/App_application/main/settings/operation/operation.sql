@@ -1,5 +1,21 @@
 ﻿/* Operation */
 -------------------------------------------------
+create or alter procedure doc.[Operation.Plain.Index]
+@TenantId int = 1,
+@CompanyId bigint = 0,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
+		[Journals!TOpJournal!Array] = null
+	from doc.Operations where TenantId = @TenantId;
+end
+go
+-------------------------------------------------
 create or alter procedure doc.[Operation.Index]
 @TenantId int = 1,
 @CompanyId bigint = 0,
@@ -31,11 +47,11 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-
+	throw 60000, @Id, 0;
 	select [Children!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo
-	from doc.Operations o 
-	where TenantId = @TenantId and Menu = @Id
-	order by Id;
+	from doc.Operations o;
+	--where TenantId = @TenantId; -- and Menu = @Id
+	--order by Id;
 end
 go
 -------------------------------------------------
@@ -43,8 +59,7 @@ create or alter procedure doc.[Operation.Load]
 @TenantId int = 1,
 @CompanyId bigint = 0,
 @UserId bigint,
-@Id bigint = null,
-@Parent nvarchar(255) = null
+@Id bigint = null
 as
 begin
 	set nocount on;
@@ -52,7 +67,6 @@ begin
 
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
-		[Menu], 
 		[Form!TForm!RefId] = o.Form,
 		[JournalStore!TOpJournalStore!Array] = null,
 		[Trans!TOpTrans!Array] = null
@@ -84,13 +98,18 @@ begin
 		[RowKinds!TRowKind!Array] = null
 	from doc.Forms df
 	where df.TenantId = @TenantId
-	order by df.Id;
+	order by df.[Order], df.Id;
+
+	select [Menu!TMenu!Array] = null, [Id!!Id] = fm.Id, [Name], fm.[Category], 
+		Checked = case when ml.Menu is not null then 1 else 0 end
+	from doc.FormsMenu fm
+		left join ui.OpMenuLinks ml on fm.TenantId = ml.TenantId and ml.Operation = @Id and fm.Id = ml.Menu
+	where fm.TenantId = @TenantId
+	order by fm.[Order];
 
 	select [!TRowKind!Array] = null, [Id!!Id] = rk.Id, [Name!!Name] = rk.[Name], [!TForm.RowKinds!ParentId] = rk.Form
 	from doc.FormRowKinds rk where rk.TenantId = @TenantId
 	order by rk.[Order];
-
-	select [Params!TParam!Object] = null, [ParentMenu] = @Parent;
 end
 go
 -------------------------------------------------
@@ -99,6 +118,7 @@ drop procedure if exists doc.[Operation.Update];
 drop type if exists doc.[Operation.TableType];
 drop type if exists doc.[OpJournalStore.TableType];
 drop type if exists doc.[OpTrans.TableType];
+drop type if exists doc.[OpMenu.TableType]
 go
 -------------------------------------------------
 create type doc.[Operation.TableType]
@@ -108,6 +128,13 @@ as table(
 	[Form] nvarchar(16),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255)
+)
+go
+-------------------------------------------------
+create type doc.[OpMenu.TableType]
+as table(
+	Id nvarchar(32),
+	Checked bit
 )
 go
 -------------------------------------------------
@@ -146,9 +173,11 @@ begin
 	declare @Operation doc.[Operation.TableType];
 	declare @JournalStore doc.[OpJournalStore.TableType];
 	declare @OpTrans doc.[OpTrans.TableType];
+	declare @OpMenu doc.[OpMenu.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
 	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
 	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
+	select [Menu!Menu!Metadata] = null, * from @OpMenu;
 end
 go
 ------------------------------------------------
@@ -158,7 +187,8 @@ create or alter procedure doc.[Operation.Update]
 @UserId bigint,
 @Operation doc.[Operation.TableType] readonly,
 @JournalStore doc.[OpJournalStore.TableType] readonly,
-@Trans doc.[OpTrans.TableType] readonly
+@Trans doc.[OpTrans.TableType] readonly,
+@Menu doc.[OpMenu.TableType] readonly
 as
 begin
 	set nocount on;
@@ -176,8 +206,8 @@ begin
 		t.[Memo] = s.[Memo],
 		t.[Form] = s.[Form]
 	when not matched by target then insert
-		(TenantId, [Menu], [Name], Form, Memo) values
-		(@TenantId, s.[Menu], s.[Name], s.Form, s.Memo)
+		(TenantId, [Name], Form, Memo) values
+		(@TenantId, s.[Name], s.Form, s.Memo)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 
@@ -215,6 +245,15 @@ begin
 		(@TenantId, @Id, RowNo, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct, s.DtAccMode, s.CtAccMode, s.DtRow, s.CtRow, 
 			s.DtSum, s.CtSum)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
+
+	with OM as (select Id from @Menu where Checked = 1)
+	merge ui.OpMenuLinks as t
+	using OM as s
+	on t.TenantId = @TenantId and t.Operation = @Id and t.Menu = s.Id
+	when not matched by target then insert
+		(TenantId, Operation, Menu) values
+		(@TenantId, @Id, s.Id)
+	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,
 		@Id = @Id;

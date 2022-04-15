@@ -1,4 +1,4 @@
-﻿import { TAccount, TRoot } from './index';
+﻿import { TAccount, TRoot } from './edit';
 
 const URLS = {
 	editPlan: '/settings/accountplan/editPlan',
@@ -8,7 +8,7 @@ const URLS = {
 const template: Template = {
 	properties: {
 		'TAccount.$Title'(this: TAccount) { return `${this.Code} ${this.Name}`; },
-		'TAccount.$Icon'() { return 'account-folder'; },
+		'TAccount.$Icon'() { return this.IsFolder ? 'account-folder' : 'account'; },
 		'TAccount.$IsPlan'() { return this.Plan === 0; }
 	},
 	commands: {
@@ -42,14 +42,20 @@ async function createAccount(this: TRoot, parent: TAccount) {
 	newacc.$select(this.Accounts);
 }
 
+function mergeProps(trg: TAccount, src: TAccount) {
+	trg.Name = src.Name;
+	trg.Code = src.Code;
+	trg.IsFolder = src.IsFolder;
+}
+
 async function editAccount(this: TRoot, item: TAccount) {
 	if (!item) return;
 	const ctrl = this.$ctrl;
 	if (item.$IsPlan) {
 		let plan = await ctrl.$showDialog(URLS.editPlan, { Id: item.Id });
-		item.$merge(plan);
+		mergeProps(item, plan);
 	} else {
 		let acc = await ctrl.$showDialog(URLS.edit, { Id: item.Id });
-		item.$merge(acc);
+		mergeProps(item, acc);
 	}
 }

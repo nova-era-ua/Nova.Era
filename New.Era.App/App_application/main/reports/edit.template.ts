@@ -18,14 +18,16 @@ export default template;
 
 function repTypes() {
 	let r = [
-		{ Name: 'Оборотна відомість по рахунку (по датах)', Url: '/reports/account/rto_accdate'}
+		{ Name: 'Оборотна відомість по рахунку (дата)', Url: '/reports/account/rto_accdate'}
 	];
 	let acc = this.Account;
 	if (acc.IsItem)
 		r.push({ Name: 'Оборотная ведомость "Товар"', Url: '/reports/stock/rto_items' });
 	if (acc.IsWarehouse)
 		r.push({ Name: 'Оборотная ведомость "Склад+товар"', Url: '/reports/stock/rto_whitems' });
-	if (acc.IsAgent)
-		r.push({ Name: 'Оборотная ведомость "Контрагент"', Url: '/reports/agent/rto_agents' });
+	if (acc.IsAgent) {
+		r.push({ Name: 'Оборотная ведомость "Контрагент"',           Url: '/reports/agent/rto_agents' });
+		r.push({ Name: 'Оборотна відомість по рахунку (контрагент)', Url: '/reports/account/rto_accagent' });
+	}
 	return r;
 }

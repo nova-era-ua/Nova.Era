@@ -15,9 +15,9 @@
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Parent.ItemsSource}"
 				  GridLines="Horizontal" Hover="True">
-			<DataGridColumn Content="{Bind Id}" Role="Id"/>
-			<DataGridColumn Content="{Bind Name}" />
-			<DataGridColumn Content="{Bind Memo}" />
+			<DataGridColumn Header="@[Id]" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
 					<Button Icon="Edit" 
@@ -26,4 +26,7 @@
 			</DataGridColumn>
 		</DataGrid>
 	</Grid>
+	<Page.Taskpad>
+		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem"/>
+	</Page.Taskpad>
 </Page>

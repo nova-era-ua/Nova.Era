@@ -34,7 +34,8 @@ begin
 		count(*) over()
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
-	where d.TenantId = @TenantId and o.Menu = @Menu
+		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and d.Operation = ml.Operation
+	where d.TenantId = @TenantId and ml.Menu = @Menu
 		and (d.[Date] >= @From and d.[Date] < @end)
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
@@ -96,19 +97,20 @@ begin
 		inner join T t on c.TenantId = @TenantId and c.Id = comp;
 
 	-- menu
-	select [Forms!TForm!Array] = null, [Id!!Id] = f.Id, [Name!!Name] = f.[Name]
+	select [Menu!TMenu!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], FormId = f.Id, FormName = f.[Name]
 	from doc.Operations o
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
-	where o.TenantId = @TenantId and o.Menu = @Menu
-	group by f.Id, f.[Name]
-	order by f.Id desc;
+		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
+	where o.TenantId = @TenantId and ml.Menu = @Menu
+	order by f.[Order] desc;
 
 	-- filters
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, [!Order] = -1
 	union all
 	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], [!Order] = o.Id
 	from doc.Operations o
-	where o.TenantId = @TenantId and o.Menu = @Menu
+		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
+	where o.TenantId = @TenantId and ml.Menu = @Menu
 	order by [!Order];
 
 	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
@@ -125,7 +127,7 @@ create or alter procedure doc.[Document.Stock.Load]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint = null,
-@Form nvarchar(16) = null
+@Operation bigint = null
 as
 begin
 	set nocount on;
@@ -133,10 +135,10 @@ begin
 
 	declare @docform nvarchar(16);
 	declare @done bit;
-	if @Id is not null
-		select @docform = o.Form 
-		from doc.Documents d inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
-		where d.TenantId = @TenantId and d.Id = @Id;
+	if @Operation is null
+		select @Operation = d.Operation from doc.Documents d where d.TenantId = @TenantId and d.Id = @Id;
+
+	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
 	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
@@ -188,10 +190,12 @@ begin
 	where u.TenantId = @TenantId;
 
 	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Form]
-	from doc.Operations where TenantId = @TenantId and (Form = @Form or Form=@docform)
+	from doc.Operations o where TenantId = @TenantId and Form=@docform
 	order by Id;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
+
+	select [Params!TParam!Object] = null, [Operation] = @Operation;
 
 	select [!$System!] = null, [!!ReadOnly] = d.Done
 	from doc.Documents d where TenantId = @TenantId and Id = @Id;

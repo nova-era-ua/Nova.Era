@@ -20,10 +20,10 @@ define(["require", "exports"], function (require, exports) {
         }
     };
     exports.default = template;
-    async function create(form) {
+    async function create(menu) {
         const ctrl = this.$ctrl;
-        let url = `/document/${form.Id}/edit`;
-        await ctrl.$showDialog(url, null, { Form: form.Id });
+        let url = `/document/${menu.FormId}/edit`;
+        await ctrl.$showDialog(url, null, { Operation: menu.Id });
     }
     function editSelected(docs) {
         let doc = docs.$selected;

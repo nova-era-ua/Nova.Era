@@ -23,6 +23,9 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'ini')
 	exec sp_executesql N'create schema ini';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'ui')
+	exec sp_executesql N'create schema ui';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -31,6 +34,7 @@ grant execute on schema::jrn to public;
 grant execute on schema::usr to public;
 grant execute on schema::rep to public;
 grant execute on schema::ini to public;
+grant execute on schema::ui to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -320,6 +324,7 @@ create table doc.Forms
 (
 	TenantId int not null,
 	Id nvarchar(16) not null,
+	[Order] int,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_Forms primary key (TenantId, Id)
@@ -349,7 +354,6 @@ create table doc.Operations
 	TenantId int not null,
 	Id bigint not null
 		constraint DF_Operations_PK default(next value for doc.SQ_Operations),
-	Menu nvarchar(32) not null,
 	Void bit not null 
 		constraint DF_Operations_Void default(0),
 	[Name] nvarchar(255),
@@ -358,8 +362,7 @@ create table doc.Operations
 	Form nvarchar(16) not null,
 	[WarehouseFrom] nchar(1),
 	[WarehouseTo] nchar(1)
-		constraint PK_Operations primary key (TenantId, Id),
-		constraint FK_Operations_Menu_FormsMenu foreign key (TenantId, [Menu]) references doc.FormsMenu(TenantId, Id)
+		constraint PK_Operations primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -415,6 +418,16 @@ create table doc.OpTrans
 		constraint FK_OpTrans_Ct_Accounts foreign key (TenantId, [Ct]) references acc.Accounts(TenantId, Id)
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'ui' and TABLE_NAME=N'OpMenuLinks')
+create table ui.OpMenuLinks
+(
+	TenantId int not null,
+	Operation bigint not null,
+	Menu nvarchar(32) not null,
+		constraint PK_OpMenuLinks primary key (TenantId, Operation, Menu),
+		constraint FK_OpMenuLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')
 	create sequence doc.SQ_Documents as bigint start with 100 increment by 1;

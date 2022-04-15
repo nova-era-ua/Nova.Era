@@ -26,7 +26,9 @@ if not exists(select * from a2sys.SysParams where [Name] = N'SideBarMode')
 go
 ------------------------------------------------
 if not exists(select * from a2sys.SysParams where [Name] = N'AppTitle')
-	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'New Era');
+	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'Nova.Era');
+else
+	update a2sys.SysParams set StringValue = N'Nova.Era' where [Name] = N'AppTitle';
 go
 ------------------------------------------------
 create or alter procedure a2ui.[Menu.Simple.User.Load]
@@ -100,24 +102,29 @@ begin
 		(1230,   12, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1231,   12, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Purchase
-		(1301,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(1302,   13, 11, N'@[Purchases]',      N'purchase',  N'cart', N'border-top'),
-		(1303,   13, 12, N'@[Warehouse]',      N'stock',     N'warehouse', null),
-		(1304,   13, 13, N'@[Payment]',        N'payment',   N'currency-uah', null),
+		(1301,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
+		(130,    13, 11, N'@[Documents]',      null,  null, null),
+		(1302,  130, 10, N'@[Purchases]',      N'purchase',  N'cart', null),
+		(1303,  130, 11, N'@[Warehouse]',      N'stock',     N'warehouse', null),
+		(1304,  130, 12, N'@[Payment]',        N'payment',   N'currency-uah', null),
 		--(1310,   13, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
-		(1311,   13, 21, N'@[Prices]',         N'price',     N'chart-column', N'border-top'),
-		(1320,   13, 30, N'@[Suppliers]',      N'agent',     N'users', N'border-top'),
-		(1321,   13, 31, N'@[Items]',          N'item',      N'package-outline', null),
-		(1322,   13, 32, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		--(1311,   13, 21, N'@[Prices]',         N'price',     N'chart-column', N'border-top'),
+		(133,    13, 14, N'@[Catalogs]',  null, null, null),
+		(1320,  133, 10, N'@[Suppliers]',      N'agent',     N'users', null),
+		(1321,  133, 11, N'@[Items]',          N'item',      N'package-outline', null),
+		(1322,  133, 12, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		(1330,   13, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1331,   13, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Accounting
-		(1501,   15, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(1502,   15, 11, N'@[BankAccounts]',   N'bankacc',   N'bank',  N'border-top'),
-		(1503,   15, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
-		(1504,   15, 13, N'@[Agents]',         N'agent',     N'users',  null),
-		(1505,   15, 14, N'@[CatalogOther]',   N'catalog',   N'list', null),
-		(1506,   15, 15, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
+		(1501,   15, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
+		(150,    15, 11, N'@[Documents]',      null, null, null),
+		(1502,  150, 10, N'@[Bank]',           N'bank',   N'bank',  null),
+		(1503,  150, 11, N'@[CashAccount]',    N'cash',   N'currency-uah',  null),
+		(1504,   15, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
+		(153,    15, 13, N'@[Catalogs]',  null, null, null),
+		(1505,  153, 10, N'@[Agents]',         N'agent',     N'users',  null),
+		(1506,  153, 11, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1507,   15, 15, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
 		(1530,   15, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 

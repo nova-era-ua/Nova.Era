@@ -5,8 +5,8 @@
   "actions": {
     "index": {
       "index": true,
-      "template": "index.template",
-      "view": "index.view"
+      "model": "Operation.Plain",
+      "view": "index.plain.view"
     }
   },
   "dialogs": {

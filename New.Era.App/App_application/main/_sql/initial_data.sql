@@ -30,9 +30,13 @@ begin
 		(N'Sales.Order',   10, N'@[Sales]', N'@[Orders]'),
 		(N'Sales.Sales',   11, N'@[Sales]', N'@[Sales]'),
 		(N'Sales.Payment', 12, N'@[Sales]', N'@[Payment]'),
-		(N'Purchase.Purchase', 20, N'@[Purchases]', N'@[Purchase]'),
-		(N'Purchase.Stock',    21, N'@[Purchases]', N'@[Warehouse]'),
-		(N'Purchase.Payment',  22, N'@[Purchases]', N'@[Payment]');
+		--
+		(N'Purchase.Purchase', 20, N'@[Purchases]',  N'@[Purchase]'),
+		(N'Purchase.Stock',    21, N'@[Purchases]',  N'@[Warehouse]'),
+		(N'Purchase.Payment',  22, N'@[Purchases]',  N'@[Payment]'),
+		--
+		(N'Accounting.Bank',   30, N'@[Accounting]', N'@[Bank]'),
+		(N'Accounting.Cash',   31, N'@[Accounting]', N'@[CashAccount]');
 	merge doc.FormsMenu as t
 	using @fu as s on t.Id = s.Id and t.TenantId = 0
 	when matched then update set
@@ -45,29 +49,30 @@ begin
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- forms
-	declare @df table(Id nvarchar(16), [Name] nvarchar(255));
-	insert into @df (Id, [Name]) values
+	declare @df table(id nvarchar(16), [order] int, [name] nvarchar(255));
+	insert into @df (id, [order], [name]) values
 		-- Sales
-		(N'invoice',    N'Замовлення клієнта'),
-		(N'waybillout', N'Видаткова накладна'),
-		(N'complcert',  N'Акт виконаних робіт'),
+		(N'invoice',    1, N'Замовлення клієнта'),
+		(N'complcert',  2, N'Акт виконаних робіт'),
 		-- 
-		(N'waybillin',  N'Прибуткова накладна'),
+		(N'waybillin',  3, N'Надходшення запасів'),
+		(N'waybillout', 3, N'Видаткова накладна'),
 		--
-		(N'payorder',  N'Платіжне доручення'),
-		(N'payin',     N'Вхідний платіж'),
-		(N'cashin',    N'Прибутковий касовий ордер'),
-		(N'cashout',   N'Видатковий касовий ордер'),
+		(N'payout',    4, N'Витрата безготівкових коштів'),
+		(N'payin',     5, N'Надходження безготівкових коштів'),
+		(N'cashin',    6, N'Надходження готівки'),
+		(N'cashout',   7, N'Витрата готівки'),
 		-- 
-		(N'manufact',  N'Виробничий акт-звіт');
+		(N'manufact',  8, N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
-	using @df as s on t.Id = s.Id and t.TenantId = @TenantId
+	using @df as s on t.Id = s.id and t.TenantId = @TenantId
 	when matched then update set
-		t.[Name] = s.[Name]
+		t.[Name] = s.[name],
+		t.[Order] = s.[order]
 	when not matched by target then insert
-		(TenantId, Id, [Name]) values
-		(@TenantId, s.Id, s.[Name])
+		(TenantId, Id, [Order], [Name]) values
+		(@TenantId, s.id, s.[order], s.[name])
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- form row kinds
@@ -75,6 +80,10 @@ begin
 	insert into @rk([Form], [Order], Id, [Name]) values
 	(N'waybillout', 1, N'', N'Всі рядки'),
 	(N'waybillin',  1, N'', N'Всі рядки'),
+	(N'payin',      1, N'', N'Немає рядків'),
+	(N'payout',     1, N'', N'Немає рядків'),
+	(N'cashin',     1, N'', N'Немає рядків'),
+	(N'cashout',    1, N'', N'Немає рядків'),
 	(N'invoice',    1, N'', N'Всі рядки'),
 	(N'manufact',   2, N'Stock', N'Запаси'),
 	(N'manufact',   3, N'Product', N'Продукція');

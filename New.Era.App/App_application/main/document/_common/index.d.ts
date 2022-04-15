@@ -1,12 +1,11 @@
 ﻿
-export interface TForm extends IElement {
+export interface TMenu extends IElement {
 	readonly Id: string;
-	readonly Name: string;
+	readonly FormId: string;
 }
 
 export interface TOperation extends IArrayElement {
 	readonly Id: number;
-	Form: TForm;
 	Documents: TDocuments;
 }
 

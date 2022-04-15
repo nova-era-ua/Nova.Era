@@ -4,11 +4,14 @@ app.modules["std:tmlutils"] = {
 };
 
 function mergeTemplate(src, tml) {
-	return Object.assign(src, {
-		properties: Object.assign(src.properties, tml.properties),
-		validators: Object.assign(src.validators, tml.validators),
-		events: Object.assign(src.events, tml.events),
-		defaults: Object.assign(src.defaults, tml.defaults),
-		commands: Object.assign(src.commands, tml.commands)
+	function assign(s, t) {
+		return Object.assign({}, s || {}, t || {});
+	}
+	return assign(src, {
+		properties: assign(src.properties, tml.properties),
+		validators: assign(src.validators, tml.validators),
+		events: assign(src.events, tml.events),
+		defaults: assign(src.defaults, tml.defaults),
+		commands: assign(src.commands, tml.commands)
 	});
 }

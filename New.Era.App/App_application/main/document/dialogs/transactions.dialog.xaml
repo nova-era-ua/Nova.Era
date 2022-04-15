@@ -1,0 +1,91 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		Title="@[Transactions]" Padding="1rem" Width="72rem" Height="40rem">
+	<Dialog.Buttons>
+		<Button Content="@[Close]" Command="{BindCmd Close}" />
+	</Dialog.Buttons>
+
+	<Table ItemsSource="{Bind Transactions}" GridLines="Both" Columns="1rem,5rem,8rem,5rem,Auto,5rem,8rem,5rem,Auto">
+		<Table.Header>
+			<TableRow>
+				<TableCell RowSpan="2" Content="#"/>
+				<TableCell ColSpan="4" Content="@[Debit]"/>
+				<TableCell ColSpan="4" Content="@[Credit]"/>
+			</TableRow>
+			<TableRow>
+				<TableCell Content="@[Account]"/>
+				<TableCell Content="@[Sum]"/>
+				<TableCell Content="@[Qty]"/>
+				<TableCell Content="@[Analytics]"/>
+				<TableCell Content="@[Account]"/>
+				<TableCell Content="@[Sum]"/>
+				<TableCell Content="@[Qty]"/>
+				<TableCell Content="@[Analytics]"/>
+			</TableRow>
+		</Table.Header>
+		<TableRow VAlign="Top">
+			<TableCell Content="{Bind Id}" RowSpan="{Bind $RowSpan}"/>
+			<TableCell ColSpan="4">
+				<Table ItemsSource="{Bind Dt}" GridLines="Both" Width="34rem" Columns="5rem,8rem,5rem,Auto">
+					<TableRow>
+						<TableCell Content="{Bind Account.Code}"/>
+						<TableCell Content="{Bind Sum, DataType=Currency, HideZeros=True}" Align="Right"/>
+						<TableCell Content="{Bind Qty, DataType=Number, HideZeros=True}" Align="Right"/>
+						<Table GridLines="Vertical" Width="100%" Columns="Fit,Auto" Striped="True">
+							<TableRow If="{Bind Item.Id}">
+								<TableCell Content="@[Object]:"/>
+								<TableCell Content="{Bind Item.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind Warehouse.Id}">
+								<TableCell Content="@[Warehouse]:"/>
+								<TableCell Content="{Bind Warehouse.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind Agent.Id}">
+								<TableCell Content="@[Agent]:"/>
+								<TableCell Content="{Bind Agent.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind BankAcc.Id}">
+								<TableCell Content="@[Account]:"/>
+								<TableCell Content="{Bind BankAcc.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind CashAcc.Id}">
+								<TableCell Content="@[CashAccount]:"/>
+								<TableCell Content="{Bind CashAcc.Name}"/>
+							</TableRow>
+						</Table>
+					</TableRow>
+				</Table>
+			</TableCell>
+			<TableCell ColSpan="4">
+				<Table ItemsSource="{Bind Ct}" GridLines="Both" Width="34rem" Columns="5rem,8rem,5rem,Auto">
+					<TableRow>
+						<TableCell Content="{Bind Account.Code}" Align="Center"/>
+						<TableCell Content="{Bind Sum, DataType=Currency, HideZeros=True}" Align="Right"/>
+						<TableCell Content="{Bind Qty, DataType=Number, HideZeros=True}" Align="Right"/>
+						<Table Width="100%" GridLines="Vertical" Columns="Fit,Auto" Striped="True">
+							<TableRow If="{Bind Item.Id}">
+								<TableCell Content="@[Object]:"/>
+								<TableCell Content="{Bind Item.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind Warehouse.Id}">
+								<TableCell Content="@[Warehouse]:"/>
+								<TableCell Content="{Bind Warehouse.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind Agent.Id}">
+								<TableCell Content="@[Agent]:"/>
+								<TableCell Content="{Bind Agent.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind BankAcc.Id}">
+								<TableCell Content="@[Account]:"/>
+								<TableCell Content="{Bind BankAcc.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind CashAcc.Id}">
+								<TableCell Content="@[CashAccount]:"/>
+								<TableCell Content="{Bind CashAcc.Name}"/>
+							</TableRow>
+						</Table>
+					</TableRow>
+				</Table>
+			</TableCell>
+		</TableRow>
+	</Table>
+</Dialog>

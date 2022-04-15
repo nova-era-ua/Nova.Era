@@ -1,5 +1,5 @@
 ﻿
-import { TRoot, TDocument, TDocuments, TForm } from './index';
+import { TRoot, TDocument, TDocuments, TMenu } from './index';
 
 const template: Template = {
 	options: {
@@ -22,10 +22,10 @@ const template: Template = {
 
 export default template;
 
-async function create(this: TRoot, form: TForm) {
+async function create(this: TRoot, menu: TMenu) {
 	const ctrl = this.$ctrl;
-	let url = `/document/${form.Id}/edit`
-	await ctrl.$showDialog(url, null, { Form: form.Id });
+	let url = `/document/${menu.FormId}/edit`
+	await ctrl.$showDialog(url, null, { Operation: menu.Id });
 }
 
 function editSelected(docs: TDocuments) {

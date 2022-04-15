@@ -19,7 +19,7 @@ begin
 			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
 		where a.TenantId = @TenantId
 	)
-	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
@@ -118,10 +118,11 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Code] = s.[Code],
-		t.[Memo] = s.Memo
+		t.[Memo] = s.Memo,
+		t.IsFolder = 1
 	when not matched by target then insert
-		(TenantId, Code, [Name], [Memo]) values
-		(@TenantId, s.Code, s.[Name], s.Memo)
+		(TenantId, Code, [Name], [Memo], IsFolder) values
+		(@TenantId, s.Code, s.[Name], s.Memo, 1)
 	output inserted.Id into @rtable(id);
 	select @id = id from @rtable;
 	exec acc.[Account.Plan.Load] @TenantId = @TenantId,

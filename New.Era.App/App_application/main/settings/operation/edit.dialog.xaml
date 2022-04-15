@@ -16,13 +16,16 @@
 	</Grid>
 	<Block Margin="0, 1rem, 1rem, 1rem">
 		<TabBar Value="{Bind Root.$$Tab}" Margin="0">
-			<TabButton Content="Документ" ActiveValue="" />
+			<TabButton Content="Проводки по рахунках" ActiveValue="" />
+			<TabButton Content="Меню" ActiveValue="Menu" />
+			<!--
+			<TabButton Content="Документ" ActiveValue="Document" />
 			<TabButton Content="Управліньский облік" ActiveValue="Management" />
-			<TabButton Content="Проводки по рахунках" ActiveValue="Accounting" />
+			-->
 		</TabBar>
 		<Block Margin="6,-6" Height="30rem" Scroll="True">
 			<Switch Expression="{Bind Root.$$Tab}">
-				<Case Value="">
+				<Case Value="Document">
 					<Grid Padding="0">
 						<ComboBox Label="@[Agent]">
 							<ComboBoxItem Content="Схований"/>
@@ -64,7 +67,7 @@
 						</TableRow>
 					</Table>
 				</Case>
-				<Case Value="Accounting">
+				<Case Value="">
 					<Toolbar Padding="0,6" Style="Light">
 						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Trans}}"/>
 					</Toolbar>
@@ -162,6 +165,18 @@
 							<Line />
 						</Block>
 					</Repeater>
+				</Case>
+				<Case Value="Menu">
+					<List ItemsSource="{Bind Menu}" GroupBy="Category" Width="20rem" Margin="1rem"
+						  Border="True"
+						  Select="False">
+						<FlexList Orientation="Horizontal" AlignItems="Center">
+							<SpanIcon Icon="Menu"/>
+							<Span Content="{Bind Name}" Space="Before"/>
+							<Separator />
+							<CheckBox Value="{Bind Checked}"/>
+						</FlexList>
+					</List>
 				</Case>
 			</Switch>
 		</Block>

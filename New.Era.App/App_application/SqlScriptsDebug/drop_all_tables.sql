@@ -10,6 +10,7 @@ drop table if exists doc.OpJournalStore;
 drop table if exists cat.BankAccounts;
 drop table if exists cat.CashAccounts;
 drop table if exists cat.Currencies;
+drop table if exists ui.OpMenuLinks;
 drop table if exists doc.Operations;
 drop table if exists rep.Reports;
 drop table if exists acc.Accounts;

@@ -5,13 +5,7 @@
   "actions": {
     "index": {
       "index": true,
-      "view": "index.view"
-    }
-  },
-  "dialogs": {
-    "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
+      "view": "../../catalog/cashaccount/index.view"
     }
   }
 }

@@ -1,0 +1,15 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "doc",
+  "model": "Document.Pay",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "../../document/pay.index.template",
+      "view": "../../document/pay.index.view",
+      "parameters": {
+        "Menu": "Accounting.Cash"
+      }
+    }
+  }
+}

@@ -6,6 +6,7 @@
 @Settings=Налаштування
 @Administration=Администрування
 @Stock=Запаси
+@Money=Грошові кошти
 @StockPurchases=Запаси та закупівлі
 @SalesMarketing=Продаж та маркетинг
 @Accounting=Бухгалтерія
@@ -14,6 +15,7 @@
 @Accounts=Рахунки
 @Account=Рахунок
 @Operations=Операції
+@Transactions=Проводки
 @Orders=Замовлення
 @Companies=Підприємства
 @Company=Підприємство
@@ -39,6 +41,7 @@
 @Leads=Ліди
 @Defaults=Замовчування
 ;
+@Id=Id
 @Unit=Од.вим.
 @QtyS=К-ть
 @Units=Одиниці виміру
@@ -56,6 +59,7 @@
 @Contracts=Договори
 @Contract=Договор
 @Banks=Банки
+@Bank=Банк
 @Vendors=Виробники
 @Brands=Бренди
 @Currency=Валюта
@@ -83,6 +87,8 @@
 ;
 @Debit=Дебет
 @Credit=Кредит
+@Object=Об'єкт
+@Analytics=Аналітика
 @Article=Артикул
 @CodeUA=ЄДПРПОУ
 @CodeBankUA=МФО
@@ -92,6 +98,8 @@
 @Placeholder.AllCompanies=<Всі підприємства>
 @Placeholder.AllAgents=<Всі контрагенти>
 @Placeholder.AllWarehouses=<Всі склади>
+@Placeholder.AllBankAccounts=<Всі рахунки в банках>
+@Placeholder.AllCashAccounts=<Всі каси>
 ;
 @Browse.Company=Вибір підприємства
 @Browse.Warehouse=Вибір складу
@@ -100,6 +108,8 @@
 @Browse.Unit=Вибір одиниці виміру
 @Browse.AccountPlan=Вибір плану рахунків
 @Browse.Account=Вибір рахунку
+@Browse.BankAccount=Вибір рахунку в банку
+@Browse.CashAccount=Вибір каси
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
 @Error.Required=Обов\'язкове поле

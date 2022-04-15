@@ -15,6 +15,10 @@
 					  Value="{Bind Document.Operation}">
 				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 			</ComboBox>
+			<Block If="{Bind Document.Done}">
+				<Hyperlink 
+					Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
+			</Block>
 		</Taskpad>
 	</Dialog.Taskpad>
 	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem">

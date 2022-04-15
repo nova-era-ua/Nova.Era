@@ -8,7 +8,7 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         properties: {
             'TAccount.$Title'() { return `${this.Code} ${this.Name}`; },
-            'TAccount.$Icon'() { return 'account-folder'; },
+            'TAccount.$Icon'() { return this.IsFolder ? 'account-folder' : 'account'; },
             'TAccount.$IsPlan'() { return this.Plan === 0; }
         },
         commands: {
@@ -39,17 +39,22 @@ define(["require", "exports"], function (require, exports) {
         let newacc = parent.Items.$append(acc);
         newacc.$select(this.Accounts);
     }
+    function mergeProps(trg, src) {
+        trg.Name = src.Name;
+        trg.Code = src.Code;
+        trg.IsFolder = src.IsFolder;
+    }
     async function editAccount(item) {
         if (!item)
             return;
         const ctrl = this.$ctrl;
         if (item.$IsPlan) {
             let plan = await ctrl.$showDialog(URLS.editPlan, { Id: item.Id });
-            item.$merge(plan);
+            mergeProps(item, plan);
         }
         else {
             let acc = await ctrl.$showDialog(URLS.edit, { Id: item.Id });
-            item.$merge(acc);
+            mergeProps(item, acc);
         }
     }
 });

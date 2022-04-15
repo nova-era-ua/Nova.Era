@@ -10,7 +10,7 @@ define(["require", "exports"], function (require, exports) {
         },
         defaults: {
             'Document.Date': dateUtils.today(),
-            'Document.Operation'() { return this.Operations[0]; },
+            'Document.Operation'() { return this.Operations.find(o => o.Id === this.Params.Operation); },
             'Document.Company'() { return this.Default.Company; },
         },
         validators: {

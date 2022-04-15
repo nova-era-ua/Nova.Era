@@ -87,7 +87,7 @@ begin
 	select [BankAccounts!TBankAccount!Array] = null,
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo
 	from cat.BankAccounts ba
-	where ba.TenantId = @TenantId and Company = @Company;
+	where ba.TenantId = @TenantId and (@Company is null or Company = @Company);
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;

@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "doc",
+  "dialogs": {
+    "transactions": {
+      "model": "Document.Transactions",
+      "template": "transactions.template",
+      "view": "transactions.dialog"
+    }
+  }
+}

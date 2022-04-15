@@ -5,7 +5,13 @@
   "actions": {
     "rto_accdate": {
       "model": "Report.Turnover.Account.Date",
-      "view": "turnover.acc.date.view"
+      "template": "turnover.accdate.template",
+      "view": "turnover.accdate.view"
+    },
+    "rto_accagent": {
+      "model": "Report.Turnover.Account.Agent",
+      "template": "turnover.accagent.template",
+      "view": "turnover.accagent.view"
     }
   }
 }
