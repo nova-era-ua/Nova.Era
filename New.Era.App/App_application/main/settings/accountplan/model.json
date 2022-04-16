@@ -21,6 +21,9 @@
     }
   },
   "commands": {
-
+    "deleteitem": {
+      "type": "sql",
+      "procedure": "Account.Delete"
+    }
   }
 }

@@ -26,9 +26,9 @@
 					DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Banks}, Url='/catalog/bank/edit'}">
 				<DataGridColumn Header="Id" Content="{Bind Id}" Role="Id"/>
 				<DataGridColumn Header="@[CodeBankUA]" Content="{Bind BankCode}" Fit="True" Wrap="NoWrap"/>
-				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+				<DataGridColumn Header="@[Name]" Content="{Bind Name}" Width="100"/>
 				<DataGridColumn Header="@[CodeUA]" Content="{Bind Code}" Fit="True" Wrap="NoWrap"/>
-				<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
+				<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Width="100"/>
 				<DataGridColumn Fit="True">
 					<CommandBar Visibility="Hover">
 						<Button Icon="Edit" 

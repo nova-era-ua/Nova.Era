@@ -136,9 +136,9 @@ create table cat.Items
 		constraint DF_Items_IsStock default(0),
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
-		constraint PK_Items primary key (TenantId, Id),
-		constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
-		constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id)
+	constraint PK_Items primary key (TenantId, Id),
+	constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
+	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -301,8 +301,10 @@ create table acc.Accounts (
 	IsBankAccount bit,
 	IsCash bit,
 	IsContract bit,
-		constraint PK_Accounts primary key (TenantId, Id),
-		constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
+	[Uid] uniqueidentifier not null
+		constraint DF_Accounts_Uid default(newid()),
+	constraint PK_Accounts primary key (TenantId, Id),
+	constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -361,8 +363,11 @@ create table doc.Operations
 	[Agent] nchar(1),
 	Form nvarchar(16) not null,
 	[WarehouseFrom] nchar(1),
-	[WarehouseTo] nchar(1)
-		constraint PK_Operations primary key (TenantId, Id)
+	[WarehouseTo] nchar(1),
+	[Uid] uniqueidentifier not null
+		constraint DF_Operations_Uid default(newid()),
+	constraint PK_Operations primary key (TenantId, Id),
+	constraint FK_Operations_Form_Forms foreign key (TenantId, Form) references doc.Forms(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -382,8 +387,8 @@ create table doc.OpJournalStore
 	IsOut bit not null,
 	Factor smallint -- 1 normal, -1 storno
 		constraint CK_OpJournalStore_Factor check (Factor in (1, -1)),
-		constraint PK_OpJournalStore primary key (TenantId, Id, Operation),
-		constraint FK_OpJournalStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+	constraint PK_OpJournalStore primary key (TenantId, Id, Operation),
+	constraint FK_OpJournalStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -411,11 +416,13 @@ create table doc.OpTrans
 	CtSum nchar(1),
 	CtRow nchar(1),
 	CtWarehouse nchar(1),
-		constraint PK_OpTrans primary key (TenantId, Id, Operation),
-		constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
-		constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
-		constraint FK_OpTrans_Dt_Accounts foreign key (TenantId, [Dt]) references acc.Accounts(TenantId, Id),
-		constraint FK_OpTrans_Ct_Accounts foreign key (TenantId, [Ct]) references acc.Accounts(TenantId, Id)
+	[Uid] uniqueidentifier not null
+		constraint DF_OpTrans_Uid default(newid()),
+	constraint PK_OpTrans primary key (TenantId, Id, Operation),
+	constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
+	constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
+	constraint FK_OpTrans_Dt_Accounts foreign key (TenantId, [Dt]) references acc.Accounts(TenantId, Id),
+	constraint FK_OpTrans_Ct_Accounts foreign key (TenantId, [Ct]) references acc.Accounts(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -425,8 +432,10 @@ create table ui.OpMenuLinks
 	TenantId int not null,
 	Operation bigint not null,
 	Menu nvarchar(32) not null,
-		constraint PK_OpMenuLinks primary key (TenantId, Operation, Menu),
-		constraint FK_OpMenuLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+	[Uid] uniqueidentifier not null
+		constraint DF_OpMenuLinks_Uid default(newid()),
+	constraint PK_OpMenuLinks primary key (TenantId, Operation, Menu),
+	constraint FK_OpMenuLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')
@@ -496,9 +505,9 @@ create table doc.DocDetails
 		constraint DF_DocDetails_Sum default(0),
 	Memo nvarchar(255),
 		constraint PK_DocDetails primary key (TenantId, Id),
-		constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
-		constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
-		constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
+	constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+	constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
+	constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -522,11 +531,11 @@ create table jrn.StockJournal
 		constraint DF_StockJournal_Qty default(0),
 	[Sum] money not null
 		constraint DF_StockJournal_Sum default(0),
-		constraint PK_StockJournal primary key (TenantId, Id),
-		constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
-		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
-		constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+	constraint PK_StockJournal primary key (TenantId, Id),
+	constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+	constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+	constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -557,16 +566,16 @@ create table jrn.Journal
 	Qty float null,
 	[Sum] money not null
 		constraint DF_Journal_Sum default(0),
-		constraint PK_Journal primary key (TenantId, Id),
-		constraint FK_Journal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
-		constraint FK_Journal_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id),
-		constraint FK_Journal_CorrAccount_Accounts foreign key (TenantId, CorrAccount) references acc.Accounts(TenantId, Id),
-		constraint FK_Journal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
-		constraint FK_Journal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_Journal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
-		constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id),
-		constraint FK_Journal_BankAccount_BankAccounts foreign key (TenantId, BankAccount) references cat.BankAccounts(TenantId, Id),
-		constraint FK_Journal_BankAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id)
+	constraint PK_Journal primary key (TenantId, Id),
+	constraint FK_Journal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+	constraint FK_Journal_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id),
+	constraint FK_Journal_CorrAccount_Accounts foreign key (TenantId, CorrAccount) references acc.Accounts(TenantId, Id),
+	constraint FK_Journal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+	constraint FK_Journal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_Journal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id),
+	constraint FK_Journal_BankAccount_BankAccounts foreign key (TenantId, BankAccount) references cat.BankAccounts(TenantId, Id),
+	constraint FK_Journal_BankAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -582,13 +591,14 @@ create table rep.Reports
 		constraint DF_Reports_PK default(next value for rep.SQ_Reports),
 	Void bit not null 
 		constraint DF_Reports_Void default(0),
+	[Type] nvarchar(16) not null,
 	Account bigint,
 	[Menu] nvarchar(32),
 	[Name] nvarchar(255),
 	[Url] nvarchar(255),
 	[Memo] nvarchar(255),
-		constraint PK_Reports primary key (TenantId, Id),
-		constraint FK_Reports_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id)
+	constraint PK_Reports primary key (TenantId, Id),
+	constraint FK_Reports_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -601,10 +611,10 @@ create table usr.Defaults
 	Warehouse bigint null,
 	PeriodFrom date,
 	PeriodTo date,
-		constraint PK_Defaults primary key (TenantId, UserId),
-		constraint FK_Defaults_UserId_Users foreign key (TenantId, UserId) references appsec.Users(Tenant, Id),
-		constraint FK_Defaults_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_Defaults_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+	constraint PK_Defaults primary key (TenantId, UserId),
+	constraint FK_Defaults_UserId_Users foreign key (TenantId, UserId) references appsec.Users(Tenant, Id),
+	constraint FK_Defaults_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_Defaults_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
 );
 go
 

@@ -5,6 +5,7 @@ export interface TAccount extends ITreeElement {
 	Name: string;
 	Plan: number;
 	Items: TAccounts,
+	IsFolder: Boolean;
 	$IsPlan: Boolean
 }
 

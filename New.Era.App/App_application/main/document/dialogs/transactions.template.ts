@@ -2,7 +2,6 @@
 // dialog transactions
 const template: Template = {
 	properties: {
-		'TTrans.$RowSpan'() { return 3; }
 	}	
 };
 

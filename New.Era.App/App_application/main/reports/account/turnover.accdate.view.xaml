@@ -40,19 +40,23 @@
 						</SheetRow>
 						<SheetRow Style="Parameter">
 							<SheetCell Content="@[Period]"></SheetCell>
-							<SheetCell ColSpan="4" Content="{Bind Parent.Filter.Period.Name}"></SheetCell>
+							<SheetCell Bold="True" ColSpan="4" Content="{Bind Parent.Filter.Period.Name}"/>
+						</SheetRow>
+						<SheetRow Style="Parameter">
+							<SheetCell Content="@[Account]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="4" Content="{Bind Report.Account.$Name}"/>
 						</SheetRow>
 						<SheetRow Style="LastParameter">
 							<SheetCell Content="@[Company]"></SheetCell>
-							<SheetCell ColSpan="4" Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
+							<SheetCell Bold="True" ColSpan="4" Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
 						</SheetRow>
 					</SheetSection>
 					<SheetSection >
 						<SheetRow Style="Header">
 							<SheetCell RowSpan="2" VAlign="Middle">@[Date]</SheetCell>
 							<SheetCell RowSpan="2" VAlign="Middle" Wrap="NoWrap">На початок</SheetCell>
-							<SheetCell ColSpan="{Bind RepData.Items.$DtColSpan}">@[Debit]</SheetCell>
-							<SheetCell ColSpan="{Bind RepData.Items.$CtColSpan}">@[Credit]</SheetCell>
+							<SheetCell ColSpan="{Bind RepData.Items.$DtColSpan}">@[TurnDebit]</SheetCell>
+							<SheetCell ColSpan="{Bind RepData.Items.$CtColSpan}">@[TurnCredit]</SheetCell>
 							<SheetCell RowSpan="2" VAlign="Middle">На кінець</SheetCell>
 						</SheetRow>
 						<SheetRow Style="Header">

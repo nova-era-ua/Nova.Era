@@ -3,6 +3,7 @@ define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
         properties: {
+            'TAccount.$Name'() { return `${this.Code} ${this.Name}`; },
             'TRepDataArray.$DtColSpan'() { return this.$cross.DtCross.length + 1; },
             'TRepDataArray.$CtColSpan'() { return this.$cross.CtCross.length + 1; },
             'TRepDataArray.$DtTotals': dtTotals,

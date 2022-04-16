@@ -12,11 +12,11 @@ begin
 	with T(Id, Parent, [Level])
 	as (
 		select a.Id, Parent, 0 from
-			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null
+			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null and Void=0
 		union all 
 		select a.Id, a.Parent, T.[Level] + 1 
 		from acc.Accounts a
-			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
+			inner join T on T.Id = a.Parent and a.TenantId = @TenantId and a.Void = 0
 		where a.TenantId = @TenantId
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
@@ -192,7 +192,7 @@ begin
 	set transaction isolation level read committed;
 	select [Accounts!TAccount!Array] = null, [Id!!Id] = Id, Code, [Name!!Name] = a.[Name]
 	from acc.Accounts a
-	where a.TenantId = @TenantId and Void = 0 and [Plan] is null and Parent is null
+	where a.TenantId = @TenantId and Void = 0 and [Plan] is null and Parent is null and Void = 0
 	order by a.Id;
 end
 go
@@ -210,12 +210,12 @@ begin
 	with T(Id, Parent, Anchor, [Level])
 	as (
 		select a.Id, cast(null as bigint), Parent, 0 from
-			acc.Accounts a where TenantId=@TenantId and a.Parent = @Plan and a.[Plan] = @Plan
+			acc.Accounts a where TenantId=@TenantId and a.Parent = @Plan and a.[Plan] = @Plan and Void=0
 		union all 
 		select a.Id, a.Parent, a.Parent, T.[Level] + 1 
 		from acc.Accounts a
 			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
-		where a.TenantId = @TenantId and a.[Plan] = [Plan]
+		where a.TenantId = @TenantId and a.[Plan] = [Plan] and a.Void = 0
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
@@ -237,18 +237,31 @@ begin
 	with T(Id, Parent, Anchor, [Level])
 	as (
 		select a.Id, cast(null as bigint), Parent, 0 from
-			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null
+			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null and a.Void = 0
 		union all 
 		select a.Id, a.Parent, a.Parent, T.[Level] + 1 
 		from acc.Accounts a
 			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
-		where a.TenantId = @TenantId and a.[Plan] = [Plan]
+		where a.TenantId = @TenantId and a.[Plan] = [Plan] and a.Void = 0
 	)
-	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	update acc.Accounts set Void = 1 where TenantId = @TenantId and Id = @Id;
 end
 go
 

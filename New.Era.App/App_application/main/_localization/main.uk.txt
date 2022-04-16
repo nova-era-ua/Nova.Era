@@ -87,6 +87,8 @@
 ;
 @Debit=Дебет
 @Credit=Кредит
+@TurnDebit=Обороти дебет
+@TurnCredit=Обороти кредит
 @Object=Об'єкт
 @Analytics=Аналітика
 @Article=Артикул

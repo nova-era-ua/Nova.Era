@@ -1,6 +1,7 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const tu = require('std:utils').text;
     const URLS = {
         editPlan: '/settings/accountplan/editPlan',
         edit: '/settings/accountplan/edit'
@@ -9,7 +10,11 @@ define(["require", "exports"], function (require, exports) {
         properties: {
             'TAccount.$Title'() { return `${this.Code} ${this.Name}`; },
             'TAccount.$Icon'() { return this.IsFolder ? 'account-folder' : 'account'; },
-            'TAccount.$IsPlan'() { return this.Plan === 0; }
+            'TAccount.$IsPlan'() { return this.Plan === 0; },
+            'TRoot.$Search': String
+        },
+        events: {
+            'Root.$Search.change': searchAccount,
         },
         commands: {
             createPlan,
@@ -20,6 +25,11 @@ define(["require", "exports"], function (require, exports) {
             edit: {
                 exec: editAccount,
                 canExec(item) { return !!parent; }
+            },
+            delete: {
+                exec: deleteAccount,
+                canExec: canDeleteAccount,
+                confirm: '@[Confirm.Delete.Element]'
             }
         }
     };
@@ -56,5 +66,24 @@ define(["require", "exports"], function (require, exports) {
             let acc = await ctrl.$showDialog(URLS.edit, { Id: item.Id });
             mergeProps(item, acc);
         }
+    }
+    async function deleteAccount(item) {
+        if (!item || item.Items.length)
+            return;
+        const ctrl = this.$ctrl;
+        await ctrl.$invoke('deleteItem', { Id: item.Id });
+        item.$remove();
+    }
+    function canDeleteAccount(item) {
+        return item && !item.Items.length;
+    }
+    function searchAccount(root, text) {
+        if (!text)
+            return;
+        let found = root.Accounts.$find(el => el.Code.indexOf(text) === 0 || tu.contains(el.Name, text));
+        if (found)
+            found.$select(root.Accounts);
+        else
+            root.$Search = '';
     }
 });

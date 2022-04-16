@@ -1,4 +1,6 @@
-﻿import { TAccount, TRoot } from './edit';
+﻿import { TAccount, TRoot } from './index';
+
+const tu: UtilsText = require('std:utils').text;
 
 const URLS = {
 	editPlan: '/settings/accountplan/editPlan',
@@ -9,7 +11,11 @@ const template: Template = {
 	properties: {
 		'TAccount.$Title'(this: TAccount) { return `${this.Code} ${this.Name}`; },
 		'TAccount.$Icon'() { return this.IsFolder ? 'account-folder' : 'account'; },
-		'TAccount.$IsPlan'() { return this.Plan === 0; }
+		'TAccount.$IsPlan'() { return this.Plan === 0; },
+		'TRoot.$Search': String
+	},
+	events: {
+		'Root.$Search.change': searchAccount,
 	},
 	commands: {
 		createPlan,
@@ -20,6 +26,11 @@ const template: Template = {
 		edit: {
 			exec: editAccount,
 			canExec(item: TAccount): boolean { return !!parent; }
+		},
+		delete: {
+			exec: deleteAccount,
+			canExec: canDeleteAccount,
+			confirm:'@[Confirm.Delete.Element]'
 		}
 	}
 };
@@ -58,4 +69,24 @@ async function editAccount(this: TRoot, item: TAccount) {
 		let acc = await ctrl.$showDialog(URLS.edit, { Id: item.Id });
 		mergeProps(item, acc);
 	}
+}
+
+async function deleteAccount(this: TRoot, item: TAccount) {
+	if (!item || item.Items.length) return;
+	const ctrl = this.$ctrl;
+	await ctrl.$invoke('deleteItem', { Id: item.Id });
+	item.$remove();
+}
+
+function canDeleteAccount(this: TRoot, item: TAccount) {
+	return item && !item.Items.length;
+}
+
+function searchAccount(root, text) {
+	if (!text) return;
+	let found = root.Accounts.$find(el => el.Code.indexOf(text) === 0 || tu.contains(el.Name, text));
+	if (found)
+		found.$select(root.Accounts);
+	else
+		root.$Search = '';
 }

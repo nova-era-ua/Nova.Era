@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 15.04.2022 10:46:23
+generated: 16.04.2022 09:26:54
 */
 
 
@@ -2812,11 +2812,11 @@ begin
 	with T(Id, Parent, [Level])
 	as (
 		select a.Id, Parent, 0 from
-			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null
+			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null and Void=0
 		union all 
 		select a.Id, a.Parent, T.[Level] + 1 
 		from acc.Accounts a
-			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
+			inner join T on T.Id = a.Parent and a.TenantId = @TenantId and a.Void = 0
 		where a.TenantId = @TenantId
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
@@ -2992,7 +2992,7 @@ begin
 	set transaction isolation level read committed;
 	select [Accounts!TAccount!Array] = null, [Id!!Id] = Id, Code, [Name!!Name] = a.[Name]
 	from acc.Accounts a
-	where a.TenantId = @TenantId and Void = 0 and [Plan] is null and Parent is null
+	where a.TenantId = @TenantId and Void = 0 and [Plan] is null and Parent is null and Void = 0
 	order by a.Id;
 end
 go
@@ -3010,12 +3010,12 @@ begin
 	with T(Id, Parent, Anchor, [Level])
 	as (
 		select a.Id, cast(null as bigint), Parent, 0 from
-			acc.Accounts a where TenantId=@TenantId and a.Parent = @Plan and a.[Plan] = @Plan
+			acc.Accounts a where TenantId=@TenantId and a.Parent = @Plan and a.[Plan] = @Plan and Void=0
 		union all 
 		select a.Id, a.Parent, a.Parent, T.[Level] + 1 
 		from acc.Accounts a
 			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
-		where a.TenantId = @TenantId and a.[Plan] = [Plan]
+		where a.TenantId = @TenantId and a.[Plan] = [Plan] and a.Void = 0
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
@@ -3037,18 +3037,31 @@ begin
 	with T(Id, Parent, Anchor, [Level])
 	as (
 		select a.Id, cast(null as bigint), Parent, 0 from
-			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null
+			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null and a.Void = 0
 		union all 
 		select a.Id, a.Parent, a.Parent, T.[Level] + 1 
 		from acc.Accounts a
 			inner join T on T.Id = a.Parent and a.TenantId = @TenantId
-		where a.TenantId = @TenantId and a.[Plan] = [Plan]
+		where a.TenantId = @TenantId and a.[Plan] = [Plan] and a.Void = 0
 	)
-	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
+end
+go
+------------------------------------------------
+create or alter procedure acc.[Account.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	update acc.Accounts set Void = 1 where TenantId = @TenantId and Id = @Id;
 end
 go
 
@@ -4074,6 +4087,26 @@ go
 
 
 /* Document.Dialogs */
+------------------------------------------------
+create or alter view doc.[view.Document.Transactions]
+as
+select [!TTransPart!Array] = null, [Id!!Id] = j.Id,
+	[Account.Code!TAccount!] = a.Code, j.[Sum], j.Qty,
+	[Item.Id!TItem!Id] = i.Id, [Item.Name!TItem] = i.[Name],
+	[Warehouse.Id!TWarehouse!Id] = w.Id, [Warehouse.Name!TWarehouse] = w.[Name],
+	[Agent.Id!TAgent!Id] = g.Id, [Agent.Name!TAgent] = g.[Name],
+	[BankAcc.Id!TBankAcc!Id] = ba.Id, [BankAcc.Name!TBankAcc] = ba.[AccountNo],
+	[CashAcc.Id!TCashAcc!Id] = ca.Id, [CashAcc.Name!TCashAcc] = ca.[Name],
+	[!TenantId] = j.TenantId, [!Document] = j.Document, [!DtCt] = j.DtCt, [!TrNo] = j.TrNo, [!RowNo] = j.RowNo
+from jrn.Journal j 
+	inner join acc.Accounts a on j.TenantId = a.TenantId and j.Account = a.Id
+	left join cat.Items i on j.TenantId = i.TenantId and j.Item = i.Id and a.IsItem = 1
+	left join cat.Warehouses w on j.TenantId = w.TenantId and j.Warehouse = w.Id and a.IsWarehouse = 1
+	left join cat.Agents g on j.TenantId = g.TenantId and j.Agent = g.Id and a.IsAgent = 1
+	left join cat.BankAccounts ba on j.TenantId = ba.TenantId and j.BankAccount = ba.Id and a.IsBankAccount = 1
+	left join cat.CashAccounts ca on j.TenantId = ca.TenantId and j.CashAccount = ca.Id and a.IsCash = 1
+go
+------------------------------------------------
 create or alter procedure doc.[Document.Transactions.Load]
 @TenantId int = 1,
 @UserId bigint,
@@ -4082,6 +4115,25 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
+	select [Transactions!TTrans!Array] = null,
+		[Id!!Id] = TrNo, [Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
+	from jrn.Journal j
+	where j.TenantId = @TenantId and j.Document = @Id
+	group by [TrNo]
+	order by TrNo;
+
+	-- dt
+	select *, [!TTrans.Dt!ParentId] = [!TrNo]
+	from doc.[view.Document.Transactions]
+	where [!TenantId] = @TenantId and [!Document] = @Id and [!DtCt] = 1
+	order by [!RowNo];
+
+	-- ct
+	select *, [!TTrans.Ct!ParentId] = [!TrNo]
+	from doc.[view.Document.Transactions]
+	where [!TenantId] = @TenantId and [!Document] = @Id and [!DtCt] = -1
+	order by [!RowNo];
 end
 go
 
@@ -4416,6 +4468,90 @@ begin
 end
 go
 
+-------------------------------------------------
+create or alter procedure rep.[Report.Turnover.Account.Agent.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint, /* report id */
+@From date = null,
+@To date = null,
+@Company bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date = dateadd(day, 1, @To);
+
+	select @Company = isnull(@Company, Company)
+	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+
+	declare @acc bigint;
+	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
+
+	
+	select [Agent] = j.[Agent], Acc = j.Account, CorrAcc = j.CorrAccount, j.DtCt,
+		DtStart = case when DtCt =  1 and j.[Date] < @From then [Sum] else 0 end,
+		CtStart = case when DtCt = -1 and j.[Date] < @From then [Sum] else 0 end,
+		DtSum = case when DtCt = 1 and j.[Date] >= @From then [Sum] else 0 end,
+		CtSum = case when DtCt = -1 and j.[Date] >= @From then [Sum] else 0 end
+	into #tmp
+	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
+		and [Date] >= @From and [Date] < @end;
+
+	with T as (
+		select [Agent],
+			DtStart = sum(DtStart), CtStart = sum(CtStart),
+			DtSum = sum(DtSum), CtSum = sum(CtSum), 
+			DtEnd = sum(DtStart) + sum(DtSum), 
+			CtEnd = sum(CtStart) + sum(CtSum),
+			GrpAgent = grouping([Agent])
+		from #tmp 
+		group by rollup([Agent])
+	) select [RepData!TRepData!Group] = null, [Id!!Id] = Agent, [Agent!TAgent!RefId] = Agent,
+		DtStart, CtStart,
+		DtSum, CtSum,
+		DtEnd, CtEnd,
+		[Agent!!GroupMarker] = GrpAgent,
+		[DtCross!TCross!CrossArray] = null,
+		[CtCross!TCross!CrossArray] = null,
+		[Items!TRepData!Items] = null
+	from T
+	order by GrpAgent desc;
+
+	-- agents
+	with TA as (select Agent from #tmp group by Agent) 
+	select [!TAgent!Map] = null, [Id!!Id] = Id, [Name!!Name] = a.[Name]
+	from cat.Agents a inner join TA t on a.TenantId = @TenantId and a.Id = t.Agent;
+
+	-- dt cross
+	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[DtSum]), [!TRepData.DtCross!ParentId] = t.Agent
+	from #tmp t
+		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
+	where t.DtCt = 1
+	group by a.Code, t.Agent;
+
+	-- ct cross
+	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[CtSum]), [!TRepData.CtCross!ParentId] = t.Agent
+	from #tmp t
+		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
+	where t.DtCt = -1
+	group by a.Code, t.Agent;
+
+	select [Report!TReport!Object] = null, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
+	from rep.Reports r
+	where r.TenantId = @TenantId and r.Id = @Id;
+
+	select [!TAccount!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Code]
+	from acc.Accounts where TenantId = @TenantId and Id = @acc;
+
+	select [!$System!] = null, 
+		[!RepData.Period.From!Filter] = @From, [!RepData.Period.To!Filter] = @To,
+		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
+end
+go
+
 --exec rep.[Report.Turnover.Account.Date.Load] 1, 99, 1027 --, N'20220301', N'20220331';
 go
 
@@ -4536,6 +4672,9 @@ begin
 	(N'waybillout', 1, N'', N'Всі рядки'),
 	(N'waybillin',  1, N'', N'Всі рядки'),
 	(N'payin',      1, N'', N'Немає рядків'),
+	(N'payout',     1, N'', N'Немає рядків'),
+	(N'cashin',     1, N'', N'Немає рядків'),
+	(N'cashout',    1, N'', N'Немає рядків'),
 	(N'invoice',    1, N'', N'Всі рядки'),
 	(N'manufact',   2, N'Stock', N'Запаси'),
 	(N'manufact',   3, N'Product', N'Продукція');

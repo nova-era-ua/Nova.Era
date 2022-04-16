@@ -23,7 +23,7 @@
 			</TableRow>
 		</Table.Header>
 		<TableRow VAlign="Top">
-			<TableCell Content="{Bind Id}" RowSpan="{Bind $RowSpan}"/>
+			<TableCell Content="{Bind Id}"/>
 			<TableCell ColSpan="4">
 				<Table ItemsSource="{Bind Dt}" GridLines="Both" Width="34rem" Columns="5rem,8rem,5rem,Auto">
 					<TableRow>

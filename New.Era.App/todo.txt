@@ -3,27 +3,23 @@
 30. StockDoc -> Apply.Payment
 31. Unit: Pager, Filter, Sort
 32. Unit.Delete
-33. Reports: List
 34. StockReports: turnover
-37. Agent.List
 40. Catalog.Currencies
 41. Apply/Unapply. Confirm
 42. Document:Number
-43. Document.ShowTransactions
 44. Document.PriceList
 45. DocList.EditSelected -> disabled
 46. Catalog.Contracts
 47. Catalog.Departments
 48. Agent.BankAccounts
-50. AccountPlan -> IsFolder icon, IsGroup -> Disable analitics
-51. AccountPlan -> Delete
-52. AccountPlan -> Context Menu
-
+53. Operations. Form in list
+54. Currencies.Edit
+55. Report: Type & ReportImplementations.
+56. BankAccount: Set BankId from AccountNo.
 
 Small fixes
 ===========
-1. BrowseAccount - DblClick
-2. BrowseAccount - Search
+3.
 
 
 Sample
@@ -38,14 +34,12 @@ dt:281 (rows,material) ct:631 (sum)
 !!!PLATFORM!!!!
 ==================
 1. Toolbar XamlStyle -> Padding -> Exception "String to Thickness"
-2. .dialog-grid-content {overflow:auto;}
-3. .a2-include.full-height {overflow:hidden;}
 4. useUnsafeHeaderParsing??? javascript fetch -> Accept header from params to WebRequest.
 5. export to csv
 
+
 Future: Common
 ==============
-1. TreeView: DoubleClick
 3. EditFolder: ParentFolder
 
 Future: Catalog-Other

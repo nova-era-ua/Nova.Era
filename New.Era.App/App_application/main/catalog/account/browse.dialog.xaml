@@ -5,10 +5,11 @@
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Accounts}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
+	<TextBox Placeholder="@[Search]" Value="{Bind Root.$Search}"/>
 	<TreeView FolderSelect="False" Height="30rem"
-			ItemsSource="{Bind Accounts}" IconFolder="AccountFolder" IconItem="Account"
-			  DoubleClick="{BindCmd Select, Argument={Bind Accounts}}">
-		<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}"/>
+			ItemsSource="{Bind Accounts}"
+			DoubleClick="{BindCmd Select, Argument={Bind Accounts}}">
+		<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}"/>
 	</TreeView>
 </Dialog>
 
