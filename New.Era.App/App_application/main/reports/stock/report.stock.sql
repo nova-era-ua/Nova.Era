@@ -68,5 +68,3 @@ begin
 		[!RepData.Warehouse.Id!Filter] = @Warehouse, [!RepData.Warehouse.Name!Filter] = cat.fn_GetWarehouseName(@TenantId, @Warehouse)
 end
 go
-
-exec rep.[Report.Turnover.Item.Load]

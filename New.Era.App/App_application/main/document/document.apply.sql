@@ -198,5 +198,3 @@ begin
 end
 go
 
-exec doc.[Document.Apply.Account] 1, 99, 1004, 215
-
