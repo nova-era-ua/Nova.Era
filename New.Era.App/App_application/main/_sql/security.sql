@@ -199,7 +199,7 @@ begin
 			values(@Tenant, @Id, @UserName, @PersonName, @RegisterHost, @PhoneNumber, @Memo, @Locale, 
 				N'', N'');
 		/* system user */
-		insert into appsec.Users(Tenant, Id, UserName, SecurityStamp, PasswordHash) values (@Tenant, 0, N'System', N'', N'');
+		insert into appsec.Users(Tenant, Id, UserName, SecurityStamp, PasswordHash) values (@Tenant, 0, N'System_' + cast(Tenant as nvarchar(16)), N'', N'');
 
 		if @sql is not null
 			exec sp_executesql @sql, @prms, @Tenant;

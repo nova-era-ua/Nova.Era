@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 17.04.2022 17:47:14
+generated: 17.04.2022 18:13:10
 */
 
 
@@ -207,7 +207,7 @@ begin
 			values(@Tenant, @Id, @UserName, @PersonName, @RegisterHost, @PhoneNumber, @Memo, @Locale, 
 				N'', N'');
 		/* system user */
-		insert into appsec.Users(Tenant, Id, UserName, SecurityStamp, PasswordHash) values (@Tenant, 0, N'System', N'', N'');
+		insert into appsec.Users(Tenant, Id, UserName, SecurityStamp, PasswordHash) values (@Tenant, 0, N'System_' + cast(Tenant as nvarchar(16)), N'', N'');
 
 		if @sql is not null
 			exec sp_executesql @sql, @prms, @Tenant;
@@ -4084,8 +4084,6 @@ begin
 end
 go
 
-exec doc.[Document.Apply.Account] 1, 99, 1004, 215
-
 
 /* Document.Dialogs */
 ------------------------------------------------
@@ -4335,7 +4333,6 @@ begin
 end
 go
 
-exec rep.[Report.Turnover.Item.Load]
 -- reports stock
 -------------------------------------------------
 create or alter procedure rep.[Report.Turnover.Agent.Load]
