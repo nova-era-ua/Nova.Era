@@ -18,6 +18,6 @@
 		</Grid>
 		<GridDivider Grid.Col="2"/>
 		<Include Grid.Col="3" If="{Bind Reports.$hasSelected}" FullHeight="True"
-			Source="{Bind Reports.$selected.Url}" Argument="{Bind Reports.$selected.Id}"/>
+			Source="{Bind Reports.$selected.File.Url}" Argument="{Bind Reports.$selected.Id}"/>
 	</Grid>
 </Page>

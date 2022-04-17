@@ -14,9 +14,9 @@ begin
 	-- ensure empty journal
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
 
-	declare @tr table([date] datetime, detail bigint, trno int, rowno int, acc bigint, corracc bigint,
+	declare @tr table([date] datetime, detail bigint, trno int, rowno int, acc bigint, corracc bigint, [plan] bigint,
 		dtct smallint, [sum] money, ssum money, qty float, item bigint, comp bigint, agent bigint, wh bigint, 
-		ba bigint, ca bigint, _modesum nchar(1));
+		ca bigint, _modesum nchar(1), _moderow nchar(1));
 
 	declare @rowno int, @rowkind nvarchar(16), @plan bigint, @dt bigint, @ct bigint, @dtrow nchar(1), @ctrow nchar(1),
 		@dtsum nchar(1), @ctsum nchar(1);
@@ -33,51 +33,64 @@ begin
 	begin
 		-- debit
 		if @dtrow = N'R'
-			insert into @tr(_modesum, [date], detail, trno, rowno, dtct, acc, corracc, item, qty, [sum], comp, agent, wh, ba, ca)
-				select @dtsum, d.[Date], dd.Id, @rowno, dd.RowNo, 1, @dt, @ct, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhTo,
-					d.BankAccTo, d.BankAccTo
+			insert into @tr(_moderow, _modesum, [date], detail, trno, rowno, dtct, [plan], acc, corracc, item, qty, [sum], comp, agent, wh, ca)
+				select @dtrow, @dtsum, d.[Date], dd.Id, @rowno, dd.RowNo, 1, @plan, @dt, @ct, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhTo,
+					d.CashAccTo
 				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
 		else if @dtrow = N''
-			insert into @tr(_modesum, [date], trno, dtct, acc, corracc, [sum], comp, agent, wh, ba, ca)
-				select @dtsum, d.[Date], @rowno, 1, @dt, @ct, d.[Sum], d.Company, d.Agent, d.WhTo,
-					d.BankAccTo, d.CashAccTo
+			insert into @tr(_moderow, _modesum, [date], trno, dtct, [plan], acc, corracc, [sum], comp, agent, wh, ca)
+				select @dtrow, @dtsum, d.[Date], @rowno, 1, @plan, @dt, @ct, d.[Sum], d.Company, d.Agent, d.WhTo,
+					d.CashAccTo
 				from doc.Documents d where TenantId = @TenantId and Id = @Id;
 		-- credit
 		if @ctrow = N'R'
-			insert into @tr(_modesum, [date], detail, trno, rowno, dtct, acc, corracc, item, qty, [sum], comp, agent, wh, ba, ca)
-				select @ctsum, d.[Date], dd.Id, @rowno, dd.RowNo, -1, @ct, @dt, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhFrom,
-					d.BankAccFrom, d.CashAccFrom
+			insert into @tr(_moderow, _modesum, [date], detail, trno, rowno, dtct, [plan], acc, corracc, item, qty, [sum], comp, agent, wh, ca)
+				select @ctrow, @ctsum, d.[Date], dd.Id, @rowno, dd.RowNo, -1, @plan, @ct, @dt, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhFrom,
+					d.CashAccFrom
 				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
 		else if @ctrow = N''
-			insert into @tr(_modesum, [date], trno, dtct, acc, corracc, [sum], comp, agent, wh, ba, ca)
-				select @ctsum, d.[Date], @rowno, -1, @ct, @dt, d.[Sum], d.Company, d.Agent, d.WhFrom,
-					d.BankAccFrom, d.CashAccFrom
+			insert into @tr(_moderow, _modesum, [date], trno, dtct, [plan], acc, corracc, [sum], comp, agent, wh, ca)
+				select @ctrow, @ctsum, d.[Date], @rowno, -1, @plan, @ct, @dt, d.[Sum], d.Company, d.Agent, d.WhFrom,
+					d.CashAccFrom
 				from doc.Documents d where TenantId = @TenantId and Id = @Id;
 		fetch next from cur into @rowno, @rowkind, @plan, @dt, @ct, @dtrow, @ctrow, @dtsum, @ctsum
 	end
 	close cur;
 	deallocate cur;
 
-	if exists(select 1 from @tr where _modesum = N'S') 
+	if exists(select 1 from @tr where _modesum = N'S' and _moderow = 'R') 
 	begin
 		with W(item, ssum) as (
 			select t.item, [sum] = sum(j.[Sum]) / sum(j.Qty)
 			from jrn.Journal j 
-			inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] < t.[date]
-			where j.TenantId = @TenantId and t._modesum = N'S'
+			  inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] <= t.[date]
+			where j.TenantId = @TenantId and t._modesum = N'S' and _moderow = 'R'
 			group by t.item
 		)
 		update @tr set [ssum] = W.ssum * t.qty
 		from @tr t inner join W on t.item = W.item
-		where t._modesum = N'S'
+		where t._modesum = N'S' and _moderow = 'R'
+	end
+
+	if exists(select 1 from @tr where _modesum = N'S' and _moderow = N'')
+	begin
+		-- total self cost for this transaction
+		with W(trno, ssum) as (
+			select trno, sum(ssum) from @tr t
+			where t._modesum  = 'S' and _moderow = N'R'
+			group by trno
+		)
+		update @tr set [ssum] = W.ssum 
+		from @tr t inner join W on t.trno = W.trno
+		where t._modesum = N'S' and t._moderow = N'';
 	end
 
 	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date],  Company, Warehouse, Agent, Item, 
-		DtCt, Account, CorrAccount, Qty, BankAccount, CashAccount, [Sum])
+		DtCt, [Plan], Account, CorrAccount, Qty, CashAccount, [Sum])
 	select @TenantId, @Id, detail, trno, rowno, [date], comp, wh, agent, item,
-		dtct, acc, corracc, qty, ba, ca,
+		dtct, [plan], acc, corracc, qty, ca,
 		case _modesum
 			when N'S' then ssum
 			when N'R' then [sum] - ssum
@@ -184,4 +197,6 @@ begin
 
 end
 go
+
+exec doc.[Document.Apply.Account] 1, 99, 1004, 215
 

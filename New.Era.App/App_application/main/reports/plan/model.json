@@ -1,0 +1,16 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "rep",
+  "model": "",
+  "actions": {
+    "turnover": {
+      "model": "Report.Turnover.Plan",
+      "template": "turnover.template",
+      "view": "turnover.view"
+    },
+    "cashflow": {
+      "model": "Report.Plan.Cashflow",
+      "view": "cashflow.view"
+    }
+  }
+}

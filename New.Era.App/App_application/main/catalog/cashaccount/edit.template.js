@@ -6,7 +6,8 @@ define(["require", "exports"], function (require, exports) {
             'TCashAccount.$Id'() { return this.Id || '@[NewItem]'; }
         },
         defaults: {
-            'CashAccount.Currency'() { return this.Params.Currency; }
+            'CashAccount.Currency'() { return this.Params.Currency; },
+            'CashAccount.Company'() { return this.Default.Company; }
         },
         validators: {
             'CashAccount.Name': '@[Error.Required]',

@@ -10,9 +10,13 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Reports!TReport!Array] = null, [Id!!Id] = r.Id, [Name!!Name] = [Name], Memo,
-		Menu, [Url], r.Account
+		Menu, [File!TRepFile!RefId] = [File], r.Account
 	from rep.Reports r
 	where TenantId = @TenantId and [Menu] = @Menu;
+
+	select [!TRepFile!Map] = null, [Id!!Id] = rf.Id, [Url]
+	from rep.RepFiles rf inner join rep.Reports r on r.TenantId = rf.TenantId and r.[File] = rf.[Id]
+	where r.TenantId = @TenantId and r.Menu = @Menu;
 
 	select [Params!TParam!Object] = null, Menu = @Menu;
 end
@@ -29,7 +33,8 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Report!TReport!Object] = null, [Id!!Id] = r.Id, [Name!!Name] = [Name], Memo,
-		[Menu], [Url], [Account!TAccount!RefId] = Account
+		[Menu], [File!TRepFile!RefId] = [File], [Account!TAccount!RefId] = Account,
+		[Type!TRepType!RefId] = [Type]
 	from rep.Reports r
 	where r.TenantId = @TenantId and r.Id = @Id;
 
@@ -37,6 +42,14 @@ begin
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
 	from acc.Accounts a inner join rep.Reports r on a.TenantId = r.TenantId and a.Id = r.Account
 	where r.TenantId = @TenantId and r.Id = @Id;
+
+	select [RepTypes!TRepType!Array] = null, [Id!!Id] = rt.Id, [Name!!Name] = rt.[Name],
+		UseAccount, [UsePlan], [Files!TRepFile!Array] = null
+	from rep.RepTypes rt where TenantId = @TenantId order by rt.[Order];
+
+	select [!TRepFile!Array] = null, [Id!!Id] = rf.Id, [Name!!Name] = rf.[Name],
+		[!TRepType.Files!ParentId] = [Type], [Url]
+	from rep.RepFiles rf where TenantId = @TenantId order by rf.[Order]
 
 	select [Params!TParam!Object] = null, Menu = @Menu;
 end
@@ -52,8 +65,9 @@ create type rep.[Report.TableType] as table (
 	[Menu] nvarchar(32),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	Account bigint,
-	[Url] nvarchar(255)
+	[Type] nvarchar(16),
+	[File] nvarchar(16),
+	Account bigint
 );
 go
 -------------------------------------------------
@@ -83,13 +97,14 @@ begin
 	merge rep.Reports as t
 	using @Report as s on (t.TenantId = @TenantId and t.Id = s.Id)
 	when matched then update set
+		t.[Type] = s.[Type],
 		t.[Name] = s.[Name], 
 		t.[Memo] = s.[Memo],
 		t.Account = s.Account,
-		t.[Url] = s.[Url]
+		t.[File] = s.[File]
 	when not matched by target then insert
-		(TenantId, Menu, [Name], Memo, Account, [Url]) values
-		(@TenantId, s.Menu, [Name], Memo, Account, [Url])
+		(TenantId, [Type], Menu, [Name], Memo, Account, [File]) values
+		(@TenantId, s.[Type], s.Menu, [Name], Memo, Account, [File])
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;

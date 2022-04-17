@@ -1,7 +1,7 @@
 ﻿<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
 	<CollectionView ItemsSource="{Bind Currencies}" RunAt="Server" Filter="Fragment">
 		<Grid Height="100%" Rows="Auto,1*" Padding="0">
-			<Toolbar XamlStyle="{StyleResource ToolbarLight}" Padding="0">
+			<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 				<Button Icon="Plus" Content="@[Create]"
 					Command="{BindCmd Dialog, Action=Append, Argument={Bind Currencies}, Url=/catalog/currency/edit}"/>
 				<Button Icon="Edit"

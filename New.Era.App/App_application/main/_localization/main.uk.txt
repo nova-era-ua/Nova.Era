@@ -14,6 +14,7 @@
 @AccountPlan=План рахунків
 @Accounts=Рахунки
 @Account=Рахунок
+@AccountType=Тип рахунку
 @Operations=Операції
 @Transactions=Проводки
 @Orders=Замовлення
@@ -87,8 +88,12 @@
 ;
 @Debit=Дебет
 @Credit=Кредит
+@Turn=Обороти
 @TurnDebit=Обороти дебет
 @TurnCredit=Обороти кредит
+@Income=Надходження
+@On=На
+@Expense=Витрати
 @Object=Об'єкт
 @Analytics=Аналітика
 @Article=Артикул
@@ -112,6 +117,9 @@
 @Browse.Account=Вибір рахунку
 @Browse.BankAccount=Вибір рахунку в банку
 @Browse.CashAccount=Вибір каси
+;
+@By.Account=По рахунку
+@By.Plan=По плану рахунків
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
 @Error.Required=Обов\'язкове поле

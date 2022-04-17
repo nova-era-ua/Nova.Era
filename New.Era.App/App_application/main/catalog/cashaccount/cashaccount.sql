@@ -59,7 +59,7 @@ begin
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency,
 		[!!RowCount] = t.rowcnt
-	from @ba t inner join cat.CashAccounts ca on t.id  = ca.Id and ca.TenantId = @TenantId
+	from @ba t inner join cat.CashAccounts ca on t.id  = ca.Id and ca.TenantId = @TenantId and ca.IsCashAccount = 1
 	order by t.rowno;
 
 	with T as(select comp from @ba group by comp)
@@ -85,7 +85,7 @@ begin
 	select [CashAccounts!TCashAccount!Array] = null,
 		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo
 	from cat.CashAccounts ca
-	where ca.TenantId = @TenantId and ca.Company = @Company;
+	where ca.TenantId = @TenantId and ca.Company = @Company and ca.IsCashAccount = 1;
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;
@@ -106,7 +106,7 @@ begin
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency
 	from cat.CashAccounts ca
-	where TenantId = @TenantId and ca.Id = @Id;
+	where TenantId = @TenantId and ca.Id = @Id and ca.IsCashAccount = 1;
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and ca.Company = c.Id
@@ -120,6 +120,7 @@ begin
 	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
 	from cat.Currencies c where TenantId = @TenantId and c.Id = 980;
 
+	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 end
 go
 ---------------------------------------------
@@ -170,8 +171,8 @@ begin
 		t.Company = s.Company,
 		t.Currency = s.Currency
 	when not matched by target then insert
-		(TenantId, Company, [Name], Currency, Memo) values
-		(@TenantId, s.Company, s.[Name], s.Currency, s.Memo)
+		(TenantId, IsCashAccount, Company, [Name], Currency, Memo) values
+		(@TenantId, 1, s.Company, s.[Name], s.Currency, s.Memo)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -188,6 +189,6 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	update cat.CashAccounts set Void = 1 where TenantId = @TenantId and Id = @Id;
+	update cat.CashAccounts set Void = 1 where TenantId = @TenantId and Id = @Id and IsCashAccount = 1;
 end
 go

@@ -24,8 +24,8 @@ begin
 	insert into @ba(id, comp, bank, crc, rowcnt)
 	select b.Id, b.Company, b.Bank, b.Currency, 
 		count(*) over ()
-	from cat.BankAccounts b
-	where TenantId = @TenantId and (@fr is null or 
+	from cat.CashAccounts b
+	where TenantId = @TenantId and b.IsCashAccount = 0 and (@fr is null or 
 		b.[Name] like @fr or b.Memo like @fr)
 	order by 
 		case when @Dir = N'asc' then
@@ -61,7 +61,7 @@ begin
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
 		[!!RowCount] = t.rowcnt
-	from @ba t inner join cat.BankAccounts ba on t.id  = ba.Id and ba.TenantId = @TenantId
+	from @ba t inner join cat.CashAccounts ba on t.id  = ba.Id and ba.TenantId = @TenantId
 	order by t.rowno;
 
 	with T as(select comp from @ba group by comp)
@@ -86,8 +86,8 @@ begin
 
 	select [BankAccounts!TBankAccount!Array] = null,
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo
-	from cat.BankAccounts ba
-	where ba.TenantId = @TenantId and (@Company is null or Company = @Company);
+	from cat.CashAccounts ba
+	where ba.TenantId = @TenantId and (@Company is null or Company = @Company) and ba.IsCashAccount = 0;
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;
@@ -108,21 +108,22 @@ begin
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
 		[Bank!TBank!RefId] = ba.Bank
-	from cat.BankAccounts ba
-	where TenantId = @TenantId and ba.Id = @Id;
+	from cat.CashAccounts ba
+	where TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
-	from cat.Companies c inner join cat.BankAccounts ba on c.TenantId = ba.TenantId and ba.Company = c.Id
-	where c.TenantId = @TenantId and ba.Id = @Id;
+	from cat.Companies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Company = c.Id
+	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short
-	from cat.Currencies c inner join cat.BankAccounts ba on c.TenantId = ba.TenantId and ba.Currency = c.Id
-	where c.TenantId = @TenantId and ba.Id = @Id;
+	from cat.Currencies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Currency = c.Id
+	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	-- TODO: // BASE Currency!
 	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
 	from cat.Currencies c where TenantId = @TenantId and c.Id = 980;
 
+	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 end
 go
 ---------------------------------------------
@@ -167,7 +168,7 @@ begin
 	declare @output  table (op sysname, id bigint);
 	declare @id bigint;
 
-	merge cat.BankAccounts as t
+	merge cat.CashAccounts as t
 	using @BankAccount as s on (t.TenantId = @TenantId and t.Id = s.Id)
 	when matched then update set
 		t.[Name] = s.[Name], 
@@ -177,8 +178,8 @@ begin
 		t.Currency = s.Currency,
 		t.Bank = s.Bank
 	when not matched by target then insert
-		(TenantId, Company, [Name], AccountNo, Currency, Bank, Memo) values
-		(@TenantId, s.Company, s.[Name], s.AccountNo, s.Currency, s.Bank, s.Memo)
+		(TenantId, IsCashAccount, Company, [Name], AccountNo, Currency, Bank, Memo) values
+		(@TenantId, 0, s.Company, s.[Name], s.AccountNo, s.Currency, s.Bank, s.Memo)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -195,6 +196,6 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	update cat.BankAccounts set Void = 1 where TenantId = @TenantId and Id = @Id;
+	update cat.CashAccounts set Void = 1 where TenantId = @TenantId and Id = @Id and IsCashAccount = 0;
 end
 go

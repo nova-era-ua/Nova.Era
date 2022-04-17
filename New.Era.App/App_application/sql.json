@@ -29,6 +29,7 @@
       "main/reports/stock/report.stock.sql",
       "main/reports/agent/report.agent.sql",
       "main/reports/account/report.account.sql",
+      "main/reports/plan/report.plan.sql",
       "main/_sql/admin.sql",
       "main/_sql/initial_data.sql"
     ]

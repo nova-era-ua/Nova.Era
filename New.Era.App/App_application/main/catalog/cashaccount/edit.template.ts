@@ -4,7 +4,8 @@ const template: Template = {
 		'TCashAccount.$Id'() { return this.Id || '@[NewItem]' }
 	},
 	defaults: {
-		'CashAccount.Currency'(this:any) { return this.Params.Currency;}
+		'CashAccount.Currency'(this:any) { return this.Params.Currency;},
+		'CashAccount.Company'(this: any) { return this.Default.Company; }
 	},
 	validators: {
 		'CashAccount.Name': '@[Error.Required]',

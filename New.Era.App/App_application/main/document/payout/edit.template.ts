@@ -1,16 +1,16 @@
 ﻿
-const base: Template = require('/document/_common/pay.module');
-const tmlutils = require("std:tmlutils");
-
 // Pay in
+const base: Template = require('/document/_common/pay.module');
+const utils: Utils = require("std:utils");
+
 const template: Template = {
 	properties: {
-		'TBankAccount.$Name'() { return this.Name || this.AccountNo;}
+		'TCashAccount.$Name'() { return this.Name || this.AccountNo;}
 	},
 	validators: {
-		'Document.BankAccFrom': '@[Error.Required]'
+		'Document.CashAccFrom': '@[Error.Required]'
 	}
 };
 
-export default tmlutils.mergeTemplate(base, template);
+export default utils.mergeTemplate(base, template);
 

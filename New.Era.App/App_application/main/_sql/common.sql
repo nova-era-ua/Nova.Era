@@ -35,24 +35,13 @@ begin
 end
 go
 ------------------------------------------------
-create or alter function cat.fn_GetBankAccountName(@TenantId int, @Id bigint)
-returns nvarchar(255)
-as
-begin
-	declare @name nvarchar(255);
-	if @Id is not null
-		select @name = isnull([Name], AccountNo) from cat.BankAccounts where TenantId=@TenantId and Id=@Id;
-	return @name;
-end
-go
-------------------------------------------------
 create or alter function cat.fn_GetCashAccountName(@TenantId int, @Id bigint)
 returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
 	if @Id is not null
-		select @name = [Name] from cat.CashAccounts where TenantId=@TenantId and Id=@Id;
+		select @name = isnull([Name], AccountNo) from cat.CashAccounts where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
 go

@@ -6,7 +6,8 @@ define(["require", "exports"], function (require, exports) {
             'TBankAccount.$Id'() { return this.Id || '@[NewItem]'; }
         },
         defaults: {
-            'BankAccount.Currency'() { return this.Params.Currency; }
+            'BankAccount.Currency'() { return this.Params.Currency; },
+            'BankAccount.Company'() { return this.Default.Company; }
         },
         validators: {
             'BankAccount.AccountNo': '@[Error.Required]',

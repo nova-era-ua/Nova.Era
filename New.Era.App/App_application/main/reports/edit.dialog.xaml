@@ -5,17 +5,30 @@
 				Command="{BindCmd SaveAndClose, ValidRequired=True}"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid>
-		<TextBox Label="@[Name]" Value="{Bind Report.Name}"/>
-		<Selector Label="@[Account]" Value="{Bind Report.Account}" DisplayProperty="$Title">
-			<Selector.AddOns>
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Report.Account}, Url='/catalog/account/browseall'}"/>
-			</Selector.AddOns>
-		</Selector>
-		<ComboBox Label="Тип звіту" ItemsSource="{Bind Report.$RepTypes}" Value="{Bind Report.Url}">
-			<ComboBoxItem Content="{Bind Name}" Value="{Bind Url}"/>
+	<Grid Rows="Auto,Auto,5rem,Auto,Auto" AlignItems="Top">
+		<TextBox Grid.Row="1" Label="@[Name]" Value="{Bind Report.Name}" TabIndex="1"/>
+		<ComboBox Grid.Row="2" Label="Як будувати звіт" ItemsSource="{Bind RepTypes}" Value="{Bind Report.Type}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
+		<StackPanel Grid.Row="3">
+			<Selector Label="@[Account]" Value="{Bind Report.Account}" If="{Bind Report.Type.UseAccount}"
+					  DisplayProperty="$Title">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Report.Account}, Url='/catalog/account/browseall'}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Selector Label="@[AccountPlan]" Value="{Bind Report.Account}" If="{Bind Report.Type.UsePlan}"
+					  DisplayProperty="$Title">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Report.Account}, Url='/catalog/account/browseplan'}"/>
+				</Selector.AddOns>
+			</Selector>
+		</StackPanel>
+		<ComboBox Grid.Row="4" Label="Тип звіту" ItemsSource="{Bind Report.Type.Files}" 
+				  Value="{Bind Report.File}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 		</ComboBox>
 		<Static Value="{Bind Report.Url}" If="False"/>
-		<TextBox Label="@[Memo]" Value="{Bind Report.Memo}" Multiline="True" Rows="3"/>
+		<TextBox Grid.Row="5" Label="@[Memo]" Value="{Bind Report.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
 </Dialog>

@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 16.04.2022 09:26:54
+generated: 17.04.2022 17:47:15
 */
 
 
@@ -18,6 +18,7 @@ begin
 	set nocount on
 	exec ini.[Cat.OnCreateTenant] @TenantId = @TenantId;
 	exec ini.[Forms.OnCreateTenant] @TenantId = @TenantId;
+	exec ini.[Rep.OnCreateTenant] @TenantId = @TenantId;
 end
 go
 

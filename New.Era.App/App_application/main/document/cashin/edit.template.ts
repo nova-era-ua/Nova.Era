@@ -1,7 +1,7 @@
 ﻿// CASH IN
 
 const base: Template = require('/document/_common/pay.module');
-const tmlutils = require("std:tmlutils");
+const utils: Utils = require("std:utils");
 
 const template: Template = {
 	validators: {
@@ -9,7 +9,7 @@ const template: Template = {
 	},
 };
 
-export default tmlutils.mergeTemplate(base, template);
+export default utils.mergeTemplate(base, template);
 
 
 

@@ -1,6 +1,6 @@
 ﻿
 const base: Template = require('/document/_common/stock.module');
-const tmlutils = require("std:tmlutils");
+const utils: Utils = require("std:utils");
 
 // waybill out
 const template: Template = {
@@ -12,6 +12,6 @@ const template: Template = {
 	}
 };
 
-export default tmlutils.mergeTemplate(base, template);
+export default utils.mergeTemplate(base, template);
 
 

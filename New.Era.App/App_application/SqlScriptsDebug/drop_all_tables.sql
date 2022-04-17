@@ -13,6 +13,8 @@ drop table if exists cat.Currencies;
 drop table if exists ui.OpMenuLinks;
 drop table if exists doc.Operations;
 drop table if exists rep.Reports;
+drop table if exists rep.RepFiles;
+drop table if exists rep.RepTypes;
 drop table if exists acc.Accounts;
 drop table if exists doc.DocumentForms;
 drop table if exists doc.OperationGroups;
@@ -36,3 +38,6 @@ drop sequence if exists doc.SQ_OpTrans;
 drop sequence if exists doc.SQ_Operations;
 drop sequence if exists cat.SQ_Accounts;
 drop sequence if exists acc.SQ_Accounts;
+drop sequence if exists cat.SQ_BankAccounts;
+
+drop function if exists cat.fn_GetBankAccountName;

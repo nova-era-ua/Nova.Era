@@ -7,7 +7,7 @@
 					<FilterItem Property="Operation" DataType="Number"/>
 					<FilterItem Property="Agent" DataType="Object"/>
 					<FilterItem Property="Company" DataType="Object"/>
-					<FilterItem Property="BankAccount" DataType="Object"/>
+					<FilterItem Property="CashAccount" DataType="Object"/>
 				</FilterDescription>
 			</CollectionView.Filter>
 		</CollectionView>
@@ -34,7 +34,6 @@
 			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number" SortProperty="sum"/>
 			<DataGridColumn Header="@[Operation]" Content="{Bind Operation.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
-			<DataGridColumn Header="@[BankAccount]" Content="{Bind $BankAccount}" Sort="False" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[CashAccount]" Content="{Bind $CashAccount}" Sort="False" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Sort="False"/>
@@ -72,11 +71,11 @@
 						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Agent}}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Selector Label="@[BankAccount]"  Placeholder="@[Placeholder.AllBankAccounts]"
-					  Value="{Bind Parent.Filter.BankAccount}" DisplayProperty="Name">
+			<Selector Label="@[CashAccount]"  Placeholder="@[Placeholder.AllCashAccounts]"
+					  Value="{Bind Parent.Filter.CashAccount}" DisplayProperty="Name">
 				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.BankAccount}, Url='/catalog/bankaccount/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.BankAccount.Id}"
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.CashAccount}, Url='/catalog/bankaccount/browse'}"/>
+					<Hyperlink If="{Bind Parent.Filter.CashAccount.Id}"
 						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.BankAccount}}"/>
 				</Selector.AddOns>
 			</Selector>

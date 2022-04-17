@@ -1,7 +1,7 @@
-﻿
-const base: Template = require("document/_common/index.module");
+﻿// stock.index
 
-const tmlUtils = require('std:tmlutils');
+const base: Template = require("document/_common/index.module");
+const utils: Utils = require("std:utils");
 
 const template: Template = {
 	properties: {
@@ -9,5 +9,5 @@ const template: Template = {
 	}
 };
 
-export default tmlUtils.mergeTemplate(base, template);
+export default utils.mergeTemplate(base, template);
 

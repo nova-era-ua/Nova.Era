@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 16.04.2022 09:26:54
+generated: 17.04.2022 17:47:14
 */
 
 
@@ -372,9 +372,9 @@ create table cat.Items
 		constraint DF_Items_IsStock default(0),
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
-		constraint PK_Items primary key (TenantId, Id),
-		constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
-		constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id)
+	constraint PK_Items primary key (TenantId, Id),
+	constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
+	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -466,31 +466,6 @@ create table cat.Agents
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_BankAccounts')
-	create sequence cat.SQ_BankAccounts as bigint start with 100 increment by 1;
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'BankAccounts')
-create table cat.BankAccounts
-(
-	TenantId int not null,
-	Id bigint not null
-		constraint DF_BankAccounts_PK default(next value for cat.SQ_BankAccounts),
-	Void bit not null 
-		constraint DF_BankAccounts_Void default(0),
-	Company bigint not null,
-	Currency bigint not null,
-	[Name] nvarchar(255),
-	[Bank] bigint,
-	[AccountNo] nvarchar(255),
-	[Memo] nvarchar(255),
-		constraint PK_BankAccounts primary key (TenantId, Id),
-		constraint FK_BankAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_BankAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
-		constraint FK_BankAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
-);
-go
-------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_CashAccounts')
 	create sequence cat.SQ_CashAccounts as bigint start with 100 increment by 1;
 go
@@ -503,13 +478,17 @@ create table cat.CashAccounts
 		constraint DF_CashAccounts_PK default(next value for cat.SQ_CashAccounts),
 	Void bit not null 
 		constraint DF_CashAccounts_Void default(0),
+	IsCashAccount bit not null,
 	Company bigint not null,
 	Currency bigint not null,
 	[Name] nvarchar(255),
+	[Bank] bigint,
+	[AccountNo] nvarchar(255),
 	[Memo] nvarchar(255),
 		constraint PK_CashAccounts primary key (TenantId, Id),
 		constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
+		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
+		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
 );
 go
 ------------------------------------------------
@@ -537,8 +516,10 @@ create table acc.Accounts (
 	IsBankAccount bit,
 	IsCash bit,
 	IsContract bit,
-		constraint PK_Accounts primary key (TenantId, Id),
-		constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
+	[Uid] uniqueidentifier not null
+		constraint DF_Accounts_Uid default(newid()),
+	constraint PK_Accounts primary key (TenantId, Id),
+	constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -597,8 +578,11 @@ create table doc.Operations
 	[Agent] nchar(1),
 	Form nvarchar(16) not null,
 	[WarehouseFrom] nchar(1),
-	[WarehouseTo] nchar(1)
-		constraint PK_Operations primary key (TenantId, Id)
+	[WarehouseTo] nchar(1),
+	[Uid] uniqueidentifier not null
+		constraint DF_Operations_Uid default(newid()),
+	constraint PK_Operations primary key (TenantId, Id),
+	constraint FK_Operations_Form_Forms foreign key (TenantId, Form) references doc.Forms(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -618,8 +602,8 @@ create table doc.OpJournalStore
 	IsOut bit not null,
 	Factor smallint -- 1 normal, -1 storno
 		constraint CK_OpJournalStore_Factor check (Factor in (1, -1)),
-		constraint PK_OpJournalStore primary key (TenantId, Id, Operation),
-		constraint FK_OpJournalStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+	constraint PK_OpJournalStore primary key (TenantId, Id, Operation),
+	constraint FK_OpJournalStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -647,11 +631,13 @@ create table doc.OpTrans
 	CtSum nchar(1),
 	CtRow nchar(1),
 	CtWarehouse nchar(1),
-		constraint PK_OpTrans primary key (TenantId, Id, Operation),
-		constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
-		constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
-		constraint FK_OpTrans_Dt_Accounts foreign key (TenantId, [Dt]) references acc.Accounts(TenantId, Id),
-		constraint FK_OpTrans_Ct_Accounts foreign key (TenantId, [Ct]) references acc.Accounts(TenantId, Id)
+	[Uid] uniqueidentifier not null
+		constraint DF_OpTrans_Uid default(newid()),
+	constraint PK_OpTrans primary key (TenantId, Id, Operation),
+	constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
+	constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
+	constraint FK_OpTrans_Dt_Accounts foreign key (TenantId, [Dt]) references acc.Accounts(TenantId, Id),
+	constraint FK_OpTrans_Ct_Accounts foreign key (TenantId, [Ct]) references acc.Accounts(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -661,8 +647,10 @@ create table ui.OpMenuLinks
 	TenantId int not null,
 	Operation bigint not null,
 	Menu nvarchar(32) not null,
-		constraint PK_OpMenuLinks primary key (TenantId, Operation, Menu),
-		constraint FK_OpMenuLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+	[Uid] uniqueidentifier not null
+		constraint DF_OpMenuLinks_Uid default(newid()),
+	constraint PK_OpMenuLinks primary key (TenantId, Operation, Menu),
+	constraint FK_OpMenuLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')
@@ -686,8 +674,6 @@ create table doc.Documents
 	Currency bigint null,
 	WhFrom bigint null,
 	WhTo bigint  null,
-	BankAccFrom bigint null,
-	BankAccTo bigint null,
 	CashAccFrom bigint null,
 	CashAccTo bigint null,
 	Memo nvarchar(255),
@@ -702,8 +688,6 @@ create table doc.Documents
 	constraint FK_Documents_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 	constraint FK_Documents_WhFrom_Warehouses foreign key (TenantId, WhFrom) references cat.Warehouses(TenantId, Id),
 	constraint FK_Documents_WhTo_Warehouses foreign key (TenantId, WhTo) references cat.Warehouses(TenantId, Id),
-	constraint FK_Documents_BankAccFrom_BankAccounts foreign key (TenantId, BankAccFrom) references cat.BankAccounts(TenantId, Id),
-	constraint FK_Documents_BankAccTo_BankAccounts foreign key (TenantId, BankAccTo) references cat.BankAccounts(TenantId, Id),
 	constraint FK_Documents_CashAccFrom_CashAccounts foreign key (TenantId, CashAccFrom) references cat.CashAccounts(TenantId, Id),
 	constraint FK_Documents_CashAccTo_CashAccounts foreign key (TenantId, CashAccTo) references cat.CashAccounts(TenantId, Id),
 	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id)
@@ -732,9 +716,9 @@ create table doc.DocDetails
 		constraint DF_DocDetails_Sum default(0),
 	Memo nvarchar(255),
 		constraint PK_DocDetails primary key (TenantId, Id),
-		constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
-		constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
-		constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
+	constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+	constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
+	constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -758,11 +742,11 @@ create table jrn.StockJournal
 		constraint DF_StockJournal_Qty default(0),
 	[Sum] money not null
 		constraint DF_StockJournal_Sum default(0),
-		constraint PK_StockJournal primary key (TenantId, Id),
-		constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
-		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
-		constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+	constraint PK_StockJournal primary key (TenantId, Id),
+	constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+	constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+	constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -782,27 +766,55 @@ create table jrn.Journal
 	Document bigint,
 	Detail bigint,
 	DtCt smallint not null,
+	[Plan] bigint not null,
 	Account bigint not null,
 	CorrAccount bigint not null,
 	Company bigint null,
 	Warehouse bigint null,
 	Agent bigint null,
 	Item bigint null,
-	BankAccount bigint null,
 	CashAccount bigint null,
 	Qty float null,
 	[Sum] money not null
 		constraint DF_Journal_Sum default(0),
-		constraint PK_Journal primary key (TenantId, Id),
-		constraint FK_Journal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
-		constraint FK_Journal_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id),
-		constraint FK_Journal_CorrAccount_Accounts foreign key (TenantId, CorrAccount) references acc.Accounts(TenantId, Id),
-		constraint FK_Journal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
-		constraint FK_Journal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_Journal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
-		constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id),
-		constraint FK_Journal_BankAccount_BankAccounts foreign key (TenantId, BankAccount) references cat.BankAccounts(TenantId, Id),
-		constraint FK_Journal_BankAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id)
+	constraint PK_Journal primary key (TenantId, Id),
+	constraint FK_Journal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+	constraint FK_Journal_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
+	constraint FK_Journal_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id),
+	constraint FK_Journal_CorrAccount_Accounts foreign key (TenantId, CorrAccount) references acc.Accounts(TenantId, Id),
+	constraint FK_Journal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+	constraint FK_Journal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_Journal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id),
+	constraint FK_Journal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'rep' and TABLE_NAME=N'RepTypes')
+create table rep.RepTypes
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Order] int,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[UseAccount] bit,
+	[UsePlan] bit,
+	constraint PK_RepTypes primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'rep' and TABLE_NAME=N'RepFiles')
+create table rep.RepFiles
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Type] nvarchar(16) not null,
+	[Name] nvarchar(255),
+	[Url] nvarchar(255),
+	[Order] int,
+	constraint PK_RepFiles primary key (TenantId, Id),
+	constraint FK_RepFiles_Type_RepTypes foreign key (TenantId, [Type]) references rep.RepTypes(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -818,13 +830,16 @@ create table rep.Reports
 		constraint DF_Reports_PK default(next value for rep.SQ_Reports),
 	Void bit not null 
 		constraint DF_Reports_Void default(0),
+	[Type] nvarchar(16) not null,
+	[File] nvarchar(16),
 	Account bigint,
 	[Menu] nvarchar(32),
 	[Name] nvarchar(255),
-	[Url] nvarchar(255),
 	[Memo] nvarchar(255),
-		constraint PK_Reports primary key (TenantId, Id),
-		constraint FK_Reports_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id)
+	constraint PK_Reports primary key (TenantId, Id),
+	constraint FK_Reports_Type_RepTypes foreign key (TenantId, [Type]) references rep.RepTypes(TenantId, Id),
+	constraint FK_Reports_File_RepFiles foreign key (TenantId, [File]) references rep.RepFiles(TenantId, Id),
+	constraint FK_Reports_Account_Accounts foreign key (TenantId, Account) references acc.Accounts(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -837,10 +852,10 @@ create table usr.Defaults
 	Warehouse bigint null,
 	PeriodFrom date,
 	PeriodTo date,
-		constraint PK_Defaults primary key (TenantId, UserId),
-		constraint FK_Defaults_UserId_Users foreign key (TenantId, UserId) references appsec.Users(Tenant, Id),
-		constraint FK_Defaults_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_Defaults_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+	constraint PK_Defaults primary key (TenantId, UserId),
+	constraint FK_Defaults_UserId_Users foreign key (TenantId, UserId) references appsec.Users(Tenant, Id),
+	constraint FK_Defaults_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_Defaults_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
 );
 go
 
@@ -882,24 +897,13 @@ begin
 end
 go
 ------------------------------------------------
-create or alter function cat.fn_GetBankAccountName(@TenantId int, @Id bigint)
-returns nvarchar(255)
-as
-begin
-	declare @name nvarchar(255);
-	if @Id is not null
-		select @name = isnull([Name], AccountNo) from cat.BankAccounts where TenantId=@TenantId and Id=@Id;
-	return @name;
-end
-go
-------------------------------------------------
 create or alter function cat.fn_GetCashAccountName(@TenantId int, @Id bigint)
 returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
 	if @Id is not null
-		select @name = [Name] from cat.CashAccounts where TenantId=@TenantId and Id=@Id;
+		select @name = isnull([Name], AccountNo) from cat.CashAccounts where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
 go
@@ -2234,8 +2238,8 @@ begin
 	insert into @ba(id, comp, bank, crc, rowcnt)
 	select b.Id, b.Company, b.Bank, b.Currency, 
 		count(*) over ()
-	from cat.BankAccounts b
-	where TenantId = @TenantId and (@fr is null or 
+	from cat.CashAccounts b
+	where TenantId = @TenantId and b.IsCashAccount = 0 and (@fr is null or 
 		b.[Name] like @fr or b.Memo like @fr)
 	order by 
 		case when @Dir = N'asc' then
@@ -2271,7 +2275,7 @@ begin
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
 		[!!RowCount] = t.rowcnt
-	from @ba t inner join cat.BankAccounts ba on t.id  = ba.Id and ba.TenantId = @TenantId
+	from @ba t inner join cat.CashAccounts ba on t.id  = ba.Id and ba.TenantId = @TenantId
 	order by t.rowno;
 
 	with T as(select comp from @ba group by comp)
@@ -2296,8 +2300,8 @@ begin
 
 	select [BankAccounts!TBankAccount!Array] = null,
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo
-	from cat.BankAccounts ba
-	where ba.TenantId = @TenantId and (@Company is null or Company = @Company);
+	from cat.CashAccounts ba
+	where ba.TenantId = @TenantId and (@Company is null or Company = @Company) and ba.IsCashAccount = 0;
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;
@@ -2318,21 +2322,22 @@ begin
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
 		[Bank!TBank!RefId] = ba.Bank
-	from cat.BankAccounts ba
-	where TenantId = @TenantId and ba.Id = @Id;
+	from cat.CashAccounts ba
+	where TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
-	from cat.Companies c inner join cat.BankAccounts ba on c.TenantId = ba.TenantId and ba.Company = c.Id
-	where c.TenantId = @TenantId and ba.Id = @Id;
+	from cat.Companies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Company = c.Id
+	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short
-	from cat.Currencies c inner join cat.BankAccounts ba on c.TenantId = ba.TenantId and ba.Currency = c.Id
-	where c.TenantId = @TenantId and ba.Id = @Id;
+	from cat.Currencies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Currency = c.Id
+	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	-- TODO: // BASE Currency!
 	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
 	from cat.Currencies c where TenantId = @TenantId and c.Id = 980;
 
+	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 end
 go
 ---------------------------------------------
@@ -2377,7 +2382,7 @@ begin
 	declare @output  table (op sysname, id bigint);
 	declare @id bigint;
 
-	merge cat.BankAccounts as t
+	merge cat.CashAccounts as t
 	using @BankAccount as s on (t.TenantId = @TenantId and t.Id = s.Id)
 	when matched then update set
 		t.[Name] = s.[Name], 
@@ -2387,8 +2392,8 @@ begin
 		t.Currency = s.Currency,
 		t.Bank = s.Bank
 	when not matched by target then insert
-		(TenantId, Company, [Name], AccountNo, Currency, Bank, Memo) values
-		(@TenantId, s.Company, s.[Name], s.AccountNo, s.Currency, s.Bank, s.Memo)
+		(TenantId, IsCashAccount, Company, [Name], AccountNo, Currency, Bank, Memo) values
+		(@TenantId, 0, s.Company, s.[Name], s.AccountNo, s.Currency, s.Bank, s.Memo)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -2405,7 +2410,7 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	update cat.BankAccounts set Void = 1 where TenantId = @TenantId and Id = @Id;
+	update cat.CashAccounts set Void = 1 where TenantId = @TenantId and Id = @Id and IsCashAccount = 0;
 end
 go
 
@@ -2470,7 +2475,7 @@ begin
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency,
 		[!!RowCount] = t.rowcnt
-	from @ba t inner join cat.CashAccounts ca on t.id  = ca.Id and ca.TenantId = @TenantId
+	from @ba t inner join cat.CashAccounts ca on t.id  = ca.Id and ca.TenantId = @TenantId and ca.IsCashAccount = 1
 	order by t.rowno;
 
 	with T as(select comp from @ba group by comp)
@@ -2496,7 +2501,7 @@ begin
 	select [CashAccounts!TCashAccount!Array] = null,
 		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo
 	from cat.CashAccounts ca
-	where ca.TenantId = @TenantId and ca.Company = @Company;
+	where ca.TenantId = @TenantId and ca.Company = @Company and ca.IsCashAccount = 1;
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;
@@ -2517,7 +2522,7 @@ begin
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency
 	from cat.CashAccounts ca
-	where TenantId = @TenantId and ca.Id = @Id;
+	where TenantId = @TenantId and ca.Id = @Id and ca.IsCashAccount = 1;
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and ca.Company = c.Id
@@ -2531,6 +2536,7 @@ begin
 	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
 	from cat.Currencies c where TenantId = @TenantId and c.Id = 980;
 
+	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 end
 go
 ---------------------------------------------
@@ -2581,8 +2587,8 @@ begin
 		t.Company = s.Company,
 		t.Currency = s.Currency
 	when not matched by target then insert
-		(TenantId, Company, [Name], Currency, Memo) values
-		(@TenantId, s.Company, s.[Name], s.Currency, s.Memo)
+		(TenantId, IsCashAccount, Company, [Name], Currency, Memo) values
+		(@TenantId, 1, s.Company, s.[Name], s.Currency, s.Memo)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -2599,7 +2605,7 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	update cat.CashAccounts set Void = 1 where TenantId = @TenantId and Id = @Id;
+	update cat.CashAccounts set Void = 1 where TenantId = @TenantId and Id = @Id and IsCashAccount = 1;
 end
 go
 
@@ -3641,7 +3647,6 @@ create or alter procedure doc.[Document.Pay.Index]
 @Dir nvarchar(20) = N'asc',
 @Operation bigint = -1,
 @Agent bigint = null,
-@BankAccount bigint = null,
 @CashAccount bigint = null,
 @Company bigint = null,
 @From date = null,
@@ -3661,8 +3666,8 @@ begin
 	declare @docs table(rowno int identity(1, 1), id bigint, op bigint, agent bigint, 
 		comp bigint, bafrom bigint, bato bigint, cafrom bigint, cato bigint, rowcnt int);
 
-	insert into @docs(id, op, agent, comp, bafrom, bato, cafrom, cato, rowcnt)
-	select d.Id, d.Operation, d.Agent, d.Company, d.BankAccFrom, d.BankAccTo, d.CashAccFrom, d.CashAccTo,
+	insert into @docs(id, op, agent, comp, cafrom, cato, rowcnt)
+	select d.Id, d.Operation, d.Agent, d.Company, d.CashAccFrom, d.CashAccTo,
 		count(*) over()
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
@@ -3672,7 +3677,6 @@ begin
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
 		and (@Company is null or d.Company = @Company)
-		and (@BankAccount is null or d.BankAccFrom = @BankAccount or d.BankAccTo = @BankAccount)
 		and (@CashAccount is null or d.CashAccFrom = @CashAccount or d.CashAccTo = @CashAccount)
 	order by 
 		case when @Dir = N'asc' then
@@ -3701,7 +3705,6 @@ begin
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
-		[BankAccFrom!TBankAccount!RefId] = d.BankAccFrom, [BankAccTo!TBankAccount!RefId] = d.BankAccTo,
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[!!RowCount] = t.rowcnt
 	from @docs t inner join 
@@ -3719,15 +3722,9 @@ begin
 	from cat.Agents a 
 		inner join T t on a.TenantId = @TenantId and a.Id = agent;
 
-	with B as (select ba = bafrom from @docs union all select bato from @docs),
-	T as (select ba from B group by ba)
-	select [!TBankAccount!Map] = null, [Id!!Id] = b.Id, [Name!!Name] = b.[Name], [b].AccountNo
-	from cat.BankAccounts b 
-		inner join T t on b.TenantId = @TenantId and b.Id = ba;
-
 	with C as (select ca = cafrom from @docs union all select cato from @docs),
 	T as (select ca from C group by ca)
-	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name]
+	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.[AccountNo]
 	from cat.CashAccounts ca 
 		inner join T t on ca.TenantId = @TenantId and ca.Id = ca;
 
@@ -3759,7 +3756,6 @@ begin
 		[!Documents.Operation!Filter] = @Operation, 
 		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
 		[!Documents.Company.Id!Filter] = @Company, [!Documents.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
-		[!Documents.BankAccount.Id!Filter] = @BankAccount, [!Documents.BankAccount.Name!Filter] = cat.fn_GetBankAccountName(@TenantId, @BankAccount),
 		[!Documents.CashAccount.Id!Filter] = @CashAccount, [!Documents.CashAccount.Name!Filter] = cat.fn_GetCashAccountName(@TenantId, @CashAccount);
 end
 go
@@ -3785,7 +3781,6 @@ begin
 	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, 
-		[BankAccFrom!TBankAccount!RefId] = d.BankAccFrom, [BankAccTo!TBankAccount!RefId] = d.BankAccTo,
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[Rows!TRow!Array] = null
 	from doc.Documents d
@@ -3800,15 +3795,10 @@ begin
 	from cat.Agents a inner join doc.Documents d on d.TenantId = a.TenantId and d.Agent = a.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
-	select [!TBankAccount!Map] = null, [Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.AccountNo
-	from cat.BankAccounts ba inner join doc.Documents d on d.TenantId = ba.TenantId and ba.Id in (d.BankAccFrom, d.BankAccTo)
-	where d.Id = @Id and d.TenantId = @TenantId
-	group by ba.Id, ba.[Name], ba.AccountNo;
-
-	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name]
+	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.AccountNo
 	from cat.CashAccounts ca inner join doc.Documents d on d.TenantId = ca.TenantId and ca.Id in (d.CashAccFrom, d.CashAccTo)
 	where d.Id = @Id and d.TenantId = @TenantId
-	group by ca.Id, ca.[Name];
+	group by ca.Id, ca.[Name], ca.AccountNo;
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join doc.Documents d on d.TenantId = c.TenantId and d.Company = c.Id
@@ -3840,8 +3830,6 @@ as table(
 	Operation bigint,
 	Agent bigint,
 	Company bigint,
-	BankAccFrom bigint,
-	BankAccTo bigint,
 	CashAccFrom bigint,
 	CashAccTo bigint,
 	Memo nvarchar(255)
@@ -3879,15 +3867,13 @@ begin
 		t.[Sum] = s.[Sum],
 		t.Company = s.Company,
 		t.Agent = s.Agent,
-		t.BankAccFrom = s.BankAccFrom,
-		t.BankAccTo = s.BankAccTo,
 		t.CashAccFrom = s.CashAccFrom,
 		t.CashAccTo = s.CashAccTo,
 		t.Memo = s.Memo
 	when not matched by target then insert
-		(TenantId, Operation, [Date], [Sum], Company, Agent, BankAccFrom, BankAccTo, 
+		(TenantId, Operation, [Date], [Sum], Company, Agent, 
 			CashAccFrom, CashAccTo, Memo, UserCreated) values
-		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, BankAccFrom, BankAccTo, 
+		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, 
 			s.CashAccFrom, s.CashAccTo, s.Memo, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
@@ -3914,9 +3900,9 @@ begin
 	-- ensure empty journal
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
 
-	declare @tr table([date] datetime, detail bigint, trno int, rowno int, acc bigint, corracc bigint,
+	declare @tr table([date] datetime, detail bigint, trno int, rowno int, acc bigint, corracc bigint, [plan] bigint,
 		dtct smallint, [sum] money, ssum money, qty float, item bigint, comp bigint, agent bigint, wh bigint, 
-		ba bigint, ca bigint, _modesum nchar(1));
+		ca bigint, _modesum nchar(1), _moderow nchar(1));
 
 	declare @rowno int, @rowkind nvarchar(16), @plan bigint, @dt bigint, @ct bigint, @dtrow nchar(1), @ctrow nchar(1),
 		@dtsum nchar(1), @ctsum nchar(1);
@@ -3933,51 +3919,64 @@ begin
 	begin
 		-- debit
 		if @dtrow = N'R'
-			insert into @tr(_modesum, [date], detail, trno, rowno, dtct, acc, corracc, item, qty, [sum], comp, agent, wh, ba, ca)
-				select @dtsum, d.[Date], dd.Id, @rowno, dd.RowNo, 1, @dt, @ct, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhTo,
-					d.BankAccTo, d.BankAccTo
+			insert into @tr(_moderow, _modesum, [date], detail, trno, rowno, dtct, [plan], acc, corracc, item, qty, [sum], comp, agent, wh, ca)
+				select @dtrow, @dtsum, d.[Date], dd.Id, @rowno, dd.RowNo, 1, @plan, @dt, @ct, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhTo,
+					d.CashAccTo
 				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
 		else if @dtrow = N''
-			insert into @tr(_modesum, [date], trno, dtct, acc, corracc, [sum], comp, agent, wh, ba, ca)
-				select @dtsum, d.[Date], @rowno, 1, @dt, @ct, d.[Sum], d.Company, d.Agent, d.WhTo,
-					d.BankAccTo, d.CashAccTo
+			insert into @tr(_moderow, _modesum, [date], trno, dtct, [plan], acc, corracc, [sum], comp, agent, wh, ca)
+				select @dtrow, @dtsum, d.[Date], @rowno, 1, @plan, @dt, @ct, d.[Sum], d.Company, d.Agent, d.WhTo,
+					d.CashAccTo
 				from doc.Documents d where TenantId = @TenantId and Id = @Id;
 		-- credit
 		if @ctrow = N'R'
-			insert into @tr(_modesum, [date], detail, trno, rowno, dtct, acc, corracc, item, qty, [sum], comp, agent, wh, ba, ca)
-				select @ctsum, d.[Date], dd.Id, @rowno, dd.RowNo, -1, @ct, @dt, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhFrom,
-					d.BankAccFrom, d.CashAccFrom
+			insert into @tr(_moderow, _modesum, [date], detail, trno, rowno, dtct, [plan], acc, corracc, item, qty, [sum], comp, agent, wh, ca)
+				select @ctrow, @ctsum, d.[Date], dd.Id, @rowno, dd.RowNo, -1, @plan, @ct, @dt, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhFrom,
+					d.CashAccFrom
 				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
 		else if @ctrow = N''
-			insert into @tr(_modesum, [date], trno, dtct, acc, corracc, [sum], comp, agent, wh, ba, ca)
-				select @ctsum, d.[Date], @rowno, -1, @ct, @dt, d.[Sum], d.Company, d.Agent, d.WhFrom,
-					d.BankAccFrom, d.CashAccFrom
+			insert into @tr(_moderow, _modesum, [date], trno, dtct, [plan], acc, corracc, [sum], comp, agent, wh, ca)
+				select @ctrow, @ctsum, d.[Date], @rowno, -1, @plan, @ct, @dt, d.[Sum], d.Company, d.Agent, d.WhFrom,
+					d.CashAccFrom
 				from doc.Documents d where TenantId = @TenantId and Id = @Id;
 		fetch next from cur into @rowno, @rowkind, @plan, @dt, @ct, @dtrow, @ctrow, @dtsum, @ctsum
 	end
 	close cur;
 	deallocate cur;
 
-	if exists(select 1 from @tr where _modesum = N'S') 
+	if exists(select 1 from @tr where _modesum = N'S' and _moderow = 'R') 
 	begin
 		with W(item, ssum) as (
 			select t.item, [sum] = sum(j.[Sum]) / sum(j.Qty)
 			from jrn.Journal j 
-			inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] < t.[date]
-			where j.TenantId = @TenantId and t._modesum = N'S'
+			  inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] <= t.[date]
+			where j.TenantId = @TenantId and t._modesum = N'S' and _moderow = 'R'
 			group by t.item
 		)
 		update @tr set [ssum] = W.ssum * t.qty
 		from @tr t inner join W on t.item = W.item
-		where t._modesum = N'S'
+		where t._modesum = N'S' and _moderow = 'R'
+	end
+
+	if exists(select 1 from @tr where _modesum = N'S' and _moderow = N'')
+	begin
+		-- total self cost for this transaction
+		with W(trno, ssum) as (
+			select trno, sum(ssum) from @tr t
+			where t._modesum  = 'S' and _moderow = N'R'
+			group by trno
+		)
+		update @tr set [ssum] = W.ssum 
+		from @tr t inner join W on t.trno = W.trno
+		where t._modesum = N'S' and t._moderow = N'';
 	end
 
 	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date],  Company, Warehouse, Agent, Item, 
-		DtCt, Account, CorrAccount, Qty, BankAccount, CashAccount, [Sum])
+		DtCt, [Plan], Account, CorrAccount, Qty, CashAccount, [Sum])
 	select @TenantId, @Id, detail, trno, rowno, [date], comp, wh, agent, item,
-		dtct, acc, corracc, qty, ba, ca,
+		dtct, [plan], acc, corracc, qty, ca,
 		case _modesum
 			when N'S' then ssum
 			when N'R' then [sum] - ssum
@@ -4085,6 +4084,8 @@ begin
 end
 go
 
+exec doc.[Document.Apply.Account] 1, 99, 1004, 215
+
 
 /* Document.Dialogs */
 ------------------------------------------------
@@ -4095,16 +4096,16 @@ select [!TTransPart!Array] = null, [Id!!Id] = j.Id,
 	[Item.Id!TItem!Id] = i.Id, [Item.Name!TItem] = i.[Name],
 	[Warehouse.Id!TWarehouse!Id] = w.Id, [Warehouse.Name!TWarehouse] = w.[Name],
 	[Agent.Id!TAgent!Id] = g.Id, [Agent.Name!TAgent] = g.[Name],
-	[BankAcc.Id!TBankAcc!Id] = ba.Id, [BankAcc.Name!TBankAcc] = ba.[AccountNo],
-	[CashAcc.Id!TCashAcc!Id] = ca.Id, [CashAcc.Name!TCashAcc] = ca.[Name],
+	[CashAcc.Id!TCashAcc!Id] = ca.Id, [CashAcc.Name!TCashAcc] = ca.[Name], 
+		[CashAcc.No!TCashAcc!] = ca.AccountNo, [CashAcc.IsCash!TCashAcc!] = ca.IsCashAccount,
 	[!TenantId] = j.TenantId, [!Document] = j.Document, [!DtCt] = j.DtCt, [!TrNo] = j.TrNo, [!RowNo] = j.RowNo
 from jrn.Journal j 
 	inner join acc.Accounts a on j.TenantId = a.TenantId and j.Account = a.Id
 	left join cat.Items i on j.TenantId = i.TenantId and j.Item = i.Id and a.IsItem = 1
 	left join cat.Warehouses w on j.TenantId = w.TenantId and j.Warehouse = w.Id and a.IsWarehouse = 1
 	left join cat.Agents g on j.TenantId = g.TenantId and j.Agent = g.Id and a.IsAgent = 1
-	left join cat.BankAccounts ba on j.TenantId = ba.TenantId and j.BankAccount = ba.Id and a.IsBankAccount = 1
-	left join cat.CashAccounts ca on j.TenantId = ca.TenantId and j.CashAccount = ca.Id and a.IsCash = 1
+	left join cat.CashAccounts ca on j.TenantId = ca.TenantId and j.CashAccount = ca.Id 
+		and (a.IsCash = 1 or a.IsBankAccount = 1)
 go
 ------------------------------------------------
 create or alter procedure doc.[Document.Transactions.Load]
@@ -4149,9 +4150,13 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Reports!TReport!Array] = null, [Id!!Id] = r.Id, [Name!!Name] = [Name], Memo,
-		Menu, [Url], r.Account
+		Menu, [File!TRepFile!RefId] = [File], r.Account
 	from rep.Reports r
 	where TenantId = @TenantId and [Menu] = @Menu;
+
+	select [!TRepFile!Map] = null, [Id!!Id] = rf.Id, [Url]
+	from rep.RepFiles rf inner join rep.Reports r on r.TenantId = rf.TenantId and r.[File] = rf.[Id]
+	where r.TenantId = @TenantId and r.Menu = @Menu;
 
 	select [Params!TParam!Object] = null, Menu = @Menu;
 end
@@ -4168,7 +4173,8 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Report!TReport!Object] = null, [Id!!Id] = r.Id, [Name!!Name] = [Name], Memo,
-		[Menu], [Url], [Account!TAccount!RefId] = Account
+		[Menu], [File!TRepFile!RefId] = [File], [Account!TAccount!RefId] = Account,
+		[Type!TRepType!RefId] = [Type]
 	from rep.Reports r
 	where r.TenantId = @TenantId and r.Id = @Id;
 
@@ -4176,6 +4182,14 @@ begin
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
 	from acc.Accounts a inner join rep.Reports r on a.TenantId = r.TenantId and a.Id = r.Account
 	where r.TenantId = @TenantId and r.Id = @Id;
+
+	select [RepTypes!TRepType!Array] = null, [Id!!Id] = rt.Id, [Name!!Name] = rt.[Name],
+		UseAccount, [UsePlan], [Files!TRepFile!Array] = null
+	from rep.RepTypes rt where TenantId = @TenantId order by rt.[Order];
+
+	select [!TRepFile!Array] = null, [Id!!Id] = rf.Id, [Name!!Name] = rf.[Name],
+		[!TRepType.Files!ParentId] = [Type], [Url]
+	from rep.RepFiles rf where TenantId = @TenantId order by rf.[Order]
 
 	select [Params!TParam!Object] = null, Menu = @Menu;
 end
@@ -4191,8 +4205,9 @@ create type rep.[Report.TableType] as table (
 	[Menu] nvarchar(32),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	Account bigint,
-	[Url] nvarchar(255)
+	[Type] nvarchar(16),
+	[File] nvarchar(16),
+	Account bigint
 );
 go
 -------------------------------------------------
@@ -4222,13 +4237,14 @@ begin
 	merge rep.Reports as t
 	using @Report as s on (t.TenantId = @TenantId and t.Id = s.Id)
 	when matched then update set
+		t.[Type] = s.[Type],
 		t.[Name] = s.[Name], 
 		t.[Memo] = s.[Memo],
 		t.Account = s.Account,
-		t.[Url] = s.[Url]
+		t.[File] = s.[File]
 	when not matched by target then insert
-		(TenantId, Menu, [Name], Memo, Account, [Url]) values
-		(@TenantId, s.Menu, [Name], Memo, Account, [Url])
+		(TenantId, [Type], Menu, [Name], Memo, Account, [File]) values
+		(@TenantId, s.[Type], s.Menu, [Name], Memo, Account, [File])
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -4319,6 +4335,7 @@ begin
 end
 go
 
+exec rep.[Report.Turnover.Item.Load]
 -- reports stock
 -------------------------------------------------
 create or alter procedure rep.[Report.Turnover.Agent.Load]
@@ -4382,9 +4399,9 @@ begin
 end
 go
 
--- reports account
+-- reports plan
 -------------------------------------------------
-create or alter procedure rep.[Report.Turnover.Account.Date.Load]
+create or alter procedure rep.[Report.Turnover.Plan.Load]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint, /* report id */
@@ -4558,6 +4575,152 @@ go
 
 
 
+-- reports plan
+-------------------------------------------------
+create or alter procedure rep.[Report.Turnover.Plan.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint, /* report id */
+@From date = null,
+@To date = null,
+@Company bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date = dateadd(day, 1, @To);
+
+	select @Company = isnull(@Company, Company)
+	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+
+	declare @acc bigint;
+	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
+
+
+	declare @to table (account bigint, startsum money, dtsum money, ctsum money, endsum money, grp tinyint);
+
+	insert into @to (account, startsum, dtsum, ctsum, endsum, grp)
+	select
+		j.Account,
+		sum(case when j.[Date] < @From then j.[Sum] * j.DtCt else 0 end),
+		sum(case when j.[Date] >= @From and j.DtCt = 1 then j.[Sum] else 0 end),
+		sum(case when j.[Date] >= @From and j.DtCt = -1 then j.[Sum] else 0 end),
+		sum(j.[Sum] * j.DtCt),
+		grouping(j.Account)
+	from
+		jrn.Journal j
+	where j.TenantId = @TenantId and j.Company = @Company and j.[Date] < @To and j.[Plan] = @acc
+	group by rollup(j.Account) -- case A.UseAgent when 1 then J.Agent else null end;
+	
+	select [RepData!TRepData!Group] = null,
+		AccCode = a.Code,
+		AccName = a.[Name],
+		AccId = a.Id,
+		DtStart = case when t.startsum > 0 then t.startsum else 0 end,
+		CtStart = -(case when t.startsum < 0 then t.startsum else 0 end),
+		DtSum =  t.dtsum,
+		CtSum = t.ctsum,
+		DtEnd = case when t.endsum > 0 then t.endsum else 0 end,
+		CtEnd = -case when t.endsum < 0 then t.endsum else 0 end,
+		[Account!!GroupMarker] = t.grp,
+		[Items!TRepData!Items] = null
+	from @to t
+		left join acc.Accounts a on a.TenantId = @TenantId and a.Id = t.account
+
+	order by t.grp desc, a.Code;
+
+	select [Report!TReport!Object] = null, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
+	from rep.Reports r
+	where r.TenantId = @TenantId and r.Id = @Id;
+
+	select [!TAccount!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Code]
+	from acc.Accounts where TenantId = @TenantId and Id = @acc;
+
+	select [!$System!] = null, 
+		[!RepData.Period.From!Filter] = @From, [!RepData.Period.To!Filter] = @To,
+		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
+end
+go
+-------------------------------------------------
+create or alter procedure rep.[Report.Plan.Cashflow.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint, /* report id */
+@From date = null,
+@To date = null,
+@Company bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date = dateadd(day, 1, @To);
+
+	select @Company = isnull(@Company, Company)
+	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+
+	declare @plan bigint;
+	select @plan = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
+
+	declare @accs table(id int);
+
+	insert into @accs(id)
+	select Id
+	from acc.Accounts a where TenantId = @TenantId and [Plan] = @plan 
+		and IsFolder = 0 and (IsCash = 1 or IsBankAccount = 1);
+	
+	with T as (
+		select ca.IsCashAccount, 
+			j.CashAccount,
+			StartSum = sum(case when j.[Date] < @From then j.[Sum] * j.DtCt else 0 end),
+			DtSum = sum(case when j.[Date] >= @From and j.DtCt = 1 then j.[Sum] else 0 end),
+			CtSum = sum(case when j.[Date] >= @From and j.DtCt = -1 then j.[Sum] else 0 end),
+			EndSum = sum(j.[Sum] * j.DtCt),
+			GrpGroup = grouping(ca.IsCashAccount),
+			GrpAccount = grouping(j.CashAccount)
+		from jrn.Journal j
+			inner join @accs a on  j.TenantId = @TenantId and j.Account = a.id
+			left join cat.CashAccounts ca on ca.TenantId = j.TenantId and j.CashAccount = ca.Id
+		where j.TenantId = @TenantId and j.[Date] < @end and j.Company = @Company
+		group by rollup(ca.IsCashAccount, j.CashAccount)
+	)
+	select [RepData!TRepData!Group] = null,
+		[GrpName] = 
+		case T.IsCashAccount
+			when 1 then N'Каса'
+			when 0 then N'Рахунки в банках'
+			else null
+		end,
+		[Name] = isnull(ca.[Name], ca.AccountNo),
+		[Currency] = c.Short,
+		StartSum, DtSum, CtSum, EndSum,
+		[GrpName!!GroupMarker] = GrpGroup,
+		[Name!!GroupMarker] = GrpAccount,
+		[Items!TRepData!Items] = null
+	from T
+		left join cat.CashAccounts ca on ca.TenantId = @TenantId and ca.Id = T.CashAccount
+		left join cat.Currencies c on ca.TenantId = c.TenantId and ca.Currency = c.Id
+	order by GrpGroup desc, GrpAccount desc;
+
+	select [Report!TReport!Object] = null, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
+	from rep.Reports r
+	where r.TenantId = @TenantId and r.Id = @Id;
+
+	select [!TAccount!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Code]
+	from acc.Accounts where TenantId = @TenantId and Id = @plan;
+
+	select [!$System!] = null, 
+		[!RepData.Period.From!Filter] = @From, [!RepData.Period.To!Filter] = @To,
+		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
+end
+go
+
+--exec rep.[Report.Turnover.Plan.Load] 1, 99, 1045
+--exec rep.[Report.Plan.Cashflow.Load] 1, 99, 1050;
+go
 /*
 admin
 */
@@ -4609,13 +4772,57 @@ begin
 end
 go
 -------------------------------------------------
+create or alter procedure ini.[Rep.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
+
+	declare @rt table(Id nvarchar(16), [Order] int, [Name] nvarchar(255), UseAccount bit, [UsePlan] bit);
+	insert into @rt (Id, [Order], [Name], UseAccount, [UsePlan]) values
+		(N'by.account', 10, N'@[By.Account]', 1, 0),
+		(N'by.plan',    20, N'@[By.Plan]',    0, 1)
+	merge rep.RepTypes as t
+	using @rt as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.UseAccount = s.UseAccount,
+		t.[UsePlan] = s.[UsePlan]
+	when not matched by target then insert
+		(TenantId, Id, [Name], [Order], UseAccount, [UsePlan]) values
+		(@TenantId, s.Id, s.[Name], [Order], UseAccount, [UsePlan])
+	when not matched by source and t.TenantId = @TenantId then delete;
+
+	declare @rf table(Id nvarchar(16), [Order] int, [Type] nvarchar(16), [Url] nvarchar(255), [Name] nvarchar(255));
+	insert into @rf (Id, [Type], [Order], [Url], [Name]) values
+		(N'acc.date',  N'by.account',  1, N'/reports/account/rto_accdate', N'Обороти рахунку (дата)'),
+		(N'acc.agent', N'by.account',  2, N'/reports/account/rto_accagent', N'Обороти рахунку (контрагент)'),
+		(N'acc.item',  N'by.account',  3, N'/reports/stock/rto_items', N'Оборотно сальдова відомість (об''єкт обліку)'),
+		(N'plan.turnover', N'by.plan', 1, N'/reports/plan/turnover',  N'Оборотно сальдова відомість'),
+		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',  N'Відомість по грошових коштах');
+
+	merge rep.RepFiles as t
+	using @rf as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Url] = s.[Url],
+		t.[Order] = s.[Order],
+		t.[Type] = s.[Type]
+	when not matched by target then insert
+		(TenantId, Id, [Name], [Type], [Order], [Url]) values
+		(@TenantId, s.Id, s.[Name], s.[Type], [Order], [Url])
+	when not matched by source and t.TenantId = @TenantId then delete;
+end
+go
+-------------------------------------------------
 -- FormsMenu
 create or alter procedure ini.[Forms.OnCreateTenant]
 @TenantId int
 as
 begin
 	set nocount on;
-	-- for ALL tenants (Id = 0)
+
 	declare @fu table(Id nvarchar(32), [Order] int, Category nvarchar(32), [Name] nvarchar(255));
 	insert into @fu (Id, [Order], [Category], [Name]) values
 		(N'Sales.Order',   10, N'@[Sales]', N'@[Orders]'),
@@ -4629,7 +4836,7 @@ begin
 		(N'Accounting.Bank',   30, N'@[Accounting]', N'@[Bank]'),
 		(N'Accounting.Cash',   31, N'@[Accounting]', N'@[CashAccount]');
 	merge doc.FormsMenu as t
-	using @fu as s on t.Id = s.Id and t.TenantId = 0
+	using @fu as s on t.Id = s.Id and t.TenantId = @TenantId
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Order] = s.[Order],
@@ -4694,6 +4901,7 @@ go
 ------------------------------------------------
 exec ini.[Cat.OnCreateTenant] @TenantId = 1;
 exec ini.[Forms.OnCreateTenant] @TenantId = 1;
+exec ini.[Rep.OnCreateTenant] @TenantId = 1;
 go
 
 

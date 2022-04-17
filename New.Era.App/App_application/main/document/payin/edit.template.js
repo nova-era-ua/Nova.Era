@@ -2,14 +2,14 @@ define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const base = require('/document/_common/pay.module');
-    const tmlutils = require("std:tmlutils");
+    const utils = require("std:utils");
     const template = {
         properties: {
-            'TBankAccount.$Name'() { return this.Name || this.AccountNo; }
+            'TCashAccount.$Name'() { return this.Name || this.AccountNo; }
         },
         validators: {
-            'Document.BankAccTo': '@[Error.Required]'
+            'Document.CashAccTo': '@[Error.Required]'
         }
     };
-    exports.default = tmlutils.mergeTemplate(base, template);
+    exports.default = utils.mergeTemplate(base, template);
 });

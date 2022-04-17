@@ -32,24 +32,20 @@
 						<TableCell Content="{Bind Qty, DataType=Number, HideZeros=True}" Align="Right"/>
 						<Table GridLines="Vertical" Width="100%" Columns="Fit,Auto" Striped="True">
 							<TableRow If="{Bind Item.Id}">
-								<TableCell Content="@[Object]:"/>
+								<TableCell Content="@[Object]"/>
 								<TableCell Content="{Bind Item.Name}"/>
 							</TableRow>
 							<TableRow If="{Bind Warehouse.Id}">
-								<TableCell Content="@[Warehouse]:"/>
+								<TableCell Content="@[Warehouse]"/>
 								<TableCell Content="{Bind Warehouse.Name}"/>
 							</TableRow>
 							<TableRow If="{Bind Agent.Id}">
-								<TableCell Content="@[Agent]:"/>
+								<TableCell Content="@[Agent]"/>
 								<TableCell Content="{Bind Agent.Name}"/>
 							</TableRow>
-							<TableRow If="{Bind BankAcc.Id}">
-								<TableCell Content="@[Account]:"/>
-								<TableCell Content="{Bind BankAcc.Name}"/>
-							</TableRow>
 							<TableRow If="{Bind CashAcc.Id}">
-								<TableCell Content="@[CashAccount]:"/>
-								<TableCell Content="{Bind CashAcc.Name}"/>
+								<TableCell Content="{Bind CashAcc.$Title}"/>
+								<TableCell Content="{Bind CashAcc.$Name}"/>
 							</TableRow>
 						</Table>
 					</TableRow>
@@ -63,24 +59,20 @@
 						<TableCell Content="{Bind Qty, DataType=Number, HideZeros=True}" Align="Right"/>
 						<Table Width="100%" GridLines="Vertical" Columns="Fit,Auto" Striped="True">
 							<TableRow If="{Bind Item.Id}">
-								<TableCell Content="@[Object]:"/>
+								<TableCell Content="@[Object]"/>
 								<TableCell Content="{Bind Item.Name}"/>
 							</TableRow>
 							<TableRow If="{Bind Warehouse.Id}">
-								<TableCell Content="@[Warehouse]:"/>
+								<TableCell Content="@[Warehouse]"/>
 								<TableCell Content="{Bind Warehouse.Name}"/>
 							</TableRow>
 							<TableRow If="{Bind Agent.Id}">
-								<TableCell Content="@[Agent]:"/>
+								<TableCell Content="@[Agent]"/>
 								<TableCell Content="{Bind Agent.Name}"/>
 							</TableRow>
-							<TableRow If="{Bind BankAcc.Id}">
-								<TableCell Content="@[Account]:"/>
-								<TableCell Content="{Bind BankAcc.Name}"/>
-							</TableRow>
 							<TableRow If="{Bind CashAcc.Id}">
-								<TableCell Content="@[CashAccount]:"/>
-								<TableCell Content="{Bind CashAcc.Name}"/>
+								<TableCell Content="{Bind CashAcc.$Title}"/>
+								<TableCell Content="{Bind CashAcc.$Name}"/>
 							</TableRow>
 						</Table>
 					</TableRow>

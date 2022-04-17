@@ -44,9 +44,9 @@
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Selector Grid.Row="2" Grid.Col="2" Label="@[BankAccount]" Value="{Bind Document.BankAccTo}" DisplayProperty="$Name">
+			<Selector Grid.Row="2" Grid.Col="2" Label="@[BankAccount]" Value="{Bind Document.CashAccTo}" DisplayProperty="$Name">
 				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.BankAccTo}, 
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccTo}, 
 						Url='/catalog/bankaccount/browse', Data={Bind Root.$CompArg}}"/>
 				</Selector.AddOns>
 			</Selector>

@@ -1,6 +1,6 @@
-﻿-- reports account
+﻿-- reports plan
 -------------------------------------------------
-create or alter procedure rep.[Report.Turnover.Account.Date.Load]
+create or alter procedure rep.[Report.Turnover.Plan.Load]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint, /* report id */

@@ -1,0 +1,88 @@
+﻿<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<CollectionView RunAt="Server" ItemsSource="{Bind RepData}">
+		<CollectionView.Filter>
+			<FilterDescription>
+				<FilterItem Property="Company" DataType="Object" />
+				<FilterItem Property="Period" DataType="Period"/>
+			</FilterDescription>
+		</CollectionView.Filter>
+		<Grid Rows="Auto,1*" Columns="1*" Height="100%" Padding="0" Gap="6" AlignItems="Top">
+			<Toolbar Grid.Row="1" Style="Light" Padding="0">
+				<Selector Value="{Bind Parent.Filter.Company}" DisplayProperty="Name" Width="15rem">
+					<Selector.AddOns>
+						<Hyperlink Icon="Search" 
+								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+					</Selector.AddOns>
+				</Selector>
+				<PeriodPicker ShowAllData="False"
+							  Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
+				<Button Icon="Reload" Command="{BindCmd Reload}" />
+				<Separator />
+				<Button Icon="Print" Command="{BindCmd Print}" />
+				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel}" />
+			</Toolbar>
+			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
+				<Sheet GridLines="Both" Wrap="NoWrap" Columns="Auto,Auto,Auto+A,Auto+A,Auto,Auto,Auto+A,Auto+A">
+					<SheetSection>
+						<SheetRow Style="Title">
+							<SheetCell ColSpan="4" Content="{Bind Report.Name}"></SheetCell>
+						</SheetRow>
+						<SheetRow Style="Parameter">
+							<SheetCell Content="@[Period]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="4" Content="{Bind Parent.Filter.Period.Name}"></SheetCell>
+						</SheetRow>
+						<SheetRow Style="Parameter">
+							<SheetCell Content="@[AccountPlan]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="4" Content="{Bind Report.Account.$Name}"/>
+						</SheetRow>
+						<SheetRow Style="LastParameter">
+							<SheetCell Content="@[Company]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="4" Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
+						</SheetRow>
+					</SheetSection>
+					<SheetSection >
+						<SheetRow Style="Header" Wrap="NoWrap">
+							<SheetCell ColSpan="2">@[Account]</SheetCell>
+							<SheetCell ColSpan="2">На початок</SheetCell>
+							<SheetCell ColSpan="2">@[Turn]</SheetCell>
+							<SheetCell ColSpan="2">На кінець</SheetCell>
+						</SheetRow>
+						<SheetRow Style="Header">
+							<SheetCell>@[Code]</SheetCell>
+							<SheetCell>@[Name]</SheetCell>
+							<SheetCell>@[Debit]</SheetCell>
+							<SheetCell>@[Credit]</SheetCell>
+							<SheetCell>@[Debit]</SheetCell>
+							<SheetCell>@[Credit]</SheetCell>
+							<SheetCell>@[Debit]</SheetCell>
+							<SheetCell>@[Credit]</SheetCell>
+						</SheetRow>
+					</SheetSection>
+					<SheetSection>
+						<SheetRow Style="Total" Align="Right" Wrap="NoWrap">
+							<SheetCell Align="Left" ColSpan="2">@[Total]</SheetCell>
+							<SheetCell Content="{Bind RepData.$DtStart, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.$CtStart, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.DtSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.CtSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.$DtEnd, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.$CtEnd, DataType=Currency, HideZeros=True}"/>
+						</SheetRow>
+					</SheetSection>
+					<SheetSection ItemsSource="{Bind RepData.Items}">
+						<SheetRow Align="Right" Wrap="NoWrap">
+							<SheetCell Align="Center" Content="{Bind AccCode}"/>
+							<SheetCell Align="Left" Content="{Bind AccName}"/>
+							<SheetCell Content="{Bind DtStart, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind CtStart, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind DtSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind CtSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind DtEnd, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind CtEnd, DataType=Currency, HideZeros=True}"/>
+						</SheetRow>
+					</SheetSection>
+				</Sheet>
+			</Block>
+		</Grid>
+	</CollectionView>
+</Partial>

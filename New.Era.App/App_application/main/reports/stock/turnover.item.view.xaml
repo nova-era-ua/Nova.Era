@@ -55,8 +55,8 @@
 									<Span Content="{Bind Parent.Filter.Period.From, DataType=Date}" Bold="True"/>
 								</Text>
 							</SheetCell>
-							<SheetCell ColSpan="2">Прибуток</SheetCell>
-							<SheetCell ColSpan="2">Видаток</SheetCell>
+							<SheetCell ColSpan="2">@[Debit]</SheetCell>
+							<SheetCell ColSpan="2">@[Credit]</SheetCell>
 							<SheetCell ColSpan="2" Wrap="NoWrap">
 								<Text>На
 									<Span Content="{Bind Parent.Filter.Period.To, DataType=Date}" Bold="True"/>
