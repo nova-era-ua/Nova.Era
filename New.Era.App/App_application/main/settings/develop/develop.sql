@@ -1,4 +1,4 @@
--- DEBUG
+п»ї-- DEBUG
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'debug')
 	exec sp_executesql N'create schema debug';
 go
@@ -28,22 +28,22 @@ begin
 
 	insert into acc.Accounts(TenantId, Id, [Plan], Parent, IsFolder, Code, [Name], IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract)
 	values
-		(@TenantId,  10, null, null, 1, N'УПР', N'Управлінський', null, null, null, null, null, null),
-		(@TenantId, 281,   10,   10, 0, N'281', N'Товари',          1, 0, 1, 0, 0, 0),
-		(@TenantId, 361,   10,   10, 0, N'361', N'Покупці',         0, 1, 0, 0, 0, 1),
-		(@TenantId, 631,   10,   10, 0, N'631', N'Постачальники',   0, 1, 0, 0, 1, 1),
-		(@TenantId, 301,   10,   10, 0, N'301', N'Каса',            0, 0, 0, 0, 1, 0),
-		(@TenantId, 311,   10,   10, 0, N'311', N'Рахунки в банку', 0, 0, 0, 1, 0, 0),
-		(@TenantId, 702,   10,   10, 0, N'702', N'Доходи',          0, 0, 0, 0, 0, 0),
-		(@TenantId, 902,   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0);
+		(@TenantId,  10, null, null, 1, N'РЈРџР ', N'РЈРїСЂР°РІР»С–РЅСЃСЊРєРёР№', null, null, null, null, null, null),
+		(@TenantId, 281,   10,   10, 0, N'281', N'РўРѕРІР°СЂРё',          1, 0, 1, 0, 0, 0),
+		(@TenantId, 361,   10,   10, 0, N'361', N'РџРѕРєСѓРїС†С–',         0, 1, 0, 0, 0, 1),
+		(@TenantId, 631,   10,   10, 0, N'631', N'РџРѕСЃС‚Р°С‡Р°Р»СЊРЅРёРєРё',   0, 1, 0, 0, 1, 1),
+		(@TenantId, 301,   10,   10, 0, N'301', N'РљР°СЃР°',            0, 0, 0, 0, 1, 0),
+		(@TenantId, 311,   10,   10, 0, N'311', N'Р Р°С…СѓРЅРєРё РІ Р±Р°РЅРєСѓ', 0, 0, 0, 1, 0, 0),
+		(@TenantId, 702,   10,   10, 0, N'702', N'Р”РѕС…РѕРґРё',          0, 0, 0, 0, 0, 0),
+		(@TenantId, 902,   10,   10, 0, N'902', N'РЎРѕР±С–РІР°СЂС‚С–СЃС‚СЊ',    0, 0, 0, 0, 0, 0);
 
 	insert into doc.Operations (TenantId, Id, [Name], [Form]) values
-		(@TenantId, 100, N'Закупка товарів',				N'waybillin'),
-		(@TenantId, 101, N'Оплата постачальнику (банк)',	N'payout'),
-		(@TenantId, 102, N'Оплата постачальнику (готівка)',	N'cashout'),
-		(@TenantId, 103, N'Відвантаження товарів',			N'waybillout'),
-		(@TenantId, 104, N'Оплата від покупця (банк)',		N'payin'),
-		(@TenantId, 105, N'Оплата від покупця (готівка)',	N'cashin');
+		(@TenantId, 100, N'Р—Р°РєСѓРїРєР° С‚РѕРІР°СЂС–РІ',				N'waybillin'),
+		(@TenantId, 101, N'РћРїР»Р°С‚Р° РїРѕСЃС‚Р°С‡Р°Р»СЊРЅРёРєСѓ (Р±Р°РЅРє)',	N'payout'),
+		(@TenantId, 102, N'РћРїР»Р°С‚Р° РїРѕСЃС‚Р°С‡Р°Р»СЊРЅРёРєСѓ (РіРѕС‚С–РІРєР°)',	N'cashout'),
+		(@TenantId, 103, N'Р’С–РґРІР°РЅС‚Р°Р¶РµРЅРЅСЏ С‚РѕРІР°СЂС–РІ',			N'waybillout'),
+		(@TenantId, 104, N'РћРїР»Р°С‚Р° РІС–Рґ РїРѕРєСѓРїС†СЏ (Р±Р°РЅРє)',		N'payin'),
+		(@TenantId, 105, N'РћРїР»Р°С‚Р° РІС–Рґ РїРѕРєСѓРїС†СЏ (РіРѕС‚С–РІРєР°)',	N'cashin');
 
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, [DtSum], DtRow, [CtSum], [CtRow])
 	values
