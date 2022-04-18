@@ -142,6 +142,7 @@ begin
 		(8821, 881, 18, N'@[Operations]',   N'operation',   N'file-content', null),
 		(882,   88, 12, N'@[Administration]', null, null, null),
 		(8830, 882, 16, N'@[Users]',        N'user',    N'user',  null),
+		(8850,  88, 20, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 

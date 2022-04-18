@@ -114,6 +114,17 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure appsec.FindUserByPhoneNumber
+@PhoneNumber nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select * from appsec.ViewUsers where PhoneNumber=@PhoneNumber;
+end
+go
+------------------------------------------------
 create or alter procedure appsec.FindUserByName
 @UserName nvarchar(255)
 as

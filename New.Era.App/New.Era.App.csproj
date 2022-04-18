@@ -84,6 +84,7 @@
     <Content Include="App_application\main\reports\stock\report.stock.sql">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\settings\develop\develop.sql" />
     <Content Include="App_application\main\settings\operation\operation.sql" />
     <Content Include="App_application\main\settings\accountplan\plan.sql" />
     <Content Include="App_application\main\_assets\main.css">
@@ -295,6 +296,9 @@
     <Content Include="App_application\main\reports\plan\cashflow.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\settings\develop\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="App_application\%40schemas\api-model-json-schema.json" />
@@ -331,6 +335,7 @@
     <None Include="App_application\main\document\waybillin\model.json" />
     <None Include="App_application\main\purchase\price\model.json" />
     <None Include="App_application\main\reports\plan\model.json" />
+    <None Include="App_application\main\settings\develop\model.json" />
     <None Include="packages.config" />
     <Content Include="tsconfig.json" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
@@ -434,6 +439,7 @@
     <TypeScriptCompile Include="App_application\main\document\waybillout\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\company\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\plan\turnover.template.ts" />
+    <TypeScriptCompile Include="App_application\main\settings\develop\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\operation\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\operation\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\accountplan\edit.d.ts" />

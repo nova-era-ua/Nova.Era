@@ -1,0 +1,20 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Padding="2rem">
+	<Block Width="40rem">
+		<Alert Style="Danger" Margin="0,0,3rem,0">
+			Увага! Дії на цієй сторінці тільки для розробніків. В подальшому вона буде 
+		вилучена із застосунку.
+		</Alert>
+		<Block>
+			<Header>Створити тестове середовище</Header>
+			<Paragraph>
+				Тестове середовище включає налаштований план рахунків, та набір операцій.
+				<Break />
+				Увага! При створенні тестового середовища будут видалені все документи, 
+			операції, плани рахунків, звіти.
+			</Paragraph>
+			<Button Style="Danger" Content="Створити" Command="{BindCmd Execute, CommandName=createTest, Confirm='Ви впевнені?'}">
+
+			</Button>
+		</Block>
+	</Block>
+</Page>

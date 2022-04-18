@@ -1,0 +1,18 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "debug",
+  "model": "",
+  "actions": {
+    "index": {
+      "template": "index.template",
+      "view": "index.view"
+    }
+  },
+  "commands": {
+    "createTest": {
+      "type": "sql",
+      "schema": "debug",
+      "procedure": "TestEnvironment.Create"
+    }
+  }
+}
