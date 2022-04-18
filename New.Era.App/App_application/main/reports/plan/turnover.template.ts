@@ -6,6 +6,9 @@ const template: Template = {
 		'TRepData.$CtStart': total('CtStart'),
 		'TRepData.$DtEnd': total('DtEnd'),
 		'TRepData.$CtEnd': total('CtEnd')
+	},
+	commands: {
+		clearFilter
 	}
 };
 
@@ -17,20 +20,7 @@ function total(prop) {
 	};
 }
 
-function dtTotals() {
-	return this.$cross.DtCross.map(x => {
-		return {
-			Sum: this.reduce((prev, curr) =>
-				prev + curr.DtCross.find(ci => ci.Acc === x).Sum, 0)
-		};
-	});
-}
-
-function ctTotals() {
-	return this.$cross.CtCross.map(x => {
-		return {
-			Sum: this.reduce((prev, curr) =>
-				prev + curr.CtCross.find(ci => ci.Acc === x).Sum, 0)
-		};
-	});
+function clearFilter(filter) {
+	filter.Company.Id = -1;
+	filter.Company.Name = '';
 }

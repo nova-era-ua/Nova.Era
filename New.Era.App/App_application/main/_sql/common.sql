@@ -7,7 +7,7 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null
+	if @Id is not null and @Id <> -1
 		select @name = [Name] from cat.Agents where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
@@ -18,7 +18,7 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null
+	if @Id is not null and @Id <> -1
 		select @name = [Name] from cat.Warehouses where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
@@ -29,7 +29,7 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null
+	if @Id is not null and @Id <> -1
 		select @name = [Name] from cat.Companies where TenantId=@TenantId and Id=@Id;
 	return @name;
 end

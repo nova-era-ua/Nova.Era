@@ -16,7 +16,8 @@ begin
 	declare @end date = dateadd(day, 1, @To);
 
 	select @Company = isnull(@Company, Company)
-	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+		from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
 
 	declare @acc bigint;
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
@@ -34,7 +35,9 @@ begin
 		grouping(j.Account)
 	from
 		jrn.Journal j
-	where j.TenantId = @TenantId and j.Company = @Company and j.[Date] < @To and j.[Plan] = @acc
+	where j.TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and j.[Date] < @end and j.[Plan] = @acc
 	group by rollup(j.Account) -- case A.UseAgent when 1 then J.Agent else null end;
 	
 	select [RepData!TRepData!Group] = null,
