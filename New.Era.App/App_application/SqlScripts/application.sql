@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 18.04.2022 12:12:01
+generated: 18.04.2022 21:06:34
 */
 
 
@@ -920,7 +920,7 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null
+	if @Id is not null and @Id <> -1
 		select @name = [Name] from cat.Agents where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
@@ -931,7 +931,7 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null
+	if @Id is not null and @Id <> -1
 		select @name = [Name] from cat.Warehouses where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
@@ -942,7 +942,7 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null
+	if @Id is not null and @Id <> -1
 		select @name = [Name] from cat.Companies where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
@@ -1561,11 +1561,11 @@ begin
 			)
 	) select [Children!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
 		i.FullName, i.Article, i.Memo, 
-		[ParentFolder.Id!TParentFolder!Id] = T.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name],
+		[ParentFolder.Id!TParentFolder!Id] = T.Parent, [ParentFolder.Name!TParentFolder!Name] = tr.[Name],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[!!RowCount]  = (select count(1) from T)
 	from T inner join cat.Items i on T.Id = i.Id and i.TenantId = @TenantId
-		inner join cat.ItemTree t on T.Parent = t.Id and t.TenantId = @TenantId
+		inner join cat.ItemTree tr on T.Parent = tr.Id and tr.TenantId = @TenantId
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	order by RowNumber offset (@Offset) rows fetch next (@PageSize) rows only;
 
@@ -1848,9 +1848,9 @@ begin
 	with T(Id, Parent, [Level]) as (
 		select cast(null as bigint), @Id, 0
 		union all
-		select t.Id, t.Parent, [Level] + 1 
-			from cat.ItemTree t inner join T on t.Id = T.Parent and t.TenantId = @TenantId
-		where t.Id <> @Root
+		select tr.Id, tr.Parent, [Level] + 1 
+			from cat.ItemTree tr inner join T on tr.Id = T.Parent and tr.TenantId = @TenantId
+		where tr.Id <> @Root
 	)
 	select [Result!TResult!Array] = null, [Id] = Id from T where Id is not null order by [Level] desc;
 end
@@ -4616,7 +4616,90 @@ begin
 		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
 end
 go
+-------------------------------------------------
+create or alter procedure [rep].[Report.Turnover.Account.Date.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint, /* report id */
+@From date = null,
+@To date = null,
+@Company bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date = dateadd(day, 1, @To);
+
+	select @Company = isnull(@Company, Company)
+	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+
+	declare @acc bigint;
+	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
+
+	declare @start money;
+	select @start = sum(j.[Sum] * j.DtCt)
+	from jrn.Journal j where TenantId = @TenantId and Company = @Company and Account = @acc and [Date] < @From;
+	set @start = isnull(@start, 0);
+	
+	select [Date] = j.[Date], Id=cast([Date] as int), Acc = j.Account, CorrAcc = j.CorrAccount,
+		DtCt = j.DtCt,
+		DtSum = case when DtCt = 1 then [Sum] else 0 end,
+		CtSum = case when DtCt = -1 then [Sum] else 0 end
+	into #tmp
+	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
+		and [Date] >= @From and [Date] < @end;
+
+	with T as (
+		select [Date] = cast([Date] as date), Id=cast([Date] as int),
+			DtSum = sum(DtSum), CtSum = sum(CtSum),
+			GrpDate = grouping([Date])
+		from #tmp 
+		group by rollup([Date])
+	) select [RepData!TRepData!Group] = null, [Id!!Id] = Id, [Date],
+		StartSum = @start + coalesce(sum(DtSum - CtSum) over (
+			partition by GrpDate order by [Date]
+			rows between unbounded preceding and 1 preceding), 0
+		),
+		DtSum, CtSum,
+		EndSum = @start + sum(DtSum - CtSum) over (
+			partition by GrpDate order by [Date]
+			rows between unbounded preceding and current row
+		),
+		[Date!!GroupMarker] = GrpDate,
+		[DtCross!TCross!CrossArray] = null,
+		[CtCross!TCross!CrossArray] = null,
+		[Items!TRepData!Items] = null
+	from T
+	order by GrpDate desc;
+
+	-- dt cross
+	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[DtSum]), [!TRepData.DtCross!ParentId] = t.Id
+	from #tmp t
+		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
+	where t.DtCt = 1
+	group by a.Code, t.Id;
+
+	-- ct cross
+	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[CtSum]), [!TRepData.CtCross!ParentId] = t.Id
+	from #tmp t
+		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
+	where t.DtCt = -1
+	group by a.Code, t.Id;
+
+	select [Report!TReport!Object] = null, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
+	from rep.Reports r
+	where r.TenantId = @TenantId and r.Id = @Id;
+
+	select [!TAccount!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Code]
+	from acc.Accounts where TenantId = @TenantId and Id = @acc;
+
+	select [!$System!] = null, 
+		[!RepData.Period.From!Filter] = @From, [!RepData.Period.To!Filter] = @To,
+		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
+end
+go
 --exec rep.[Report.Turnover.Account.Date.Load] 1, 99, 1027 --, N'20220301', N'20220331';
 go
 
@@ -4641,7 +4724,8 @@ begin
 	declare @end date = dateadd(day, 1, @To);
 
 	select @Company = isnull(@Company, Company)
-	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+		from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
 
 	declare @acc bigint;
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
@@ -4659,7 +4743,9 @@ begin
 		grouping(j.Account)
 	from
 		jrn.Journal j
-	where j.TenantId = @TenantId and j.Company = @Company and j.[Date] < @To and j.[Plan] = @acc
+	where j.TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and j.[Date] < @end and j.[Plan] = @acc
 	group by rollup(j.Account) -- case A.UseAgent when 1 then J.Agent else null end;
 	
 	select [RepData!TRepData!Group] = null,
@@ -4799,22 +4885,22 @@ begin
 
 	insert into acc.Accounts(TenantId, Id, [Plan], Parent, IsFolder, Code, [Name], IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract)
 	values
-		(@TenantId,  10, null, null, 1, N'���', N'������������', null, null, null, null, null, null),
-		(@TenantId, 281,   10,   10, 0, N'281', N'������',          1, 0, 1, 0, 0, 0),
-		(@TenantId, 361,   10,   10, 0, N'361', N'�������',         0, 1, 0, 0, 0, 1),
-		(@TenantId, 631,   10,   10, 0, N'631', N'�������������',   0, 1, 0, 0, 1, 1),
-		(@TenantId, 301,   10,   10, 0, N'301', N'����',            0, 0, 0, 0, 1, 0),
-		(@TenantId, 311,   10,   10, 0, N'311', N'������� � �����', 0, 0, 0, 1, 0, 0),
-		(@TenantId, 702,   10,   10, 0, N'702', N'������',          0, 0, 0, 0, 0, 0),
-		(@TenantId, 902,   10,   10, 0, N'902', N'����������',    0, 0, 0, 0, 0, 0);
+		(@TenantId,  10, null, null, 1, N'УПР', N'Управлінський', null, null, null, null, null, null),
+		(@TenantId, 281,   10,   10, 0, N'281', N'Товари',          1, 0, 1, 0, 0, 0),
+		(@TenantId, 361,   10,   10, 0, N'361', N'Покупці',         0, 1, 0, 0, 0, 1),
+		(@TenantId, 631,   10,   10, 0, N'631', N'Постачальники',   0, 1, 0, 0, 1, 1),
+		(@TenantId, 301,   10,   10, 0, N'301', N'Каса',            0, 0, 0, 0, 1, 0),
+		(@TenantId, 311,   10,   10, 0, N'311', N'Рахунки в банку', 0, 0, 0, 1, 0, 0),
+		(@TenantId, 702,   10,   10, 0, N'702', N'Доходи',          0, 0, 0, 0, 0, 0),
+		(@TenantId, 902,   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0);
 
 	insert into doc.Operations (TenantId, Id, [Name], [Form]) values
-		(@TenantId, 100, N'������� ������',				N'waybillin'),
-		(@TenantId, 101, N'������ ������������� (����)',	N'payout'),
-		(@TenantId, 102, N'������ ������������� (������)',	N'cashout'),
-		(@TenantId, 103, N'³����������� ������',			N'waybillout'),
-		(@TenantId, 104, N'������ �� ������� (����)',		N'payin'),
-		(@TenantId, 105, N'������ �� ������� (������)',	N'cashin');
+		(@TenantId, 100, N'Закупка товарів',				N'waybillin'),
+		(@TenantId, 101, N'Оплата постачальнику (банк)',	N'payout'),
+		(@TenantId, 102, N'Оплата постачальнику (готівка)',	N'cashout'),
+		(@TenantId, 103, N'Відвантаження товарів',			N'waybillout'),
+		(@TenantId, 104, N'Оплата від покупця (банк)',		N'payin'),
+		(@TenantId, 105, N'Оплата від покупця (готівка)',	N'cashin');
 
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, [DtSum], DtRow, [CtSum], [CtRow])
 	values

@@ -122,11 +122,11 @@ begin
 			)
 	) select [Children!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
 		i.FullName, i.Article, i.Memo, 
-		[ParentFolder.Id!TParentFolder!Id] = T.Parent, [ParentFolder.Name!TParentFolder!Name] = t.[Name],
+		[ParentFolder.Id!TParentFolder!Id] = T.Parent, [ParentFolder.Name!TParentFolder!Name] = tr.[Name],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[!!RowCount]  = (select count(1) from T)
 	from T inner join cat.Items i on T.Id = i.Id and i.TenantId = @TenantId
-		inner join cat.ItemTree t on T.Parent = t.Id and t.TenantId = @TenantId
+		inner join cat.ItemTree tr on T.Parent = tr.Id and tr.TenantId = @TenantId
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	order by RowNumber offset (@Offset) rows fetch next (@PageSize) rows only;
 
@@ -409,9 +409,9 @@ begin
 	with T(Id, Parent, [Level]) as (
 		select cast(null as bigint), @Id, 0
 		union all
-		select t.Id, t.Parent, [Level] + 1 
-			from cat.ItemTree t inner join T on t.Id = T.Parent and t.TenantId = @TenantId
-		where t.Id <> @Root
+		select tr.Id, tr.Parent, [Level] + 1 
+			from cat.ItemTree tr inner join T on tr.Id = T.Parent and tr.TenantId = @TenantId
+		where tr.Id <> @Root
 	)
 	select [Result!TResult!Array] = null, [Id] = Id from T where Id is not null order by [Level] desc;
 end
