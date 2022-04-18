@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 18.04.2022 21:06:34
+generated: 18.04.2022 21:18:00
 */
 
 
@@ -4447,92 +4447,7 @@ begin
 end
 go
 
--- reports plan
--------------------------------------------------
-create or alter procedure rep.[Report.Turnover.Plan.Load]
-@TenantId int = 1,
-@UserId bigint,
-@Id bigint, /* report id */
-@From date = null,
-@To date = null,
-@Company bigint = null
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-
-	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
-	declare @end date = dateadd(day, 1, @To);
-
-	select @Company = isnull(@Company, Company)
-	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
-
-	declare @acc bigint;
-	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
-
-	declare @start money;
-	select @start = sum(j.[Sum] * j.DtCt)
-	from jrn.Journal j where TenantId = @TenantId and Company = @Company and Account = @acc and [Date] < @From;
-	set @start = isnull(@start, 0);
-	
-	select [Date] = j.[Date], Id=cast([Date] as int), Acc = j.Account, CorrAcc = j.CorrAccount,
-		DtCt = j.DtCt,
-		DtSum = case when DtCt = 1 then [Sum] else 0 end,
-		CtSum = case when DtCt = -1 then [Sum] else 0 end
-	into #tmp
-	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
-		and [Date] >= @From and [Date] < @end;
-
-	with T as (
-		select [Date] = cast([Date] as date), Id=cast([Date] as int),
-			DtSum = sum(DtSum), CtSum = sum(CtSum),
-			GrpDate = grouping([Date])
-		from #tmp 
-		group by rollup([Date])
-	) select [RepData!TRepData!Group] = null, [Id!!Id] = Id, [Date],
-		StartSum = @start + coalesce(sum(DtSum - CtSum) over (
-			partition by GrpDate order by [Date]
-			rows between unbounded preceding and 1 preceding), 0
-		),
-		DtSum, CtSum,
-		EndSum = @start + sum(DtSum - CtSum) over (
-			partition by GrpDate order by [Date]
-			rows between unbounded preceding and current row
-		),
-		[Date!!GroupMarker] = GrpDate,
-		[DtCross!TCross!CrossArray] = null,
-		[CtCross!TCross!CrossArray] = null,
-		[Items!TRepData!Items] = null
-	from T
-	order by GrpDate desc;
-
-	-- dt cross
-	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[DtSum]), [!TRepData.DtCross!ParentId] = t.Id
-	from #tmp t
-		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
-	where t.DtCt = 1
-	group by a.Code, t.Id;
-
-	-- ct cross
-	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[CtSum]), [!TRepData.CtCross!ParentId] = t.Id
-	from #tmp t
-		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
-	where t.DtCt = -1
-	group by a.Code, t.Id;
-
-	select [Report!TReport!Object] = null, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
-	from rep.Reports r
-	where r.TenantId = @TenantId and r.Id = @Id;
-
-	select [!TAccount!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Code]
-	from acc.Accounts where TenantId = @TenantId and Id = @acc;
-
-	select [!$System!] = null, 
-		[!RepData.Period.From!Filter] = @From, [!RepData.Period.To!Filter] = @To,
-		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
-end
-go
-
+-- reports account
 -------------------------------------------------
 create or alter procedure rep.[Report.Turnover.Account.Agent.Load]
 @TenantId int = 1,
@@ -4731,9 +4646,9 @@ begin
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
 
 
-	declare @to table (account bigint, startsum money, dtsum money, ctsum money, endsum money, grp tinyint);
+	declare @totbl table (account bigint, startsum money, dtsum money, ctsum money, endsum money, grp tinyint);
 
-	insert into @to (account, startsum, dtsum, ctsum, endsum, grp)
+	insert into @totbl (account, startsum, dtsum, ctsum, endsum, grp)
 	select
 		j.Account,
 		sum(case when j.[Date] < @From then j.[Sum] * j.DtCt else 0 end),
@@ -4760,7 +4675,7 @@ begin
 		CtEnd = -case when t.endsum < 0 then t.endsum else 0 end,
 		[Account!!GroupMarker] = t.grp,
 		[Items!TRepData!Items] = null
-	from @to t
+	from @totbl t
 		left join acc.Accounts a on a.TenantId = @TenantId and a.Id = t.account
 
 	order by t.grp desc, a.Code;

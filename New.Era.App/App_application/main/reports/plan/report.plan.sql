@@ -23,9 +23,9 @@ begin
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
 
 
-	declare @to table (account bigint, startsum money, dtsum money, ctsum money, endsum money, grp tinyint);
+	declare @totbl table (account bigint, startsum money, dtsum money, ctsum money, endsum money, grp tinyint);
 
-	insert into @to (account, startsum, dtsum, ctsum, endsum, grp)
+	insert into @totbl (account, startsum, dtsum, ctsum, endsum, grp)
 	select
 		j.Account,
 		sum(case when j.[Date] < @From then j.[Sum] * j.DtCt else 0 end),
@@ -52,7 +52,7 @@ begin
 		CtEnd = -case when t.endsum < 0 then t.endsum else 0 end,
 		[Account!!GroupMarker] = t.grp,
 		[Items!TRepData!Items] = null
-	from @to t
+	from @totbl t
 		left join acc.Accounts a on a.TenantId = @TenantId and a.Id = t.account
 
 	order by t.grp desc, a.Code;
