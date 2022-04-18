@@ -12,7 +12,7 @@ begin
 		insert into cat.Companies (TenantId, [Name]) values (@TenantId, N'Моє підприємство');
 	if not exists(select * from cat.Warehouses where TenantId = @TenantId)
 		insert into cat.Warehouses(TenantId, [Name]) values (@TenantId, N'Основний склад');
-	if not exists(select * from cat.Currencies where Id=980)
+	if not exists(select * from cat.Currencies where Id=980 and TenantId = @TenantId)
 		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Char], Denom, [Name]) values
 			(@TenantId, 980, N'грн', N'UAH', N'980', N'₴', 1, N'Українська гривня');
 end

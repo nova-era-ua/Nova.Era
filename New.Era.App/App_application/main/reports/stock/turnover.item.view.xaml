@@ -80,14 +80,14 @@
 					<SheetSection>
 						<SheetRow Style="Total" Align="Right" Wrap="NoWrap">
 							<SheetCell ColSpan="3" Align="Left">@[Total]</SheetCell>
-							<SheetCell Content="{Bind RepData.StartQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell />
-							<SheetCell Content="{Bind RepData.InQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
+							<SheetCell Content="{Bind RepData.StartSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell />
-							<SheetCell Content="{Bind RepData.OutQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
+							<SheetCell Content="{Bind RepData.InSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell />
-							<SheetCell Content="{Bind RepData.EndQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
+							<SheetCell Content="{Bind RepData.OutSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell />
+							<SheetCell Content="{Bind RepData.EndSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 						</SheetRow>
 					</SheetSection>
 					<SheetSection ItemsSource="{Bind RepData.Items}">

@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 17.04.2022 18:13:10
+generated: 18.04.2022 07:54:08
 */
 
 
@@ -207,7 +207,8 @@ begin
 			values(@Tenant, @Id, @UserName, @PersonName, @RegisterHost, @PhoneNumber, @Memo, @Locale, 
 				N'', N'');
 		/* system user */
-		insert into appsec.Users(Tenant, Id, UserName, SecurityStamp, PasswordHash) values (@Tenant, 0, N'System_' + cast(Tenant as nvarchar(16)), N'', N'');
+		insert into appsec.Users(Tenant, Id, UserName, SecurityStamp, PasswordHash) values 
+			(@Tenant, 0, N'System_' + cast(@Tenant as nvarchar(16)), N'', N'');
 
 		if @sql is not null
 			exec sp_executesql @sql, @prms, @Tenant;
@@ -231,6 +232,42 @@ begin
 				N'', N'');
 		commit tran;
 	end
+end
+go
+------------------------------------------------
+create or alter procedure appsec.UpdateUserPassword
+@Id bigint,
+@PasswordHash nvarchar(max),
+@SecurityStamp nvarchar(max)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	update appsec.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp where Id=@Id;
+end
+go
+------------------------------------------------
+-- TODO: move to securitySchema
+------------------------------------------------
+create or alter procedure a2security.[User.ChangePassword.Load]
+	@TenantId int = 0,
+	@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	if 1 <> (select ChangePasswordEnabled from appsec.Users where Id=@UserId)
+	begin
+		raiserror (N'UI:@[ChangePasswordDisabled]', 16, -1) with nowait;
+	end
+	select [User!TUser!Object] = null, [Id!!Id] = Id, [Name!!Name] = UserName, 
+		[OldPassword] = cast(null as nvarchar(255)),
+		[NewPassword] = cast(null as nvarchar(255)),
+		[ConfirmPassword] = cast(null as nvarchar(255)) 
+	from appsec.Users where Id=@UserId;
 end
 go
 
@@ -912,8 +949,7 @@ create or alter function a2sys.fn_GetCurrentTenant(@TenantId int)
 returns int
 as
 begin
-	if @TenantId is null
-		set @TenantId = isnull(cast(session_context(N'TenantId') as int), 1);
+	set @TenantId = isnull(cast(session_context(N'TenantId') as int), 1);
 	return @TenantId;
 end
 go
@@ -2364,8 +2400,8 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	declare @Bank cat.[BankAccount.TableType];
-	select [BankAccount!BankAccount!Metadata] = null, * from @Bank;
+	declare @BankAccount cat.[BankAccount.TableType];
+	select [BankAccount!BankAccount!Metadata] = null, * from @BankAccount;
 end
 go
 ---------------------------------------------
@@ -2378,7 +2414,7 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 	set xact_abort on;
-	
+
 	declare @output  table (op sysname, id bigint);
 	declare @id bigint;
 
@@ -2397,7 +2433,7 @@ begin
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
-	exec cat.[BankAccount.Load] @UserId = @UserId, @Id = @id;
+	exec cat.[BankAccount.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
 ------------------------------------------------
@@ -2592,7 +2628,7 @@ begin
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
-	exec cat.[CashAccount.Load] @UserId = @UserId, @Id = @id;
+	exec cat.[CashAccount.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
 ------------------------------------------------
@@ -4763,7 +4799,7 @@ begin
 		insert into cat.Companies (TenantId, [Name]) values (@TenantId, N'Моє підприємство');
 	if not exists(select * from cat.Warehouses where TenantId = @TenantId)
 		insert into cat.Warehouses(TenantId, [Name]) values (@TenantId, N'Основний склад');
-	if not exists(select * from cat.Currencies where Id=980)
+	if not exists(select * from cat.Currencies where Id=980 and TenantId = @TenantId)
 		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Char], Denom, [Name]) values
 			(@TenantId, 980, N'грн', N'UAH', N'980', N'₴', 1, N'Українська гривня');
 end

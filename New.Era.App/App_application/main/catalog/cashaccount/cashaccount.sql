@@ -176,7 +176,7 @@ begin
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
-	exec cat.[CashAccount.Load] @UserId = @UserId, @Id = @id;
+	exec cat.[CashAccount.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
 ------------------------------------------------

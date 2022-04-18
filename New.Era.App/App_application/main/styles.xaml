@@ -10,11 +10,11 @@
 	</Style>
 	<Style x:Key="ToolbarLight">
 		<Setter Property="Style" Value="Light"/>
+		<Setter Property="Padding" Value="0"/>
 	</Style>
 	<Style x:Key="TaskpadPage">
 		<Setter Property="Collapsible" Value="False"/>
 		<Setter Property="Background" Value="WhiteSmoke"/>
 		<Setter Property="Overflow" Value="True"/>
-		<Setter Property="Padding" Value="0"/>
 	</Style>
 </Styles>

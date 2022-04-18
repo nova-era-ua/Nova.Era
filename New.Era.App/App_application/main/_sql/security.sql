@@ -226,3 +226,39 @@ begin
 	end
 end
 go
+------------------------------------------------
+create or alter procedure appsec.UpdateUserPassword
+@Id bigint,
+@PasswordHash nvarchar(max),
+@SecurityStamp nvarchar(max)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	update appsec.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp where Id=@Id;
+end
+go
+------------------------------------------------
+-- TODO: move to securitySchema
+------------------------------------------------
+create or alter procedure a2security.[User.ChangePassword.Load]
+	@TenantId int = 0,
+	@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	if 1 <> (select ChangePasswordEnabled from appsec.Users where Id=@UserId)
+	begin
+		raiserror (N'UI:@[ChangePasswordDisabled]', 16, -1) with nowait;
+	end
+	select [User!TUser!Object] = null, [Id!!Id] = Id, [Name!!Name] = UserName, 
+		[OldPassword] = cast(null as nvarchar(255)),
+		[NewPassword] = cast(null as nvarchar(255)),
+		[ConfirmPassword] = cast(null as nvarchar(255)) 
+	from appsec.Users where Id=@UserId;
+end
+go

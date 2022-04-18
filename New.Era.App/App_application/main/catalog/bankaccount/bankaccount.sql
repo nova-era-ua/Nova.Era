@@ -150,8 +150,8 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	declare @Bank cat.[BankAccount.TableType];
-	select [BankAccount!BankAccount!Metadata] = null, * from @Bank;
+	declare @BankAccount cat.[BankAccount.TableType];
+	select [BankAccount!BankAccount!Metadata] = null, * from @BankAccount;
 end
 go
 ---------------------------------------------
@@ -164,7 +164,7 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 	set xact_abort on;
-	
+
 	declare @output  table (op sysname, id bigint);
 	declare @id bigint;
 
@@ -183,7 +183,7 @@ begin
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
-	exec cat.[BankAccount.Load] @UserId = @UserId, @Id = @id;
+	exec cat.[BankAccount.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
 ------------------------------------------------

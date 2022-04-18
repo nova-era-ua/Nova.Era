@@ -5,10 +5,11 @@
 			<Button Icon="Plus">
 				<Button.DropDown>
 					<DropDownMenu>
-						<MenuItem Content="@[CreateAccountPlan]"
-							Command="{BindCmd Execute, CommandName=createPlan}"/>
 						<MenuItem Content="@[CreateAccount]"
 							Command="{BindCmd Execute, CommandName=createAccount, Argument={Bind Accounts.$selected}}"/>
+						<Separator />
+						<MenuItem Content="@[CreateAccountPlan]"
+							Command="{BindCmd Execute, CommandName=createPlan}"/>
 					</DropDownMenu>
 				</Button.DropDown>
 			</Button>
@@ -33,10 +34,10 @@
 			<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}"/>
 			<TreeView.ContextMenu>
 				<DropDownMenu>
-					<MenuItem Content="@[CreateAccountPlan]"
-							Command="{BindCmd Execute, CommandName=createPlan}"/>
 					<MenuItem Content="@[CreateAccount]"
 							Command="{BindCmd Execute, CommandName=createAccount, Argument={Bind Accounts.$selected}}"/>
+					<MenuItem Content="@[CreateAccountPlan]"
+							Command="{BindCmd Execute, CommandName=createPlan}"/>
 					<Separator />
 					<MenuItem Content="@[Edit]" Command="{BindCmd Execute, CommandName=edit, 
 						Argument={Bind Accounts.$selected}}"/>

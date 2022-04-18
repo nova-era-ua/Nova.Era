@@ -39,5 +39,13 @@ drop sequence if exists doc.SQ_Operations;
 drop sequence if exists cat.SQ_Accounts;
 drop sequence if exists acc.SQ_Accounts;
 drop sequence if exists cat.SQ_BankAccounts;
+go
 
 drop function if exists cat.fn_GetBankAccountName;
+go
+
+/*
+drop table if exists appsec.Users;
+drop table if exists appsec.Tenants;
+*/
+go

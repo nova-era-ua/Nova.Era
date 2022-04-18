@@ -38,7 +38,8 @@
     "version": "10.1.1012",
     "outputFile": "SqlScripts/catalog.sql",
     "inputFiles": [
-      "main/_sql/catalog/catalog_security.sql"
+      "main/_sql/catalog/catalog_security.sql",
+      "main/_sql/catalog/catalog_ui.sql"
     ]
   },
   {
