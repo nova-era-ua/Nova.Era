@@ -4,6 +4,7 @@
     "version": "10.1.1012",
     "outputFile": "SqlScripts/application.sql",
     "inputFiles": [
+      "main/_sql/common/security_common.sql",
       "main/_sql/security.sql",
       "main/_sql/struct.sql",
       "main/_sql/common.sql",
@@ -39,6 +40,7 @@
     "version": "10.1.1012",
     "outputFile": "SqlScripts/catalog.sql",
     "inputFiles": [
+      "main/_sql/common/security_common.sql",
       "main/_sql/catalog/catalog_security.sql",
       "main/_sql/catalog/catalog_ui.sql"
     ]

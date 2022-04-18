@@ -1,19 +1,9 @@
--- security schema
+-- security schema (common)
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'appsec')
 	exec sp_executesql N'create schema appsec';
 go
 grant execute on schema::appsec to public;
-go
-------------------------------------------------
-create or alter procedure a2security.SetTenantId
-@TenantId int
-as
-begin
-	set nocount on;
-	update appsec.Tenants set TransactionCount = TransactionCount + 1, LastTransactionDate = getutcdate() where Id = @TenantId;
-	exec sp_set_session_context @key=N'TenantId', @value=@TenantId, @read_only=0;
-end
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'appsec' and SEQUENCE_NAME=N'SQ_Tenants')
@@ -91,7 +81,6 @@ as
 	from appsec.Users u
 	where Void=0 and Id <> 0;
 go
-------------------------------------------------
 create or alter procedure appsec.FindUserById
 @Id bigint
 as
@@ -125,12 +114,14 @@ begin
 end
 go
 ------------------------------------------------
-create or alter procedure appsec.GetUserGroups
-@UserId bigint
+create or alter procedure appsec.FindUserByPhoneNumber
+@PhoneNumber nvarchar(255)
 as
 begin
 	set nocount on;
-	-- do nothing
+	set transaction isolation level read uncommitted;
+
+	select * from appsec.ViewUsers where PhoneNumber=@PhoneNumber;
 end
 go
 ------------------------------------------------
@@ -155,75 +146,10 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
-	set xact_abort on;
+
 	update appsec.ViewUsers set 
 		AccessFailedCount = @AccessFailedCount, LockoutEndDateUtc = @LockoutEndDateUtc
 	where Id=@Id;
-end
-go
-------------------------------------------------
-create or alter procedure appsec.CreateTenantUser
-@Id bigint,
-@UserName nvarchar(255),
-@Tenant int,
-@PersonName nvarchar(255),
-@RegisterHost nvarchar(255) = null,
-@PhoneNumber nvarchar(255) = null,
-@Memo nvarchar(255) = null,
-@TariffPlan nvarchar(255) = null,
-@TenantRoles nvarchar(max) = null,
-@Locale nvarchar(255) = null
-as
-begin
-	set nocount on;
-	set transaction isolation level read committed;
-	set xact_abort on;
-
-	if not exists(select * from appsec.Tenants where Id = @Tenant)
-	begin
-		declare @sql nvarchar(255);
-		declare @prms nvarchar(255);
-
-		if exists(select * from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = N'appsec' and ROUTINE_NAME=N'OnCreateTenant')
-		begin
-			set @sql = N'appsec.OnCreateTenant @TenantId';
-			set @prms = N'@TenantId int';
-		end
-
-		begin tran;
-
-		insert into appsec.Tenants(Id, [Admin], Locale) values (@Tenant, @Id, @Locale);
-
-		insert into appsec.Users(Tenant, Id, UserName, PersonName, RegisterHost, PhoneNumber, Memo, Locale, 
-				SecurityStamp, PasswordHash) 
-			values(@Tenant, @Id, @UserName, @PersonName, @RegisterHost, @PhoneNumber, @Memo, @Locale, 
-				N'', N'');
-		/* system user */
-		insert into appsec.Users(Tenant, Id, UserName, SecurityStamp, PasswordHash) values 
-			(@Tenant, 0, N'System_' + cast(@Tenant as nvarchar(16)), N'', N'');
-
-		if @sql is not null
-			exec sp_executesql @sql, @prms, @Tenant;
-
-		commit tran;
-	end
-	else
-	begin
-		-- add new user to current tenant
-		begin tran
-		-- inherit RegisterHost, TariffPlan, Locale
-		declare @TenantLocale nvarchar(32);
-
-		select @RegisterHost = RegisterHost, @TenantLocale=t.Locale 
-		from appsec.Tenants t inner join appsec.Users u on t.[Admin] = u.Id
-		where t.Id = @Tenant;
-
-		insert into appsec.Users(Tenant, Id, UserName, PersonName, RegisterHost, PhoneNumber, Memo, Locale, 
-				SecurityStamp, PasswordHash) 
-			values(@Tenant, @Id, @UserName, @PersonName, @RegisterHost, @PhoneNumber, @Memo, isnull(@Locale, @TenantLocale),
-				N'', N'');
-		commit tran;
-	end
 end
 go
 ------------------------------------------------
@@ -238,6 +164,15 @@ begin
 	set xact_abort on;
 
 	update appsec.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp where Id=@Id;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.GetUserGroups
+@UserId bigint
+as
+begin
+	set nocount on;
+	-- do nothing
 end
 go
 ------------------------------------------------
@@ -262,3 +197,5 @@ begin
 	from appsec.Users where Id=@UserId;
 end
 go
+
+

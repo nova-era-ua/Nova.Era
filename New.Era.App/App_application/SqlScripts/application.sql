@@ -1,27 +1,17 @@
 ﻿/*
 version: 10.1.1012
-generated: 18.04.2022 11:37:25
+generated: 18.04.2022 12:12:01
 */
 
 
 /* SqlScripts/application.sql */
 
--- security schema
+-- security schema (common)
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'appsec')
 	exec sp_executesql N'create schema appsec';
 go
 grant execute on schema::appsec to public;
-go
-------------------------------------------------
-create or alter procedure a2security.SetTenantId
-@TenantId int
-as
-begin
-	set nocount on;
-	update appsec.Tenants set TransactionCount = TransactionCount + 1, LastTransactionDate = getutcdate() where Id = @TenantId;
-	exec sp_set_session_context @key=N'TenantId', @value=@TenantId, @read_only=0;
-end
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'appsec' and SEQUENCE_NAME=N'SQ_Tenants')
@@ -99,7 +89,6 @@ as
 	from appsec.Users u
 	where Void=0 and Id <> 0;
 go
-------------------------------------------------
 create or alter procedure appsec.FindUserById
 @Id bigint
 as
@@ -133,12 +122,14 @@ begin
 end
 go
 ------------------------------------------------
-create or alter procedure appsec.GetUserGroups
-@UserId bigint
+create or alter procedure appsec.FindUserByPhoneNumber
+@PhoneNumber nvarchar(255)
 as
 begin
 	set nocount on;
-	-- do nothing
+	set transaction isolation level read uncommitted;
+
+	select * from appsec.ViewUsers where PhoneNumber=@PhoneNumber;
 end
 go
 ------------------------------------------------
@@ -163,10 +154,69 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
-	set xact_abort on;
+
 	update appsec.ViewUsers set 
 		AccessFailedCount = @AccessFailedCount, LockoutEndDateUtc = @LockoutEndDateUtc
 	where Id=@Id;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.UpdateUserPassword
+@Id bigint,
+@PasswordHash nvarchar(max),
+@SecurityStamp nvarchar(max)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	update appsec.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp where Id=@Id;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.GetUserGroups
+@UserId bigint
+as
+begin
+	set nocount on;
+	-- do nothing
+end
+go
+------------------------------------------------
+-- TODO: move to securitySchema
+------------------------------------------------
+create or alter procedure a2security.[User.ChangePassword.Load]
+	@TenantId int = 0,
+	@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	if 1 <> (select ChangePasswordEnabled from appsec.Users where Id=@UserId)
+	begin
+		raiserror (N'UI:@[ChangePasswordDisabled]', 16, -1) with nowait;
+	end
+	select [User!TUser!Object] = null, [Id!!Id] = Id, [Name!!Name] = UserName, 
+		[OldPassword] = cast(null as nvarchar(255)),
+		[NewPassword] = cast(null as nvarchar(255)),
+		[ConfirmPassword] = cast(null as nvarchar(255)) 
+	from appsec.Users where Id=@UserId;
+end
+go
+
+
+
+-- security schema
+------------------------------------------------
+create or alter procedure a2security.SetTenantId
+@TenantId int
+as
+begin
+	set nocount on;
+	update appsec.Tenants set TransactionCount = TransactionCount + 1, LastTransactionDate = getutcdate() where Id = @TenantId;
+	exec sp_set_session_context @key=N'TenantId', @value=@TenantId, @read_only=0;
 end
 go
 ------------------------------------------------
@@ -232,42 +282,6 @@ begin
 				N'', N'');
 		commit tran;
 	end
-end
-go
-------------------------------------------------
-create or alter procedure appsec.UpdateUserPassword
-@Id bigint,
-@PasswordHash nvarchar(max),
-@SecurityStamp nvarchar(max)
-as
-begin
-	set nocount on;
-	set transaction isolation level read committed;
-	set xact_abort on;
-
-	update appsec.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp where Id=@Id;
-end
-go
-------------------------------------------------
--- TODO: move to securitySchema
-------------------------------------------------
-create or alter procedure a2security.[User.ChangePassword.Load]
-	@TenantId int = 0,
-	@UserId bigint
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-
-	if 1 <> (select ChangePasswordEnabled from appsec.Users where Id=@UserId)
-	begin
-		raiserror (N'UI:@[ChangePasswordDisabled]', 16, -1) with nowait;
-	end
-	select [User!TUser!Object] = null, [Id!!Id] = Id, [Name!!Name] = UserName, 
-		[OldPassword] = cast(null as nvarchar(255)),
-		[NewPassword] = cast(null as nvarchar(255)),
-		[ConfirmPassword] = cast(null as nvarchar(255)) 
-	from appsec.Users where Id=@UserId;
 end
 go
 
