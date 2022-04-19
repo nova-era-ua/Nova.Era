@@ -39,7 +39,9 @@
 @Prices=Ціни
 @Suppliers=Постачальники
 @Customers=Покупці
+@Customer=Покупець
 @Leads=Ліди
+@Lead=Лід
 @Defaults=Замовчування
 ;
 @Id=Id

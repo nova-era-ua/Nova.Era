@@ -16,7 +16,39 @@
 .overflow-hidden {
   overflow: hidden;
 }
+.badge-doc {
+  font-weight: normal;
+  font-size: 12px;
+  padding: 2px 7px;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+.modal.button-on-top .modal-footer {
+  padding: 0.5rem 1rem;
+  align-items: baseline;
+  gap: 1rem;
+}
+.modal.button-on-top .modal-footer .control-group {
+  margin: 0;
+}
+.modal.button-on-top .modal-footer .btn {
+  margin-left: 0 !important;
+}
 /*PLATFORM*/
 .toolbar > .control-group.first-elem {
-  margin-left: 0!important;
+  margin-left: 0 !important;
 }
+.a2-label {
+  font-size: inherit;
+}
+.a2-table-compact {
+  font-size: inherit;
+}
+.a2-table.compact > tbody > tr > td,
+.a2-table.compact thead > tr > td,
+.a2-table.compact tfoot > tr > td {
+  line-height: 1.67;
+}
+/*
+    modal-footer -> Gap instead margin-left
+*/

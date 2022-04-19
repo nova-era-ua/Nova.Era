@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 19.04.2022 12:22:42
+generated: 19.04.2022 16:53:09
 */
 
 
@@ -4194,8 +4194,10 @@ begin
 	begin
 		-- total self cost for this transaction
 		with W(trno, ssum) as (
-			select trno, sum(ssum) from @tr t
-			where t._modesum  = 'S' and _moderow = N'R'
+			select t.item, [sum] = sum(j.[Sum]) / sum(j.Qty)
+			from jrn.Journal j 
+			  inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] <= t.[date]
+			where j.TenantId = @TenantId and t._modesum = N'S' and _moderow = 'R'
 			group by trno
 		)
 		update @tr set [ssum] = W.ssum 

@@ -1,5 +1,15 @@
 ﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<!--
+	<Grid Columns="MinMax(300px;1*),MinMax(300px;1*),MinMax(300px;1*),MinMax(300px;1*)" >
+		<Block Height="100px" Background="LightGray">1</Block>
+		<Block Height="100px" Background="LightGray">2</Block>
+		<Block Height="200px" Background="LightGray">3</Block>
+		<Block Height="200px" Grid.RowSpan="2" Background="LightGray">4</Block>
+		<Block Height="100px" Background="LightGray">5</Block>
+		<Block Height="100px" Background="LightGray">6</Block>
+	</Grid>
+	-->
 	<EmptyPanel Icon="SmileSad">
-		Yet not implemented :-)
+		Yet not implemented
 	</EmptyPanel>
 </Page>

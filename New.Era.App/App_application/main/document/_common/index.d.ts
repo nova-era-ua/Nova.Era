@@ -6,6 +6,7 @@ export interface TMenu extends IElement {
 
 export interface TOperation extends IArrayElement {
 	readonly Id: number;
+	Form: string;
 	Documents: TDocuments;
 }
 

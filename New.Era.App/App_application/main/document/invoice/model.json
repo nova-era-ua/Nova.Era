@@ -4,8 +4,8 @@
   "model": "Document.Stock",
   "dialogs": {
     "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
+      "template": "invoice.template",
+      "view": "invoice.dialog"
     }
   }
 }

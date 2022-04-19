@@ -233,7 +233,7 @@
     <Content Include="App_application\main\document\stock.index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\document\invoice\edit.dialog.xaml">
+    <Content Include="App_application\main\document\invoice\invoice.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\document\waybillout\edit.dialog.xaml">
@@ -336,6 +336,7 @@
     <Content Include="App_application\main\profile\default\default.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <TypeScriptCompile Include="App_application\main\dashboard\dashboard.template.ts" />
     <None Include="App_application\main\document\cashout\model.json" />
     <None Include="App_application\main\document\cashin\model.json" />
     <None Include="App_application\main\document\dialogs\model.json" />
@@ -448,7 +449,7 @@
     <None Include="App_application\sql.json" />
     <TypeScriptCompile Include="App_application\main\catalog\_common\tree.d.ts" />
     <TypeScriptCompile Include="App_application\main\document\stock.index.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\invoice\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\invoice\invoice.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\waybillout\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\company\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\plan\turnover.template.ts" />

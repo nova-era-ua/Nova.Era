@@ -4,6 +4,7 @@
   "model": "",
   "actions": {
     "index": {
+      "template": "dashboard.template",
       "view": "dashboard.view"
     }
   }
