@@ -30,3 +30,32 @@ when not matched by target then insert
 when not matched by source and t.TenantId = 0 then delete;
 end
 go
+-- units
+------------------------------------------------
+begin
+set nocount on;
+
+declare @un table(Id bigint, Short nvarchar(8), [CodeUA] nchar(4), [Name] nvarchar(255));
+
+insert into @un (Id, [Name], Short, CodeUA) values
+(20, N'Штука',    N'шт',   N'2009'),
+(21, N'Грам',     N'г',    N'0303'),
+(22, N'Кілограм', N'кг',   N'0301'),
+(23, N'Літр',     N'л',    N'0138'),
+(24, N'Метр',     N'м',    N'0101'),
+(25, N'Квадратний метр', N'м²', N'0123'),
+(26, N'Кубічний метр',   N'м³',   N'0134');
+
+
+merge cat.Units as t
+using @un as s on t.Id = s.Id and t.TenantId = 0
+when matched then update set
+	t.[Short] = s.[Short],
+	t.[Name] = s.[Name],
+	t.[CodeUA] = s.[CodeUA]
+when not matched by target then insert
+	(TenantId, Id, Short, CodeUA, [Name]) values
+	(0, s.Id, s.Short, s.CodeUA, s.[Name])
+when not matched by source and t.TenantId = 0 then delete;
+end
+go

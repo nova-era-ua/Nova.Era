@@ -118,6 +118,7 @@
 @Browse.Agent=Вибір контрагента
 @Browse.Item=Вибір об'єкта обліку
 @Browse.Unit=Вибір одиниці виміру
+@Browse.Units=Вибір одиниць виміру
 @Browse.AccountPlan=Вибір плану рахунків
 @Browse.Account=Вибір рахунку
 @Browse.BankAccount=Вибір рахунку в банку

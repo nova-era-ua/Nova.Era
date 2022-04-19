@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 19.04.2022 10:26:15
+generated: 19.04.2022 12:22:42
 */
 
 
@@ -2702,6 +2702,20 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure cat.[Unit.Catalog.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	-- TenantId = 0 => Catalog
+	exec cat.[Unit.Index] @TenantId = 0, @UserId = @UserId, @Id = @Id;
+end
+go
+------------------------------------------------
 create or alter procedure cat.[Unit.Load]
 @TenantId int = 1,
 @UserId bigint,
@@ -2758,6 +2772,44 @@ begin
 	exec cat.[Unit.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
+---------------------------------------------
+create or alter procedure cat.[Unit.AddFromCatalog]
+@TenantId int = 1,
+@UserId bigint,
+@Ids nvarchar(max)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	merge cat.Units as t
+	using (
+		select u.Id, u.Short, u.CodeUA, u.[Name] 
+		from cat.Units u
+			inner join string_split(@Ids, N',') t on u.TenantId = 0 and u.Id = t.[value]) as s
+	on t.TenantId = @TenantId and t.CodeUA = s.CodeUA
+	when matched then update set 
+		Short = s.Short,
+		[Name] = s.[Name],
+		Void = 0
+	when not matched by target then insert
+		(TenantId, Short, CodeUA, [Name]) values
+		(@TenantId, s.Short, s.CodeUA, s.[Name]);
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Unit.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update cat.Units set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+
 
 /* CURRENCY */
 ------------------------------------------------
@@ -2782,7 +2834,7 @@ begin
 
 	select [Currencies!TCurrency!Array] = null,
 		[Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo, 
-		c.Alpha3, c.Number3, c.Denom, c.[Symbol]
+		c.Alpha3, c.Number3, c.Denom, c.[Symbol], c.Short
 	from cat.Currencies c
 	where TenantId = @TenantId
 		and (@fr is null or c.Alpha3 like @fr or c.Number3 like @fr 
@@ -2839,7 +2891,8 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Currency!TCurrency!Object] = null,
-		[Id!!Id] = c.Id, [NewId] = c.Id, [Name!!Name] = c.[Name], c.Memo, c.Alpha3, c.Number3, c.Denom, c.Symbol
+		[Id!!Id] = c.Id, [NewId] = c.Id, [Name!!Name] = c.[Name], c.Memo, c.Alpha3, c.Number3, c.Denom, c.Symbol,
+		c.Short
 	from cat.Currencies c
 	where c.TenantId = @TenantId and c.Id = @Id;
 end
@@ -2859,7 +2912,8 @@ create type cat.[Currency.TableType] as table
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 	Denom int,
-	[Symbol] nvarchar(3)
+	[Symbol] nvarchar(3),
+	Short nvarchar(8)
 )
 go
 ---------------------------------------------
@@ -2895,10 +2949,11 @@ begin
 		t.[Alpha3] = s.[Alpha3],
 		t.[Number3] = s.Number3,
 		t.[Symbol] = s.[Symbol],
-		t.[Denom] = s.[Denom]
+		t.[Denom] = s.[Denom],
+		t.[Short] = s.[Short]
 	when not matched by target then insert
-		(TenantId, Id, [Name], Memo, Alpha3, Number3, [Symbol], [Denom]) values
-		(@TenantId, s.[NewId], s.[Name], s.Memo, s.Alpha3, s.Number3, s.[Symbol], s.Denom)
+		(TenantId, Id, [Name], Memo, Alpha3, Number3, [Symbol], [Denom], [Short]) values
+		(@TenantId, s.[NewId], s.[Name], s.Memo, s.Alpha3, s.Number3, s.[Symbol], s.Denom, s.[Short])
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -4152,11 +4207,11 @@ begin
 		DtCt, [Plan], Account, CorrAccount, Qty, CashAccount, [Sum])
 	select @TenantId, @Id, detail, trno, rowno, [date], comp, wh, agent, item,
 		dtct, [plan], acc, corracc, qty, ca,
-		case _modesum
+		isnull(case _modesum
 			when N'S' then ssum
 			when N'R' then [sum] - ssum
 			else [sum]
-		end
+		end, 0)
 	from @tr;
 end
 go
@@ -5181,7 +5236,7 @@ insert into @crc (Id, Alpha3, Number3, [Symbol], Denom, [Name]) values
 (980, N'UAH', N'980', N'₴', 1, N'Українська гривня'),
 (840, N'USD', N'840', N'$', 100, N'Долар США'),
 (978, N'EUR', N'978', N'€', 100, N'Євро'),
-(826, N'USD', N'826', N'£', 100, N'Британський фунт стерлінгов'),
+(826, N'GBP', N'826', N'£', 100, N'Британський фунт стерлінгов'),
 (756, N'CHF', N'756', N'₣', 100, N'Швейцарський франк'),
 (985, N'PLN', N'985', N'Zł',100, N'Польський злотий');
 
@@ -5196,6 +5251,35 @@ when matched then update set
 when not matched by target then insert
 	(TenantId, Id, Alpha3, Number3, [Symbol], Denom, [Name]) values
 	(0, s.Id, s.Alpha3, s.Number3, s.[Symbol], s.Denom, s.[Name])
+when not matched by source and t.TenantId = 0 then delete;
+end
+go
+-- units
+------------------------------------------------
+begin
+set nocount on;
+
+declare @un table(Id bigint, Short nvarchar(8), [CodeUA] nchar(4), [Name] nvarchar(255));
+
+insert into @un (Id, [Name], Short, CodeUA) values
+(20, N'Штука',    N'шт',   N'2009'),
+(21, N'Грам',     N'г',    N'0303'),
+(22, N'Кілограм', N'кг',   N'0301'),
+(23, N'Літр',     N'л',    N'0138'),
+(24, N'Метр',     N'м',    N'0101'),
+(25, N'Квадратний метр', N'м²', N'0123'),
+(26, N'Кубічний метр',   N'м³',   N'0134');
+
+
+merge cat.Units as t
+using @un as s on t.Id = s.Id and t.TenantId = 0
+when matched then update set
+	t.[Short] = s.[Short],
+	t.[Name] = s.[Name],
+	t.[CodeUA] = s.[CodeUA]
+when not matched by target then insert
+	(TenantId, Id, Short, CodeUA, [Name]) values
+	(0, s.Id, s.Short, s.CodeUA, s.[Name])
 when not matched by source and t.TenantId = 0 then delete;
 end
 go

@@ -30,6 +30,20 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure cat.[Unit.Catalog.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	-- TenantId = 0 => Catalog
+	exec cat.[Unit.Index] @TenantId = 0, @UserId = @UserId, @Id = @Id;
+end
+go
+------------------------------------------------
 create or alter procedure cat.[Unit.Load]
 @TenantId int = 1,
 @UserId bigint,
@@ -86,3 +100,41 @@ begin
 	exec cat.[Unit.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
+---------------------------------------------
+create or alter procedure cat.[Unit.AddFromCatalog]
+@TenantId int = 1,
+@UserId bigint,
+@Ids nvarchar(max)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	merge cat.Units as t
+	using (
+		select u.Id, u.Short, u.CodeUA, u.[Name] 
+		from cat.Units u
+			inner join string_split(@Ids, N',') t on u.TenantId = 0 and u.Id = t.[value]) as s
+	on t.TenantId = @TenantId and t.CodeUA = s.CodeUA
+	when matched then update set 
+		Short = s.Short,
+		[Name] = s.[Name],
+		Void = 0
+	when not matched by target then insert
+		(TenantId, Short, CodeUA, [Name]) values
+		(@TenantId, s.Short, s.CodeUA, s.[Name]);
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Unit.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update cat.Units set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+

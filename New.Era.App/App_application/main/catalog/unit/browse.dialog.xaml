@@ -1,17 +1,23 @@
 ﻿<!-- Browse Unit-->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="@[Browse.Unit]" Overflow="True" Padding="1rem">
+		Title="@[Browse.Unit]" Overflow="True" Width="40rem">
 	<Dialog.Buttons>
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Units}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<DataGrid ItemsSource="{Bind Units}"
-			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
-			DoubleClick="{BindCmd Select, Argument={Bind Units}}">
-		<DataGridColumn Content="{Bind Id}" Role="Id"/>
-		<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
-		<DataGridColumn Header="@[Short]" Content="{Bind Short}" Fit="True" Wrap="NoWrap"/>
-		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
-	</DataGrid>
+	<Grid AutoFlow="Row">
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Dialog, Action=Append, Argument={Bind Units}, Url='/catalog/unit/edit'}"/>
+		</Toolbar>
+		<DataGrid ItemsSource="{Bind Units}" XamlStyle="{StyleResource DataGridSimple}"
+			Height="25rem" FixedHeader="True"
+				DoubleClick="{BindCmd Select, Argument={Bind Units}}">
+			<DataGridColumn Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+			<DataGridColumn Header="@[Short]" Content="{Bind Short}" Fit="True" Wrap="NoWrap"/>
+			<DataGridColumn Header="@[Label.Unit.CodeUA]" Content="{Bind CodeUA}" Fit="True" Wrap="NoWrap" Align="Center"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
+		</DataGrid>
+	</Grid>
 </Dialog>
 

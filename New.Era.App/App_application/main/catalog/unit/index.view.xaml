@@ -8,9 +8,18 @@
 					Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Units}, Url=/catalog/unit/edit}"/>
 				<Button Icon="Delete"
 					Command="{BindCmd DbRemoveSelected, Argument={Bind Units}, Confirm='@[Confirm.Delete.Element]'}"/>
+				<Separator />
+				<Button Icon="Reload" Command="{BindCmd Reload}"/>
+				<ToolbarAligner />
 				<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"
-						 ShowClear="True" ShowFilter="True" Toolbar.Align="Right"/>
-				<Button Icon="Reload" Command="{BindCmd Reload}" Toolbar.Align="Right"/>
+						 ShowClear="True" ShowFilter="True"/>
+				<Button Icon="Menu">
+					<Button.DropDown>
+						<DropDownMenu Direction="DownLeft">
+							<MenuItem Content="@[AddFromCatalog]" Command="{BindCmd Execute, CommandName=addFromCatalog}"/>
+						</DropDownMenu>
+					</Button.DropDown>
+				</Button>
 			</Toolbar>
 			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" ItemsSource="{Bind Parent.ItemsSource}"
 					FixedHeader="True"

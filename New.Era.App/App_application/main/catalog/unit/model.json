@@ -5,6 +5,7 @@
   "actions": {
     "index": {
       "index": true,
+      "template": "index.template",
       "view": "index.view"
     }
   },
@@ -16,6 +17,17 @@
     "browse": {
       "index": true,
       "view": "browse.dialog"
+    },
+    "browsecatalog": {
+      "index": true,
+      "model": "Unit.Catalog",
+      "view": "browse.catalog.dialog"
+    }
+  },
+  "commands": {
+    "addFromCatalog": {
+      "type": "sql",
+      "procedure": "Unit.AddFromCatalog"
     }
   }
 }

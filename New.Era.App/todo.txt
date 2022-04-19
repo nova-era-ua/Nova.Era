@@ -12,9 +12,8 @@
 46. Catalog.Contracts
 47. Catalog.Departments
 48. Agent.BankAccounts
+
 53. Operations. Form in list
-54. Currencies.Edit
-55. Report: Type & ReportImplementations.
 56. BankAccount: Set BankId from AccountNo.
 
 Small fixes
