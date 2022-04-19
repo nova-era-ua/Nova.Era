@@ -47,7 +47,7 @@
 					<Separator />
 					<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders.Selected(Children)}, Url='/catalog/item/editItem'}" />
 					<Button Icon="Delete" Command="{BindCmd Execute, CommandName=deleteItem, Argument={Bind Folders.Selected(Children)}}"/>
-					<TextBox Value="{Bind Root.$Filter}" Placeholder="@[SearchItemsPlaceholder]" 
+					<TextBox Value="{Bind Root.$Filter}" Placeholder="@[Search]" 
 							 Width="28rem" Toolbar.Align="Right">
 						<TextBox.AddOns>
 							<Hyperlink Icon="Search" />

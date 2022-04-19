@@ -1,0 +1,25 @@
+﻿<!-- Edit Currency -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="{Bind Currency.$Id, Format='@[ItemProperties] [{0}]'}" Overflow="True"
+		Width="35rem">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid Columns="Auto,Auto,Auto">
+		<TextBox Grid.Row="1" Grid.Col="1" Label="@[Code.Number]" Value="{Bind Currency.Number3}" 
+				 Bold="True" Align="Right" Number="True" UpdateTrigger="Input"/>
+		<TextBox Grid.Row="1" Grid.Col="2" Label="@[Code.Currency]" Value="{Bind Currency.Alpha3}"/>
+		<TextBox Grid.Row="1" Grid.Col="3" Label="@[Symbol]" Value="{Bind Currency.Symbol}"/>
+		<TextBox Grid.Row="2" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Currency.Name}" />
+		<TextBox Grid.Row="2" Grid.Col="3" Label="@[Short]" Value="{Bind Currency.Short}" />
+		<ComboBox Grid.Row="3" Grid.Col="1" Label="@[QuotUnit]" Value="{Bind Currency.Denom}">
+			<ComboBoxItem Content="1" Value="1"/>
+			<ComboBoxItem Content="10" Value="10"/>
+			<ComboBoxItem Content="100" Value="100"/>
+			<ComboBoxItem Content="1000" Value="1000"/>
+		</ComboBox>
+		<TextBox Grid.Row="4" Grid.ColSpan="3" Label="@[Memo]" Value="{Bind Currency.Memo}" Multiline="True"/>
+	</Grid>
+</Dialog>
+

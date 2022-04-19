@@ -107,7 +107,7 @@ create table cat.Currencies
 	Short nvarchar(8),
 	[Alpha3] nchar(3),
 	[Number3] nchar(3),
-	[Char] nchar(1),
+	Symbol nvarchar(3),
 	[Denom] int,
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,

@@ -8,17 +8,28 @@
 					Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Currencies}, Url=/catalog/currency/edit}"/>
 				<Button Icon="Delete"
 					Command="{BindCmd DbRemoveSelected, Argument={Bind Currencies}, Confirm='@[Confirm.Delete.Element]'}"/>
+				<Separator />
+				<Button Icon="Reload" Command="{BindCmd Reload}"/>
+				<ToolbarAligner />
 				<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"
-						 ShowClear="True" ShowFilter="True" Toolbar.Align="Right"/>
-				<Button Icon="Reload" Command="{BindCmd Reload}" Toolbar.Align="Right"/>
+						 ShowClear="True" ShowFilter="True" />
+				<Button Icon="Menu">
+					<Button.DropDown>
+						<DropDownMenu Direction="DownLeft">
+							<MenuItem Content="@[AddFromCatalog]" Command="{BindCmd Execute, CommandName=addFromCatalog}"/>
+						</DropDownMenu>
+					</Button.DropDown>
+				</Button>
 			</Toolbar>
-			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" ItemsSource="{Bind Parent.ItemsSource}"
-					FixedHeader="True"
+			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" 
+					ItemsSource="{Bind Parent.ItemsSource}"
+					FixedHeader="True" Sort="True"
 					DoubleClick="{BindCmd Dialog, Action=EditSelected, 
 						Argument={Bind Currencies}, Url='/catalog/currency/edit'}">
-				<DataGridColumn Header="@[Code]" Content="{Bind Id}" Role="Id"/>
-				<DataGridColumn Header="Alpha3" Content="{Bind Alpha3}" Fit="True" Wrap="NoWrap"/>
-				<DataGridColumn Header="Number3" Content="{Bind Number3}" Fit="True" Wrap="NoWrap"/>
+				<DataGridColumn Header="@[Code]" Content="{Bind Number3}" Role="Id"/>
+				<DataGridColumn Header="@[Code.Currency]" Content="{Bind Alpha3}" Fit="True" Wrap="NoWrap" Align="Center"/>
+				<DataGridColumn Header="@[Symbol]" Content="{Bind Symbol}" Fit="True" Align="Center" Sort="False"/>
+				<DataGridColumn Header="@[Short]" Content="{Bind Short}" Fit="True" Align="Center" Sort="False"/>
 				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 				<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 				<DataGridColumn Fit="True">

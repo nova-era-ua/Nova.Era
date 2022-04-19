@@ -193,6 +193,12 @@
     <Content Include="App_application\main\catalog\pricelist\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\catalog\currency\edit.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\currency\browse.catalog.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -342,6 +348,9 @@
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\cashaccount\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\cashaccount\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\currency\edit.d.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\currency\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\currency\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\cashout\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\cashin\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\dialogs\transactions.template.ts" />

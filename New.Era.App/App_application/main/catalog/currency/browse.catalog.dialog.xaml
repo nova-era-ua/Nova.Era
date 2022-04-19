@@ -1,0 +1,26 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Width="40rem" Title="@[Browse.Currencies]">
+	<Dialog.Buttons>
+		<Button Content="@[Select]" Style="Primary" 
+				Command="{BindCmd SelectChecked, Argument={Bind Currencies}}"/>
+		<Button Content="@[Close]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<CollectionView ItemsSource="{Bind Currencies}" RunAt="Server" Filter="Fragment">
+		<Grid AutoFlow="Row">
+			<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+				<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"
+							 ShowClear="True" ShowFilter="True" />
+				<Button Icon="Reload" Command="{BindCmd Reload}"/>
+			</Toolbar>
+			<DataGrid XamlStyle="{StyleResource DataGridSimple}" 
+					ItemsSource="{Bind Parent.ItemsSource}"
+					FixedHeader="True" Sort="True" Height="30rem">
+				<DataGridColumn Content="{Bind $checked}" Align="Center" ControlType="CheckBox" Editable="True" Fit="True"/>
+				<DataGridColumn Header="@[Code]" Content="{Bind Number3}" Role="Id"/>
+				<DataGridColumn Header="@[Code.Currency]" Content="{Bind Alpha3}" Fit="True" Wrap="NoWrap" Align="Center"/>
+				<DataGridColumn Header="@[Symbol]" Content="{Bind Symbol}" Fit="True" Align="Center" Sort="False"/>
+				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+			</DataGrid>
+		</Grid>
+	</CollectionView>
+</Dialog>

@@ -5,6 +5,7 @@
   "actions": {
     "index": {
       "index": true,
+      "template": "index.template",
       "view": "index.view"
     }
   },
@@ -12,6 +13,21 @@
     "edit": {
       "template": "edit.template",
       "view": "edit.dialog"
+    },
+    "browsecatalog": {
+      "index": true,
+      "model": "Currency.Catalog",
+      "view": "browse.catalog.dialog"
+    }
+  },
+  "commands": {
+    "checkDuplicate": {
+      "type": "sql",
+      "procedure": "Currency.CheckDuplicate"
+    },
+    "addFromCatalog": {
+      "type": "sql",
+      "procedure": "Currency.AddFromCatalog"
     }
   }
 }

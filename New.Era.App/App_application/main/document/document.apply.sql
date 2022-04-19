@@ -91,11 +91,11 @@ begin
 		DtCt, [Plan], Account, CorrAccount, Qty, CashAccount, [Sum])
 	select @TenantId, @Id, detail, trno, rowno, [date], comp, wh, agent, item,
 		dtct, [plan], acc, corracc, qty, ca,
-		case _modesum
+		isnull(case _modesum
 			when N'S' then ssum
 			when N'R' then [sum] - ssum
 			else [sum]
-		end
+		end, 0)
 	from @tr;
 end
 go

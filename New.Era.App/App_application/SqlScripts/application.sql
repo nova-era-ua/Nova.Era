@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 18.04.2022 21:18:00
+generated: 19.04.2022 10:26:15
 */
 
 
@@ -394,7 +394,7 @@ create table cat.Currencies
 	Short nvarchar(8),
 	[Alpha3] nchar(3),
 	[Number3] nchar(3),
-	[Char] nchar(1),
+	Symbol nvarchar(3),
 	[Denom] int,
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,
@@ -910,6 +910,15 @@ create table usr.Defaults
 );
 go
 
+
+-- MIGRATIONS
+
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'Currencies' and COLUMN_NAME=N'Symbol')
+begin
+	alter table cat.Currencies add Symbol nvarchar(3);
+	alter table cat.Currencies drop column [Char];
+end
+go
 
 /*
 common
@@ -2113,7 +2122,8 @@ begin
 	from cat.Banks b
 	inner join T t on t.Id = b.Id
 	order by t.RowNo
-	offset @Offset rows fetch next @PageSize rows only;
+	offset @Offset rows fetch next @PageSize rows only 
+	option(recompile);
 
 	select [!$System!] = null, [!Banks!Offset] = @Offset, [!Banks!PageSize] = @PageSize, 
 		[!Banks!SortOrder] = @Order, [!Banks!SortDir] = @Dir,
@@ -2750,36 +2760,72 @@ end
 go
 
 /* CURRENCY */
-drop procedure if exists cat.[Currency.Metadata];
-drop procedure if exists cat.[Currency.Update];
-drop type if exists cat.[Currency.TableType];
-go
-create type cat.[Currency.TableType] as table
-(
-	Id bigint,
-	[Alpha3] nchar(3),
-	[Number3] nchar(3),
-	[Name] nvarchar(255),
-	[Memo] nvarchar(255),
-	Denom int,
-	[Char] nchar(1)
-)
-go
 ------------------------------------------------
 create or alter procedure cat.[Currency.Index]
 @TenantId int = 1,
 @UserId bigint,
-@Id bigint = null
+@Offset int = 0,
+@PageSize int = -1,
+@Order nvarchar(32) = N'number3',
+@Dir nvarchar(5) = N'asc',
+@Id bigint = null,
+@Fragment nvarchar(255) = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	declare @fr nvarchar(255);
+	set @fr = N'%' + upper(@Fragment) + N'%';
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
 	select [Currencies!TCurrency!Array] = null,
-		[Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo, c.Alpha3, c.Number3, c.Denom, c.[Char]
+		[Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo, 
+		c.Alpha3, c.Number3, c.Denom, c.[Symbol]
 	from cat.Currencies c
 	where TenantId = @TenantId
-	order by c.Id;
+		and (@fr is null or c.Alpha3 like @fr or c.Number3 like @fr 
+		or c.[Name] like @fr or c.Memo like @fr)
+	order by
+		case when @Dir = N'asc' then
+			case @Order
+				when N'alpha3' then c.[Alpha3]
+				when N'number3' then c.[Number3]
+				when N'name' then c.[Name]
+				when N'memo' then c.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'alpha3' then c.[Alpha3]
+				when N'number3' then c.[Number3]
+				when N'name' then c.[Name]
+				when N'memo' then c.[Memo]
+			end
+		end desc;
+
+	select [!$System!] = null, [!Currencies!Offset] = @Offset, [!Currencies!PageSize] = @PageSize, 
+		[!Currencies!SortOrder] = @Order, [!Currencies!SortDir] = @Dir,
+		[!Currencies.Fragment!Filter] = @Fragment
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Currency.Catalog.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Offset int = 0,
+@PageSize int = -1,
+@Order nvarchar(32) = N'number3',
+@Dir nvarchar(5) = N'asc',
+@Id bigint = null,
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	-- TenantId = 0 => From Catalog
+	exec cat.[Currency.Index] @TenantId = 0, @UserId = @UserId, @Offset = @Offset,
+		@PageSize = @PageSize, @Order=@Order, @Dir = @Dir, @Id = @Id, @Fragment = @Fragment;
 end
 go
 ------------------------------------------------
@@ -2793,10 +2839,28 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Currency!TCurrency!Object] = null,
-		[Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo, c.Alpha3, c.Number3, c.Denom, c.[Char]
+		[Id!!Id] = c.Id, [NewId] = c.Id, [Name!!Name] = c.[Name], c.Memo, c.Alpha3, c.Number3, c.Denom, c.Symbol
 	from cat.Currencies c
 	where c.TenantId = @TenantId and c.Id = @Id;
 end
+go
+---------------------------------------------
+drop procedure if exists cat.[Currency.Metadata];
+drop procedure if exists cat.[Currency.Update];
+drop type if exists cat.[Currency.TableType];
+go
+---------------------------------------------
+create type cat.[Currency.TableType] as table
+(
+	Id bigint,
+	[NewId] bigint,
+	[Alpha3] nchar(3),
+	[Number3] nchar(3),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	Denom int,
+	[Symbol] nvarchar(3)
+)
 go
 ---------------------------------------------
 create or alter procedure cat.[Currency.Metadata]
@@ -2829,14 +2893,74 @@ begin
 		t.[Name] = s.[Name], 
 		t.[Memo] = s.[Memo], 
 		t.[Alpha3] = s.[Alpha3],
-		t.[Number3] = s.Number3
+		t.[Number3] = s.Number3,
+		t.[Symbol] = s.[Symbol],
+		t.[Denom] = s.[Denom]
 	when not matched by target then insert
-		(TenantId, Id, [Name], Memo, Alpha3, Number3, [Char]) values
-		(@TenantId, s.Id, s.[Name], s.Memo, s.Alpha3, s.Number3, s.[Char])
+		(TenantId, Id, [Name], Memo, Alpha3, Number3, [Symbol], [Denom]) values
+		(@TenantId, s.[NewId], s.[Name], s.Memo, s.Alpha3, s.Number3, s.[Symbol], s.Denom)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
 	exec cat.[Currency.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Currency.CheckDuplicate]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint,
+@Number3 nvarchar(3)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @valid bit = 1;
+
+	if exists(select 1 from cat.Currencies where TenantId = @TenantId and Number3 = @Number3 and Id <> @Id)
+		set @valid = 0;
+
+	select [Result!TResult!Object] = null, [Value] = @valid;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Currency.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update cat.Currencies set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Currency.AddFromCatalog]
+@TenantId int = 1,
+@UserId bigint,
+@Ids nvarchar(max)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	merge cat.Currencies as t
+	using (
+		select cs.Id, cs.Alpha3, cs.Number3, cs.[Symbol], cs.Denom, cs.[Name] from cat.Currencies cs 
+			inner join string_split(@Ids, N',') t on cs.TenantId = 0 and cs.Id = t.[value]) as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set 
+		Alpha3 = s.Alpha3,
+		Number3 = s.Number3,
+		[Symbol] = s.[Symbol],
+		Denom = s.Denom,
+		[Name] = s.[Name],
+		Void = 0
+	when not matched by target then insert
+		(TenantId, Id, Alpha3, Number3, [Symbol], Denom, [Name]) values
+		(@TenantId, s.Id, s.Alpha3, s.Number3, s.[Symbol], s.Denom, s.[Name]);
 end
 go
 
@@ -4903,7 +5027,7 @@ begin
 	if not exists(select * from cat.Warehouses where TenantId = @TenantId)
 		insert into cat.Warehouses(TenantId, [Name]) values (@TenantId, N'Основний склад');
 	if not exists(select * from cat.Currencies where Id=980 and TenantId = @TenantId)
-		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Char], Denom, [Name]) values
+		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Symbol], Denom, [Name]) values
 			(@TenantId, 980, N'грн', N'UAH', N'980', N'₴', 1, N'Українська гривня');
 end
 go
@@ -5042,4 +5166,37 @@ go
 
 
 
+
+/*
+initial catalog
+*/
+-- currencies
+------------------------------------------------
+begin
+set nocount on;
+
+declare @crc table(Id bigint, [Alpha3] nchar(3), [Number3] nchar(3), [Symbol] nvarchar(3), [Denom] int, [Name] nvarchar(255));
+
+insert into @crc (Id, Alpha3, Number3, [Symbol], Denom, [Name]) values
+(980, N'UAH', N'980', N'₴', 1, N'Українська гривня'),
+(840, N'USD', N'840', N'$', 100, N'Долар США'),
+(978, N'EUR', N'978', N'€', 100, N'Євро'),
+(826, N'USD', N'826', N'£', 100, N'Британський фунт стерлінгов'),
+(756, N'CHF', N'756', N'₣', 100, N'Швейцарський франк'),
+(985, N'PLN', N'985', N'Zł',100, N'Польський злотий');
+
+merge cat.Currencies as t
+using @crc as s on t.Id = s.Id and t.TenantId = 0
+when matched then update set
+	t.[Alpha3] = s.[Alpha3],
+	t.[Number3] = s.[Number3],
+	t.[Symbol] = s.[Symbol],
+	t.Denom = s.Denom,
+	t.[Name] = s.[Name]
+when not matched by target then insert
+	(TenantId, Id, Alpha3, Number3, [Symbol], Denom, [Name]) values
+	(0, s.Id, s.Alpha3, s.Number3, s.[Symbol], s.Denom, s.[Name])
+when not matched by source and t.TenantId = 0 then delete;
+end
+go
 

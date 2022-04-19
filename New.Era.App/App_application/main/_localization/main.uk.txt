@@ -82,6 +82,7 @@
 @OperationProperties=Властивості операції
 @Import=Імпортувати
 @DownloadFromNBU=Завантажити з сайта НБУ
+@AddFromCatalog=Додати з каталогу
 @BanksDownloaded=Завантажено банків
 ; Actions
 @Add=Додати
@@ -99,6 +100,10 @@
 @Article=Артикул
 @CodeUA=ЄДПРПОУ
 @CodeBankUA=МФО
+@Code.Number=Числовий код
+@Code.Currency=Код ISO
+@Symbol=Символ
+@QuotUnit=Одиниця котирування
 ;
 @Filter.AllOperations=<Всі операції>
 ;
@@ -117,12 +122,18 @@
 @Browse.Account=Вибір рахунку
 @Browse.BankAccount=Вибір рахунку в банку
 @Browse.CashAccount=Вибір каси
+@Browse.Currency=Вибір валюти
+@Browse.Currencies=Вибір валют
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
+; 
 @Error.Required=Обов\'язкове поле
+@Error.Currency.Len=Код має мати довжину 3 символа
+@Error.Currency.DuplicateCode=Валюта з таким кодом вже існує
+;
 @Error.Delete.Folder=Неможливо видалити папку.\nМожна видаляти тількі порожні папки.
 @Error.UnitCodeUA=Код має складатися з цифр та мати довжину 4 символа.
 @Error.Document.AlreadyApplied=Документ вже проведено в обліку.

@@ -60,7 +60,8 @@ begin
 	from cat.Banks b
 	inner join T t on t.Id = b.Id
 	order by t.RowNo
-	offset @Offset rows fetch next @PageSize rows only;
+	offset @Offset rows fetch next @PageSize rows only 
+	option(recompile);
 
 	select [!$System!] = null, [!Banks!Offset] = @Offset, [!Banks!PageSize] = @PageSize, 
 		[!Banks!SortOrder] = @Order, [!Banks!SortDir] = @Dir,
