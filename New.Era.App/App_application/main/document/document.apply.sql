@@ -77,15 +77,19 @@ begin
 	if exists(select 1 from @tr where _modesum = N'S' and _moderow = N'')
 	begin
 		-- total self cost for this transaction
-		with W(trno, ssum) as (
-			select t.trno, [sum] = sum(j.[Sum]) / sum(j.[Qty]) * sum(t.qty)
+		with W(trno, item, ssum) as (
+			select t.trno, j.Item, [sum] = (sum(j.[Sum]) / sum(j.[Qty])) * t.qty
 			from jrn.Journal j 
 			  inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] <= t.[date]
 			where j.TenantId = @TenantId and _moderow = 'R'
+			group by trno, j.Item, t.qty
+		),
+		WT(trno, ssum) as (
+			select trno, sum(ssum) from W
 			group by trno
 		)
-		update @tr set [ssum] = W.ssum
-		from @tr t inner join W on t.trno = W.trno
+		update @tr set [ssum] = WT.ssum
+		from @tr t inner join WT on t.trno = WT.trno
 		where t._modesum = N'S' and t._moderow = N'';
 	end
 

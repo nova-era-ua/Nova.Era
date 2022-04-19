@@ -17,7 +17,10 @@ begin
 	declare @end date = dateadd(day, 1, @To);
 
 	select @Company = isnull(@Company, Company), @Warehouse = isnull(@Warehouse, Warehouse)
-	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+		from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
+	declare @warh bigint = nullif(@Warehouse, -1);
+
 
 	declare @acc bigint;
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
@@ -33,11 +36,11 @@ begin
 		EndSum  = cast(0 as money),
 		ItemGroup = grouping(Item)
 	into #tmp
-	from jrn.Journal where TenantId = @TenantId and Account = @acc and Company = @Company
-		and Warehouse = @Warehouse
+	from jrn.Journal where TenantId = @TenantId and Account = @acc 
+		and (@comp is null or Company = @comp)
+		and (@warh is null or Warehouse = @warh)
 		and [Date] < @end
 	group by rollup(Item);
-
 	update #tmp set EndQty = StartQty + InQty - OutQty, EndSum = StartSum + InSum - OutSum;
 
 	-- turnover

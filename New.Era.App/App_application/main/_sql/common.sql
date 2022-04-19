@@ -18,7 +18,9 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null and @Id <> -1
+	if @Id = -1 
+		set @name = N'@[Placeholder.AllWarehouses]';
+	else if @Id is not null and @Id <> -1
 		select @name = [Name] from cat.Warehouses where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
@@ -29,7 +31,9 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null and @Id <> -1
+	if @Id = -1
+		set @name = N'@[Placeholder.AllCompanies]';
+	else if @Id is not null
 		select @name = [Name] from cat.Companies where TenantId=@TenantId and Id=@Id;
 	return @name;
 end

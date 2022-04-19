@@ -202,6 +202,9 @@
     <Content Include="App_application\main\catalog\unit\browse.catalog.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\catalog\contract\browse.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -327,6 +330,7 @@
     <None Include="App_application\main\catalog\bankaccount\model.json" />
     <None Include="App_application\main\catalog\bank\model.json" />
     <None Include="App_application\main\catalog\brand\model.json" />
+    <None Include="App_application\main\catalog\contract\model.json" />
     <None Include="App_application\main\catalog\currency\model.json" />
     <None Include="App_application\main\catalog\pricelist\model.json" />
     <None Include="App_application\main\catalog\warehouse\model.json" />
@@ -453,6 +457,7 @@
     <TypeScriptCompile Include="App_application\main\document\waybillout\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\company\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\plan\turnover.template.ts" />
+    <TypeScriptCompile Include="App_application\main\reports\_common\simple.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\develop\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\operation\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\operation\edit.template.ts" />

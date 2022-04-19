@@ -13,12 +13,16 @@
 					<Selector.AddOns>
 						<Hyperlink Icon="Search" 
 								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+						<Hyperlink Icon="Clear" If="{Bind Parent.Filter.Company.Id}"
+								   Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
 					</Selector.AddOns>
 				</Selector>
 				<Selector Value="{Bind Parent.Filter.Warehouse}" DisplayProperty="Name" Width="15rem">
 					<Selector.AddOns>
 						<Hyperlink Icon="Search" 
 								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Warehouse}, Url='/catalog/warehouse/browse'}"/>
+						<Hyperlink Icon="Clear" If="{Bind Parent.Filter.Warehouse.Id}"
+								   Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Warehouse}}"/>
 					</Selector.AddOns>
 				</Selector>
 				<PeriodPicker ShowAllData="False"
@@ -36,15 +40,15 @@
 						</SheetRow>
 						<SheetRow Style="Parameter">
 							<SheetCell Content="@[Period]"></SheetCell>
-							<SheetCell Content="{Bind Parent.Filter.Period.Name}"></SheetCell>
+							<SheetCell Content="{Bind Parent.Filter.Period.Name}" Bold="True"></SheetCell>
 						</SheetRow>
 						<SheetRow Style="Parameter">
-							<SheetCell Content="@[Warehouse]"></SheetCell>
-							<SheetCell Content="{Bind Parent.Filter.Warehouse.Name}"></SheetCell>
+							<SheetCell Content="@[Company]"></SheetCell>
+							<SheetCell Content="{Bind Parent.Filter.Company.Name}" Bold="True"/>
 						</SheetRow>
 						<SheetRow Style="LastParameter">
-							<SheetCell Content="@[Company]"></SheetCell>
-							<SheetCell Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
+							<SheetCell Content="@[Warehouse]"></SheetCell>
+							<SheetCell Content="{Bind Parent.Filter.Warehouse.Name}" Bold="True"></SheetCell>
 						</SheetRow>
 					</SheetSection>
 					<SheetSection >

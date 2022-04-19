@@ -25,28 +25,28 @@
 	</Dialog.Taskpad>
 	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem">
 		<Grid Grid.Row="1" AutoFlow="Column" AlignItems="Baseline"
-				Columns="Auto,2rem,Auto,2rem,Auto,1*">
+				Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,25rem">
 			<Header Content="Замовлення" Grid.VAlign="Baseline"/>
 			<Label Align="Right">№</Label>
 			<TextBox Placeholder="Авто" Width="10rem" Value="{Bind Document.Id}"/>
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}" Width="10rem"/>
+			<Label Grid.Row="1" Grid.Col="7" Align="Right">@[Company]</Label>
+			<Selector Grid.Row="1" Grid.Col="8" Value="{Bind Document.Company}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
 		</Grid>
-		<Grid Grid.Row="2" Columns="Auto,1*,4rem,Auto,1*,4rem,Auto,1*">
+		<Grid Grid.Row="2" Columns="Auto,1*,1rem,Auto,1*,1rem,Auto,1*">
 			<Label Grid.Row="1" Grid.Col="1">@[Customer]</Label>
 			<Selector Grid.Row="1" Grid.Col="2" Label="" Value="{Bind Document.Agent}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Label Grid.Row="1" Grid.Col="4" Align="Right">@[Company]</Label>
-			<Selector Grid.Row="1" Grid.Col="5" Value="{Bind Document.Company}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
-				</Selector.AddOns>
-			</Selector>
-			<Label Grid.Row="2" Grid.Col="1">@[Contract]</Label>
-			<Selector Grid.Row="2" Grid.Col="2" DisplayProperty="Name">
+			<Label Grid.Row="1" Grid.Col="4">@[Contract]</Label>
+			<Selector Grid.Row="1" Grid.Col="5" DisplayProperty="Name" Placeholder="">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/contract/browse'}"/>
 				</Selector.AddOns>

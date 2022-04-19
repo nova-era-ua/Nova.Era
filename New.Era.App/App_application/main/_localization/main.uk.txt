@@ -127,6 +127,7 @@
 @Browse.CashAccount=Вибір каси
 @Browse.Currency=Вибір валюти
 @Browse.Currencies=Вибір валют
+@Browse.Contract=Вибір договору
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків

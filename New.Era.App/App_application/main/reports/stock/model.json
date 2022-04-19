@@ -5,6 +5,7 @@
   "actions": {
     "rto_items": {
       "model": "Report.Turnover.Item",
+      "template": "../_common/simple.template",
       "view": "turnover.item.view"
     }
   }

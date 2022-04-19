@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1012
-generated: 19.04.2022 16:53:09
+generated: 19.04.2022 22:50:17
 */
 
 
@@ -940,7 +940,9 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null and @Id <> -1
+	if @Id = -1 
+		set @name = N'@[Placeholder.AllWarehouses]';
+	else if @Id is not null and @Id <> -1
 		select @name = [Name] from cat.Warehouses where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
@@ -951,7 +953,9 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null and @Id <> -1
+	if @Id = -1
+		set @name = N'@[Placeholder.AllCompanies]';
+	else if @Id is not null
 		select @name = [Name] from cat.Companies where TenantId=@TenantId and Id=@Id;
 	return @name;
 end
@@ -4193,15 +4197,19 @@ begin
 	if exists(select 1 from @tr where _modesum = N'S' and _moderow = N'')
 	begin
 		-- total self cost for this transaction
-		with W(trno, ssum) as (
-			select t.item, [sum] = sum(j.[Sum]) / sum(j.Qty)
+		with W(trno, item, ssum) as (
+			select t.trno, j.Item, [sum] = (sum(j.[Sum]) / sum(j.[Qty])) * t.qty
 			from jrn.Journal j 
 			  inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] <= t.[date]
-			where j.TenantId = @TenantId and t._modesum = N'S' and _moderow = 'R'
+			where j.TenantId = @TenantId and _moderow = 'R'
+			group by trno, j.Item, t.qty
+		),
+		WT(trno, ssum) as (
+			select trno, sum(ssum) from W
 			group by trno
 		)
-		update @tr set [ssum] = W.ssum 
-		from @tr t inner join W on t.trno = W.trno
+		update @tr set [ssum] = WT.ssum
+		from @tr t inner join WT on t.trno = WT.trno
 		where t._modesum = N'S' and t._moderow = N'';
 	end
 
@@ -4513,7 +4521,10 @@ begin
 	declare @end date = dateadd(day, 1, @To);
 
 	select @Company = isnull(@Company, Company), @Warehouse = isnull(@Warehouse, Warehouse)
-	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+		from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
+	declare @warh bigint = nullif(@Warehouse, -1);
+
 
 	declare @acc bigint;
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
@@ -4529,11 +4540,11 @@ begin
 		EndSum  = cast(0 as money),
 		ItemGroup = grouping(Item)
 	into #tmp
-	from jrn.Journal where TenantId = @TenantId and Account = @acc and Company = @Company
-		and Warehouse = @Warehouse
+	from jrn.Journal where TenantId = @TenantId and Account = @acc 
+		and (@comp is null or Company = @comp)
+		and (@warh is null or Warehouse = @warh)
 		and [Date] < @end
 	group by rollup(Item);
-
 	update #tmp set EndQty = StartQty + InQty - OutQty, EndSum = StartSum + InSum - OutSum;
 
 	-- turnover
