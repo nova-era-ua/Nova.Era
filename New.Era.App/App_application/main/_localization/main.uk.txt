@@ -60,7 +60,7 @@
 @CashAccounts=Каси
 @CashAccount=Каса
 @Contracts=Договори
-@Contract=Договор
+@Contract=Договір
 @Banks=Банки
 @Bank=Банк
 @Vendors=Виробники

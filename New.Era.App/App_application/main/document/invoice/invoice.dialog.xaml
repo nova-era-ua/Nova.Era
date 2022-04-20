@@ -29,7 +29,6 @@
 			<Panel Padding=".5rem"
 				   Style="Default" Header="Інформація про покупця" Collapsible="True" Compact="True">
 				<Include Source="/catalog/agent/customerinfo" Argument="{Bind Document.Agent.Id}"/>
-				<Text>Text for taskpad panel</Text>
 			</Panel>
 		</Taskpad>
 	</Dialog.Taskpad>
@@ -124,7 +123,7 @@
 				</Block>
 			</Case>
 		</Switch>
-		<Grid Columns="Auto, 1*,Auto" Grid.Row="6" AlignItems="Top">
+		<Grid Columns="Auto, 1*,Auto" Grid.Row="6" AlignItems="Top" Gap="1rem">
 			<Label Grid.Col="1" Content="@[Memo]" Grid.VAlign="Top"/>
 			<TextBox Grid.Col="2" Value="{Bind Document.Memo}" Multiline="True" Rows="2"/>
 			<Block Grid.Col="3" Width="30rem">

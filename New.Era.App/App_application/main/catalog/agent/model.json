@@ -9,6 +9,7 @@
       "view": "index.view"
     },
     "customerinfo": {
+      "skipDataStack": true,
       "view": "partials/customerinfo.partial"
     }
   },

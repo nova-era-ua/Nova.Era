@@ -1,6 +1,6 @@
-﻿<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
 	<Header Content="{Bind Agent.Name}" Size="Small"/>
 	<Text>
-		Customer info here
+		Тут має бути інформація про покупця
 	</Text>
-</Partial>
+</PartialBlock>
