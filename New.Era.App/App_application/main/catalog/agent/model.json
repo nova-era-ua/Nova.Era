@@ -7,6 +7,9 @@
       "index": true,
       "template": "index.template",
       "view": "index.view"
+    },
+    "customerinfo": {
+      "view": "partials/customerinfo.partial"
     }
   },
   "dialogs": {

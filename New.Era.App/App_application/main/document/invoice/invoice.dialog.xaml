@@ -6,6 +6,11 @@
 			Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
 		<Button If="{Bind Document.Done}"
 			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
+		<Button Content="@[Print]">
+			<Button.DropDown>
+				<DropDownMenu />
+			</Button.DropDown>
+		</Button>
 		<Button Content="@[Close]" Command="{BindCmd Close}" />
 		<Separator />
 		<Label Content="@[Operation]"/>
@@ -21,12 +26,17 @@
 				<Hyperlink 
 					Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
 			</Block>
+			<Panel Padding=".5rem"
+				   Style="Default" Header="Інформація про покупця" Collapsible="True" Compact="True">
+				<Include Source="/catalog/agent/customerinfo" Argument="{Bind Document.Agent.Id}"/>
+				<Text>Text for taskpad panel</Text>
+			</Panel>
 		</Taskpad>
 	</Dialog.Taskpad>
 	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem">
 		<Grid Grid.Row="1" AutoFlow="Column" AlignItems="Baseline"
 				Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,25rem">
-			<Header Content="Замовлення" Grid.VAlign="Baseline"/>
+			<Header Content="Замовлення" Grid.VAlign="Baseline" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
 			<TextBox Placeholder="Авто" Width="10rem" Value="{Bind Document.Id}"/>
 			<Label Align="Right">від</Label>
@@ -100,7 +110,7 @@
 							<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 							<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 							<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
-							<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"></Hyperlink>
+							<Hyperlink Icon="Clear" Command="{BindCmd Remove, Argument={Bind}}"></Hyperlink>
 						</TableRow>
 						<Table.Footer>
 							<TableRow>
@@ -114,9 +124,10 @@
 				</Block>
 			</Case>
 		</Switch>
-		<Grid Columns="1*,Auto" Grid.Row="6" >
-			<TextBox Grid.Col="1" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="2"/>
-			<Block Grid.Col="2" Width="30rem">
+		<Grid Columns="Auto, 1*,Auto" Grid.Row="6" AlignItems="Top">
+			<Label Grid.Col="1" Content="@[Memo]" Grid.VAlign="Top"/>
+			<TextBox Grid.Col="2" Value="{Bind Document.Memo}" Multiline="True" Rows="2"/>
+			<Block Grid.Col="3" Width="30rem">
 				GrandTotal
 			</Block>
 		</Grid>

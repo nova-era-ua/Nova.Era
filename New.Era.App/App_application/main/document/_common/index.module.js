@@ -15,7 +15,10 @@ define(["require", "exports"], function (require, exports) {
         commands: {
             clearFilter,
             create,
-            editSelected,
+            editSelected: {
+                exec: editSelected,
+                canExec(docs) { return docs.$hasSelected; }
+            },
             edit
         }
     };

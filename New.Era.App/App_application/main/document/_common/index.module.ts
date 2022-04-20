@@ -15,7 +15,10 @@ const template: Template = {
 	commands: {
 		clearFilter,
 		create,
-		editSelected,
+		editSelected: {
+			exec: editSelected,
+			canExec(docs: TDocuments) { return docs.$hasSelected; }
+		},
 		edit
 	}
 };

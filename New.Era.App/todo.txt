@@ -15,6 +15,7 @@
 
 53. Operations. Form in list
 56. BankAccount: Set BankId from AccountNo.
+57. 
 
 Small fixes
 ===========

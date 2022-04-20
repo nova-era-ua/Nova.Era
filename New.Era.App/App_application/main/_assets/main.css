@@ -25,13 +25,14 @@
 }
 .modal.button-on-top .modal-footer {
   padding: 0.5rem 1rem;
-  align-items: baseline;
+  align-items: start;
   gap: 1rem;
 }
 .modal.button-on-top .modal-footer .control-group {
   margin: 0;
 }
-.modal.button-on-top .modal-footer .btn {
+.modal.button-on-top .modal-footer .btn,
+.modal.button-on-top .modal-footer .dropdown {
   margin-left: 0 !important;
 }
 /*PLATFORM*/
