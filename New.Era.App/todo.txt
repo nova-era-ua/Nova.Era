@@ -15,7 +15,9 @@
 
 53. Operations. Form in list
 56. BankAccount: Set BankId from AccountNo.
-57. 
+57. BankAccount/Cash - неправильный placeholder при выборе
+(в списке документов показывается "все касы")
+
 
 Small fixes
 ===========
