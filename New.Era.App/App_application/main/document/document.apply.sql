@@ -82,7 +82,7 @@ begin
 			from jrn.Journal j 
 			  inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] <= t.[date]
 			where j.TenantId = @TenantId and _moderow = 'R'
-			group by trno, j.Item, t.qty
+			group by t.trno, j.Item, t.qty
 		),
 		WT(trno, ssum) as (
 			select trno, sum(ssum) from W
