@@ -162,9 +162,12 @@ begin
 
 	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
 	(201, N'Purchase',   11, N'@[Items]',  N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N''),
+
 	-- accounting
 	(300, N'Accounting', 10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
 	(301, N'Accounting', 11, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
+	(305, N'Accounting',  12, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
+	(306, N'Accounting',  13, N'@[Sales]',  N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N''),
 	-- settings
 	(900, N'Settings',  10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
 	(901, N'Settings',  11, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),

@@ -133,6 +133,7 @@
 @By.Plan=По плану рахунків
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
+@Label.Cash.Account=Каса/Рахунок
 ; 
 @Error.Required=Обов\'язкове поле
 @Error.Currency.Len=Код має мати довжину 3 символа

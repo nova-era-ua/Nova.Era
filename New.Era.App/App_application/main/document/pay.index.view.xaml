@@ -34,7 +34,7 @@
 			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number" SortProperty="sum"/>
 			<DataGridColumn Header="@[Operation]" Content="{Bind Operation.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
-			<DataGridColumn Header="@[CashAccount]" Content="{Bind $CashAccount}" Sort="False" Wrap="NoWrap"/>
+			<DataGridColumn Header="@[Label.Cash.Account]" Content="{Bind $CashAccount}" Sort="False" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Sort="False"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
@@ -71,7 +71,7 @@
 						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Agent}}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Selector Label="@[CashAccount]"  Placeholder="@[Placeholder.AllCashAccounts]"
+			<Selector Label="@[Label.Cash.Account]"  Placeholder="@[Placeholder.AllCashAccounts]"
 					  Value="{Bind Parent.Filter.CashAccount}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.CashAccount}, Url='/catalog/bankaccount/browse'}"/>
