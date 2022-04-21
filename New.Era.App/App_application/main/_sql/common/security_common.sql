@@ -176,9 +176,33 @@ begin
 end
 go
 ------------------------------------------------
--- TODO: move to securitySchema
+create or alter procedure appsec.[User.SetPasswordHash]
+@UserId bigint,
+@PasswordHash nvarchar(max)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	update appsec.ViewUsers set PasswordHash2 = @PasswordHash where Id=@UserId;
+end
+go
 ------------------------------------------------
-create or alter procedure a2security.[User.ChangePassword.Load]
+create or alter procedure appsec.[User.SetSecurityStamp]
+@UserId bigint,
+@SecurityStamp nvarchar(max)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	update appsec.ViewUsers set SecurityStamp2 = @SecurityStamp where Id=@UserId;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.[User.ChangePassword.Load]
 	@TenantId int = 0,
 	@UserId bigint
 as
