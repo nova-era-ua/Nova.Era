@@ -5,12 +5,11 @@
 # Як це запустити
 Для того, щоб запуститися і погратися на локальному комп'ютері з Windows з нуля, потрібно:
 
-1. Встановити **Mіcrosoft SQL Express** не старіший за 2016 
-(https://www.microsoft.com/en-us/Download/details.aspx?id=101064)  
+1. Встановити **Mіcrosoft SQL Express** 2016 або новіший 
+[завантажити](https://www.microsoft.com/en-us/Download/details.aspx?id=101064).  
 Якщо ліньки розбиратися - встановлювати все по дефолту.  
 Можна не встановлювати всякі Mashine Learning Services and Language Extentions, достатньо просто сервера.  
-Для зручності корисно мати ще й **SQL Server Management Studio** (SSMS)
-(https://aka.ms/ssmsfullsetup). 
+Для зручності корисно мати ще й [SQL Server Management Studio (SSMS)](https://aka.ms/ssmsfullsetup). 
 
 2. Створити базу даних для експериментів, наприклад і іменем neweradb.  
 
@@ -37,10 +36,6 @@ https://visualstudio.microsoft.com/ru/thank-you-downloading-visual-studio/?sku=C
 
 7. Все, можна тицяти в Visual Studio Ctrl+F5 (Run Without Debug) і дивитися на результат в браузері.
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
-
-- 
+Не забувайте оновлювати весь софт до актуальних версій.
+Якщо Build проходить з помилками - спершу оновіть Visual Studio.
