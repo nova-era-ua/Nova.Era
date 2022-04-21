@@ -10,7 +10,7 @@
 Можна не встановлювати всілякі Mashine Learning Services and Language Extentions, достатньо просто сервера.  
 Для зручності корисно мати під рукою ще й [SQL Server Management Studio (SSMS)](https://aka.ms/ssmsfullsetup). 
 
-2. Створити базу даних для експериментів, наприклад і іменем neweradb.  
+2. Створити базу даних для експериментів, наприклад з іменем neweradb.  
 
 3. Встановити [Microsoft Visual Studio Community Edition](https://visualstudio.microsoft.com/ru/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&passive=false&cid=2030).  
 Встановлювати можна по мінімуму, якщо чогось не вистачить - можна буде довстановити автоматично на ходу.
@@ -30,7 +30,8 @@
 6. На своїй новоствореній базі виконати два скрипта:  
 спочатку `\New.Era\New.Era.App\App_application\@sql\platform\a2v10platform.sql`  
 потім `\New.Era\New.Era.App\App_application\SqlScripts\application.sql`  
-Або з самої Visual Studio, або з SQL Server Management Studio (швидче), обов'язково в наведеному порядку.  
+обов'язково в наведеному порядку.
+Це можна зробити або з самої Visual Studio (доведеться повозитися з додатковими налаштуваннями), або з SQL Server Management Studio, що швидче і простіше.
 
 7. Власне і все, можна переключити Solution Configurations на Release, збирати проект (Build Solution, або Ctrl+Shift+B), і тицяти в Ctrl+F5 (Run Without Debug) і дивитися на результат в браузері.
 
