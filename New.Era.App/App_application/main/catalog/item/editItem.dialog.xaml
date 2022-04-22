@@ -1,23 +1,57 @@
 ﻿<!-- Edit Item -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="{Bind Item.$Title, Format='@[ItemProperties] [{0}]'}" Size="Small" Overflow="True">
+		Title="{Bind Item.$Title, Format='@[ItemProperties] [{0}]'}" Overflow="True">
 	<Dialog.Buttons>
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid>
-		<TextBox Label="@[Name]" Value="{Bind Item.Name}" UpdateTrigger="Input" Bold="True"/>
-		<Selector Label="@[Unit]" Value="{Bind Item.Unit}" DisplayProperty="Short">
+	<Grid Columns="1*,1*">
+		<TextBox Grid.Row="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Item.Name}" Bold="True" TabIndex="1"/>
+		<FieldSet Orientation="Horizontal" Grid.Row="2" Grid.ColSpan="2">
+			<Radio Label="Запас" Value="{Bind Item.IsStock}" CheckedValue="true"/>
+			<Radio Label="Послуга або робота" Value="{Bind Item.IsStock}" CheckedValue="false"/>
+		</FieldSet>
+		<Selector Grid.Row="3" Label="@[Unit]" Value="{Bind Item.Unit}" DisplayProperty="Short" Width="10rem">
 			<Selector.AddOns>
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>
 			</Selector.AddOns>
 		</Selector>
-		<FieldSet>
-			<Radio Label="Запас" Value="{Bind Item.IsStock}" CheckedValue="true"/>
-			<Radio Label="Послуга або робота" Value="{Bind Item.IsStock}" CheckedValue="false"/>
-		</FieldSet>
-		<TextBox Label="@[Article]" Value="{Bind Item.Article}" UpdateTrigger="Input"/>
-		<TextBox Label="@[Memo]" Value="{Bind Item.Memo}" UpdateTrigger="Input" Multiline="True"/>
+		<TextBox Grid.Row="3" Grid.Col="2" Label="@[Article]" Value="{Bind Item.Article}" UpdateTrigger="Input"/>
+		<TabBar Grid.Row="4" Grid.ColSpan="2" Value="{Bind Root.$$Tab}">
+			<TabButton Content="Групування" ActiveValue=""/>
+		</TabBar>
+		<Block Grid.Row="5" Grid.ColSpan="2" Height="10rem" Scroll="True">
+			<Table ItemsSource="{Bind Hierarchies}" GridLines="Horizontal" Width="100%"
+				   Columns="Fit,100%">
+				<Table.Header>
+					<TableRow>
+						<TableCell Wrap="NoWrap">Групування</TableCell>
+						<TableCell>Група</TableCell>
+					</TableRow>
+				</Table.Header>
+				<TableRow>
+					<TableCell Content="{Bind Name}" Wrap="NoWrap" VAlign="Top"/>
+					<TableCell>
+						<Table ItemsSource="{Bind Elements}" Columns="100%,Fit"
+							   Compact="True" Width="100%" GridLines="Horizontal">
+							<TableRow>
+								<TableCell Content="{Bind Path}"/>
+								<Hyperlink Size="Small" Icon="Clear" Command="{BindCmd Remove, Argument={Bind}}"/>
+							</TableRow>
+							<Table.Footer>
+								<TableRow CssClass="footer-normal">
+									<TableCell ColSpan="2">
+										<Hyperlink Size="Small" Icon="Plus" Content="@[Add]" 
+												   Command="{BindCmd Execute, CommandName=addHierarchy, Argument={Bind Elements}}"/>
+									</TableCell>
+								</TableRow>
+							</Table.Footer>
+						</Table>
+					</TableCell>
+				</TableRow>
+			</Table>
+		</Block>
+		<TextBox Grid.Row="6" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind Item.Memo}" UpdateTrigger="Input" Multiline="True"/>
 	</Grid>
 </Dialog>
 

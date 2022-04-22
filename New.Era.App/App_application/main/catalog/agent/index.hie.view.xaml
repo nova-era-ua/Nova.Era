@@ -12,6 +12,9 @@
 		<Toolbar Style="Light" Padding="0">
 			<Button Icon="Plus" Content="@[Create]"
 					Command="{BindCmd Dialog, Action=Append, Argument={Bind Agents}, Url='/catalog/agent/edit'}"/>
+			<Button Icon="Edit"/>
+			<Button Icon="Delete"/>
+			<Separator/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}"
 				  DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Agents}, Url='/catalog/agent/edit'}">
@@ -28,6 +31,24 @@
 	</Grid>
 	<Page.Taskpad>
 		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
+			<StackPanel Orientation="Vertical" Gap=".7rem">
+				<CheckBox Label="Покупці" />
+				<CheckBox Label="Постачальники" />
+				<CheckBox Label="Інше" />
+			</StackPanel>
+
+			<Panel Header="Групування" Collapsible="True" CssClass="panel-transparent">
+				<StackPanel Orientation="Horizontal" Gap="1rem">
+					<Radio CheckedValue="1" Label="По списках"/>
+					<Radio CheckedValue="1" Label="Групування"/>
+				</StackPanel>
+				<ComboBox Label="Групування">
+
+				</ComboBox>
+			</Panel>
+			<TreeView>
+				
+			</TreeView>
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

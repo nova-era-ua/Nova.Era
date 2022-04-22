@@ -58,3 +58,22 @@ begin
 	return @TenantId;
 end
 go
+------------------------------------------------
+create or alter function cat.fn_GetItemBreadcrumbs(@TenantId int, @Id bigint, @sep nvarchar(32) = null)
+returns nvarchar(max)
+as
+begin
+	set @sep = isnull(@sep, N' > ');
+	declare @path nvarchar(max);
+	with T(Id, Parent, [Level]) as (
+		select Id, Parent, 0 from cat.ItemTree where TenantId = @TenantId and Id = @Id
+		union all 
+		select it.Id, it.Parent, [Level] = T.[Level] + 1 
+			from T inner join cat.ItemTree it on it.TenantId = @TenantId and it.Id = T.Parent
+		where it.Id <> it.[Root] and it.TenantId = @TenantId
+	)
+	select @path = string_agg([Name], @sep) within group (order by T.[Level] desc)
+	from T inner join cat.ItemTree it on it.TenantId = @TenantId and T.Id = it.Id 
+	return @path;
+end
+go

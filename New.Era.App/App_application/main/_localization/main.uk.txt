@@ -43,6 +43,9 @@
 @Leads=Ліди
 @Lead=Лід
 @Defaults=Замовчування
+@Grouping=Групування
+@Grouping.Item=Групування об'єктів обліку
+@ItemCategory=Категорії об'єктів обліку
 ;
 @Id=Id
 @Unit=Од.вим.
@@ -128,6 +131,7 @@
 @Browse.Currency=Вибір валюти
 @Browse.Currencies=Вибір валют
 @Browse.Contract=Вибір договору
+@Browse.Group=Вибір групи
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків

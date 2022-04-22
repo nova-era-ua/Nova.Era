@@ -319,23 +319,27 @@ go
 ------------------------------------------------
 create or alter procedure cat.[Item.Item.Load]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
-@Id bigint = null,
-@Parent bigint = null
+@Id bigint = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	if @Parent is null
-		select @Parent = Parent from cat.ItemTreeItems where Item =@Id;
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
 		i.IsStock,
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i 
 		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId and i.Id=@Id and i.Void = 0;
+
+	select [Hierarchies!THie!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
+		[Elements!THieElem!Array] = null
+	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
 	
+	select [!THieElem!Array] = null, [Id!!Id] = iti.Id, [!THie.Elements!ParentId] = iti.[Root],
+		[Path] = cat.fn_GetItemBreadcrumbs(@TenantId, iti.Parent, null)
+	from cat.ItemTreeElems iti 
+	where TenantId = @TenantId  and iti.Item = @Id;
 end
 go
 -------------------------------------------------
@@ -490,8 +494,10 @@ begin
 	-- TODO: check if there are any references
 	begin tran
 	update cat.Items set Void=1 where TenantId = @TenantId and Id = @Id;
+	/*
 	delete from cat.ItemTreeItems where
 		TenantId = @TenantId and Item = @Id;
+	*/
 	commit tran;
 end
 go

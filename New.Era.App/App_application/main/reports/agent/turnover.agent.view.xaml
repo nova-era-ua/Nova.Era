@@ -19,7 +19,7 @@
 				<Button Icon="Reload" Command="{BindCmd Reload}" />
 				<Separator />
 				<Button Icon="Print" Command="{BindCmd Print}" />
-				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel}" />
+				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel, FileName={Bind Report.Name}}" />
 			</Toolbar>
 			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
 				<Sheet GridLines="Both" Columns="Auto,20rem,8rem+A,8rem,8rem,8rem+A">

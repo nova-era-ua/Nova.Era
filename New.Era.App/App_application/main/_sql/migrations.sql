@@ -6,3 +6,6 @@ begin
 	alter table cat.Currencies drop column [Char];
 end
 go
+
+drop table if exists cat.ItemTreeItems;
+

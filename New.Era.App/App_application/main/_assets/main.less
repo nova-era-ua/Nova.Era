@@ -29,6 +29,9 @@
     background-color:#ccc;
 }
 
+.a2-table > tfoot > tr.footer-normal > td {
+    background-color:transparent;
+}
 
 /*PLATFORM*/
 .toolbar {
@@ -40,4 +43,20 @@
 
 .a2-table.compact > tbody > tr > td, .a2-table.compact thead > tr > td, .a2-table.compact tfoot > tr > td {
     line-height:1.67;
+}
+
+.panel.panel-transparent {
+    background-color: transparent;
+    border: none;
+
+    .panel-header {
+        background-color: transparent;
+        border:none;
+        padding:0;
+        color: var(--themeLight);
+        font-size:115%;
+        .panel-collapse-handle {
+            color:inherit;
+        }
+    }
 }

@@ -157,7 +157,8 @@ begin
 		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
 	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
 	(100, N'Sales', 10, N'@[Items]', N'@[Units]',    N'/catalog/unit/index', N'list',  N''),
-	--(101, N'Sales', 11, N'@[Items]', N'@[Vendors]',  N'/catalog/vendor/index', N'list',  N''),
+	(101, N'Sales', 11, N'@[Items]', N'@[ItemCategory]', N'/catalog/itemcategory/index', N'list',  N''),
+	(102, N'Sales', 11, N'@[Items]', N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
 	--(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
 
 	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
