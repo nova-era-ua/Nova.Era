@@ -1,0 +1,11 @@
+﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Sheet Width="100%" Columns="Auto,Fit"		   
+			GridLines="Horizontal">
+		<SheetSection ItemsSource="{Bind Rems}">
+			<SheetRow>
+				<SheetCell Content="{Bind WhName}"/>
+				<SheetCell>unknown</SheetCell>
+			</SheetRow>
+		</SheetSection>
+	</Sheet>
+</PartialBlock>

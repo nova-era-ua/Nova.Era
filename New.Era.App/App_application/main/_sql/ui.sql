@@ -129,20 +129,20 @@ begin
 		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
 		-- Settings
-		(880,   88, 10, N'@[Catalogs]',     null, null, null),
-		(8811, 880, 11, N'@[Companies]',    N'company',   N'company', null),
-		(8812, 880, 12, N'@[Warehouses]',   N'warehouse', N'warehouse', null),
-		(8813, 880, 13, N'@[BankAccounts]', N'bankacc',   N'bank', null),
-		(8814, 880, 14, N'@[CashAccounts]', N'cashacc',   N'currency-uah', null),
-		(8815, 880, 15, N'@[Agents]',       N'agent',     N'users', null),
-		(8816, 880, 16, N'@[Items]',        N'item',      N'package-outline', null),
-		(8817, 880, 16, N'@[CatalogOther]', N'catalog',   N'list', null),
-		(881,   88, 11, N'@[Settings]',     null, null, null),
-		(8820, 881, 17, N'@[AccountPlans]', N'accountplan', N'account',  null),
-		(8821, 881, 18, N'@[Operations]',   N'operation',   N'file-content', null),
-		(882,   88, 12, N'@[Administration]', null, null, null),
-		(8830, 882, 16, N'@[Users]',        N'user',    N'user',  null),
+		(882,   88, 11, N'@[Settings]',     null, null, null),
+		(881,   88, 12, N'@[Catalogs]',     null, null, null),
+		(883,   88, 13, N'@[Administration]', null, null, null),
 		(8850,  88, 20, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
+		(8830, 883, 16, N'@[Users]',        N'user',    N'user',  null),
+		(8811, 881, 11, N'@[Companies]',    N'company',   N'company', null),
+		(8812, 881, 12, N'@[Warehouses]',   N'warehouse', N'warehouse', null),
+		(8813, 881, 13, N'@[BankAccounts]', N'bankacc',   N'bank', null),
+		(8814, 881, 14, N'@[CashAccounts]', N'cashacc',   N'currency-uah', null),
+		(8815, 881, 15, N'@[Agents]',       N'agent',     N'users', null),
+		(8816, 881, 16, N'@[Items]',        N'item',      N'package-outline', null),
+		(8817, 881, 16, N'@[CatalogOther]', N'catalog',   N'list', null),
+		(8820, 882, 17, N'@[AccountPlans]', N'accountplan', N'account',  null),
+		(8821, 882, 18, N'@[Operations]',   N'operation',   N'file-content', null),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 

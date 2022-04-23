@@ -6,6 +6,9 @@ define(["require", "exports"], function (require, exports) {
             'TRoot.$$Tab': String,
             'TItem.$Title'() { return this.Id ? this.Id : '@[NewItem]'; }
         },
+        defaults: {
+            'Item.IsStock': true
+        },
         validators: {
             'Item.Name': '@[Error.Required]'
         },
@@ -23,6 +26,8 @@ define(["require", "exports"], function (require, exports) {
                 return makePath(p, sep) + sep + item.Name;
             return item.Name;
         }
-        elems.$append({ Id: 0, Path: makePath(item, ' > ') });
+        if (elems.find(h => h.Group === item.Id))
+            return;
+        elems.$append({ Group: item.Id, Path: makePath(item, ' > ') });
     }
 });

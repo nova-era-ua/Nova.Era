@@ -18,6 +18,11 @@
       "index": true,
       "model": "GroupItem.Browse",
       "view": "browse.dialog"
+    },
+    "edithie": {
+      "model": "HierarchyItem",
+      "template": "hierarchy.template",
+      "view": "hierarchy.dialog"
     }
   }
 }

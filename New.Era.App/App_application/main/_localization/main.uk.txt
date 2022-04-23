@@ -45,6 +45,7 @@
 @Defaults=Замовчування
 @Grouping=Групування
 @Grouping.Item=Групування об'єктів обліку
+@NoGrouping=<Без групування>
 @ItemCategory=Категорії об'єктів обліку
 ;
 @Id=Id
@@ -117,6 +118,7 @@
 @Placeholder.AllWarehouses=<Всі склади>
 @Placeholder.AllBankAccounts=<Всі рахунки в банках>
 @Placeholder.AllCashAccounts=<Всі каси>
+@Placeholder.AllItems=<Всі об'єкти обліку>
 ;
 @Browse.Company=Вибір підприємства
 @Browse.Warehouse=Вибір складу

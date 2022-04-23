@@ -6,6 +6,9 @@ const template: Template = {
 		'TRoot.$$Tab': String,
 		'TItem.$Title'(this: TItem) { return this.Id ? this.Id : '@[NewItem]' }
 	},
+	defaults: {
+		'Item.IsStock': true
+	},
 	validators: {
 		'Item.Name': '@[Error.Required]'
 	},
@@ -27,5 +30,7 @@ async function addHierarchy(elems) {
 		return item.Name;
 	}
 
-	elems.$append({ Id: 0, Path: makePath(item, ' > ') });
+	if (elems.find(h => h.Group === item.Id)) return; // already in list
+
+	elems.$append({ Group: item.Id, Path: makePath(item, ' > ') });
 }

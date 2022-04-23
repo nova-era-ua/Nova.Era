@@ -10,79 +10,78 @@ from cat.Items i
 	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 go
 -------------------------------------------------
-create or alter procedure cat.[Item.Index]
+create or alter procedure cat.[Item.Group.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
-@HideSearch bit = 0,
-@HieId bigint = 1
+@Group bigint = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	with T(Id, [Name], Icon, HasChildren, IsSpec)
+	if @Group is null
+		select top(1) @Group = Id from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
+
+	with T(Id, [Name], HasChildren, Icon)
 	as (
-		select Id = cast(-1 as bigint), [Name] = N'@[SearchResult]', Icon='search',
-			HasChildren = cast(0 as bit), IsSpec=1
-		where @HideSearch = 0
+		select Id = -1, [Name] = N'@[NoGrouping]', 0, Icon=N'package-outline'
 		union all
-		select Id, [Name], Icon = N'folder-outline',
+		select Id, [Name],
 			HasChildren= case when exists(
-				select 1 from cat.ItemTree it where it.Void = 0 and it.Parent = t.Id and it.TenantId = @TenantId and t.TenantId = @TenantId
+				select 1 from cat.ItemTree it where it.Void = 0 
+				and it.Parent = t.Id and it.TenantId = @TenantId and t.TenantId = @TenantId
 			) then 1 else 0 end,
-			IsSpec = 0
+			Icon = N'folder-outline'
 		from cat.ItemTree t
-			where t.TenantId = @TenantId and t.Void = 0 and t.Parent = @HieId
+			where t.TenantId = @TenantId and t.Void = 0 and t.Parent = @Group
 	)
-	select [Folders!TFolder!Tree] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon,
+	select [Groups!TGroup!Tree] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon,
 		/*nested folders - lazy*/
-		[SubItems!TFolder!Items] = null, 
+		[Items!TGroup!Items] = null, 
 		/* marker: subfolders exist */
 		[HasSubItems!!HasChildren] = HasChildren,
 		/*nested items (not folders!) */
-		[Children!TItem!LazyArray] = null
+		[Elements!TItem!LazyArray] = null
 	from T
-	order by [IsSpec], [Id];
+	order by [Id];
 
-	select [Hierarchy!THierarchy!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
-	from cat.ItemTree where Id= @HieId;
-
-	-- Children recordset declaration
-	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
-		[ParentFolder.Id!TParentFolder!Id] = iti.Parent, [ParentFolder.Name!TParentFolder!Name] = it.[Name]
-	from cat.Items i 
-		inner join cat.ItemTreeItems iti on iti.Item = i.Id and iti.TenantId = i.TenantId
-		inner join cat.ItemTree it on iti.Parent = it.Parent and iti.TenantId = it.TenantId
+	-- Elements definition
+	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
+		i.Article, i.Memo, i.IsStock,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
+	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where 0 <> 0;
+
+	select [Hierarchies!THie!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
+	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id <> Parent and Id <> 0;
+
+	select [!$System!] = null,
+		[!Hierarchies.Group!Filter] = @Group
 end
 go
 -------------------------------------------------
-create or alter procedure cat.[Item.Expand]
+create or alter procedure cat.[Item.Group.Expand]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	select [SubItems!TFolder!Tree] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon = N'folder-outline',
-		[SubItems!TFolder!Items] = null,
+	select [Items!TGroup!Tree] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
+		[Items!TGroup!Items] = null,
 		[HasSubItems!!HasChildren] = case when exists(select 1 from cat.ItemTree c where c.Void=0 and c.Parent=a.Id) then 1 else 0 end,
-		[Children!TItem!LazyArray] = null
+		Icon = N'folder-outline'
 	from cat.ItemTree a where Parent = @Id and Void=0;
 end
 go
 -------------------------------------------------
-create or alter procedure cat.[Item.Children]
+create or alter procedure cat.[Item.Group.Elements]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
-@Id bigint,
-@Offset int = 0,
+@Id bigint = null, -- GroupId
+@Offset int = 0, 
 @PageSize int = 20,
 @Order nvarchar(255) = N'name',
 @Dir nvarchar(20) = N'asc',
@@ -100,43 +99,49 @@ begin
 	set @Order = lower(@Order);
 	set @fr = N'%' + upper(@Fragment) + N'%';
 
-	with T(Id, Parent, RowNumber)
-	as (
-		select Id, Parent,
-			[RowNumber] = row_number() over (
-				order by 
-					case when @Order=N'id'   and @Dir=@Asc  then i.Id end asc,
-					case when @Order=N'id'   and @Dir=@Desc then i.Id end desc,
-					case when @Order=N'name' and @Dir=@Asc  then i.[Name] end asc,
-					case when @Order=N'name' and @Dir=@Desc then i.[Name] end desc,
-					case when @Order=N'article' and @Dir=@Asc  then i.Article end asc,
-					case when @Order=N'article' and @Dir=@Desc then i.Article end desc,
-					case when @Order=N'memo' and @Dir=@Asc  then i.Memo end asc,
-					case when @Order=N'memo' and @Dir=@Desc then i.Memo end desc
-			)
-			from cat.Items i
-			inner join cat.ItemTreeItems iti on i.TenantId = iti.TenantId and i.Id = iti.Item
-		where i.Void = 0 and (
-			i.TenantId = @TenantId and iti.TenantId = @TenantId and iti.Parent = @Id or
-				(@Id = -1 and (upper([Name]) like @fr or upper(Memo) like @fr))
-			)
-	) select [Children!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.FullName, i.Article, i.Memo, 
-		[ParentFolder.Id!TParentFolder!Id] = T.Parent, [ParentFolder.Name!TParentFolder!Name] = tr.[Name],
+	declare @items table(rowno int identity(1, 1), id bigint, unit bigint, rowcnt int);
+
+	insert into @items(id, unit, rowcnt)
+	select i.Id, i.Unit,
+		count(*) over()
+	from cat.Items i
+		left join cat.ItemTreeElems ite on i.TenantId = ite.TenantId and i.Id = ite.Item
+	where i.TenantId = @TenantId
+		and (@Id = -1 or @Id = ite.Parent)
+		and (@fr is null or [Name] like @fr or Memo like @fr or Article like @fr)
+	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo
+	order by 
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'name' then i.[Name]
+				when N'article' then i.[Article]
+				when N'memo' then i.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'name' then i.[Name]
+				when N'article' then i.[Article]
+				when N'memo' then i.[Memo]
+			end
+		end desc,
+		i.Id
+	offset @Offset rows fetch next @PageSize rows only
+	option (recompile);
+
+	select [Elements!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
+		i.Article, i.Memo, i.IsStock,
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
-		[!!RowCount]  = (select count(1) from T)
-	from T inner join cat.Items i on T.Id = i.Id and i.TenantId = @TenantId
-		inner join cat.ItemTree tr on T.Parent = tr.Id and tr.TenantId = @TenantId
+		[!!RowCount]  = t.rowcnt
+	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
-	order by RowNumber offset (@Offset) rows fetch next (@PageSize) rows only;
+	order by t.rowno;
 
 	-- system data
 	select [!$System!] = null,
-		[!Children!PageSize] = @PageSize, 
-		[!Children!SortOrder] = @Order, 
-		[!Children!SortDir] = @Dir,
-		[!Children!Offset] = @Offset,
-		[!Children.Fragment!Filter] = @Fragment
+		[!Elements!Offset] = @Offset, [!Elements!PageSize] = @PageSize, 
+		[!Elements!SortOrder] = @Order, [!Elements!SortDir] = @Dir,
+		[!Elements.Fragment!Filter] = @Fragment;
 end
 go
 -------------------------------------------------
@@ -218,23 +223,13 @@ begin
 end
 go
 ------------------------------------------------
-drop procedure if exists cat.[Item.Folder.Metadata];
-drop procedure if exists cat.[Item.Folder.Update];
-drop procedure if exists cat.[Item.Item.Metadata];
-drop procedure if exists cat.[Item.Item.Update];
-drop type if exists cat.[Item.Folder.TableType];
-drop type if exists cat.[Item.Item.TableType];
+drop procedure if exists cat.[Item.Metadata];
+drop procedure if exists cat.[Item.Update];
+drop type if exists cat.[Item.TableType];
+drop type if exists cat.[ItemTreeElem.TableType];
 go
 ------------------------------------------------
-create type cat.[Item.Folder.TableType]
-as table(
-	Id bigint null,
-	ParentFolder bigint,
-	[Name] nvarchar(255)
-)
-go
-------------------------------------------------
-create type cat.[Item.Item.TableType]
+create type cat.[Item.TableType]
 as table(
 	Id bigint null,
 	[Name] nvarchar(255),
@@ -246,78 +241,14 @@ as table(
 );
 go
 -------------------------------------------------
-create or alter procedure cat.[Item.Folder.Load]
-@TenantId int = 1,
-@CompanyId bigint = 0,
-@UserId bigint,
-@Id bigint = null,
-@Parent bigint = null
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-
-	select [Folder!TFolder!Object] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name],
-		[ParentFolder.Id!TParentFolder!Id] = t.Parent, [ParentFolder.Name!TParentFolder!Name] = p.[Name]
-	from cat.ItemTree t
-		inner join cat.ItemTree p on t.TenantId = p.TenantId and t.Parent = p.Id
-	where t.TenantId=@TenantId and t.Id = @Id and t.Void = 0;
-
-	select [ParentFolder!TParentFolder!Object] = null,  [Id!!Id] = Id, [Name!!Name] = [Name]
-	from cat.ItemTree 
-	where Id=@Parent and TenantId = @TenantId;
-end
-go
--------------------------------------------------
-create or alter procedure cat.[Item.Folder.Metadata]
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-	declare @Folder [Item.Folder.TableType];
-	select [Folder!Folder!Metadata] = null, * from @Folder;
-end
-go
--------------------------------------------------
-create or alter procedure cat.[Item.Folder.Update]
-@TenantId int = 1,
-@CompanyId bigint = 0,
-@UserId bigint,
-@Folder [Item.Folder.TableType] readonly,
-@RetId bigint = null output
-as
-begin
-	set nocount on;
-	set transaction isolation level read committed;
-	set xact_abort on;
-
-	declare @output table(op sysname, id bigint);
-	declare @Root bigint;
-	set @Root = 1;
-
-	merge cat.ItemTree as t
-	using @Folder as s
-	on (t.Id = s.Id)
-	when matched then
-		update set 
-			t.[Name] = s.[Name]
-	when not matched by target then 
-		insert (TenantId, [Root], Parent, [Name])
-		values (@TenantId, @Root, s.ParentFolder, s.[Name])
-	output 
-		$action op, inserted.Id id
-	into @output(op, id);
-
-	select top(1) @RetId = id from @output;
-
-	select [Folder!TFolder!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon=N'folder-outline',
-		ParentFolder = Parent
-	from cat.ItemTree 
-	where Id=@RetId;
-end
+create type cat.[ItemTreeElem.TableType]
+as table(
+	[Group] bigint, -- Parent
+	ParentId bigint -- Root
+);
 go
 ------------------------------------------------
-create or alter procedure cat.[Item.Item.Load]
+create or alter procedure cat.[Item.Load]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint = null
@@ -336,28 +267,31 @@ begin
 		[Elements!THieElem!Array] = null
 	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
 	
-	select [!THieElem!Array] = null, [Id!!Id] = iti.Id, [!THie.Elements!ParentId] = iti.[Root],
+	select [!THieElem!Array] = null, [!THie.Elements!ParentId] = iti.[Root],
+		[Group] = iti.Parent,
 		[Path] = cat.fn_GetItemBreadcrumbs(@TenantId, iti.Parent, null)
 	from cat.ItemTreeElems iti 
 	where TenantId = @TenantId  and iti.Item = @Id;
 end
 go
 -------------------------------------------------
-create or alter procedure cat.[Item.Item.Metadata]
+create or alter procedure cat.[Item.Metadata]
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	declare @Item cat.[Item.Item.TableType];
+	declare @Item cat.[Item.TableType];
+	declare @Groups cat.[ItemTreeElem.TableType];
 	select [Item!Item!Metadata] = null, * from @Item;
+	select [Groups!Item.Hierarchies.Elements!Metadata] = null, * from @Groups;
 end
 go
 -------------------------------------------------
-create or alter procedure cat.[Item.Item.Update]
+create or alter procedure cat.[Item.Update]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
-@Item cat.[Item.Item.TableType] readonly,
+@Item cat.[Item.TableType] readonly,
+@Groups cat.[ItemTreeElem.TableType] readonly,
 @RetId bigint = null output
 as
 begin
@@ -366,9 +300,10 @@ begin
 
 	/*
 	declare @xml nvarchar(max);
-	set @xml = (select * from @Item for xml auto);
+	set @xml = (select * from @Groups for xml auto);
 	throw 60000, @xml, 0;
 	*/
+
 	declare @output table(op sysname, id bigint);
 
 	begin tran;
@@ -392,16 +327,22 @@ begin
 
 	select top(1) @RetId = id from @output;
 
+	merge cat.ItemTreeElems as t
+	using @Groups as s
+	on t.TenantId = @TenantId and t.[Root] = s.ParentId and t.[Parent] = s.[Group] and t.Item = @RetId
+	when not matched by target then insert
+		(TenantId, [Root], [Parent], Item) values
+		(@TenantId, s.ParentId, s.[Group], @RetId)
+	when not matched by source and t.TenantId=@TenantId and t.Item = @RetId then delete;
+
 	commit tran;
 
-	exec cat.[Item.Item.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, 
-		@UserId = @UserId, @Id = @RetId;
+	exec cat.[Item.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @RetId;
 end
 go
 ------------------------------------------------
 create or alter procedure cat.[Item.Folder.GetPath]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint,
 @Root bigint
@@ -423,7 +364,6 @@ go
 ------------------------------------------------
 create or alter procedure cat.[Item.Item.FindIndex]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint,
 @Parent bigint,
@@ -465,7 +405,6 @@ go
 ------------------------------------------------
 create or alter procedure cat.[Item.Folder.Delete]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint
 as
@@ -483,7 +422,6 @@ go
 ------------------------------------------------
 create or alter procedure cat.[Item.Item.Delete]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint
 as
@@ -530,5 +468,22 @@ begin
 	select top(1) [Item!TItem!Object] = null, *
 	from cat.view_Items v
 	where v.[!TenantId] = @TenantId and v.Article = @Text;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Item.Rems.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	select [Item!TItem!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
+	from cat.Items where TenantId = @TenantId and Id = @Id;
+
+	select [Rems!TRem!Array] = null, WhId =  Id, [WhName] = w.[Name]
+	from cat.Warehouses w where TenantId = @TenantId
+	order by Id;
 end
 go

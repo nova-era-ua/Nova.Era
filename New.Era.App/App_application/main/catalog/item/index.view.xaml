@@ -1,97 +1,69 @@
 ﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<Grid Rows="Auto,1*" Columns="MinMax(270px;25%),1px, 1*" Height="100%" Gap=".5rem" Padding="1rem">
-		<Toolbar Grid.Row="1" Grid.Col="1" Style="Light" Padding="0">
-			<Button Icon="Plus" Content="@[Create]">
-				<Button.DropDown>
-					<DropDownMenu>
-						<MenuItem Content="@[CreateSection]" 
-							Command="{BindCmd Execute, CommandName=createRoot, Argument={Bind Folders.$selected}}"/>
-						<MenuItem Content="@[CreateFolder]"
-							Command="{BindCmd Execute, CommandName=createFolder, Argument={Bind Folders.$selected}}"/>
-					</DropDownMenu>
-				</Button.DropDown>
-			</Button>
-			<Separator />
-			<Button Icon="Edit" 
-				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders}, Url='/catalog/item/editfolder'}" />
-			<Button Icon="Delete" Command="{BindCmd Execute, 
-				CommandName=deleteFolder, Argument={Bind Folders.$selected}}"/>
-			<Button Icon="Refresh" Command="{BindCmd Reload}" Toolbar.Align="Right"/>
-		</Toolbar>
-		<TreeView Grid.Row="2" Grid.Col="1" Grid.VAlign="Stretch"
-			AutoSelect="FirstItem" ExpandFirstItem="True" Indent="True"
-					ItemsSource="{Bind Folders}" FolderSelect="True">
-			<TreeViewItem ItemsSource="{Bind SubItems}" Icon="{Bind Icon}"
-						Label="{Bind Name}" IsGroup="{Bind HasSubItems}" Show="{Bind $IsVisible}"/>
-			<TreeView.ContextMenu>
-				<DropDownMenu>
-					<MenuItem Content="@[CreateFolder]" Command="{BindCmd Execute, CommandName=createFolder, Argument={Bind Folders.$selected}}"/>
-					<Separator />
-					<MenuItem Content="@[Edit]" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders}, Url='/catalog/item/editfolder'}"/>
-					<MenuItem Content="@[Delete]" Command="{BindCmd Execute, 
-						CommandName=deleteFolder, Argument={Bind Folders.$selected}}"/>
-				</DropDownMenu>
-			</TreeView.ContextMenu>
-		</TreeView>
-		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
-		<CollectionView Grid.Col="3" Grid.RowSpan="2" RunAt="Server" ItemsSource="{Bind Folders.Selected(Children)}">
+	<Page.CollectionView>
+		<CollectionView RunAt="ServerUrl" ItemsSource="{Bind Hierarchies}">
 			<CollectionView.Filter>
 				<FilterDescription>
-					<FilterItem Property="Fragment" DataType="String"/>
+					<FilterItem Property="Group" DataType="Number"/>
 				</FilterDescription>
 			</CollectionView.Filter>
-			<Grid Columns="1*" Rows="Auto,1*,Auto" Height="100%" Padding="0" Gap=".5rem">
-				<Toolbar Grid.Row="1" Grid.Col="1" Style="Light" Padding="0">
-					<Button Icon="Add" Content="@[Create]" 
-							Command="{BindCmd Dialog, Action=Append, Url='/catalog/item/edititem', Argument={Bind Folders.Selected(Children)}, Data={Bind Root.$ParentFolderData}}" />
-					<Separator />
-					<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders.Selected(Children)}, Url='/catalog/item/editItem'}" />
-					<Button Icon="Delete" Command="{BindCmd Execute, CommandName=deleteItem, Argument={Bind Folders.Selected(Children)}}"/>
-					<TextBox Value="{Bind Root.$Filter}" Placeholder="@[Search]" 
-							 Width="28rem" Toolbar.Align="Right">
-						<TextBox.AddOns>
-							<Hyperlink Icon="Search" />
-							<Hyperlink Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter}"/>
-						</TextBox.AddOns>
-					</TextBox>
-					<Button Icon="Refresh" Toolbar.Align="Right"
-							Command="{BindCmd Reload, Argument={Bind Folders.Selected(Children)}}" />
-				</Toolbar>
-				<DataGrid Grid.Row="2" Grid.Col="1" FixedHeader="True" Sort="True"
-						GridLines="Horizontal" Hover="True" ItemsSource="{Bind Parent.ItemsSource}"
-						DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Parent.ItemsSource}, Url='/catalog/item/editItem'}">
-					<DataGridColumn Header="Id" Content="{Bind Id}" Role="Id"/>
-					<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
-					<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
-					<DataGridColumn Header="@[Unit]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap"/>
-					<DataGridColumn Sort="False" Header="@[Folder]">
-						<Group>
-							<Label Content="{Bind ParentFolder.Name}" If="{Bind !Root.$IsSeachFolder}"/>
-							<Hyperlink Content="{Bind ParentFolder.Name}" If="{Bind Root.$IsSeachFolder}"
-								Command="{BindCmd Execute, CommandName=gotoFolder, Argument={Bind}}"/>
-						</Group>
-					</DataGridColumn>
-					<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
-					<DataGridColumn Fit="True" Sort="False">
-						<CommandBar Visibility="Hover">
-							<Button Icon="Edit"
-									Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/item/editItem'}"/>
-							<Button Icon="Delete" 
-									Command="{BindCmd Execute, CommandName=deleteItem, Argument={Bind $parent}}"/>
-						</CommandBar>
-					</DataGridColumn>
-					<DataGrid.ContextMenu>
-						<DropDownMenu>
-							<MenuItem Content="@[Create]" 
-								Command="{BindCmd Dialog, Action=Append, Url='/catalog/item/edititem', Argument={Bind Folders.Selected(Children)}, Data={Bind Root.$ParentFolderData}}" />
-							<Separator />
-							<MenuItem Content="@[Edit]" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Folders.Selected(Children)}, Url='/catalog/item/editItem'}" />
-							<MenuItem Content="@[Delete]" Command="{BindCmd Execute, CommandName=deleteItem, Argument={Bind Folders.Selected(Children)}}"/>
-						</DropDownMenu>
-					</DataGrid.ContextMenu>
-				</DataGrid>
-				<Pager Grid.Row="3" Grid.Col="1" Source="{Bind Parent.Pager}" Padding=".5rem,.5rem,0,.5rem"/>
-			</Grid>
 		</CollectionView>
-	</Grid>
+	</Page.CollectionView>
+	<Page.Taskpad>
+		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="25rem" Collapsible="False">
+			<Panel Header="@[Grouping]" CssClass="panel-transparent" Collapsible="True">
+				<ComboBox ItemsSource="{Bind Parent.ItemsSource}" Value="{Bind Parent.Filter.Group}">
+					<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
+				</ComboBox>
+				<TreeView ItemsSource="{Bind Groups}" AutoSelect="FirstItem" FolderSelect="True">
+					<TreeViewItem ItemsSource="{Bind Items}"
+						Label="{Bind Name}" Icon="{Bind Icon}"/>
+				</TreeView>
+			</Panel>
+			<Panel Header="Залишки" CssClass="panel-transparent" Collapsible="True"
+				   If="{Bind Root.$SelectedElem}">
+				<Include Source="/catalog/item/itemrems" Argument="{Bind Root.$SelectedElem}"/>
+			</Panel>
+		</Taskpad>
+	</Page.Taskpad>
+	<CollectionView If="{Bind Groups.Selected(Elements)}" RunAt="Server"
+					ItemsSource="{Bind Groups.Selected(Elements)}">
+		<CollectionView.Filter>
+			<FilterDescription>
+				<FilterItem Property="Fragment" DataType="String"/>
+			</FilterDescription>
+		</CollectionView.Filter>
+		<Grid Rows="Auto,1*,Auto" AlignItems="Stretch" Height="100%">
+			<Toolbar Grid.Row="1" XamlStyle="{StyleResource ToolbarLight}">
+				<Button Icon="Plus" Content="@[Create]" 
+					Command="{BindCmd Dialog, Action=Append, Argument={Bind Parent.ItemsSource}, Url='/catalog/item/edititem'}"/>
+				<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, 
+					Argument={Bind Parent.ItemsSource}, Url='/catalog/item/edititem'}"/>
+				<Button Icon="Delete" Command="{BindCmd DbRemoveSelected, Argument={Bind Parent.ItemsSource}, Confirm='@[Confirm.Delete.Element]'}"/>
+				<ToolbarAligner />
+				<TextBox Placeholder="@[Search]" ShowClear="True" ShowFilter="True"
+					 Value="{Bind Parent.Filter.Fragment}" Width="20rem"/>
+				<Button Icon="Reload" Command="{BindCmd Reload, Argument={Bind Parent.ItemsSource}}"/>
+			</Toolbar>
+			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}"
+					ItemsSource="{Bind Parent.ItemsSource}" FixedHeader="True"
+					DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Parent.ItemsSource}, Url='/catalog/item/edititem'}">
+				<DataGridColumn Content="{Bind Id}" Role="Id"/>
+				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+				<DataGridColumn Header="@[Unit]" Content="{Bind Unit.Short}" 
+					Sort="False" Fit="True" Wrap="NoWrap" Align="Center"/>
+				<DataGridColumn Header="@[Stock]" Sort="False" Align="Center" Fit="True">
+					<CheckBox Value="{Bind IsStock}" Disabled="True"/>
+				</DataGridColumn>
+				<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+				<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
+				<DataGridColumn Fit="True" Wrap="NoWrap">
+					<CommandBar Visibility="Hover">
+						<Button Icon="Edit" Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/item/edititem'}"/>
+						<Button Icon="Delete" Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
+					</CommandBar>
+				</DataGridColumn>
+			</DataGrid>
+			<Pager Grid.Row="3" Source="{Bind Parent.Pager}" XamlStyle="{StyleResource PagePager}"/>
+		</Grid>
+	</CollectionView>
 </Page>

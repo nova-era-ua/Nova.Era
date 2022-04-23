@@ -1,24 +1,18 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "cat",
-  "model": "Item.Plain",
   "actions": {
-    "index": {
-      "index": true,
-      "template": "index.plain.template",
-      "view": "index.plain.view"
+    "itemrems": {
+      "skipDataStack": true,
+      "model": "Item.Rems",
+      "view": "partials/itemrems.partial"
     }
   },
   "dialogs": {
-    "editFolder": {
-      "model": "Item.Folder",
-      "template": "editfolder.template",
-      "view": "editfolder.dialog"
-    },
     "editItem": {
-      "model": "Item.Item",
-      "template": "edititem.template",
-      "view": "edititem.dialog"
+      "model": "Item",
+      "template": "edit.template",
+      "view": "edit.dialog"
     },
     "browse": {
       "index": true,
@@ -35,10 +29,6 @@
     "findIndex": {
       "type": "sql",
       "procedure": "Item.Item.FindIndex"
-    },
-    "deleteFolder": {
-      "type": "sql",
-      "procedure": "Item.Folder.Delete"
     },
     "deleteItem": {
       "type": "sql",

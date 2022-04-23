@@ -7,13 +7,16 @@ define(["require", "exports"], function (require, exports) {
             'Model.load': modelLoad
         },
         commands: {
-            addItem
+            addItem,
+            editItem: {
+                exec: editItem,
+                canExec() { return !!this.Groups.$selected; }
+            },
+            addHierarchy
         }
     };
     exports.default = template;
     function modelLoad() {
-        if (this.Groups.length)
-            this.Groups[0].$expand();
     }
     async function addItem() {
         let parent = this.Groups.$selected;
@@ -24,5 +27,18 @@ define(["require", "exports"], function (require, exports) {
         let group = await ctrl.$showDialog('/catalog/itemgroup/edit', null, { Parent: parent.Id });
         let newgroup = parent.Items.$append(group);
         newgroup.$select(this.Groups);
+    }
+    async function editItem() {
+        let elem = this.Groups.$selected;
+        if (!elem)
+            return;
+        const ctrl = this.$ctrl;
+        let url = elem.IsRoot ? '/catalog/itemgroup/edithie' : '/catalog/itemgroup/edit';
+        let group = await ctrl.$showDialog(url, { Id: elem.Id });
+        elem.$merge(group);
+    }
+    async function addHierarchy() {
+        const ctrl = this.$ctrl;
+        let group = await ctrl.$showDialog('/catalog/itemgroup/edithie', null);
     }
 });

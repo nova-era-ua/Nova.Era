@@ -14,7 +14,9 @@
 	</Style>
 	<Style x:Key="TaskpadPage">
 		<Setter Property="Collapsible" Value="False"/>
-		<Setter Property="Background" Value="WhiteSmoke"/>
 		<Setter Property="Overflow" Value="True"/>
+	</Style>
+	<Style x:Key="PagePager">
+		<Setter Property="Padding" Value=".5rem,.5rem,0,.5rem"/>
 	</Style>
 </Styles>

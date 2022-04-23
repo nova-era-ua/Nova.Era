@@ -9,13 +9,10 @@
 	<CollectionView ItemsSource="{Bind Groups}" RunAt="Server">
 		<Grid Height="100%" Rows="Auto,1*">
 			<Toolbar XamlStyle="{StyleResource ToolbarLight}" Grid.Row="1">
-				<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Execute, CommandName=addItem}" />
-				<Button Icon="Edit" />
-				<Button Icon="Delete" />
 			</Toolbar>
 			<TreeView Grid.Row="2" ItemsSource="{Bind Groups}" Indent="True"
-					  AutoSelect="FirstItem"
-					  FolderSelect="True" Height="30rem">
+					  AutoSelect="FirstItem" FolderSelect="True" Height="30rem"
+				DoubleClick="{BindCmd Select, Argument={Bind Groups}}">
 				<TreeViewItem ItemsSource="{Bind Items}" Icon="{Bind Icon}"
 						Label="{Bind Name}" />
 			</TreeView>

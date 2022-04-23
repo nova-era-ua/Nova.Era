@@ -7,15 +7,20 @@ const template: Template = {
 		'Model.load': modelLoad
 	},
 	commands: {
-		addItem
+		addItem,
+		editItem: {
+			exec: editItem,
+			canExec(this: any) { return !!this.Groups.$selected; }
+		},
+		addHierarchy
 	}
 };
 
 export default template;
 
 function modelLoad() {
-	if (this.Groups.length)
-		this.Groups[0].$expand();
+	//if (this.Groups.length)
+		//this.Groups[0].$expand();
 }
 
 async function addItem() {
@@ -29,4 +34,18 @@ async function addItem() {
 	let group = await ctrl.$showDialog('/catalog/itemgroup/edit', null, { Parent: parent.Id });
 	let newgroup = parent.Items.$append(group);
 	newgroup.$select(this.Groups);
+}
+
+async function editItem() {
+	let elem = this.Groups.$selected;
+	if (!elem) return;
+	const ctrl: IController = this.$ctrl;
+	let url = elem.IsRoot ? '/catalog/itemgroup/edithie' : '/catalog/itemgroup/edit';
+	let group = await ctrl.$showDialog(url, { Id: elem.Id });
+	elem.$merge(group);
+}
+
+async function addHierarchy() {
+	const ctrl: IController = this.$ctrl;
+	let group = await ctrl.$showDialog('/catalog/itemgroup/edithie', null);
 }

@@ -162,21 +162,15 @@ create table cat.ItemTree
 		constraint FK_ItemTree_Parent_ItemTree foreign key (TenantId, Parent) references cat.ItemTree(TenantId, Id)
 );
 go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemTreeElems')
-	create sequence cat.SQ_ItemTreeElems as bigint start with 100 increment by 1;
-go
 -------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemTreeElems')
 create table cat.ItemTreeElems
 (
 	TenantId int not null,
-	Id bigint not null
-		constraint DF_ItemTreeElems_Id default(next value for cat.SQ_ItemTreeElems),
-	Parent bigint not null,
 	[Root] bigint not null,
+	Parent bigint not null,
 	Item bigint not null,
-		constraint PK_ItemTreeElems primary key (TenantId, Id),
+		constraint PK_ItemTreeElems primary key (TenantId, Parent, Item),
 		constraint FK_ItemTreeElems_Root_ItemTree foreign key (TenantId, [Root]) references cat.ItemTree(TenantId, Id),
 		constraint FK_ItemTreeElems_Parent_ItemTree foreign key (TenantId, [Parent]) references cat.ItemTree(TenantId, Id),
 		constraint FK_ItemTreeElems_Item_Items foreign key (TenantId, [Item]) references cat.Items(TenantId, Id)

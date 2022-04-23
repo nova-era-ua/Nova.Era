@@ -87,14 +87,6 @@
     <Content Include="App_application\main\catalog\itemcategory\pricelist.sql" />
     <Content Include="App_application\main\catalog\pricelist\pricelist.sql" />
     <Content Include="App_application\main\catalog\warehouse\warehouse.sql" />
-    <Content Include="App_application\main\catalog\item\index.view.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Content>
-    <Content Include="App_application\main\catalog\item\editfolder.dialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Content>
     <Content Include="App_application\main\document\document.dialogs.sql" />
     <Content Include="App_application\main\document\document.pay.sql" />
     <Content Include="App_application\main\document\document.apply.sql" />
@@ -124,7 +116,7 @@
     <Content Include="App_application\SqlScripts\catalog.sql" />
     <Content Include="App_application\SqlScripts\multitenant.sql" />
     <Content Include="todo.txt" />
-    <Content Include="App_application\main\catalog\item\editItem.dialog.xaml">
+    <Content Include="App_application\main\catalog\item\edit.dialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
@@ -201,10 +193,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Content>
     <Content Include="App_application\main\catalog\unit\browse.dialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Content>
-    <Content Include="App_application\main\catalog\item\index.plain.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
@@ -399,8 +387,10 @@
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\itemgroup\hierarchy.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemgroup\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemgroup\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\item\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\dashboard\dashboard.template.ts" />
     <None Include="App_application\main\document\cashout\model.json" />
     <None Include="App_application\main\document\cashin\model.json" />
@@ -448,7 +438,6 @@
     <TypeScriptCompile Include="App_application\main\catalog\bank\edit.d.ts" />
     <Content Include="App_application\main\catalog\bank\downloadbanks.server.js" />
     <TypeScriptCompile Include="App_application\main\catalog\bank\index.template.ts" />
-    <TypeScriptCompile Include="App_application\main\catalog\item\index.plain.template.ts" />
     <TypeScriptCompile Include="App_application\main\profile\default\default.template.ts" />
     <None Include="App_application\main\profile\default\model.json" />
     <None Include="App_application\main\settings\warehouse\model.json" />
@@ -500,12 +489,9 @@
     <TypeScriptCompile Include="App_application\main\accounting\plan\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\agent\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\agent\index.template.ts" />
-    <TypeScriptCompile Include="App_application\main\catalog\item\editItem.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\item\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\item.d.ts" />
-    <TypeScriptCompile Include="App_application\main\catalog\item\folder.d.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\index.d.ts" />
-    <TypeScriptCompile Include="App_application\main\catalog\item\editfolder.template.ts" />
-    <TypeScriptCompile Include="App_application\main\catalog\item\index.template.ts" />
     <None Include="App_application\main\catalog\item\model.json" />
     <None Include="App_application\main\dashboard\model.json" />
     <None Include="App_application\sql.json" />
@@ -561,6 +547,23 @@
   <ItemGroup>
     <Content Include="App_application\main\catalog\itemgroup\browse.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\item\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\itemgroup\hierarchy.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\item\partials\itemrems.partial.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

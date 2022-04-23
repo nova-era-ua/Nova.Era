@@ -10,8 +10,8 @@ begin
 	set transaction isolation level read uncommitted;
 
 	-- default filter
-	if @Hierarchy is null
-		select top(1) @Hierarchy = Id from cat.ItemTree where @TenantId = @TenantId and Void = 0 and Parent = 0 and Id <> 0;
+	--if @Hierarchy is null
+		--select top(1) @Hierarchy = Id from cat.ItemTree where @TenantId = @TenantId and Void = 0 and Parent = 0 and Id <> 0;
 
 	with T(Id, [Name], Icon, HasChildren)
 	as (
@@ -21,7 +21,7 @@ begin
 					and it.TenantId = @TenantId and t.TenantId = @TenantId
 			) then 1 else 0 end
 		from cat.ItemTree t
-			where t.TenantId = @TenantId and t.Void = 0 and t.Id = @Hierarchy
+			where t.TenantId = @TenantId and t.Void = 0 and t.Id <> 0 and t.Parent = 0 and t.Id = t.[Root]
 	)
 	select [Groups!TGroup!Tree] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon, [IsRoot] = cast(1 as bit),
 		/*nested folders - lazy*/
@@ -76,7 +76,7 @@ begin
 		where it.TenantId = @TenantId and it.Void = 0
 	)
 	select [Groups!TGroup!Tree] = null, [Id!!Id] = it.Id, [Name!!Name] = it.[Name], Icon = N'folder-outline',
-		[!TGroup.Items!ParentId] = T.Parent,
+		[Group!TGroup.Items!ParentId] = T.Parent,
 		[Items!TGroup!Items] = null
 	from T
 		inner join cat.ItemTree it on it.TenantId = @TenantId and it.Id = T.Id
@@ -94,6 +94,9 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	if @Parent is null
+		select @Parent = [Parent] from cat.ItemTree where @TenantId = @TenantId and Id=@Id;
+
 	select [Group!TGroup!Object] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name],
 		[ParentGroup.Id!TParentGroup!Id] = t.Parent, [ParentGroup.Name!TParentGroup!Name] = p.[Name]
 	from cat.ItemTree t
@@ -106,8 +109,25 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure cat.[HierarchyItem.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Group!TGroup!Object] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name]
+	from cat.ItemTree t
+	where t.TenantId=@TenantId and t.Id = @Id and t.Void = 0;
+end
+go
+------------------------------------------------
 drop procedure if exists cat.[GroupItem.Metadata];
 drop procedure if exists cat.[GroupItem.Update];
+drop procedure if exists cat.[HierarchyItem.Metadata];
+drop procedure if exists cat.[HierarchyItem.Update];
 drop type if exists cat.[GroupItem.TableType];
 go
 ------------------------------------------------
@@ -120,6 +140,16 @@ as table(
 go
 -------------------------------------------------
 create or alter procedure cat.[GroupItem.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Group [GroupItem.TableType];
+	select [Group!Group!Metadata] = null, * from @Group;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[HierarchyItem.Metadata]
 as
 begin
 	set nocount on;
@@ -166,4 +196,55 @@ begin
 	where  TenantId = @TenantId and Id=@RetId;
 end
 go
+-------------------------------------------------
+create or alter procedure cat.[HierarchyItem.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Group [GroupItem.TableType] readonly,
+@RetId bigint = null output
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
 
+	declare @output table(op sysname, id bigint);
+
+	begin tran;
+	merge cat.ItemTree as t
+	using @Group as s
+	on (t.Id = s.Id and t.TenantId = @TenantId)
+	when matched then
+		update set 
+			t.[Name] = s.[Name]
+	when not matched by target then 
+		insert (TenantId, [Root], Parent, [Name])
+		values (@TenantId, 0, 0, s.[Name])
+	output 
+		$action op, inserted.Id id
+	into @output(op, id);
+
+	select top(1) @RetId = id from @output;
+
+	update cat.ItemTree set [Root] = @RetId where TenantId=@TenantId and Id=@RetId and Parent = 0;
+	commit tran;
+
+	select [Group!TGroup!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon=N'folder-outline'
+	from cat.ItemTree
+	where  TenantId = @TenantId and Id=@RetId;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[GroupItem.Hierarchies.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Groups!TGroup!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
+	from cat.ItemTree where TenantId = @TenantId and Id <> 0 and Parent = 0 and Id = [Root]
+end
+go

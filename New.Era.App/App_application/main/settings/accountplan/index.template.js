@@ -30,7 +30,8 @@ define(["require", "exports"], function (require, exports) {
                 exec: deleteAccount,
                 canExec: canDeleteAccount,
                 confirm: '@[Confirm.Delete.Element]'
-            }
+            },
+            setRemAccount
         }
     };
     exports.default = template;
@@ -85,5 +86,10 @@ define(["require", "exports"], function (require, exports) {
             found.$select(root.Accounts);
         else
             root.$Search = '';
+    }
+    async function setRemAccount() {
+        const ctrl = this.$ctrl;
+        let acc = await ctrl.$showDialog('/catalog/account/browseall');
+        alert(acc.Id);
     }
 });

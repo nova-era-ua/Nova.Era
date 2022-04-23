@@ -8,4 +8,15 @@ end
 go
 
 drop table if exists cat.ItemTreeItems;
-
+drop procedure if exists cat.[Item.Folder.Metadata];
+drop procedure if exists cat.[Item.Folder.Update];
+drop procedure if exists cat.[Item.Folder.Load];
+drop type if exists cat.[Item.Folder.TableType];
+drop procedure if exists cat.[Item.Item.Load];
+drop procedure if exists cat.[Item.Item.Metadata];
+drop procedure if exists cat.[Item.Item.Update];
+drop type if exists cat.[Item.Item.TableType];
+drop procedure if exists cat.[Item.Expand];
+drop procedure if exists cat.[Item.Children];
+drop procedure if exists cat.[Item.Index];
+go

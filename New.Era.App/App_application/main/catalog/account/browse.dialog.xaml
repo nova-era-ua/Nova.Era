@@ -5,7 +5,7 @@
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Accounts}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<TextBox Placeholder="@[Search]" Value="{Bind Root.$Search}"/>
+	<TextBox Placeholder="@[Search]" Value="{Bind Root.$Search}" TabIndex="1"/>
 	<TreeView FolderSelect="False" Height="30rem"
 			ItemsSource="{Bind Accounts}"
 			DoubleClick="{BindCmd Select, Argument={Bind Accounts}}">

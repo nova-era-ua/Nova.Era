@@ -31,7 +31,8 @@ const template: Template = {
 			exec: deleteAccount,
 			canExec: canDeleteAccount,
 			confirm:'@[Confirm.Delete.Element]'
-		}
+		},
+		setRemAccount
 	}
 };
 
@@ -89,4 +90,10 @@ function searchAccount(root, text) {
 		found.$select(root.Accounts);
 	else
 		root.$Search = '';
+}
+
+async function setRemAccount() {
+	const ctrl = this.$ctrl;
+	let acc = await ctrl.$showDialog('/catalog/account/browseall');
+	alert(acc.Id);
 }
