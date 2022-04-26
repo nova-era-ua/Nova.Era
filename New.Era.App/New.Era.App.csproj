@@ -116,9 +116,7 @@
     <Content Include="App_application\main\_sql\common.sql" />
     <Content Include="App_application\main\_sql\security.sql" />
     <Content Include="App_application\main\_sql\startup_mt.sql" />
-    <Content Include="App_application\SqlScripts\application.sql" />
-    <Content Include="App_application\SqlScripts\catalog.sql" />
-    <Content Include="App_application\SqlScripts\multitenant.sql" />
+    <Content Include="App_application\SqlScriptsDebug\drop_all_tables.sql" />
     <Content Include="todo.txt" />
     <Content Include="App_application\main\catalog\item\edit.dialog.xaml">
       <SubType>Designer</SubType>
@@ -566,6 +564,9 @@
     <Content Include="App_application\main\catalog\item\partials\itemrems.partial.xaml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_application\SqlScripts\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v17.0\WebApplications\Microsoft.WebApplication.targets" />
