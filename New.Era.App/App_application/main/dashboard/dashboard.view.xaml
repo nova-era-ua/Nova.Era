@@ -9,7 +9,15 @@
 		<Block Height="100px" Background="LightGray">6</Block>
 	</Grid>
 	-->
-	<EmptyPanel Icon="SmileSad">
-		Yet not implemented
-	</EmptyPanel>
+	<Block Align="Center" Padding="5rem">
+		<SpanIcon Icon="InfoOutline" Size="5rem" Color="LightGray" Block="True"
+				  Margin="3rem,0"/>
+		<Header>Nova.Era</Header>
+		<Paragraph>
+			Нова система обліку для малих та середніх підприємств
+		</Paragraph>
+		<Paragraph>
+			Може працювати в мережі замовника, а також у вигляді сервісу (SAAS)
+		</Paragraph>
+	</Block>
 </Page>

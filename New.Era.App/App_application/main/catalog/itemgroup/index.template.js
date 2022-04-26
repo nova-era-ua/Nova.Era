@@ -40,5 +40,7 @@ define(["require", "exports"], function (require, exports) {
     async function addHierarchy() {
         const ctrl = this.$ctrl;
         let group = await ctrl.$showDialog('/catalog/itemgroup/edithie', null);
+        let newhie = this.Groups.$append(group);
+        newhie.$select(this.Groups);
     }
 });

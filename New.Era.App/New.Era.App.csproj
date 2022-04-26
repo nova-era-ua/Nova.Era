@@ -87,6 +87,10 @@
     <Content Include="App_application\main\catalog\itemcategory\pricelist.sql" />
     <Content Include="App_application\main\catalog\pricelist\pricelist.sql" />
     <Content Include="App_application\main\catalog\warehouse\warehouse.sql" />
+    <Content Include="App_application\main\dashboard\dashboard.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="App_application\main\document\document.dialogs.sql" />
     <Content Include="App_application\main\document\document.pay.sql" />
     <Content Include="App_application\main\document\document.apply.sql" />
@@ -249,10 +253,6 @@
     <Content Include="App_application\main\catalog\contract\browse.dialog.xaml">
     </Content>
     <Content Include="App_application\main\catalog\agent\partials\customerinfo.partial.xaml">
-    </Content>
-    <Content Include="App_application\main\dashboard\dashboard.view.xaml">
-    </Content>
-    <Content Include="App_application\main\dashboard\dashboard.view.xaml">
     </Content>
     <Content Include="App_application\main\sales\dashboard\index.view.xaml">
     </Content>

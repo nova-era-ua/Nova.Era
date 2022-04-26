@@ -109,7 +109,7 @@
 							<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 							<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 							<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
-							<Hyperlink Icon="Clear" Command="{BindCmd Remove, Argument={Bind}}"></Hyperlink>
+							<Hyperlink Icon="Clear" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
 						</TableRow>
 						<Table.Footer>
 							<TableRow>

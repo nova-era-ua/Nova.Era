@@ -20,6 +20,16 @@
 					DoubleClick="{BindCmd Execute, CommandName=editItem}">
 			<TreeViewItem ItemsSource="{Bind Items}" Icon="{Bind Icon}"
 						Label="{Bind Name}" IsGroup="{Bind HasItems}"/>
+			<!--
+			<TreeView.ContextMenu>
+				<DropDownMenu>
+					<MenuItem Content="Створити групу" Command="{BindCmd Execute, CommandName=addItem}"/>
+					<MenuItem Content="@[Edit]" Command="{BindCmd Execute, CommandName=editItem}"/>
+					<Separator />
+					<MenuItem Content="@[Delete]" />
+				</DropDownMenu>
+			</TreeView.ContextMenu>
+			-->
 		</TreeView>
 	</Grid>
 </Partial>

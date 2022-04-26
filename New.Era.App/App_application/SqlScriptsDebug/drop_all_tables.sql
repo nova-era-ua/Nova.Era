@@ -24,7 +24,7 @@ drop table if exists doc.FormsMenu;
 --
 drop table if exists comp.Companies;
 drop table if exists cat.Agents;
-drop table if exists cat.ItemTreeItems;
+drop table if exists cat.ItemTreeElems;
 drop table if exists cat.ItemTree;
 drop table if exists cat.Items;
 drop table if exists cat.Banks;

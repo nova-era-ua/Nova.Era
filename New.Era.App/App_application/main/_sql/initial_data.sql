@@ -15,6 +15,9 @@ begin
 	if not exists(select * from cat.Currencies where Id=980 and TenantId = @TenantId)
 		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Symbol], Denom, [Name]) values
 			(@TenantId, 980, N'грн', N'UAH', N'980', N'₴', 1, N'Українська гривня');
+	-- on create tenant all
+	if not exists(select * from cat.ItemTree where TenantId = @TenantId)
+		insert into cat.ItemTree(TenantId, Id, [Root], [Parent], [Name]) values (@TenantId, 0, 0, 0, N'ROOT');
 end
 go
 -------------------------------------------------
