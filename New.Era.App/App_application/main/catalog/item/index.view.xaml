@@ -19,10 +19,12 @@
 						Label="{Bind Name}" Icon="{Bind Icon}"/>
 				</TreeView>
 			</Panel>
+			<!--
 			<Panel Header="Залишки" CssClass="panel-transparent" Collapsible="True"
 				   If="{Bind Root.$SelectedElem}">
 				<Include Source="/catalog/item/itemrems" Argument="{Bind Root.$SelectedElem}"/>
 			</Panel>
+			-->
 		</Taskpad>
 	</Page.Taskpad>
 	<CollectionView If="{Bind Groups.Selected(Elements)}" RunAt="Server"
@@ -35,9 +37,9 @@
 		<Grid Rows="Auto,1*,Auto" AlignItems="Stretch" Height="100%">
 			<Toolbar Grid.Row="1" XamlStyle="{StyleResource ToolbarLight}">
 				<Button Icon="Plus" Content="@[Create]" 
-					Command="{BindCmd Dialog, Action=Append, Argument={Bind Parent.ItemsSource}, Url='/catalog/item/edititem'}"/>
-				<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, 
-					Argument={Bind Parent.ItemsSource}, Url='/catalog/item/edititem'}"/>
+					Command="{BindCmd Execute, CommandName=create, Argument={Bind Parent.ItemsSource}}"/>
+				<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editSelected, 
+					Argument={Bind Parent.ItemsSource}}"/>
 				<Button Icon="Delete" Command="{BindCmd DbRemoveSelected, Argument={Bind Parent.ItemsSource}, Confirm='@[Confirm.Delete.Element]'}"/>
 				<ToolbarAligner />
 				<TextBox Placeholder="@[Search]" ShowClear="True" ShowFilter="True"
@@ -46,7 +48,7 @@
 			</Toolbar>
 			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}"
 					ItemsSource="{Bind Parent.ItemsSource}" FixedHeader="True"
-					DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Parent.ItemsSource}, Url='/catalog/item/edititem'}">
+					DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Parent.ItemsSource}}">
 				<DataGridColumn Content="{Bind Id}" Role="Id"/>
 				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 				<DataGridColumn Header="@[Unit]" Content="{Bind Unit.Short}" 
@@ -58,7 +60,7 @@
 				<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 				<DataGridColumn Fit="True" Wrap="NoWrap">
 					<CommandBar Visibility="Hover">
-						<Button Icon="Edit" Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/item/edititem'}"/>
+						<Button Icon="Edit" Command="{BindCmd Execute, CommandName=edit, Argument={Bind}}"/>
 						<Button Icon="Delete" Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
 					</CommandBar>
 				</DataGridColumn>

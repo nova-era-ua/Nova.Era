@@ -64,7 +64,8 @@ go
 create or alter procedure cat.[Item.Group.Expand]
 @TenantId int = 1,
 @UserId bigint,
-@Id bigint
+@Id bigint,
+@Group bigint = null
 as
 begin
 	set nocount on;

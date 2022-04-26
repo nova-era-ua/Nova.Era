@@ -9,7 +9,7 @@
     }
   },
   "dialogs": {
-    "editItem": {
+    "edit": {
       "model": "Item",
       "template": "edit.template",
       "view": "edit.dialog"
