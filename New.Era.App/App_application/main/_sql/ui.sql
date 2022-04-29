@@ -170,12 +170,15 @@ begin
 	(301, N'Accounting', 11, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
 	(305, N'Accounting',  12, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
 	(306, N'Accounting',  13, N'@[Sales]',  N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N''),
+
 	-- settings
-	(900, N'Settings',  10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
-	(901, N'Settings',  11, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
-	(902, N'Settings',  12, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
-	(903, N'Settings',  13, N'@[Items]',  N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
-	(904, N'Settings',  14, N'@[Prices]', N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N'');
+	(900, N'Settings',  10, N'@[Accounts]', N'@[AccKinds]', N'/catalog/acckind/index', N'list',  N''),
+	(901, N'Settings',  11, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
+	(902, N'Settings',  12, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
+	(903, N'Settings',  13, N'@[Items]',  N'@[ItemRoles]',      N'/catalog/itemrole/index', N'list',  N''),
+	(904, N'Settings',  14, N'@[Items]',  N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
+	(905, N'Settings',  15, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
+	(906, N'Settings',  16, N'@[Prices]', N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N'');
 
 	merge a2ui.[Catalog] as t
 	using @cat as s on t.Id = s.Id

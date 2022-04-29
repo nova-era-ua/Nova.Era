@@ -46,7 +46,7 @@ create table cat.Units
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Units_PK default(next value for cat.SQ_Units),
+		constraint DF_Units_Id default(next value for cat.SQ_Units),
 	Void bit not null 
 		constraint DF_Units_Void default(0),
 	Short nvarchar(8),
@@ -66,7 +66,7 @@ create table cat.Vendors
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Vendors_PK default(next value for cat.SQ_Vendors),
+		constraint DF_Vendors_Id default(next value for cat.SQ_Vendors),
 	Void bit not null 
 		constraint DF_Vendors_Void default(0),
 	[Name] nvarchar(255),
@@ -115,6 +115,119 @@ create table cat.Currencies
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'cat' and SEQUENCE_NAME=N'SQ_CostItems')
+	create sequence cat.SQ_CostItems as int start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'CostItems')
+create table cat.CostItems
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_CostItems_Id default(next value for cat.SQ_CostItems),
+	Void bit not null 
+		constraint DF_CostItems_Void default(0),
+	Parent bigint,
+	[Name] nvarchar(255) null,
+	[Memo] nvarchar(255) null,
+		constraint PK_CostItems primary key (TenantId, Id),
+	constraint FK_CostItems_Parent_CostItems foreign key (TenantId, [Parent]) references cat.CostItems(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'acc' and SEQUENCE_NAME = N'SQ_Accounts')
+	create sequence acc.SQ_Accounts as bigint start with 10000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'acc' and TABLE_NAME=N'Accounts')
+create table acc.Accounts (
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Accounts_Id default(next value for acc.SQ_Accounts),
+	Void bit not null 
+		constraint DF_Accounts_Void default(0),
+	[Plan] bigint null,
+	Parent bigint null,
+	IsFolder bit not null
+		constraint DF_Accounts_IsFolder default(0),
+	[Code] nvarchar(16),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	IsItem bit,
+	IsAgent bit,
+	IsWarehouse bit,
+	IsBankAccount bit,
+	IsCash bit,
+	IsContract bit,
+	[Uid] uniqueidentifier not null
+		constraint DF_Accounts_Uid default(newid()),
+	constraint PK_Accounts primary key (TenantId, Id),
+	constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'acc' and SEQUENCE_NAME = N'SQ_AccKinds')
+	create sequence acc.SQ_AccKinds as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'acc' and TABLE_NAME=N'AccKinds')
+create table acc.AccKinds (
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_AccKinds_Id default(next value for acc.SQ_AccKinds),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	Void bit not null 
+		constraint DF_AccKinds_Void default(0),
+	[Uid] uniqueidentifier not null
+		constraint DF_AccKinds_Uid default(newid()),
+	constraint PK_AccKinds primary key (TenantId, Id)
+)
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemRoles')
+	create sequence cat.SQ_ItemRoles as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemRoles')
+create table cat.ItemRoles (
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_ItemRoles_Id default(next value for cat.SQ_ItemRoles),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	Void bit not null 
+		constraint DF_ItemRoles_Void default(0),
+	[Color] nvarchar(32),
+	[Uid] uniqueidentifier not null
+		constraint DF_ItemRoles_Uid default(newid()),
+	constraint PK_ItemRoles primary key (TenantId, Id)
+)
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemRoleAccounts')
+	create sequence cat.SQ_ItemRoleAccounts as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemRoleAccounts')
+create table cat.ItemRoleAccounts (
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_ItemRoleAccounts_Id default(next value for cat.SQ_ItemRoleAccounts),
+	[Role] bigint,
+	[Plan] bigint,
+	[Account] bigint,
+	[AccKind] bigint,
+	[Uid] uniqueidentifier not null
+		constraint DF_ItemRoleAccounts_Uid default(newid()),
+	constraint PK_ItemRoleAccounts primary key (TenantId, Id),
+	constraint FK_ItemRoleAccounts_Role_ItemRoles foreign key (TenantId, [Role]) references cat.ItemRoles(TenantId, Id),
+	constraint FK_ItemRoleAccounts_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
+	constraint FK_ItemRoleAccounts_Account_Accounts foreign key (TenantId, [Account]) references acc.Accounts(TenantId, Id),
+	constraint FK_ItemRoleAccounts_AccountKind_AccKinds foreign key (TenantId, [AccKind]) references acc.AccKinds(TenantId, Id)
+)
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Items')
 	create sequence cat.SQ_Items as bigint start with 100 increment by 1;
 go
@@ -124,7 +237,7 @@ create table cat.Items
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Items_PK default(next value for cat.SQ_Items),
+		constraint DF_Items_Id default(next value for cat.SQ_Items),
 	Void bit not null 
 		constraint DF_Items_Void default(0),
 	Article nvarchar(32),
@@ -132,13 +245,13 @@ create table cat.Items
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
-	IsStock bit not null
-		constraint DF_Items_IsStock default(0),
+	[Role] bigint,
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
 	constraint PK_Items primary key (TenantId, Id),
 	constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
-	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id)
+	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id),
+	constraint FK_Items_Role_ItemRoles foreign key (TenantId, Role) references cat.ItemRoles(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -151,7 +264,7 @@ create table cat.ItemTree
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_ItemTree_PK default(next value for cat.SQ_ItemTree),
+		constraint DF_ItemTree_Id default(next value for cat.SQ_ItemTree),
 	[Root] bigint not null,
 	Parent bigint not null,
 	Void bit not null
@@ -186,7 +299,7 @@ create table cat.Companies
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Companies_PK default(next value for cat.SQ_Companies),
+		constraint DF_Companies_Id default(next value for cat.SQ_Companies),
 	Void bit not null 
 		constraint DF_Companies_Void default(0),
 	[Name] nvarchar(255),
@@ -205,7 +318,7 @@ create table cat.Warehouses
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Warehouses_PK default(next value for cat.SQ_Warehouses),
+		constraint DF_Warehouses_Id default(next value for cat.SQ_Warehouses),
 	Void bit not null 
 		constraint DF_Warehouses_Void default(0),
 	[Name] nvarchar(255),
@@ -224,7 +337,7 @@ create table cat.Agents
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Agents_PK default(next value for cat.SQ_Agents),
+		constraint DF_Agents_Id default(next value for cat.SQ_Agents),
 	Void bit not null 
 		constraint DF_Agents_Void default(0),
 	[Name] nvarchar(255),
@@ -243,7 +356,7 @@ create table cat.CashAccounts
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_CashAccounts_PK default(next value for cat.SQ_CashAccounts),
+		constraint DF_CashAccounts_Id default(next value for cat.SQ_CashAccounts),
 	Void bit not null 
 		constraint DF_CashAccounts_Void default(0),
 	IsCashAccount bit not null,
@@ -257,37 +370,6 @@ create table cat.CashAccounts
 		constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
-);
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'acc' and SEQUENCE_NAME = N'SQ_Accounts')
-	create sequence acc.SQ_Accounts as bigint start with 10000 increment by 1;
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'acc' and TABLE_NAME=N'Accounts')
-create table acc.Accounts (
-	TenantId int not null,
-	Id bigint not null
-		constraint DF_Accounts_PK default(next value for acc.SQ_Accounts),
-	Void bit not null 
-		constraint DF_Accounts_Void default(0),
-	[Plan] bigint null,
-	Parent bigint null,
-	IsFolder bit not null
-		constraint DF_Accounts_IsFolder default(0),
-	[Code] nvarchar(16),
-	[Name] nvarchar(255),
-	[Memo] nvarchar(255),
-	IsItem bit,
-	IsAgent bit,
-	IsWarehouse bit,
-	IsBankAccount bit,
-	IsCash bit,
-	IsContract bit,
-	[Uid] uniqueidentifier not null
-		constraint DF_Accounts_Uid default(newid()),
-	constraint PK_Accounts primary key (TenantId, Id),
-	constraint FK_Accounts_Parent_Accounts foreign key (TenantId, [Parent]) references acc.Accounts(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -338,7 +420,7 @@ create table doc.Operations
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Operations_PK default(next value for doc.SQ_Operations),
+		constraint DF_Operations_Id default(next value for doc.SQ_Operations),
 	Void bit not null 
 		constraint DF_Operations_Void default(0),
 	[Name] nvarchar(255),
@@ -363,7 +445,7 @@ create table doc.OpJournalStore
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_OpJournalStore_PK default(next value for doc.SQ_OpJournalStore),
+		constraint DF_OpJournalStore_Id default(next value for doc.SQ_OpJournalStore),
 	Operation bigint not null,
 	RowKind nvarchar(16) not null,
 	IsIn bit not null,
@@ -384,7 +466,7 @@ create table doc.OpTrans
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_SQ_OpTrans_PK default(next value for doc.SQ_OpTrans),
+		constraint DF_SQ_OpTrans_Id default(next value for doc.SQ_OpTrans),
 	Operation bigint not null,
 	RowNo int,
 	RowKind nvarchar(16) not null,
@@ -394,10 +476,12 @@ create table doc.OpTrans
 	DtAccMode nchar(1), -- ()Fixed, (I)tem, R(ole)
 	DtSum nchar(1), -- ()Sum, (D)iscount, (W)Without discount, (V)at
 	DtRow nchar(1), -- ()Sum, (R)ows
+	DtAccKind bigint,
 	DtWarehouse nchar(1),
 	CtAccMode nchar(1),
 	CtSum nchar(1),
 	CtRow nchar(1),
+	CtAccKind bigint,
 	CtWarehouse nchar(1),
 	[Uid] uniqueidentifier not null
 		constraint DF_OpTrans_Uid default(newid()),
@@ -405,7 +489,9 @@ create table doc.OpTrans
 	constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
 	constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
 	constraint FK_OpTrans_Dt_Accounts foreign key (TenantId, [Dt]) references acc.Accounts(TenantId, Id),
-	constraint FK_OpTrans_Ct_Accounts foreign key (TenantId, [Ct]) references acc.Accounts(TenantId, Id)
+	constraint FK_OpTrans_Ct_Accounts foreign key (TenantId, [Ct]) references acc.Accounts(TenantId, Id),
+	constraint FK_OpTrans_DtAccKind_ItemRoles foreign key (TenantId, DtAccKind) references acc.AccKinds(TenantId, Id),
+	constraint FK_OpTrans_CtAccKind_ItemRoles foreign key (TenantId, CtAccKind) references acc.AccKinds(TenantId, Id),
 );
 go
 ------------------------------------------------
@@ -430,7 +516,7 @@ create table doc.Documents
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Documents_PK default(next value for doc.SQ_Documents),
+		constraint DF_Documents_Id default(next value for doc.SQ_Documents),
 	[Date] datetime,
 	Operation bigint not null,
 	[Sum] money not null
@@ -444,6 +530,7 @@ create table doc.Documents
 	WhTo bigint  null,
 	CashAccFrom bigint null,
 	CashAccTo bigint null,
+	Notice nvarchar(255),
 	Memo nvarchar(255),
 	DateApplied datetime,
 	UserCreated bigint not null,
@@ -471,7 +558,7 @@ create table doc.DocDetails
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_DocDetails_PK default(next value for doc.SQ_DocDetails),
+		constraint DF_DocDetails_Id default(next value for doc.SQ_DocDetails),
 	[Document] bigint not null,
 	RowNo int,
 	Kind nchar(4),
@@ -499,7 +586,7 @@ create table jrn.StockJournal
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_StockJournal_PK default(next value for jrn.SQ_StockJournal),
+		constraint DF_StockJournal_Id default(next value for jrn.SQ_StockJournal),
 	Document bigint,
 	Detail bigint,
 	Company bigint null,
@@ -527,7 +614,7 @@ create table jrn.Journal
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Journal_PK default(next value for jrn.SQ_Journal),
+		constraint DF_Journal_Id default(next value for jrn.SQ_Journal),
 	TrNo int not null,
 	RowNo int,
 	[Date] datetime,
@@ -595,7 +682,7 @@ create table rep.Reports
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Reports_PK default(next value for rep.SQ_Reports),
+		constraint DF_Reports_Id default(next value for rep.SQ_Reports),
 	Void bit not null 
 		constraint DF_Reports_Void default(0),
 	[Type] nvarchar(16) not null,

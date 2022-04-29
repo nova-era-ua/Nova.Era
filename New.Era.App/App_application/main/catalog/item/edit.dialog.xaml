@@ -13,10 +13,9 @@
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>
 			</Selector.AddOns>
 		</Selector>
-		<Flex Orientation="Horizontal" Grid.Row="2" Grid.ColSpan="2" Gap="1rem">
-			<Radio Label="Запас" Value="{Bind Item.IsStock}" CheckedValue="true"/>
-			<Radio Label="Послуга або робота" Value="{Bind Item.IsStock}" CheckedValue="false"/>
-		</Flex>
+		<ComboBox Grid.Row="2" Label="@[ItemRole]" Value="{Bind Item.Role}" ItemsSource="{Bind ItemRoles}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
 		<TextBox Grid.Row="3" Grid.Col="1" Label="@[Article]" Value="{Bind Item.Article}" UpdateTrigger="Input"/>
 	</Grid>
 	<TabBar Grid.Row="4" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0,1rem">

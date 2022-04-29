@@ -15,7 +15,6 @@ drop table if exists doc.Operations;
 drop table if exists rep.Reports;
 drop table if exists rep.RepFiles;
 drop table if exists rep.RepTypes;
-drop table if exists acc.Accounts;
 drop table if exists doc.DocumentForms;
 drop table if exists doc.OperationGroups;
 drop table if exists doc.FormRowKinds;
@@ -26,12 +25,15 @@ drop table if exists comp.Companies;
 drop table if exists cat.Agents;
 drop table if exists cat.ItemTreeElems;
 drop table if exists cat.ItemTree;
+drop table if exists cat.ItemRoleAccounts
+drop table if exists cat.ItemRoles;
 drop table if exists cat.Items;
 drop table if exists cat.Banks;
 drop table if exists cat.Companies;
 drop table if exists cat.Warehouses;
 drop table if exists cat.Vendors;
 drop table if exists cat.Units;
+drop table if exists acc.Accounts;
 go
 
 drop sequence if exists doc.SQ_OpTrans;

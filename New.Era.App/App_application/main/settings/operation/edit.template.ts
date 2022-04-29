@@ -3,8 +3,11 @@
 		'TRoot.$$Tab': String,
 		'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]' },
 		'TOpTrans.$PlanArg'() { return { Plan: this.Plan.Id }; },
-		'TOpTrans.$DtAccDisabled'() { return !this.Plan.Id || !!this.DtAccMode; }
-},
+		'TOpTrans.$DtAccVisible'() { return this.Plan.Id && this.DtAccMode === ''; },
+		'TOpTrans.$CtAccVisible'() { return this.Plan.Id && this.CtAccMode === ''; },
+		'TOpTrans.$DtRoleVisible'() { return this.Plan.Id && this.DtAccMode === 'R'; },
+		'TOpTrans.$CtRoleVisible'() { return this.Plan.Id && this.CtAccMode === 'R'; },
+	},
 	defaults: {
 		"Operation.Menu"(this: any) { return this.Params.ParentMenu; }
 	},

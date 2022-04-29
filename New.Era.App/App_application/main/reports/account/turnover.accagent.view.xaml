@@ -36,7 +36,7 @@
 						<SheetColumn Background="Gray"/>
 						<SheetColumn Background="Gray"/>
 					</Sheet.Columns>
-					<SheetSection>
+					<Sheet.Header>
 						<SheetRow Style="Title">
 							<SheetCell ColSpan="4" Content="{Bind Report.Name}"></SheetCell>
 						</SheetRow>
@@ -52,7 +52,7 @@
 							<SheetCell Content="@[Company]"></SheetCell>
 							<SheetCell Bold="True" ColSpan="4" Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
 						</SheetRow>
-					</SheetSection>
+					</Sheet.Header>
 					<SheetSection >
 						<SheetRow Style="Header">
 							<SheetCell RowSpan="2" VAlign="Middle">@[Agent]</SheetCell>

@@ -6,11 +6,9 @@ define(["require", "exports"], function (require, exports) {
             'TRoot.$$Tab': String,
             'TItem.$Title'() { return this.Id ? this.Id : '@[NewItem]'; }
         },
-        defaults: {
-            'Item.IsStock': true
-        },
         validators: {
-            'Item.Name': '@[Error.Required]'
+            'Item.Name': '@[Error.Required]',
+            'Item.Role': '@[Error.Required]'
         },
         commands: {
             addHierarchy

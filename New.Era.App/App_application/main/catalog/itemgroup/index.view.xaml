@@ -21,7 +21,6 @@
 					DoubleClick="{BindCmd Execute, CommandName=editItem}">
 			<TreeViewItem ItemsSource="{Bind Items}" Icon="{Bind Icon}"
 						Label="{Bind Name}" IsGroup="{Bind HasItems}"/>
-			<!--
 			<TreeView.ContextMenu>
 				<DropDownMenu>
 					<MenuItem Content="Створити групу" Command="{BindCmd Execute, CommandName=addItem}"/>
@@ -30,7 +29,6 @@
 					<MenuItem Content="@[Delete]" />
 				</DropDownMenu>
 			</TreeView.ContextMenu>
-			-->
 		</TreeView>
 		<EmptyPanel If="{Bind Groups.$isEmpty}" Icon="InfoOutline">
 			<Text>Жодного групування ще не створено.

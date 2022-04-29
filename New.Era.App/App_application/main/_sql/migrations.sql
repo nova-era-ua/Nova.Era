@@ -19,4 +19,5 @@ drop type if exists cat.[Item.Item.TableType];
 drop procedure if exists cat.[Item.Expand];
 drop procedure if exists cat.[Item.Children];
 drop procedure if exists cat.[Item.Index];
+drop procedure if exists doc.[Operation.Children];
 go

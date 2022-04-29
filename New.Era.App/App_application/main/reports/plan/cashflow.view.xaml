@@ -23,7 +23,7 @@
 			</Toolbar>
 			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
 				<Sheet GridLines="Both" Wrap="NoWrap" Columns="16px,60px,150px,Auto,Auto+A,Auto,Auto,Auto+A">
-					<SheetSection>
+					<Sheet.Header>
 						<SheetRow Style="Title">
 							<SheetCell ColSpan="8" Content="{Bind Report.Name}"></SheetCell>
 						</SheetRow>
@@ -39,7 +39,7 @@
 							<SheetCell ColSpan="2" Content="@[Company]"></SheetCell>
 							<SheetCell Bold="True" ColSpan="4" Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
 						</SheetRow>
-					</SheetSection>
+					</Sheet.Header>
 					<SheetSection >
 						<SheetRow Style="Header" Wrap="NoWrap">
 							<SheetCell ColSpan="3">@[AccountType]/@[Account]</SheetCell>

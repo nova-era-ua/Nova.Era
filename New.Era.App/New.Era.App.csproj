@@ -50,11 +50,11 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="A2v10.Xaml, Version=10.0.7842.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7842\lib\net48\A2v10.Xaml.dll</HintPath>
+    <Reference Include="A2v10.Xaml, Version=10.0.7843.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7843\lib\net48\A2v10.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7842.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7842\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7843.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7843\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -85,7 +85,9 @@
     <Content Include="App_application\main\catalog\bank\bank.sql" />
     <Content Include="App_application\main\catalog\itemgroup\groupitem.sql" />
     <Content Include="App_application\main\catalog\itemcategory\pricelist.sql" />
-    <Content Include="App_application\main\catalog\pricelist\pricelist.sql" />
+    <Content Include="App_application\main\catalog\acckind\acckind.sql" />
+    <Content Include="App_application\main\catalog\itemrole\itemrole.sql" />
+    <Content Include="App_application\main\catalog\pricekind\pricekind.sql" />
     <Content Include="App_application\main\catalog\warehouse\warehouse.sql" />
     <Content Include="App_application\main\dashboard\dashboard.view.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -234,7 +236,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
-    <Content Include="App_application\main\catalog\pricelist\index.view.xaml">
+    <Content Include="App_application\main\catalog\pricekind\index.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
@@ -372,7 +374,9 @@
     <None Include="App_application\main\catalog\currency\model.json" />
     <Content Include="App_application\main\catalog\itemgroup\model.json" />
     <Content Include="App_application\main\catalog\itemcategory\model.json" />
-    <None Include="App_application\main\catalog\pricelist\model.json" />
+    <Content Include="App_application\main\catalog\itemrole\model.json" />
+    <Content Include="App_application\main\catalog\acckind\model.json" />
+    <None Include="App_application\main\catalog\pricekind\model.json" />
     <None Include="App_application\main\catalog\warehouse\model.json" />
     <None Include="App_application\main\catalog\company\model.json" />
     <None Include="App_application\main\catalog\vendor\model.json" />
@@ -388,6 +392,8 @@
     <TypeScriptCompile Include="App_application\main\catalog\itemgroup\hierarchy.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemgroup\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemgroup\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\acckind\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\itemrole\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\dashboard\dashboard.template.ts" />
     <None Include="App_application\main\document\cashout\model.json" />
@@ -568,6 +574,30 @@
   <ItemGroup>
     <Folder Include="App_application\SqlScripts\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\itemrole\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\itemrole\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\acckind\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\acckind\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v17.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>
@@ -588,11 +618,11 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="..\packages\A2v10.App.Runtime.10.0.7842\build\A2v10.App.Runtime.targets" Condition="Exists('..\packages\A2v10.App.Runtime.10.0.7842\build\A2v10.App.Runtime.targets')" />
+  <Import Project="..\packages\A2v10.App.Runtime.10.0.7843\build\A2v10.App.Runtime.targets" Condition="Exists('..\packages\A2v10.App.Runtime.10.0.7843\build\A2v10.App.Runtime.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\A2v10.App.Runtime.10.0.7842\build\A2v10.App.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.App.Runtime.10.0.7842\build\A2v10.App.Runtime.targets'))" />
+    <Error Condition="!Exists('..\packages\A2v10.App.Runtime.10.0.7843\build\A2v10.App.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.App.Runtime.10.0.7843\build\A2v10.App.Runtime.targets'))" />
   </Target>
 </Project>

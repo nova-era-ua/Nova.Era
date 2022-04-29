@@ -1,0 +1,69 @@
+﻿<!-- Edit ItemRole -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="{Bind ItemRole.$Id, Format='@[ItemProperties] [{0}]'}" Overflow="True"
+		Width="35rem">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid Columns="Auto,Auto">
+		<TextBox Grid.Row="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind ItemRole.Name}" 
+				 Bold="True" TabIndex="1" UpdateTrigger="Input"/>
+		<ComboBox Grid.Row="2" Grid.Col="1" Label="@[Color]" Value="{Bind ItemRole.Color}">
+			<ComboBoxItem Content="Default" Value=""/>
+			<ComboBoxItem Content="Green" Value="green"/>
+			<ComboBoxItem Content="Orange" Value="orange"/>
+			<ComboBoxItem Content="Cyan" Value="cyan"/>
+			<ComboBoxItem Content="Red" Value="red"/>
+			<ComboBoxItem Content="Purlple" Value="purple"/>
+			<ComboBoxItem Content="Pink" Value="pink"/>
+			<ComboBoxItem Content="Gold" Value="gold"/>
+			<ComboBoxItem Content="Blue" Value="blue"/>
+			<ComboBoxItem Content="Salmon" Value="salmon"/>
+			<ComboBoxItem Content="Seagreen" Value="seagreen"/>
+			<ComboBoxItem Content="Tan" Value="tan"/>
+			<ComboBoxItem Content="Magenta" Value="magenta"/>
+			<ComboBoxItem Content="LightGray" Value="lightgray"/>
+		</ComboBox>
+		<TagLabel Grid.Row="2" Grid.Col="2" Style="{Bind ItemRole.Color}" Content="{Bind ItemRole.Name}" 
+				  Padding=".475rem"/>
+		<TabBar Grid.Row="3" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
+			<TabButton ActiveValue="">@[Accounts]</TabButton>
+		</TabBar>
+		<Block Grid.Row="4" Grid.ColSpan="2" Height="20rem" Scroll="True">
+			<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+				<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind ItemRole.Accounts}}"/>
+			</Toolbar>
+			<Table CellSpacing="Medium" Columns="10rem,15rem,10rem,Fit"
+				   ItemsSource="{Bind ItemRole.Accounts}" Width="100%" Margin="0, -6px">
+				<Table.Header>
+					<TableRow>
+						<TableCell Wrap="NoWrap">@[AccountPlan]</TableCell>
+						<TableCell>@[ItemRole]</TableCell>
+						<TableCell>@[Account]</TableCell>
+						<TableCell />
+					</TableRow>
+				</Table.Header>
+				<TableRow>
+					<Selector Value="{Bind Plan}" DisplayProperty="Code" Tip="{Bind Plan.Name}">
+						<Selector.AddOns>
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
+						</Selector.AddOns>
+					</Selector>
+					<ComboBox ItemsSource="{Bind Root.AccKinds}" Value="{Bind AccKind}">
+						<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+					</ComboBox>
+					<Selector Value="{Bind Account}" DisplayProperty="Code" Tip="{Bind Account.Name}">
+						<Selector.AddOns>
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Account}, 
+								Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
+						</Selector.AddOns>
+					</Selector>
+					<Hyperlink Size="Small" Icon="Delete" Command="{BindCmd Remove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
+				</TableRow>
+			</Table>
+		</Block>
+		<TextBox Grid.Row="5" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind ItemRole.Memo}" Multiline="True"/>
+	</Grid>
+</Dialog>
+

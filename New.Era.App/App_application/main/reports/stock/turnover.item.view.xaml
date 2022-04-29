@@ -34,7 +34,7 @@
 			</Toolbar>
 			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
 				<Sheet GridLines="Both" Columns="Auto,15rem,Auto,Auto+A,Auto+A">
-					<SheetSection>
+					<Sheet.Header>
 						<SheetRow Style="Title">
 							<SheetCell ColSpan="4" Content="{Bind Report.Name}"></SheetCell>
 						</SheetRow>
@@ -50,7 +50,7 @@
 							<SheetCell Content="@[Warehouse]"></SheetCell>
 							<SheetCell Content="{Bind Parent.Filter.Warehouse.Name}" Bold="True"></SheetCell>
 						</SheetRow>
-					</SheetSection>
+					</Sheet.Header>
 					<SheetSection >
 						<SheetRow Style="Header">
 							<SheetCell ColSpan="3">@[Item]</SheetCell>

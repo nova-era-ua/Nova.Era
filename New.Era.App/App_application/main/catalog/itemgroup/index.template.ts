@@ -48,6 +48,7 @@ async function editItem() {
 async function addHierarchy() {
 	const ctrl: IController = this.$ctrl;
 	let group = await ctrl.$showDialog('/catalog/itemgroup/edithie', null);
+	group.Icon = 'folders-outline';
 	let newhie = this.Groups.$append(group);
 	newhie.$select(this.Groups);
 }

@@ -5,6 +5,10 @@
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Items}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
+	<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+		<Button Icon="Plus" Content="@[Create]"
+				Command="{BindCmd Dialog, Action=Append, Argument={Bind Items}, Url='/catalog/item/edit'}"/>
+	</Toolbar>
 	<DataGrid ItemsSource="{Bind Items}" XamlStyle="{StyleResource DataGridSimple}"
 			Height="30rem" FixedHeader="True"
 			DoubleClick="{BindCmd Select, Argument={Bind Items}}">

@@ -38,23 +38,6 @@ begin
 end
 go
 -------------------------------------------------
-create or alter procedure doc.[Operation.Children]
-@TenantId int = 1,
-@CompanyId bigint = 0,
-@UserId bigint,
-@Id nvarchar(32)
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-	throw 60000, @Id, 0;
-	select [Children!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo
-	from doc.Operations o;
-	--where TenantId = @TenantId; -- and Menu = @Id
-	--order by Id;
-end
-go
--------------------------------------------------
 create or alter procedure doc.[Operation.Load]
 @TenantId int = 1,
 @CompanyId bigint = 0,
@@ -82,7 +65,8 @@ begin
 	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
 		[Plan!TAccount!RefId] = [Plan], [Dt!TAccount!RefId] = Dt, [Ct!TAccount!RefId] = Ct, 
 		DtAccMode, DtSum, DtRow, CtAccMode, CtSum, CtRow,
-		[!TOperation.Trans!ParentId] = ot.Operation
+		[!TOperation.Trans!ParentId] = ot.Operation,
+		[DtAccKind!TAccKind!RefId] = ot.DtAccKind, [CtAccKind!TAccKind!RefId] = ot.CtAccKind
 	from doc.OpTrans ot 
 	where ot.TenantId = @TenantId and ot.Operation = @Id
 	order by ot.RowKind
@@ -110,6 +94,11 @@ begin
 	select [!TRowKind!Array] = null, [Id!!Id] = rk.Id, [Name!!Name] = rk.[Name], [!TForm.RowKinds!ParentId] = rk.Form
 	from doc.FormRowKinds rk where rk.TenantId = @TenantId
 	order by rk.[Order];
+
+	select [AccountKinds!TAccKind!Array] = null, [Id!!Id] = ak.Id, [Name!!Name] = ak.[Name]
+	from acc.AccKinds ak
+	where ak.TenantId = @TenantId
+	order by ak.Id;
 end
 go
 -------------------------------------------------
@@ -157,9 +146,11 @@ as table(
 	[Dt] bigint,
 	[Ct] bigint,
 	DtAccMode nchar(1),
+	DtAccKind bigint,
 	DtRow nchar(1),
 	DtSum nchar(1),
 	CtAccMode nchar(1),
+	CtAccKind bigint,
 	CtRow nchar(1),
 	CtSum nchar(1)
 )
@@ -234,16 +225,18 @@ begin
 		t.[Dt] = s.[Dt],
 		t.[Ct] = s.[Ct],
 		t.DtAccMode = s.DtAccMode,
+		t.DtAccKind = s.DtAccKind,
 		t.CtAccMode = s.CtAccMode,
+		t.CtAccKind = s.CtAccKind,
 		t.DtRow = s.DtRow,
 		t.CtRow = s.CtRow,
 		t.DtSum = s.DtSum,
 		t.CtSum = s.CtSum
 	when not matched by target then insert
-		(TenantId, Operation, RowNo, RowKind, [Plan], Dt, Ct, DtAccMode, CtAccMode, DtRow, CtRow, 
-			DtSum, CtSum) values
-		(@TenantId, @Id, RowNo, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct, s.DtAccMode, s.CtAccMode, s.DtRow, s.CtRow, 
-			s.DtSum, s.CtSum)
+		(TenantId, Operation, RowNo, RowKind, [Plan], Dt, Ct, DtAccMode, DtAccKind, CtAccMode, CtAccKind, 
+			DtRow, CtRow, DtSum, CtSum) values
+		(@TenantId, @Id, RowNo, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct, s.DtAccMode, s.DtAccKind, s.CtAccMode, s.CtAccKind, 
+			s.DtRow, s.CtRow, s.DtSum, s.CtSum)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	with OM as (select Id from @Menu where Checked = 1)

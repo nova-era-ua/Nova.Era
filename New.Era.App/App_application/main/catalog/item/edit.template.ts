@@ -6,11 +6,9 @@ const template: Template = {
 		'TRoot.$$Tab': String,
 		'TItem.$Title'(this: TItem) { return this.Id ? this.Id : '@[NewItem]' }
 	},
-	defaults: {
-		'Item.IsStock': true
-	},
 	validators: {
-		'Item.Name': '@[Error.Required]'
+		'Item.Name': '@[Error.Required]',
+		'Item.Role': '@[Error.Required]'
 	},
 	commands: {
 		addHierarchy

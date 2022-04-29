@@ -15,7 +15,7 @@ begin
 
 	with T(Id, [Name], Icon, HasChildren)
 	as (
-		select Id, [Name], Icon = N'folder-outline',
+		select Id, [Name], Icon = N'folders-outline',
 			HasChildren= case when exists(
 				select 1 from cat.ItemTree it where it.Void = 0 and it.Parent = t.Id 
 					and it.TenantId = @TenantId and t.TenantId = @TenantId

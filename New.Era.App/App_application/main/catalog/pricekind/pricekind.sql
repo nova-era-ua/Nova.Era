@@ -1,6 +1,6 @@
-﻿/* PRICELIST */
+﻿/* PRICEKINDS */
 ------------------------------------------------
-create or alter procedure cat.[PriceList.Index]
+create or alter procedure cat.[PriceKind.Index]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint = null
@@ -9,6 +9,6 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [PriceLists!TPriceList!Array] = null;
+	select [PriceKind!TPriceKind!Array] = null;
 end
 go

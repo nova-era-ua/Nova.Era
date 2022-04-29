@@ -47,12 +47,17 @@ begin
 
 	-- Elements definition
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Memo, i.IsStock,
+		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where 0 <> 0;
 
+	select [!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color
+	from cat.ItemRoles ir 
+	where 0 <> 0;
+
+	-- filters
 	select [Hierarchies!THie!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id <> Parent and Id <> 0;
 
@@ -131,7 +136,7 @@ begin
 	option (recompile);
 
 	select [Elements!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Memo, i.IsStock,
+		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id
@@ -205,7 +210,7 @@ begin
 	option (recompile);
 
 	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
-		i.IsStock,
+		[Role!TItemRole!RefId] = i.[Role],
 		[Unit!TUnit!RefId] = i.Unit,
 		[!!RowCount] = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and t.id = i.Id
@@ -237,7 +242,7 @@ as table(
 	Article nvarchar(32),
 	FullName nvarchar(255),
 	[Memo] nvarchar(255),
-	IsStock bit,
+	[Role] bigint,
 	Unit bigint
 );
 go
@@ -258,7 +263,7 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
-		i.IsStock,
+		[Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i 
 		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
@@ -267,6 +272,10 @@ begin
 	select [Hierarchies!THie!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
 		[Elements!THieElem!Array] = null
 	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
+
+	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color
+	from cat.ItemRoles ir 
+	where ir.TenantId = @TenantId;
 	
 	select [!THieElem!Array] = null, [!THie.Elements!ParentId] = iti.[Root],
 		[Group] = iti.Parent,
@@ -317,11 +326,11 @@ begin
 			t.FullName = s.FullName,
 			t.[Article] = s.[Article],
 			t.Memo = s.Memo,
-			t.IsStock = s.IsStock,
+			t.[Role] = s.[Role],
 			t.Unit = s.Unit
 	when not matched by target then 
-		insert (TenantId, [Name], FullName, [Article], Memo, IsStock, Unit)
-		values (@TenantId, s.[Name], s.FullName, s.Article, s.Memo, s.IsStock, s.Unit)
+		insert (TenantId, [Name], FullName, [Article], Memo, [Role], Unit)
+		values (@TenantId, s.[Name], s.FullName, s.Article, s.Memo, s.[Role], s.Unit)
 	output 
 		$action op, inserted.Id id
 	into @output(op, id);

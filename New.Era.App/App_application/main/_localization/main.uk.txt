@@ -72,6 +72,12 @@
 @Currency=Валюта
 @Currencies=Валюти
 @PriceLists=Прайс-листи
+@PriceKinds=Види цін
+@PriceKind=Вид ціни
+@ItemRoles=Ролі в обліку
+@ItemRole=Роль в обліку
+@AccKinds=Види рахунків
+@AccKind=Вид рахунку
 @CreateFolder=Створити папку
 @CreateSection=Створити розділ
 @CreateAccountPlan=Створити план рахунків
@@ -110,6 +116,7 @@
 @Code.Currency=Код ISO
 @Symbol=Символ
 @QuotUnit=Одиниця котирування
+@Color=Колір
 ;
 @Filter.AllOperations=<Всі операції>
 ;
