@@ -422,6 +422,7 @@
     <TypeScriptCompile Include="App_application\main\document\dialogs\transactions.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\payout\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\pay.module.ts" />
+    <TypeScriptCompile Include="App_application\main\reports\account\turnover.accagentcontract.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accagent.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accdate.template.ts" />
     <None Include="App_application\main\settings\item\model.json" />
@@ -624,6 +625,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\catalog\pricekind\browse.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\reports\account\turnover.accagentcontract.view.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

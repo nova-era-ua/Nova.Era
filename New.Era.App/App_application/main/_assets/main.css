@@ -38,3 +38,8 @@
 .inner-table td {
   border: none!important;
 }
+table.sheet.red-borders tr.row-title td,
+table.sheet.red-borders tr.row-parameter td,
+table.sheet.red-borders tr td {
+  border: 1px solid red !important;
+}

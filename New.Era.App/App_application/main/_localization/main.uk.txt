@@ -124,6 +124,7 @@
 @QuotUnit=Одиниця котирування
 @Color=Колір
 @Number=Номер
+@NoContract=<Без договору>
 ;
 @Filter.AllOperations=<Всі операції>
 ;

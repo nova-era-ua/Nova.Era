@@ -77,3 +77,11 @@ begin
 	return @path;
 end
 go
+------------------------------------------------
+create or alter function rep.fn_MakeRepId2(@Id1 bigint, @Id2 bigint)
+returns nvarchar(64)
+as
+begin
+	return cast(@Id1 as nvarchar(31)) + N'_'+ cast(@Id2 as nvarchar(31));
+end
+go
