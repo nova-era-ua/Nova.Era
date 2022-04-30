@@ -3,11 +3,14 @@
 create or alter view cat.[view_Items]
 as
 select [Id!!Id] = i.Id, 
-	[Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
+	[Name!!Name] = i.[Name], i.Article, i.Memo,
 	[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+	[Role.Id!TItemRole!Id] = i.[Role], [Role.Name!TItemRole!Name] = ir.[Name], [Role.Color!TItemRole!] = ir.Color,
+	ItemRole = i.[Role],
 	[!TenantId] = i.TenantId
 from cat.Items i
 	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
+	left join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
 go
 -------------------------------------------------
 create or alter procedure cat.[Item.Group.Index]
@@ -47,13 +50,13 @@ begin
 
 	-- Elements definition
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role],
+		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role], [ItemRole] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where 0 <> 0;
 
-	select [!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color
 	from cat.ItemRoles ir 
 	where 0 <> 0;
 
@@ -105,17 +108,17 @@ begin
 	set @Order = lower(@Order);
 	set @fr = N'%' + upper(@Fragment) + N'%';
 
-	declare @items table(rowno int identity(1, 1), id bigint, unit bigint, rowcnt int);
+	declare @items table(rowno int identity(1, 1), id bigint, unit bigint, [role] bigint, rowcnt int);
 
-	insert into @items(id, unit, rowcnt)
-	select i.Id, i.Unit,
+	insert into @items(id, unit, [role], rowcnt)
+	select i.Id, i.Unit, i.[Role],
 		count(*) over()
 	from cat.Items i
 		left join cat.ItemTreeElems ite on i.TenantId = ite.TenantId and i.Id = ite.Item
 	where i.TenantId = @TenantId
 		and (@Id = -1 or @Id = ite.Parent)
 		and (@fr is null or [Name] like @fr or Memo like @fr or Article like @fr)
-	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo
+	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role]
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -136,12 +139,16 @@ begin
 	option (recompile);
 
 	select [Elements!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role],
+		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role], ItemRole = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	order by t.rowno;
+
+	with R([role]) as (select [role] from @items group by [role])
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color
+	from cat.ItemRoles ir inner join R on ir.TenantId = @TenantId and ir.Id = R.[role];
 
 	-- system data
 	select [!$System!] = null,
@@ -209,8 +216,8 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
-		[Role!TItemRole!RefId] = i.[Role],
+	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Memo,
+		[Role!TItemRole!RefId] = i.[Role], ItemRole = i.[Role],
 		[Unit!TUnit!RefId] = i.Unit,
 		[!!RowCount] = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and t.id = i.Id
@@ -263,7 +270,7 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
-		[Role!TItemRole!RefId] = i.[Role],
+		[Role!TItemRole!RefId] = i.[Role], ItemRole = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i 
 		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
@@ -462,7 +469,7 @@ begin
 	select [Items!TItem!Array] = null, *
 	from cat.view_Items v
 	where v.[!TenantId] = @TenantId
-	order by v.[Id!!Id]
+	order by v.[Id!!Id];
 end
 go
 -------------------------------------------------

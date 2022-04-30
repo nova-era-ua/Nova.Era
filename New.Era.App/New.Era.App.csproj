@@ -360,6 +360,7 @@
     <None Include="App_application\main\accounting\agent\model.json" />
     <None Include="App_application\main\accounting\cash\model.json" />
     <None Include="App_application\main\accounting\catalog\model.json" />
+    <Content Include="App_application\main\accounting\contract\model.json" />
     <None Include="App_application\main\accounting\journal\model.json" />
     <Content Include="App_application\main\catalog\unit\unit.sql" />
     <None Include="App_application\main\accounting\report\model.json" />
@@ -370,6 +371,7 @@
     <None Include="App_application\main\catalog\bankaccount\model.json" />
     <None Include="App_application\main\catalog\bank\model.json" />
     <None Include="App_application\main\catalog\brand\model.json" />
+    <Content Include="App_application\main\catalog\contract\contract.sql" />
     <None Include="App_application\main\catalog\contract\model.json" />
     <None Include="App_application\main\catalog\currency\model.json" />
     <Content Include="App_application\main\catalog\itemgroup\model.json" />
@@ -386,15 +388,19 @@
       <Generator>MSBuild:Compile</Generator>
     </Content>
     <Content Include="tsconfig.json" />
+    <Content Include="App_application\main\settings\contract\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\contract\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\contract\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemgroup\hierarchy.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemgroup\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemgroup\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\acckind\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemrole\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\pricekind\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\dashboard\dashboard.template.ts" />
     <None Include="App_application\main\document\cashout\model.json" />
     <None Include="App_application\main\document\cashin\model.json" />
@@ -594,6 +600,30 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\catalog\acckind\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\pricekind\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\contract\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\contract\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\pricekind\browse.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

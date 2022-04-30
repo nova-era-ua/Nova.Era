@@ -17,6 +17,7 @@
       "main/catalog/item/item.sql",
       "main/catalog/itemgroup/groupitem.sql",
       "main/catalog/agent/agent.sql",
+      "main/catalog/contract/contract.sql",
       "main/catalog/bank/bank.sql",
       "main/catalog/bankaccount/bankaccount.sql",
       "main/catalog/cashaccount/cashaccount.sql",

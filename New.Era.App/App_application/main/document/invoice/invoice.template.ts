@@ -11,7 +11,7 @@ const template: Template = {
 		'Root.$$Scan.change': scanChange
 	},
 	validators: {
-		'Document.Rows[].Qty': '@[Error.Required]'
+		'Document.StockRows[].Qty': '@[Error.Required]'
 	},
 	commands: {
 	}

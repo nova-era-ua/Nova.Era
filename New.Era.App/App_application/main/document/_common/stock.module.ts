@@ -18,9 +18,12 @@ const template: Template = {
 		'Document.Agent': '@[Error.Required]',
 	},
 	events: {
-		'Document.Rows[].add'(rows, row) { row.Qty = 1; },
-		'Document.Rows[].Item.change': itemChange,
-		'Document.Rows[].Item.Article.change': articleChange
+		'Document.StockRows[].add'(rows, row) { row.Qty = 1; },
+		'Document.StockRows[].Item.change': itemChange,
+		'Document.StockRows[].Item.Article.change': articleChange,
+		'Document.ServiceRows[].add'(rows, row) { row.Qty = 1; },
+		'Document.ServiceRows[].Item.change': itemChange,
+		'Document.ServiceRows[].Item.Article.change': articleChange
 	},
 	commands: {
 		apply,
@@ -31,12 +34,14 @@ const template: Template = {
 export default template;
 
 function docSum() {
-	return this.Rows.reduce((p, c) => p + c.Sum, 0);
+	return this.StockRows.reduce((p, c) => p + c.Sum, 0) + 
+		this.ServiceRows.reduce((p, c) => p + c.Sum, 0);
 }
 
 // events
 function itemChange(row, val) {
 	row.Unit = val.Unit;
+	row.ItemRole = val.ItemRole;
 }
 
 async function articleChange(item, val) {

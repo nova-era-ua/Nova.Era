@@ -1,10 +1,14 @@
 ﻿<!-- Edit Folder -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="@[Browse.Agent]" Overflow="True" Padding="1rem">
+		Title="@[Browse.Agent]" Overflow="True">
 	<Dialog.Buttons>
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Agents}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
+	<Grid>
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Dialog, Action=Append, Argument={Bind Agents}, Url='/catalog/agent/edit'}"/>
+		</Toolbar>
 	<DataGrid ItemsSource="{Bind Agents}"
 			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
 			DoubleClick="{BindCmd Select, Argument={Bind Agents}}">
@@ -12,5 +16,6 @@
 		<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 	</DataGrid>
+	</Grid>
 </Dialog>
 

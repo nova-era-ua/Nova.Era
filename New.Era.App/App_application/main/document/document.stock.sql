@@ -65,7 +65,7 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.Done,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.Notice, d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
@@ -140,11 +140,12 @@ begin
 
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.[Sum], d.Done,
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.Notice, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo,
-		[Rows!TRow!Array] = null
+		[StockRows!TRow!Array] = null,
+		[ServiceRows!TRow!Array] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
@@ -154,10 +155,16 @@ begin
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
-		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit,
-		[!TDocument.Rows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
+		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, dd.ItemRole,
+		[!TDocument.StockRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
 	from doc.DocDetails dd
-	where dd.TenantId=@TenantId and dd.Document = @Id;
+	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock';
+
+	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
+		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, dd.ItemRole,
+		[!TDocument.ServiceRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
+	from doc.DocDetails dd
+	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Service';
 
 	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
 	from doc.Operations o 
@@ -179,7 +186,7 @@ begin
 
 	with T as (select item from @rows group by item)
 	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short, ItemRole = i.[Role]
 	from cat.Items i inner join T on i.Id = T.item and i.TenantId = @TenantId
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId;
@@ -229,6 +236,7 @@ as table(
 	RowNo int,
 	Item bigint,
 	Unit bigint,
+	ItemRole bigint,
 	[Qty] float,
 	[Price] money,
 	[Sum] money,
@@ -244,7 +252,8 @@ begin
 	declare @Document cat.[Document.Stock.TableType];
 	declare @Rows cat.[Document.Stock.Row.TableType]
 	select [Document!Document!Metadata] = null, * from @Document;
-	select [Rows!Document.Rows!Metadata] = null, * from @Rows;
+	select [StockRows!Document.StockRows!Metadata] = null, * from @Rows;
+	select [ServiceRows!Document.ServiceRows!Metadata] = null, * from @Rows;
 end
 go
 ------------------------------------------------
@@ -252,11 +261,18 @@ create or alter procedure doc.[Document.Stock.Update]
 @TenantId int = 1,
 @UserId bigint,
 @Document cat.[Document.Stock.TableType] readonly,
-@Rows cat.[Document.Stock.Row.TableType] readonly
+@StockRows cat.[Document.Stock.Row.TableType] readonly,
+@ServiceRows cat.[Document.Stock.Row.TableType] readonly
 as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
+
+	/*
+	declare @xml nvarchar(max);
+	set @xml = (select * from @StockRows for xml auto);
+	throw 60000, @xml, 0;
+	*/
 
 	declare @rtable table(id bigint);
 	declare @id bigint;
@@ -279,20 +295,37 @@ begin
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
-	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id)
+	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id and Kind=N'Stock')
 	merge DD as t
-	using @Rows as s on t.Id = s.Id
+	using @StockRows as s on t.Id = s.Id
 	when matched then update set
 		t.RowNo = s.RowNo,
 		t.Item = s.Item,
 		t.Unit = s.Unit,
+		t.ItemRole = nullif(s.ItemRole, 0),
 		t.Qty = s.Qty,
 		t.Price = s.Price,
 		t.[Sum] = s.[Sum]
 	when not matched by target then insert
-		(TenantId, Document, RowNo, Item, Unit, Qty, Price, [Sum]) values
-		(@TenantId, @id, s.RowNo, s.Item, s.Unit, s.Qty, s.Price, s.[Sum])
-	when not matched by source and t.TenantId = @TenantId and t.Document = @id then delete;
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum]) values
+		(@TenantId, @id, N'Stock', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum])
+	when not matched by source and t.TenantId = @TenantId and t.Document = @id and t.Kind=N'Stock' then delete;
+
+	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id and Kind=N'Service')
+	merge DD as t
+	using @ServiceRows as s on t.Id = s.Id
+	when matched then update set
+		t.RowNo = s.RowNo,
+		t.Item = s.Item,
+		t.Unit = s.Unit,
+		t.ItemRole = nullif(s.ItemRole, 0),
+		t.Qty = s.Qty,
+		t.Price = s.Price,
+		t.[Sum] = s.[Sum]
+	when not matched by target then insert
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum]) values
+		(@TenantId, @id, N'Service', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum])
+	when not matched by source and t.TenantId = @TenantId and t.Document = @id and t.Kind=N'Service' then delete;
 
 	exec doc.[Document.Stock.Load] @TenantId = @TenantId, 
 	@UserId = @UserId, @Id = @id;

@@ -123,8 +123,9 @@ begin
 		(1504,   15, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
 		(153,    15, 13, N'@[Catalogs]',  null, null, null),
 		(1505,  153, 10, N'@[Agents]',         N'agent',     N'users',  null),
-		(1506,  153, 11, N'@[CatalogOther]',   N'catalog',   N'list', null),
-		(1507,   15, 15, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
+		(1506,  153, 11, N'@[Contracts]',      N'contract',  N'user-image', null),
+		(1507,  153, 12, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1510,   15, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
 		(1530,   15, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
@@ -139,10 +140,11 @@ begin
 		(8813, 881, 13, N'@[BankAccounts]', N'bankacc',   N'bank', null),
 		(8814, 881, 14, N'@[CashAccounts]', N'cashacc',   N'currency-uah', null),
 		(8815, 881, 15, N'@[Agents]',       N'agent',     N'users', null),
-		(8816, 881, 16, N'@[Items]',        N'item',      N'package-outline', null),
-		(8817, 881, 16, N'@[CatalogOther]', N'catalog',   N'list', null),
-		(8820, 882, 17, N'@[AccountPlans]', N'accountplan', N'account',  null),
-		(8821, 882, 18, N'@[Operations]',   N'operation',   N'file-content', null),
+		(8816, 881, 16, N'@[Contracts]',    N'contract',  N'user-image', null),
+		(8817, 881, 17, N'@[Items]',        N'item',      N'package-outline', null),
+		(8818, 881, 18, N'@[CatalogOther]', N'catalog',   N'list', null),
+		(8819, 882, 19, N'@[AccountPlans]', N'accountplan', N'account',  null),
+		(8820, 882, 20, N'@[Operations]',   N'operation',   N'file-content', null),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 
@@ -163,13 +165,13 @@ begin
 
 	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]',        N'/catalog/unit/index', N'list',  N''),
 	(201, N'Purchase',   11, N'@[Items]',  N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
-	(202, N'Purchase',   12, N'@[Prices]', N'@[PriceLists]',   N'/catalog/pricelist/index', N'list',  N''),
+	(202, N'Purchase',   12, N'@[Prices]', N'@[PriceKinds]',   N'/catalog/pricekind/index', N'list',  N''),
 
 	-- accounting
 	(300, N'Accounting', 10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
 	(301, N'Accounting', 11, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
-	(305, N'Accounting',  12, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
-	(306, N'Accounting',  13, N'@[Sales]',  N'@[PriceLists]', N'/catalog/pricelist/index', N'list',  N''),
+	(305, N'Accounting',  12, N'@[Items]',     N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
+	(306, N'Accounting',  13, N'@[Prices]',    N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N''),
 
 	-- settings
 	(900, N'Settings',  10, N'@[Accounts]', N'@[AccKinds]', N'/catalog/acckind/index', N'list',  N''),

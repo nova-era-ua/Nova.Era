@@ -1,6 +1,6 @@
 ﻿/* Document Apply */
 ------------------------------------------------
-create or alter procedure doc.[Document.Apply.Account]
+create or alter procedure doc.[Document.Apply.Account.ByRows]
 @TenantId int = 1,
 @UserId bigint,
 @Operation bigint,
@@ -11,98 +11,143 @@ begin
 	set transaction isolation level read committed;
 	set xact_abort on;
 
+	declare @trans table(TrNo int, RowNo int, DtCt smallint, Acc bigint, CorrAcc bigint, [Plan] bigint, 
+		Detail bigint, Item bigint, RowMode nchar(1),
+		Wh bigint, CashAcc bigint, [Date] date, Agent bigint, Company bigint, CostItem bigint,
+		[Contract] bigint, CashFlowItem bigint,
+		Qty float, [Sum] money, SumMode nchar(1), CostSum money, [ResultSum] money);
+
+	-- DOCUMENT with ROWS
+	with TR as (
+		select Dt = case ot.DtAccMode when N'R' then ird.Account else ot.Dt end,
+			Ct = case ot.CtAccMode when N'R' then irc.Account else ot.Ct end,
+			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty, dd.[Sum],
+			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
+			DtSum = isnull(ot.DtSum, N''), CtSum = isnull(ot.CtSum, N''),
+			d.[Date], d.Agent, d.Company, d.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
+			d.[Contract], d.[CashFlowItem]
+		from doc.DocDetails dd
+			inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
+			inner join doc.OpTrans ot on dd.TenantId = ot.TenantId and (dd.Kind = ot.RowKind or ot.RowKind = N'All')
+			left join cat.ItemRoleAccounts ird on ird.TenantId = dd.TenantId and ird.[Role] = dd.ItemRole and ird.AccKind = ot.DtAccKind
+			left join cat.ItemRoleAccounts irc on irc.TenantId = dd.TenantId and irc.[Role] = dd.ItemRole and irc.AccKind = ot.CtAccKind
+		where dd.TenantId = @TenantId and dd.Document = @Id and ot.Operation = @Operation 
+			--and (ot.DtRow = N'R' or ot.CtRow = N'R')
+	)
+	insert into @trans
+	select TrNo, RowNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], Detail, Item, RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
+		[Date], Agent, Company, CostItem, [Contract], CashFlowItem, [Qty], [Sum], SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
+		from TR
+	union all 
+	select TrNo, RowNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], Detail, Item, RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
+		[Date], Agent, Company, CostItem, [Contract], CashFlowItem, [Qty], [Sum], SumMode = CtSum, CostSum = 0, ResultSum = [Sum]
+		from TR;
+
+	if exists(select * from @trans where SumMode = N'S')
+	begin
+		-- calc self cost
+		with W(item, ssum) as (
+			select t.Item, [sum] = sum(j.[Sum]) / sum(j.Qty)
+			from jrn.Journal j 
+			  inner join @trans t on j.Item = t.Item and j.Account = t.Acc and j.DtCt = 1 and j.[Date] <= t.[Date]
+			where j.TenantId = @TenantId and t.SumMode = N'S'
+			group by t.Item
+		)
+		update @trans set CostSum = W.ssum * t.Qty
+		from @trans t inner join W on t.Item = W.item
+		where t.SumMode = N'S';
+
+		update @trans set ResultSum = 
+			case SumMode
+			when N'S' then CostSum
+			when N'R' then [Sum] - CostSum
+			else [Sum]
+			end
+	end
+
+	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum], [Qty], [Item],
+		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem)
+	select TenantId = @TenantId, Document = @Id, Detail = iif(RowMode = N'R', Detail, null), TrNo, RowNo = iif(RowMode = N'R', RowNo, null),
+		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([ResultSum]), Qty = sum(iif(RowMode = N'R', Qty, null)),
+		Item = iif(RowMode = N'R', Item, null),
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem
+	from @trans
+	group by TrNo, 
+		iif(RowMode = N'R', RowNo, null),
+		[Date], DtCt, [Plan], Acc, CorrAcc, 
+		iif(RowMode = N'R', Item, null),
+		iif(RowMode = N'R', Detail, null),
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem;
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.Apply.Account.ByDoc]
+@TenantId int = 1,
+@UserId bigint,
+@Operation bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	declare @trans table(TrNo int, DtCt smallint, Acc bigint, CorrAcc bigint, [Plan] bigint, 
+		RowMode nchar(1),
+		Wh bigint, CashAcc bigint, [Date] date, Agent bigint, Company bigint, CostItem bigint,
+		[Contract] bigint, CashFlowItem bigint, [Sum] money);
+
+	with TR as (
+		select Dt = ot.Dt,
+			Ct = ot.Ct,
+			TrNo = ot.RowNo, d.[Sum],
+			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
+			d.[Date], d.Agent, d.Company, d.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
+			d.[Contract], d.CashFlowItem
+		from doc.Documents d
+			inner join doc.OpTrans ot on d.TenantId = ot.TenantId and ot.RowKind = N''
+		where d.TenantId = @TenantId and d.Id = @Id and ot.Operation = @Operation
+	)
+	insert into @trans
+	select TrNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
+		[Date], Agent, Company, CostItem, [Contract], CashFlowItem, [Sum]
+		from TR
+	union all 
+	select TrNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
+		[Date], Agent, Company, CostItem, [Contract], CashFlowItem, [Sum]
+		from TR;
+
+	insert into jrn.Journal(TenantId, Document, TrNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum],
+		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem)
+	select TenantId = @TenantId, Document = @Id, TrNo,
+		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([Sum]),
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem
+	from @trans
+	group by TrNo, [Date], DtCt, [Plan], Acc, CorrAcc, 
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.Apply.Account]
+@TenantId int = 1,
+@UserId bigint,
+@Operation bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	set ansi_warnings off;
+
 	-- ensure empty journal
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
 
-	declare @tr table([date] datetime, detail bigint, trno int, rowno int, acc bigint, corracc bigint, [plan] bigint,
-		dtct smallint, [sum] money, ssum money, qty float, item bigint, comp bigint, agent bigint, wh bigint, 
-		ca bigint, _modesum nchar(1), _moderow nchar(1));
-
-	declare @rowno int, @rowkind nvarchar(16), @plan bigint, @dt bigint, @ct bigint, @dtrow nchar(1), @ctrow nchar(1),
-		@dtsum nchar(1), @ctsum nchar(1);
-
-	-- todo: temportary source and accounts from other tables
-
-	declare cur cursor local forward_only read_only fast_forward for
-		select RowNo, RowKind, [Plan], [Dt], [Ct], 
-			isnull(DtRow, N''), isnull(CtRow, N''), isnull(DtSum, N''), isnull(CtSum, N'')
-		from doc.OpTrans where TenantId = @TenantId and Operation = @Operation;
-	open cur;
-	fetch next from cur into @rowno, @rowkind, @plan, @dt, @ct, @dtrow, @ctrow, @dtsum, @ctsum
-	while @@fetch_status = 0
-	begin
-		-- debit
-		if @dtrow = N'R'
-			insert into @tr(_moderow, _modesum, [date], detail, trno, rowno, dtct, [plan], acc, corracc, item, qty, [sum], comp, agent, wh, ca)
-				select @dtrow, @dtsum, d.[Date], dd.Id, @rowno, dd.RowNo, 1, @plan, @dt, @ct, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhTo,
-					d.CashAccTo
-				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
-				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
-		else if @dtrow = N''
-			insert into @tr(_moderow, _modesum, [date], trno, dtct, [plan], acc, corracc, [sum], comp, agent, wh, ca)
-				select @dtrow, @dtsum, d.[Date], @rowno, 1, @plan, @dt, @ct, d.[Sum], d.Company, d.Agent, d.WhTo,
-					d.CashAccTo
-				from doc.Documents d where TenantId = @TenantId and Id = @Id;
-		-- credit
-		if @ctrow = N'R'
-			insert into @tr(_moderow, _modesum, [date], detail, trno, rowno, dtct, [plan], acc, corracc, item, qty, [sum], comp, agent, wh, ca)
-				select @ctrow, @ctsum, d.[Date], dd.Id, @rowno, dd.RowNo, -1, @plan, @ct, @dt, dd.Item, dd.Qty, dd.[Sum], d.Company, d.Agent, d.WhFrom,
-					d.CashAccFrom
-				from doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
-				where d.TenantId = @TenantId and d.Id = @Id and @rowkind = isnull(dd.Kind, N'');
-		else if @ctrow = N''
-			insert into @tr(_moderow, _modesum, [date], trno, dtct, [plan], acc, corracc, [sum], comp, agent, wh, ca)
-				select @ctrow, @ctsum, d.[Date], @rowno, -1, @plan, @ct, @dt, d.[Sum], d.Company, d.Agent, d.WhFrom,
-					d.CashAccFrom
-				from doc.Documents d where TenantId = @TenantId and Id = @Id;
-		fetch next from cur into @rowno, @rowkind, @plan, @dt, @ct, @dtrow, @ctrow, @dtsum, @ctsum
-	end
-	close cur;
-	deallocate cur;
-
-	if exists(select 1 from @tr where _modesum = N'S' and _moderow = 'R') 
-	begin
-		with W(item, ssum) as (
-			select t.item, [sum] = sum(j.[Sum]) / sum(j.Qty)
-			from jrn.Journal j 
-			  inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] <= t.[date]
-			where j.TenantId = @TenantId and t._modesum = N'S' and _moderow = 'R'
-			group by t.item
-		)
-		update @tr set [ssum] = W.ssum * t.qty
-		from @tr t inner join W on t.item = W.item
-		where t._modesum = N'S' and _moderow = 'R'
-	end
-
-	if exists(select 1 from @tr where _modesum = N'S' and _moderow = N'')
-	begin
-		-- total self cost for this transaction
-		with W(trno, item, ssum) as (
-			select t.trno, j.Item, [sum] = (sum(j.[Sum]) / sum(j.[Qty])) * t.qty
-			from jrn.Journal j 
-			  inner join @tr t on j.Item = t.item and j.Account = t.acc and j.DtCt = 1 and j.[Date] <= t.[date]
-			where j.TenantId = @TenantId and _moderow = 'R'
-			group by t.trno, j.Item, t.qty
-		),
-		WT(trno, ssum) as (
-			select trno, sum(ssum) from W
-			group by trno
-		)
-		update @tr set [ssum] = WT.ssum
-		from @tr t inner join WT on t.trno = WT.trno
-		where t._modesum = N'S' and t._moderow = N'';
-	end
-
-	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date],  Company, Warehouse, Agent, Item, 
-		DtCt, [Plan], Account, CorrAccount, Qty, CashAccount, [Sum])
-	select @TenantId, @Id, detail, trno, rowno, [date], comp, wh, agent, item,
-		dtct, [plan], acc, corracc, qty, ca,
-		isnull(case _modesum
-			when N'S' then ssum
-			when N'R' then [sum] - ssum
-			else [sum]
-		end, 0)
-	from @tr;
+	declare @mode nvarchar(10) = N'bydoc';
+	if exists(select * from doc.DocDetails where TenantId = @TenantId and Document = @Id)
+		exec doc.[Document.Apply.Account.ByRows] @TenantId = @TenantId, @UserId = @UserId, @Operation = @Operation, @Id = @Id
+	else
+		exec doc.[Document.Apply.Account.ByDoc] @TenantId = @TenantId, @UserId = @UserId, @Operation = @Operation, @Id = @Id
 end
 go
 ------------------------------------------------

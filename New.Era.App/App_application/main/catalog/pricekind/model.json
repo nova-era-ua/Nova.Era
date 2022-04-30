@@ -1,7 +1,7 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "cat",
-  "model": "PriceList",
+  "model": "PriceKind",
   "actions": {
     "index": {
       "index": true,

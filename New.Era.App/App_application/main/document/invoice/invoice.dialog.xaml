@@ -68,7 +68,7 @@
 			<TabButton ActiveValue="">
 				<Text>
 					Товари
-					<Badge Content="{Bind Document.Rows.Count}" CssClass="badge-doc"/>
+					<Badge Content="{Bind Document.StockRows.Count}" CssClass="badge-doc"/>
 				</Text>
 			</TabButton>
 			<TabButton Content="Послуги" ActiveValue="1"/>
@@ -79,10 +79,10 @@
 		<Switch Expression="{Bind Root.$$TabNo}">
 			<Case Value="">
 				<Toolbar Style="Light" Padding="0" Grid.Row="4">
-					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.Rows}}"/>
-					<Button Icon="Search" Content="Підібрати" Command="{BindCmd Append, Argument={Bind Document.Rows}}"/>
+					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
+					<Button Icon="Search" Content="Підібрати" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
 				</Toolbar>
-				<Table Grid.Row="5" ItemsSource="{Bind Document.Rows}" Background="Paper" GridLines="Both" 
+				<Table Grid.Row="5" ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" 
 					   Width="100%" Height="100%"
 					Columns="Fit,11rem,Auto,Fit,10rem,10rem,10rem,Fit" StickyHeaders="True">
 					<Table.Header>

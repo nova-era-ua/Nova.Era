@@ -45,7 +45,8 @@ begin
 		(@TenantId, 301,   10,   10, 0, N'301', N'Каса',            0, 0, 0, 0, 1, 0),
 		(@TenantId, 311,   10,   10, 0, N'311', N'Рахунки в банку', 0, 0, 0, 1, 0, 0),
 		(@TenantId, 702,   10,   10, 0, N'702', N'Доходи',          0, 0, 0, 0, 0, 0),
-		(@TenantId, 902,   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0);
+		(@TenantId, 902,   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0),
+		(@TenantId,  91,   10,   10, 0, N'91',  N'Витрати',         0, 0, 0, 0, 0, 0);
 
 	insert into acc.AccKinds(TenantId, Id, [Name])
 	values 
@@ -55,9 +56,13 @@ begin
 
 	insert into cat.ItemRoleAccounts (TenantId, Id, [Plan], [Role], Account, AccKind)
 	values
+		-- Товари
 		(@TenantId, 10, 10, 50, 281, 70),
 		(@TenantId, 11, 10, 50, 702, 71),
-		(@TenantId, 12, 10, 50, 902, 72);
+		(@TenantId, 12, 10, 50, 902, 72),
+		-- Послуги
+		(@TenantId, 20, 10, 51, 91,  70);
+
 
 	insert into doc.Operations (TenantId, Id, [Name], [Form]) values
 		(@TenantId, 100, N'Покупка товарів/послуг',			N'waybillin'),
@@ -67,14 +72,13 @@ begin
 		(@TenantId, 104, N'Оплата від покупця (банк)',		N'payin'),
 		(@TenantId, 105, N'Оплата від покупця (готівка)',	N'cashin');
 
-
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
 		[DtSum], DtRow, DtAccMode, DtAccKind,  [CtSum], [CtRow], CtAccMode, CtAccKind)
 	values
 		(@TenantId, 106, 104, 1, N'', 10,  311,  361,   null, null, null, null,   null, null, null, null),
 		(@TenantId, 107, 102, 1, N'', 10,  631,  301,   null, null, null, null,   null, null, null, null),
 		(@TenantId, 108, 101, 1, N'', 10,  631,  311,   null, null, null, null,   null, null, null, null),
-		(@TenantId, 109, 100, 1, N'', 10, null,  631,   null, N'R', N'R',   70,   null, null, null, null),
+		(@TenantId, 109, 100, 1, N'Stock', 10, null,  631,   null, N'R', N'R',   70,   null, null, null, null),
 		(@TenantId, 110, 105, 1, N'', 10,  301,  361,   null, null, null, null,   null, null, null, null),
 		(@TenantId, 111, 103, 1, N'', 10,  361,  702,   null, null, null, null,   null, null, null, null),
 		(@TenantId, 112, 103, 2, N'', 10,  902, null,   N'S', null, null, null,   N'S', N'R', N'R', 70);

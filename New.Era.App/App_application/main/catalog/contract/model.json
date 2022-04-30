@@ -1,14 +1,7 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "cat",
-  "model": "",
-  "actions": {
-    "index": {
-      "index": true,
-      "template": "index.template",
-      "view": "index.view"
-    }
-  },
+  "schema": "doc",
+  "model": "Contract",
   "dialogs": {
     "edit": {
       "template": "edit.template",

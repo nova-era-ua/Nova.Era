@@ -5,7 +5,10 @@
 @Payroll=Зарплата
 @Settings=Налаштування
 @Administration=Администрування
-@Stock=Запаси
+@KindStock=Запаси
+@KindServices=Послуги
+@KindAllRows=Всі рядки
+@KindPayment=Оплата
 @Money=Грошові кошти
 @StockPurchases=Запаси та закупівлі
 @SalesMarketing=Продаж та маркетинг
@@ -76,8 +79,10 @@
 @PriceKind=Вид ціни
 @ItemRoles=Ролі в обліку
 @ItemRole=Роль в обліку
-@AccKinds=Види рахунків
-@AccKind=Вид рахунку
+@Roles=Ролі
+@Role=Роль
+@AccKinds=Види рахунків в обліку
+@AccKind=Вид рахунку в обліку
 @CreateFolder=Створити папку
 @CreateSection=Створити розділ
 @CreateAccountPlan=Створити план рахунків
@@ -96,6 +101,7 @@
 @DownloadFromNBU=Завантажити з сайта НБУ
 @AddFromCatalog=Додати з каталогу
 @BanksDownloaded=Завантажено банків
+@PaymentPurpose=Призначення платежу
 ; Actions
 @Add=Додати
 ;
@@ -117,6 +123,7 @@
 @Symbol=Символ
 @QuotUnit=Одиниця котирування
 @Color=Колір
+@Number=Номер
 ;
 @Filter.AllOperations=<Всі операції>
 ;
@@ -141,6 +148,7 @@
 @Browse.Currencies=Вибір валют
 @Browse.Contract=Вибір договору
 @Browse.Group=Вибір групи
+@Browse.PriceKind=Вибір вида ціни
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків

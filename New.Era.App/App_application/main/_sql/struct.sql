@@ -128,11 +128,56 @@ create table cat.CostItems
 	Void bit not null 
 		constraint DF_CostItems_Void default(0),
 	Parent bigint,
+	IsFolder bit not null
+		constraint DF_CostItems_IsFolder default(0),
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,
 		constraint PK_CostItems primary key (TenantId, Id),
 	constraint FK_CostItems_Parent_CostItems foreign key (TenantId, [Parent]) references cat.CostItems(TenantId, Id)
 );
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'cat' and SEQUENCE_NAME=N'SQ_CashFlowItems')
+	create sequence cat.SQ_CashFlowItems as int start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'CashFlowItems')
+create table cat.CashFlowItems
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_CashFlowItems_Id default(next value for cat.SQ_CostItems),
+	Void bit not null 
+		constraint DF_CashFlowItems_Void default(0),
+	Parent bigint,
+	IsFolder bit not null
+		constraint DF_CashFlowItems_IsFolder default(0),
+	[Name] nvarchar(255) null,
+	[Memo] nvarchar(255) null,
+		constraint PK_CashFlowItems primary key (TenantId, Id),
+	constraint FK_CashFlowItems_Parent_CashFlowItems foreign key (TenantId, [Parent]) references cat.CashFlowItems(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_PriceKinds')
+	create sequence cat.SQ_PriceKinds as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'PriceKinds')
+create table cat.PriceKinds (
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_PriceKinds_Id default(next value for cat.SQ_PriceKinds),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	Void bit not null 
+		constraint DF_PriceKinds_Void default(0),
+	Currency bigint,
+	[Uid] uniqueidentifier not null
+		constraint DF_PriceKinds_Uid default(newid()),
+	constraint PK_PriceKinds primary key (TenantId, Id),
+	constraint FK_PriceKinds_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
+)
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'acc' and SEQUENCE_NAME = N'SQ_Accounts')
@@ -373,6 +418,34 @@ create table cat.CashAccounts
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Contracts')
+	create sequence doc.SQ_Contracts as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Contracts')
+create table doc.Contracts
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Contracts_Id default(next value for doc.SQ_Contracts),
+	Agent bigint,
+	SNo nvarchar(255),
+	[Name] nvarchar(255),
+	[Date] date,
+	Company bigint,
+	PriceKind bigint,
+	Currency bigint,
+	Void bit not null 
+		constraint DF_Contracts_Void default(0),
+	[Memo] nvarchar(255),
+		constraint PK_Contracts primary key (TenantId, Id),
+		constraint FK_Contracts_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
+		constraint FK_Contracts_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+		constraint FK_Contracts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_Contracts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
+)
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'FormsMenu')
 create table doc.FormsMenu
 (
@@ -473,7 +546,7 @@ create table doc.OpTrans
 	[Plan] bigint not null,
 	Dt bigint null,
 	Ct bigint null,
-	DtAccMode nchar(1), -- ()Fixed, (I)tem, R(ole)
+	DtAccMode nchar(1), -- ()Fixed, R(ole)
 	DtSum nchar(1), -- ()Sum, (D)iscount, (W)Without discount, (V)at
 	DtRow nchar(1), -- ()Sum, (R)ows
 	DtAccKind bigint,
@@ -525,11 +598,15 @@ create table doc.Documents
 		constraint DF_Documents_Done default(0),
 	Company bigint null,
 	Agent bigint null,
+	[Contract] bigint null,
 	Currency bigint null,
 	WhFrom bigint null,
 	WhTo bigint  null,
 	CashAccFrom bigint null,
 	CashAccTo bigint null,
+	CostItem bigint null,
+	CashFlowItem bigint null,
+	PriceKind bigint null,
 	Notice nvarchar(255),
 	Memo nvarchar(255),
 	DateApplied datetime,
@@ -540,11 +617,15 @@ create table doc.Documents
 	constraint FK_Documents_Operation_Operations foreign key (TenantId, [Operation]) references doc.Operations(TenantId, Id),
 	constraint FK_Documents_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 	constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Documents_Contract_Contracts foreign key (TenantId, Contract) references doc.Contracts(TenantId, Id),
 	constraint FK_Documents_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 	constraint FK_Documents_WhFrom_Warehouses foreign key (TenantId, WhFrom) references cat.Warehouses(TenantId, Id),
 	constraint FK_Documents_WhTo_Warehouses foreign key (TenantId, WhTo) references cat.Warehouses(TenantId, Id),
 	constraint FK_Documents_CashAccFrom_CashAccounts foreign key (TenantId, CashAccFrom) references cat.CashAccounts(TenantId, Id),
 	constraint FK_Documents_CashAccTo_CashAccounts foreign key (TenantId, CashAccTo) references cat.CashAccounts(TenantId, Id),
+	constraint FK_Documents_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
+	constraint FK_Documents_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
+	constraint FK_Documents_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
 	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id)
 );
 go
@@ -561,8 +642,9 @@ create table doc.DocDetails
 		constraint DF_DocDetails_Id default(next value for doc.SQ_DocDetails),
 	[Document] bigint not null,
 	RowNo int,
-	Kind nchar(4),
+	Kind nvarchar(16),
 	Item bigint null,
+	ItemRole bigint null,
 	Unit bigint null,
 	Qty float null
 		constraint DF_DocDetails_Qty default(0),
@@ -573,6 +655,7 @@ create table doc.DocDetails
 		constraint PK_DocDetails primary key (TenantId, Id),
 	constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 	constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
+	constraint FK_DocDetails_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id),
 	constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
 );
 go
@@ -627,8 +710,11 @@ create table jrn.Journal
 	Company bigint null,
 	Warehouse bigint null,
 	Agent bigint null,
+	[Contract] bigint null,
 	Item bigint null,
 	CashAccount bigint null,
+	CostItem bigint null,
+	CashFlowItem bigint null,
 	Qty float null,
 	[Sum] money not null
 		constraint DF_Journal_Sum default(0),
@@ -640,8 +726,11 @@ create table jrn.Journal
 	constraint FK_Journal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
 	constraint FK_Journal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 	constraint FK_Journal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Journal_Contract_Contracts foreign key (TenantId, Contract) references doc.Contracts(TenantId, Id),
 	constraint FK_Journal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id),
-	constraint FK_Journal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id)
+	constraint FK_Journal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id),
+	constraint FK_Journal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
+	constraint FK_Journal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id)
 );
 go
 ------------------------------------------------

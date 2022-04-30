@@ -45,9 +45,10 @@ begin
 
 	declare @rf table(Id nvarchar(16), [Order] int, [Type] nvarchar(16), [Url] nvarchar(255), [Name] nvarchar(255));
 	insert into @rf (Id, [Type], [Order], [Url], [Name]) values
-		(N'acc.date',  N'by.account',  1, N'/reports/account/rto_accdate', N'Обороти рахунку (дата)'),
-		(N'acc.agent', N'by.account',  2, N'/reports/account/rto_accagent', N'Обороти рахунку (контрагент)'),
-		(N'acc.item',  N'by.account',  3, N'/reports/stock/rto_items', N'Оборотно сальдова відомість (об''єкт обліку)'),
+		(N'acc.date',      N'by.account',  1, N'/reports/account/rto_accdate', N'Обороти рахунку (дата)'),
+		(N'acc.agent',     N'by.account',  2, N'/reports/account/rto_accagent', N'Обороти рахунку (контрагент)'),
+		(N'acc.agentcntr', N'by.account',  2, N'/reports/account/rto_accagentcontract', N'Обороти рахунку (контрагент+договір)'),
+		(N'acc.item',      N'by.account',  3, N'/reports/stock/rto_items', N'Оборотно сальдова відомість (об''єкт обліку)'),
 		(N'plan.turnover', N'by.plan', 1, N'/reports/plan/turnover',  N'Оборотно сальдова відомість'),
 		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',  N'Відомість по грошових коштах');
 
@@ -102,15 +103,15 @@ begin
 		(N'invoice',    1, N'Замовлення клієнта'),
 		(N'complcert',  2, N'Акт виконаних робіт'),
 		-- 
-		(N'waybillin',  3, N'Надходшення запасів'),
-		(N'waybillout', 3, N'Видаткова накладна'),
+		(N'waybillin',  3, N'Покупка товарів/послуг'),
+		(N'waybillout', 4, N'Продаж товарів/послуг'),
 		--
-		(N'payout',    4, N'Витрата безготівкових коштів'),
-		(N'payin',     5, N'Надходження безготівкових коштів'),
-		(N'cashin',    6, N'Надходження готівки'),
-		(N'cashout',   7, N'Витрата готівки'),
+		(N'payout',    5, N'Витрата безготівкових коштів'),
+		(N'payin',     6, N'Надходження безготівкових коштів'),
+		(N'cashin',    7, N'Надходження готівки'),
+		(N'cashout',   8, N'Витрата готівки'),
 		-- 
-		(N'manufact',  8, N'Виробничий акт-звіт');
+		(N'manufact',  9, N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
@@ -125,15 +126,19 @@ begin
 	-- form row kinds
 	declare @rk table(Id nvarchar(16), [Order] int, Form nvarchar(16), [Name] nvarchar(255));
 	insert into @rk([Form], [Order], Id, [Name]) values
-	(N'waybillout', 1, N'', N'Всі рядки'),
-	(N'waybillin',  1, N'', N'Всі рядки'),
+	(N'waybillout', 1, N'Stock',   N'@[KindStock]'),
+	(N'waybillout', 2, N'Service', N'@[KindServices]'),
+	(N'waybillin',  1, N'Stock',   N'@[KindStock]'),
+	(N'waybillin',  2, N'Service', N'@[KindServices]'),
+	(N'waybillin',  3, N'All',     N'@[KindAllRows]'),
 	(N'payin',      1, N'', N'Немає рядків'),
 	(N'payout',     1, N'', N'Немає рядків'),
 	(N'cashin',     1, N'', N'Немає рядків'),
 	(N'cashout',    1, N'', N'Немає рядків'),
-	(N'invoice',    1, N'', N'Всі рядки'),
-	(N'manufact',   2, N'Stock', N'Запаси'),
-	(N'manufact',   3, N'Product', N'Продукція');
+	(N'invoice',    1, N'Stock',   N'@[KindStock]'),
+	(N'invoice',    2, N'Service', N'@[KindServices]'),
+	(N'manufact',   1, N'Stock',   N'@[KindStock]'),
+	(N'manufact',   2, N'Product', N'Продукція');
 
 	merge doc.FormRowKinds as t
 	using @rk as s on t.Id = s.Id and t.Form = s.Form and t.TenantId = @TenantId

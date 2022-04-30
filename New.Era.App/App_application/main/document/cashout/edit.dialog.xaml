@@ -54,6 +54,9 @@
 			<TextBox Grid.Row="3" Grid.Col="2" Value="{Bind Document.Sum, DataType=Currency}" Label="@[Sum]" Align="Right">
 				
 			</TextBox>
+			<TextBox Label="@[PaymentPurpose]" Grid.Row="4" Grid.Col="1" Grid.ColSpan="2" 
+				Value="{Bind Document.Notice}" Multiline="True" Rows="3">
+			</TextBox>
 		</Grid>
 		<TextBox Grid.Row="6" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
 	</Grid>

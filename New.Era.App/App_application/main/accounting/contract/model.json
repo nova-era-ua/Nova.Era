@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "doc",
+  "model": "Contract",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "../../catalog/contract/index.template",
+      "view": "../../catalog/contract/index.view"
+    }
+  }
+}

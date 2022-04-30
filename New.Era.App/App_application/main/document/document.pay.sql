@@ -65,7 +65,7 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.Done,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.[Notice], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
@@ -141,10 +141,11 @@ begin
 
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.[Sum], d.Done,
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.Notice, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, 
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
+		[Contract!TContract!RefId] = d.[Contract], [CashFlowItem!TCashFlowItem!RefId] = d.CashFlowItem,
 		[Rows!TRow!Array] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
@@ -171,6 +172,10 @@ begin
 	from doc.Operations where TenantId = @TenantId and Form=@docform
 	order by Id;
 
+	select [!TContract!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.[SNo]
+	from doc.Contracts c inner join doc.Documents d on d.TenantId = c.TenantId and d.[Contract] = c.Id
+	where d.Id = @Id and d.TenantId = @TenantId;
+
 	select [Params!TParam!Object] = null, [Operation] = @Operation;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
@@ -182,10 +187,10 @@ go
 ------------------------------------------------
 drop procedure if exists doc.[Document.Pay.Metadata];
 drop procedure if exists doc.[Document.Pay.Update];
-drop type if exists cat.[Document.Pay.TableType];
+drop type if exists doc.[Document.Pay.TableType];
 go
 ------------------------------------------------
-create type cat.[Document.Pay.TableType]
+create type doc.[Document.Pay.TableType]
 as table(
 	Id bigint null,
 	[Date] datetime,
@@ -195,7 +200,10 @@ as table(
 	Company bigint,
 	CashAccFrom bigint,
 	CashAccTo bigint,
-	Memo nvarchar(255)
+	[Contract] bigint,
+	[CashFlowItem] bigint,
+	Memo nvarchar(255),
+	Notice nvarchar(255)
 )
 go
 ------------------------------------------------
@@ -204,7 +212,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	declare @Document cat.[Document.Pay.TableType];
+	declare @Document doc.[Document.Pay.TableType];
 	select [Document!Document!Metadata] = null, * from @Document;
 end
 go
@@ -212,7 +220,7 @@ go
 create or alter procedure doc.[Document.Pay.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Document cat.[Document.Pay.TableType] readonly
+@Document doc.[Document.Pay.TableType] readonly
 as
 begin
 	set nocount on;
@@ -232,12 +240,15 @@ begin
 		t.Agent = s.Agent,
 		t.CashAccFrom = s.CashAccFrom,
 		t.CashAccTo = s.CashAccTo,
-		t.Memo = s.Memo
+		t.[Contract] = s.[Contract],
+		t.CashFlowItem = s.CashFlowItem,
+		t.Memo = s.Memo,
+		t.Notice = s.Notice
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, 
-			CashAccFrom, CashAccTo, Memo, UserCreated) values
+			CashAccFrom, CashAccTo, [Contract], CashFlowItem, Memo, Notice, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, 
-			s.CashAccFrom, s.CashAccTo, s.Memo, @UserId)
+			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.Memo, s.Notice, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

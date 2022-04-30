@@ -8,53 +8,63 @@
 			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
 		<Button Content="@[Close]" Command="{BindCmd Close}" />
 		<Separator />
+		<Label Content="@[Operation]"/>
+		<ComboBox ItemsSource="{Bind Operations}" Width="20rem"
+					  Value="{Bind Document.Operation}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
 		<Taskpad Width="20rem" Collapsible="False" Margin="0,0,0,1rem" Background="WhiteSmoke">
-			<ComboBox Label="Операція" ItemsSource="{Bind Operations}"
-					  Value="{Bind Document.Operation}">
-				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-			</ComboBox>
 			<Block If="{Bind Document.Done}">
 				<Hyperlink 
 					Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
 			</Block>
 		</Taskpad>
 	</Dialog.Taskpad>
-	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem">
+	<Grid Height="100%" Rows="Auto,Auto,1*,Auto">
 		<Grid Grid.Row="1" AutoFlow="Column" AlignItems="Baseline"
-			  Columns="20rem,4.5rem,Auto,1*,Auto">
-			<Header Content="Надходження готівки" Size="Large" Grid.VAlign="Baseline"/>
+			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,25rem" Padding="0,0,1rem,0">
+			<Header Content="Надходження готівки"/>
+			<Label Align="Right">№</Label>
+			<TextBox Placeholder="(Авто)" Disabled="True"/>
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />
-			<ComboBox ItemsSource="{Bind Operations}" Width="20rem"
-					  Value="{Bind Document.Operation}">
-				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-			</ComboBox>
-		</Grid>
-		<Grid Grid.Row="2" Padding="0" Columns="25rem,25rem,15rem,1*">
-			<Selector Grid.Row="1" Grid.Col="1" Label="@[Agent]" Value="{Bind Document.Agent}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
-				</Selector.AddOns>
-			</Selector>
-			<Selector Grid.Row="1" Grid.Col="2" Label="@[Company]" Value="{Bind Document.Company}" DisplayProperty="Name">
+			<Label Content="@[Company]"></Label>
+			<Selector Label="" Value="{Bind Document.Company}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Selector Grid.Row="2" Grid.Col="2" Label="@[CashAccount]" 
+		</Grid>
+		<Grid Columns="Auto,30rem,2rem,Auto,30rem,1*" Gap="1rem">
+			<Label Content="@[Agent]" Grid.Row="1" Grid.Col="1"/>
+			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Label Content="@[Contract]" Grid.Row="2" Grid.Col="1"/>
+			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Label Content="@[CashAccount]" Grid.Row="3" Grid.Col="1"/>
+			<Selector Grid.Row="3" Grid.Col="2"
 					  Value="{Bind Document.CashAccTo}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccTo}, 
 						Url='/catalog/cashaccount/browse', Data={Bind Root.$CompArg}}"/>
 				</Selector.AddOns>
 			</Selector>
-			<TextBox Grid.Row="3" Grid.Col="2" Value="{Bind Document.Sum, DataType=Currency}" Label="@[Sum]" Align="Right">
-				
-			</TextBox>
+			<Label Content="@[Sum]" Grid.Row="4" Grid.Col="1"/>
+			<TextBox Grid.Row="4" Grid.Col="2" Width="15rem"
+					 Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
+			<Label Content="@[PaymentPurpose]" Grid.Row="5" Grid.Col="1" Grid.VAlign="Top"/>
+			<TextBox Grid.Row="5" Grid.Col="2" Value="{Bind Document.Notice}" Multiline="True" Rows="3"/>
 		</Grid>
-		<TextBox Grid.Row="6" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
+		<TextBox Grid.Row="4" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
 </Dialog>

@@ -12,6 +12,11 @@
       "model": "Report.Turnover.Account.Agent",
       "template": "turnover.accagent.template",
       "view": "turnover.accagent.view"
+    },
+    "rto_accagentcontract": {
+      "model": "Report.Turnover.Account.AgentContract",
+      "template": "turnover.accagentcontract.template",
+      "view": "turnover.accagentcontract.view"
     }
   }
 }
