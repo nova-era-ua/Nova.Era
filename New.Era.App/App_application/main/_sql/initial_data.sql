@@ -8,13 +8,17 @@ create or alter procedure ini.[Cat.OnCreateTenant]
 as
 begin
 	set nocount on;
-	if not exists(select * from cat.Companies where TenantId = @TenantId)
-		insert into cat.Companies (TenantId, [Name]) values (@TenantId, N'Моє підприємство');
-	if not exists(select * from cat.Warehouses where TenantId = @TenantId)
-		insert into cat.Warehouses(TenantId, [Name]) values (@TenantId, N'Основний склад');
+	if not exists(select * from cat.Companies where TenantId = @TenantId and Id = 10)
+		insert into cat.Companies (TenantId, Id, [Name]) values (@TenantId, 10, N'Моє підприємство');
+	if not exists(select * from cat.Warehouses where TenantId = @TenantId and Id = 10)
+		insert into cat.Warehouses(TenantId, Id, [Name]) values (@TenantId, 10, N'Основний склад');
 	if not exists(select * from cat.Currencies where Id=980 and TenantId = @TenantId)
 		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Symbol], Denom, [Name]) values
 			(@TenantId, 980, N'грн', N'UAH', N'980', N'₴', 1, N'Українська гривня');
+	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 10 and IsCashAccount = 1)
+		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], IsCashAccount) values (@TenantId, 10, 10, 980, N'Основна каса', 1);
+	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 11 and IsCashAccount = 0)
+		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], AccountNo, IsCashAccount) values (@TenantId, 11, 10, 980, N'Основний рахунок', N'<номер рахунку>', 0);
 	-- on create tenant all
 	if not exists(select * from cat.ItemTree where TenantId = @TenantId)
 		insert into cat.ItemTree(TenantId, Id, [Root], [Parent], [Name]) values (@TenantId, 0, 0, 0, N'ROOT');
@@ -128,6 +132,7 @@ begin
 	insert into @rk([Form], [Order], Id, [Name]) values
 	(N'waybillout', 1, N'Stock',   N'@[KindStock]'),
 	(N'waybillout', 2, N'Service', N'@[KindServices]'),
+	(N'waybillout', 3, N'All',     N'@[KindAllRows]'),
 	(N'waybillin',  1, N'Stock',   N'@[KindStock]'),
 	(N'waybillin',  2, N'Service', N'@[KindServices]'),
 	(N'waybillin',  3, N'All',     N'@[KindAllRows]'),
@@ -157,6 +162,5 @@ exec ini.[Cat.OnCreateTenant] @TenantId = 1;
 exec ini.[Forms.OnCreateTenant] @TenantId = 1;
 exec ini.[Rep.OnCreateTenant] @TenantId = 1;
 go
-
 
 

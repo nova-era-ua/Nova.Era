@@ -16,10 +16,6 @@
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
 		<Taskpad Width="20rem" Collapsible="False" Margin="0,0,0,1rem" Background="WhiteSmoke">
-			<ComboBox Label="Операція" ItemsSource="{Bind Operations}"
-					  Value="{Bind Document.Operation}">
-				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-			</ComboBox>
 			<Block If="{Bind Document.Done}">
 				<Hyperlink 
 					Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
@@ -27,9 +23,11 @@
 		</Taskpad>
 	</Dialog.Taskpad>
 	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem" AutoFlow="Row">
-		<Grid AutoFlow="Column" AlignItems="Baseline"
-			  Columns="20rem,4.5rem,Auto,1*,Auto">
+		<Grid AutoFlow="Column" AlignItems="Baseline" Margin="0,0,1rem,0"
+			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto">
 			<Header Content="Покупка товарів/послуг" Size="Large" Grid.VAlign="Baseline"/>
+			<Label Align="Right">№</Label>
+			<TextBox Disabled="True" Placeholder="Авто"/>
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />
@@ -38,18 +36,27 @@
 				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 			</ComboBox>
 		</Grid>
-		<Grid Grid.Row="2" Padding="0" Columns="25rem,25rem,15rem,1*">
-			<Selector Grid.Row="1" Grid.Col="1" Label="@[Agent]" Value="{Bind Document.Agent}" DisplayProperty="Name">
+		<Grid Grid.Row="2" Padding="0" Columns="Auto,25rem,3rem,Auto,25rem,1*" AlignItems="Baseline" Gap="1rem">
+			<Label Grid.Row="1" Grid.Col="1" Content="@[Agent]"/>
+			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Selector Grid.Row="1" Grid.Col="2" Label="@[Company]" Value="{Bind Document.Company}" DisplayProperty="Name">
+			<Label Grid.Row="2" Grid.Col="1" Content="@[Contract]"/>
+			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Label Grid.Row="1" Grid.Col="4" Content="@[Company]"/>
+			<Selector Grid.Row="1" Grid.Col="5" Value="{Bind Document.Company}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Selector Grid.Row="2" Grid.Col="2" Label="@[Warehouse]" Value="{Bind Document.WhTo}" DisplayProperty="Name">
+			<Label Grid.Row="2" Grid.Col="4" Content="@[Warehouse]"/>
+			<Selector Grid.Row="2" Grid.Col="5" Value="{Bind Document.WhTo}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
 				</Selector.AddOns>
@@ -91,13 +98,13 @@
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
-						<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"></Hyperlink>
+						<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
 					</TableRow>
 					<Table.Footer>
 						<TableRow>
 							<TableCell ColSpan="5"/>
 							<TableCell Content="Всього"/>
-							<Static Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
+							<Static Value="{Bind Document.$StockSum, DataType=Currency}" Align="Right" Bold="True"/>
 							<TableCell />
 						</TableRow>
 					</Table.Footer>
@@ -133,23 +140,30 @@
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
-						<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"></Hyperlink>
+						<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
 					</TableRow>
 					<Table.Footer>
 						<TableRow>
 							<TableCell ColSpan="5"/>
 							<TableCell Content="Всього"/>
-							<Static Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
+							<Static Value="{Bind Document.$ServiceSum, DataType=Currency}" Align="Right" Bold="True"/>
 							<TableCell />
 						</TableRow>
 					</Table.Footer>
 				</Table>
 			</Case>
 			<Case Value="payment">
-				<Block>123</Block>
-				<Block>456</Block>
+				<!-- there should be two lines here -->
+				<EmptyPanel Icon="InfoOutline">Тут має бути можливість створити автоматичну оплату документу 
+					після проведення</EmptyPanel>
+				<Block/>
 			</Case>
 		</Switch>
-		<TextBox Grid.Row="6" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
+		<Grid Columns="Auto, 1*, Auto, 12rem" AlignItems="Top" Gap="1rem">
+			<Label Grid.Col="1" Content="@[Memo]" Grid.VAlign="Top"/>
+			<TextBox Grid.Col="2" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
+			<Label Grid.Col="3" CssClass="grid-label">Всього по документу</Label>
+			<Static Grid.Col="4" Value="{Bind Document.Sum}" Bold="True" Align="Right"/>
+		</Grid>
 	</Grid>
 </Dialog>

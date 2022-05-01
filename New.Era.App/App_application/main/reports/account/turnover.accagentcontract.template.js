@@ -8,24 +8,27 @@ define(["require", "exports"], function (require, exports) {
             'TContract.$Name'() { var _a; return !this.Id ? '' : ((_a = this.Name) !== null && _a !== void 0 ? _a : `№ ${this.SNo} від ${du.formatDate(this.Date)}`); },
             'TRepData.$Name'() { return this.$level === 1 ? this.Agent.Name : (this.Contract.$Name || '@[NoContract]'); },
             'TRepDataArray.$DtColSpan'() { return this.$cross.DtCross.length + 1; },
-            'TRepDataArray.$CtColSpan'() { return this.$cross.CtCross.length + 1; },
-            'TRepDataArray.$DtTotals': dtTotals,
-            'TRepDataArray.$CtTotals': ctTotals
+            'TRepDataArray.$CtColSpan'() { return this.$cross.CtCross.length + 1; }
+        },
+        events: {
+            'Model.load': modelLoad
         }
     };
     exports.default = template;
-    function dtTotals() {
-        return this.$cross.DtCross.map(x => {
-            return {
-                Sum: this.reduce((prev, curr) => prev + curr.DtCross.find(ci => ci.Acc === x).Sum, 0)
-            };
+    function calcCrossTotals(elem) {
+        elem.Items.forEach(itemOut => {
+            calcCrossTotals(itemOut);
+            itemOut.Items.forEach(itemIn => {
+                itemOut.CtCross.forEach((e, i) => e.Sum += itemIn.CtCross[i].Sum);
+                itemOut.DtCross.forEach((e, i) => e.Sum += itemIn.DtCross[i].Sum);
+            });
         });
     }
-    function ctTotals() {
-        return this.$cross.CtCross.map(x => {
-            return {
-                Sum: this.reduce((prev, curr) => prev + curr.CtCross.find(ci => ci.Acc === x).Sum, 0)
-            };
+    function modelLoad() {
+        calcCrossTotals(this.RepData);
+        this.RepData.Items.forEach(item => {
+            this.RepData.CtCross.forEach((e, i) => e.Sum += item.CtCross[i].Sum);
+            this.RepData.DtCross.forEach((e, i) => e.Sum += item.DtCross[i].Sum);
         });
     }
 });

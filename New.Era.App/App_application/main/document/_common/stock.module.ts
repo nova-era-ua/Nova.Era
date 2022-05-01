@@ -6,7 +6,9 @@ const template: Template = {
 	properties: {
 		'TRoot.$$TabNo': String,
 		'TRow.Sum'() { return this.Price * this.Qty; },
-		'TDocument.Sum': docSum
+		'TDocument.Sum': docSum,
+		'TDocument.$StockSum': stockSum,
+		'TDocument.$ServiceSum': serviceSum
 	},
 	defaults: {
 		'Document.Date': dateUtils.today(),
@@ -34,8 +36,15 @@ const template: Template = {
 export default template;
 
 function docSum() {
-	return this.StockRows.reduce((p, c) => p + c.Sum, 0) + 
-		this.ServiceRows.reduce((p, c) => p + c.Sum, 0);
+	return this.$StockSum + this.$ServiceSum;
+}
+
+function stockSum() {
+	return this.StockRows.reduce((p, c) => p + c.Sum, 0);
+}
+
+function serviceSum() {
+	return this.ServiceRows.reduce((p, c) => p + c.Sum, 0);
 }
 
 // events

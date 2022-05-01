@@ -10,6 +10,7 @@ select [!TTransPart!Array] = null, [Id!!Id] = j.Id,
 	[CashAcc.Id!TCashAcc!Id] = ca.Id, [CashAcc.Name!TCashAcc] = ca.[Name], 
 	[CashAcc.No!TCashAcc!] = ca.AccountNo, [CashAcc.IsCash!TCashAcc!] = ca.IsCashAccount,
 	[Contract.Id!TContract!Id] = c.Id, [Contract.Name!TContract!Name] = c.[Name],
+	[CashFlowItem.Id!TCashFlowItem!Id] = cf.Id, [CashFlowItem.Name!TCashFlowItem!Name] = cf.[Name],
 	[!TenantId] = j.TenantId, [!Document] = j.Document, [!DtCt] = j.DtCt, [!TrNo] = j.TrNo, [!RowNo] = j.RowNo
 from jrn.Journal j 
 	inner join acc.Accounts a on j.TenantId = a.TenantId and j.Account = a.Id
@@ -17,7 +18,8 @@ from jrn.Journal j
 	left join cat.Warehouses w on j.TenantId = w.TenantId and j.Warehouse = w.Id and a.IsWarehouse = 1
 	left join cat.Agents g on j.TenantId = g.TenantId and j.Agent = g.Id and a.IsAgent = 1
 	left join doc.Contracts c on j.TenantId = c.TenantId and j.[Contract] = c.Id and a.IsContract = 1
-	left join cat.CashAccounts ca on j.TenantId = ca.TenantId and j.CashAccount = ca.Id 
+	left join cat.CashAccounts ca on j.TenantId = ca.TenantId and j.CashAccount = ca.Id and (a.IsCash = 1 or a.IsBankAccount = 1)
+	left join cat.CashFlowItems cf on j.TenantId = cf.TenantId and j.CashFlowItem = cf.Id  and (a.IsCash = 1 or a.IsBankAccount = 1)
 		and (a.IsCash = 1 or a.IsBankAccount = 1)
 go
 ------------------------------------------------

@@ -95,11 +95,11 @@
 							<SheetCell ColSpan="2" Align="Left">@[Total]</SheetCell>
 							<SheetCell Content="{Bind RepData.DtStart, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind RepData.CtStart, DataType=Currency, HideZeros=True}"/>
-							<SheetCellGroup ItemsSource="{Bind RepData.Items.$DtTotals}">
+							<SheetCellGroup ItemsSource="{Bind RepData.DtCross}">
 								<SheetCell Content="{Bind Sum, DataType=Currency, HideZeros=True}"/>
 							</SheetCellGroup>
 							<SheetCell Content="{Bind RepData.DtSum, DataType=Currency, HideZeros=True}"/>
-							<SheetCellGroup ItemsSource="{Bind RepData.Items.$CtTotals}">
+							<SheetCellGroup ItemsSource="{Bind RepData.CtCross}">
 								<SheetCell Content="{Bind Sum, DataType=Currency, HideZeros=True}"/>
 							</SheetCellGroup>
 							<SheetCell Content="{Bind RepData.CtSum, DataType=Currency, HideZeros=True}"/>

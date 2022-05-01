@@ -96,8 +96,9 @@ begin
 	insert into @accs(id)
 	select Id
 	from acc.Accounts a where TenantId = @TenantId and [Plan] = @plan 
-		and IsFolder = 0 and (IsCash = 1 or IsBankAccount = 1);
-	
+		and IsFolder = 0 and (IsCash = 1 or IsBankAccount = 1)
+	group by a.Id;
+
 	with T as (
 		select ca.IsCashAccount, 
 			j.CashAccount,
@@ -131,7 +132,7 @@ begin
 		left join cat.Currencies c on ca.TenantId = c.TenantId and ca.Currency = c.Id
 	order by GrpGroup desc, GrpAccount desc;
 
-	select [Report!TReport!Object] = null, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
+	select [Report!TReport!Object] = null, [Id!!Id] = r.Id, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
 	from rep.Reports r
 	where r.TenantId = @TenantId and r.Id = @Id;
 

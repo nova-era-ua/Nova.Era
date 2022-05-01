@@ -32,3 +32,21 @@ end
 go
 -------------------------------------------------
 exec appsec.OnCreateTenantAll;
+go
+
+--- TEMPORARY
+begin
+	declare @tenantId int;
+	declare t_cursor cursor local fast_forward for
+	select Id from appsec.Tenants where Id > 1;
+	open t_cursor
+	fetch next from t_cursor into @tenantId;
+	while @@fetch_status = 0
+	begin
+		exec appsec.OnCreateTenant @TenantId = @tenantId
+		fetch next from t_cursor into @tenantId;
+	end
+	close t_cursor;
+	deallocate t_cursor;
+end
+go

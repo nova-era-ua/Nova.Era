@@ -1,0 +1,21 @@
+﻿<!-- Browse CashFlowItem-->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="@[Browse.CashFlowItem]" Overflow="True" Width="35rem">
+	<Dialog.Buttons>
+		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind CashFlowItems}}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid AutoFlow="Row">
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Dialog, Action=Append, Argument={Bind CashFlowItems}, Url='/catalog/cashflowitem/edit'}"/>
+		</Toolbar>
+		<DataGrid ItemsSource="{Bind CashFlowItems}" XamlStyle="{StyleResource DataGridSimple}"
+			Height="20rem" FixedHeader="True"
+				DoubleClick="{BindCmd Select, Argument={Bind CashFlowItems}}">
+			<DataGridColumn Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
+		</DataGrid>
+	</Grid>
+</Dialog>
+

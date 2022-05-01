@@ -164,6 +164,11 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId
 	group by ca.Id, ca.[Name], ca.AccountNo;
 
+	select [!TCashFlowItem!Map] = null, [Id!!Id] = cf.Id, [Name!!Name] = cf.[Name]
+	from cat.CashFlowItems cf inner join doc.Documents d on d.TenantId = cf.TenantId and cf.Id = d.CashFlowItem
+	where d.Id = @Id and d.TenantId = @TenantId
+	group by cf.Id, cf.[Name];
+
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join doc.Documents d on d.TenantId = c.TenantId and d.Company = c.Id
 	where d.Id = @Id and d.TenantId = @TenantId;

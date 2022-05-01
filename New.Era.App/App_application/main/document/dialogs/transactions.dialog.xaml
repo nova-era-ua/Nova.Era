@@ -52,6 +52,10 @@
 								<TableCell Content="{Bind CashAcc.$Title}"/>
 								<TableCell Content="{Bind CashAcc.$Name}"/>
 							</TableRow>
+							<TableRow If="{Bind CashFlowItem.Id}">
+								<TableCell Content="@[CashFlowItemShort]" Wrap="NoWrap"/>
+								<TableCell Content="{Bind CashFlowItem.Name}"/>
+							</TableRow>
 						</Table>
 					</TableRow>
 				</Table>
@@ -82,6 +86,10 @@
 							<TableRow If="{Bind CashAcc.Id}">
 								<TableCell Content="{Bind CashAcc.$Title}"/>
 								<TableCell Content="{Bind CashAcc.$Name}"/>
+							</TableRow>
+							<TableRow If="{Bind CashFlowItem.Id}">
+								<TableCell Content="@[CashFlowItemShort]" Wrap="NoWrap"/>
+								<TableCell Content="{Bind CashFlowItem.Name}"/>
 							</TableRow>
 						</Table>
 					</TableRow>

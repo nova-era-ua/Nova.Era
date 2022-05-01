@@ -139,9 +139,9 @@ begin
 		(8812, 881, 12, N'@[Warehouses]',   N'warehouse', N'warehouse', null),
 		(8813, 881, 13, N'@[BankAccounts]', N'bankacc',   N'bank', null),
 		(8814, 881, 14, N'@[CashAccounts]', N'cashacc',   N'currency-uah', null),
-		(8815, 881, 15, N'@[Agents]',       N'agent',     N'users', null),
+		(8815, 881, 15, N'@[Agents]',       N'agent',     N'users', N'line-top'),
 		(8816, 881, 16, N'@[Contracts]',    N'contract',  N'user-image', null),
-		(8817, 881, 17, N'@[Items]',        N'item',      N'package-outline', null),
+		(8817, 881, 17, N'@[Items]',        N'item',      N'package-outline', N'line-top'),
 		(8818, 881, 18, N'@[CatalogOther]', N'catalog',   N'list', null),
 		(8819, 882, 19, N'@[AccountPlans]', N'accountplan', N'account',  null),
 		(8820, 882, 20, N'@[Operations]',   N'operation',   N'file-content', null),
@@ -177,10 +177,11 @@ begin
 	(900, N'Settings',  10, N'@[Accounts]', N'@[AccKinds]', N'/catalog/acckind/index', N'list',  N''),
 	(901, N'Settings',  11, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
 	(902, N'Settings',  12, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
-	(903, N'Settings',  13, N'@[Items]',  N'@[ItemRoles]',      N'/catalog/itemrole/index', N'list',  N''),
-	(904, N'Settings',  14, N'@[Items]',  N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
-	(905, N'Settings',  15, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
-	(906, N'Settings',  16, N'@[Prices]', N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N'');
+	(903, N'Settings',  13, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
+	(904, N'Settings',  14, N'@[Items]',  N'@[ItemRoles]',      N'/catalog/itemrole/index', N'list',  N''),
+	(905, N'Settings',  15, N'@[Items]',  N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
+	(906, N'Settings',  16, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
+	(907, N'Settings',  17, N'@[Prices]', N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N'');
 
 	merge a2ui.[Catalog] as t
 	using @cat as s on t.Id = s.Id

@@ -718,6 +718,10 @@ create table jrn.Journal
 	Qty float null,
 	[Sum] money not null
 		constraint DF_Journal_Sum default(0),
+	_SumDt as (case when DtCt = 1 then [Sum] else 0 end),
+	_SumCt as (case when DtCt = -1 then [Sum] else 0 end),
+	_QtyDt as (case when DtCt = 1 then [Qty] else 0 end),
+	_QtyCt as (case when DtCt = -1 then [Qty] else 0 end),
 	constraint PK_Journal primary key (TenantId, Id),
 	constraint FK_Journal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 	constraint FK_Journal_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),

@@ -110,9 +110,7 @@ begin
 	set @start = isnull(@start, 0);
 	
 	select [Date] = j.[Date], Id=cast([Date] as int), Acc = j.Account, CorrAcc = j.CorrAccount,
-		DtCt = j.DtCt,
-		DtSum = case when DtCt = 1 then [Sum] else 0 end,
-		CtSum = case when DtCt = -1 then [Sum] else 0 end
+		DtCt = j.DtCt, DtSum = j._SumDt, CtSum = j._SumCt
 	into #tmp
 	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
 		and [Date] >= @From and [Date] < @end;

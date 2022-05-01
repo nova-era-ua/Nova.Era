@@ -87,6 +87,7 @@
     <Content Include="App_application\main\catalog\itemcategory\pricelist.sql" />
     <Content Include="App_application\main\catalog\acckind\acckind.sql" />
     <Content Include="App_application\main\catalog\itemrole\itemrole.sql" />
+    <Content Include="App_application\main\catalog\cashflowitem\cashflowitem.sql" />
     <Content Include="App_application\main\catalog\pricekind\pricekind.sql" />
     <Content Include="App_application\main\catalog\warehouse\warehouse.sql" />
     <Content Include="App_application\main\dashboard\dashboard.view.xaml">
@@ -378,6 +379,7 @@
     <Content Include="App_application\main\catalog\itemcategory\model.json" />
     <Content Include="App_application\main\catalog\itemrole\model.json" />
     <Content Include="App_application\main\catalog\acckind\model.json" />
+    <Content Include="App_application\main\catalog\cashflowitem\model.json" />
     <None Include="App_application\main\catalog\pricekind\model.json" />
     <None Include="App_application\main\catalog\warehouse\model.json" />
     <None Include="App_application\main\catalog\company\model.json" />
@@ -400,6 +402,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\acckind\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemrole\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\cashflowitem\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\pricekind\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\dashboard\dashboard.template.ts" />
     <None Include="App_application\main\document\cashout\model.json" />
@@ -631,6 +634,24 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\reports\account\turnover.accagentcontract.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\cashflowitem\browse.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\cashflowitem\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\cashflowitem\index.view.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

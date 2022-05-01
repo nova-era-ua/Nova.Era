@@ -77,6 +77,9 @@
 @PriceLists=Прайс-листи
 @PriceKinds=Види цін
 @PriceKind=Вид ціни
+@CashFlowItem=Стаття руху грошових коштів
+@CashFlowItems=Статті руху грошових коштів
+@CashFlowItemShort=Стаття РГК
 @ItemRoles=Ролі в обліку
 @ItemRole=Роль в обліку
 @Roles=Ролі
@@ -150,6 +153,7 @@
 @Browse.Contract=Вибір договору
 @Browse.Group=Вибір групи
 @Browse.PriceKind=Вибір вида ціни
+@Browse.CashFlowItem=Вибір статті руху грошових коштів
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків

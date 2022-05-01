@@ -143,7 +143,7 @@ begin
 	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.Notice, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
-		[WhTo!TWarehouse!RefId] = d.WhTo,
+		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract],
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null
 	from doc.Documents d
@@ -173,6 +173,10 @@ begin
 
 	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
 	from cat.Agents a inner join doc.Documents d on d.TenantId = a.TenantId and d.Agent = a.Id
+	where d.Id = @Id and d.TenantId = @TenantId;
+
+	select [!TContract!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.[SNo]
+	from doc.Contracts c inner join doc.Documents d on d.TenantId = c.TenantId and d.[Contract] = c.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
 	select [!TWarehouse!Map] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name]
@@ -225,6 +229,7 @@ as table(
 	Company bigint,
 	WhFrom bigint,
 	WhTo bigint,
+	[Contract] bigint,
 	Memo nvarchar(255)
 )
 go
@@ -288,10 +293,11 @@ begin
 		t.Agent = s.Agent,
 		t.WhFrom = s.WhFrom,
 		t.WhTo = s.WhTo,
+		t.[Contract] = s.[Contract],
 		t.Memo = s.Memo
 	when not matched by target then insert
-		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, Memo, UserCreated) values
-		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, WhTo, s.Memo, @UserId)
+		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], Memo, UserCreated) values
+		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], s.Memo, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
