@@ -226,6 +226,8 @@ create table acc.Accounts (
 	IsBankAccount bit,
 	IsCash bit,
 	IsContract bit,
+	IsRespCenter bit,
+	IsCostItem bit,
 	[Uid] uniqueidentifier not null
 		constraint DF_Accounts_Uid default(newid()),
 	constraint PK_Accounts primary key (TenantId, Id),

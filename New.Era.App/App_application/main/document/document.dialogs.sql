@@ -11,6 +11,8 @@ select [!TTransPart!Array] = null, [Id!!Id] = j.Id,
 	[CashAcc.No!TCashAcc!] = ca.AccountNo, [CashAcc.IsCash!TCashAcc!] = ca.IsCashAccount,
 	[Contract.Id!TContract!Id] = c.Id, [Contract.Name!TContract!Name] = c.[Name],
 	[CashFlowItem.Id!TCashFlowItem!Id] = cf.Id, [CashFlowItem.Name!TCashFlowItem!Name] = cf.[Name],
+	[CostItem.Id!TCostItem!Id] = ci.Id, [CostItem.Name!TCostItem!Name] = ci.[Name],
+	[RespCenter.Id!TRespCenter!Id] = rc.Id, [RespCenter.Name!TRespCenter!Name] = rc.[Name],
 	[!TenantId] = j.TenantId, [!Document] = j.Document, [!DtCt] = j.DtCt, [!TrNo] = j.TrNo, [!RowNo] = j.RowNo
 from jrn.Journal j 
 	inner join acc.Accounts a on j.TenantId = a.TenantId and j.Account = a.Id
@@ -20,7 +22,8 @@ from jrn.Journal j
 	left join doc.Contracts c on j.TenantId = c.TenantId and j.[Contract] = c.Id and a.IsContract = 1
 	left join cat.CashAccounts ca on j.TenantId = ca.TenantId and j.CashAccount = ca.Id and (a.IsCash = 1 or a.IsBankAccount = 1)
 	left join cat.CashFlowItems cf on j.TenantId = cf.TenantId and j.CashFlowItem = cf.Id  and (a.IsCash = 1 or a.IsBankAccount = 1)
-		and (a.IsCash = 1 or a.IsBankAccount = 1)
+	left join cat.CostItems ci on j.TenantId = ci.TenantId and j.CostItem = ci.Id and a.IsCostItem = 1
+	left join cat.RespCenters rc on j.TenantId = rc.TenantId and j.RespCenter = rc.Id and a.IsRespCenter = 1
 go
 ------------------------------------------------
 create or alter procedure doc.[Document.Transactions.Load]

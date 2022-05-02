@@ -67,11 +67,17 @@
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
+
+			<Label Grid.Row="3" Grid.Col="4" Content="@[CostItem]"/>
+			<Selector Grid.Row="3" Grid.Col="5" Value="{Bind Document.CostItem}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CostItem}, Url='/catalog/costitem/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
 		</Grid>
 		<TabBar Value="{Bind Root.$$TabNo}" Margin="0">
 			<TabButton Content="@[KindStock]" ActiveValue=""/>
 			<TabButton Content="@[KindServices]" ActiveValue="service"/>
-			<TabButton Content="@[KindPayment]" ActiveValue="payment"/>
 		</TabBar>
 		<Switch Expression="{Bind Root.$$TabNo}">
 			<Case Value="">
@@ -119,18 +125,21 @@
 			<Case Value="service">
 				<Toolbar Style="Light" Padding="0">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.ServiceRows}}"/>
+					<ToolbarAligner />
+					<CheckBox Label="Розподілити послуги на собівартість"></CheckBox>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" Background="Paper" GridLines="Both" Width="100%"
-					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,10rem,10rem,10rem,Fit">
+					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,8rem,8rem,8rem,12rem,Fit">
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
-							<TableCell />
+							<TableCell Content="@[Service]"/>
 							<TableCell Content="@[Unit]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
+							<TableCell Content="@[CostItem]"/>
 							<TableCell />
 						</TableRow>
 					</Table.Header>
@@ -146,6 +155,12 @@
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
+						<Selector Placeholder="{Bind Root.Document.CostItem.Name}" Value="{Bind CostItem}"
+								  DisplayProperty="Name">
+							<Selector.AddOns>
+								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind CostItem}, Url='/catalog/costitem/browse'}"/>
+							</Selector.AddOns>
+						</Selector>
 						<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
 					</TableRow>
 					<Table.Footer>
@@ -153,23 +168,17 @@
 							<TableCell ColSpan="5"/>
 							<TableCell Content="Всього"/>
 							<Static Value="{Bind Document.$ServiceSum, DataType=Currency}" Align="Right" Bold="True"/>
-							<TableCell />
+							<TableCell ColSpan="2"/>
 						</TableRow>
 					</Table.Footer>
 				</Table>
-			</Case>
-			<Case Value="payment">
-				<!-- there should be two lines here -->
-				<EmptyPanel Icon="InfoOutline">Тут має бути можливість створити автоматичну оплату документу 
-					після проведення</EmptyPanel>
-				<Block/>
 			</Case>
 		</Switch>
 		<Grid Columns="Auto, 1*, Auto, 12rem" AlignItems="Top" Gap="1rem">
 			<Label Grid.Col="1" Content="@[Memo]" Grid.VAlign="Top"/>
 			<TextBox Grid.Col="2" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
 			<Label Grid.Col="3" CssClass="grid-label">Всього по документу</Label>
-			<Static Grid.Col="4" Value="{Bind Document.Sum}" Bold="True" Align="Right"/>
+			<Static Grid.Col="4" Value="{Bind Document.Sum, DataType=Currency}" Bold="True" Align="Right"/>
 		</Grid>
 	</Grid>
 </Dialog>

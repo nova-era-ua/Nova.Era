@@ -83,6 +83,7 @@
 @CashFlowItem=Стаття руху грошових коштів
 @CashFlowItems=Статті руху грошових коштів
 @CashFlowItemShort=Стаття РГК
+@RespCenterShort=Центр ФВ
 @CostItems=Статті витрат
 @CostItem=Стаття витрат
 @RespCenters=Центри відповідальності
@@ -161,6 +162,8 @@
 @Browse.Group=Вибір групи
 @Browse.PriceKind=Вибір вида ціни
 @Browse.CashFlowItem=Вибір статті руху грошових коштів
+@Browse.RespCenter=Вибір центру відповідальності
+@Browse.CostItem=Вибір статті витрат
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків

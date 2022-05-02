@@ -145,6 +145,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
 		[PriceKind!TPriceKind!RefId] = d.PriceKind, [RespCenter!TRespCenter!RefId] = d.RespCenter,
+		[CostItem!TCostItem!RefId] = d.CostItem,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null
 	from doc.Documents d
@@ -157,12 +158,14 @@ begin
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
 		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, dd.ItemRole,
+		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.StockRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
 	from doc.DocDetails dd
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock';
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
 		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, dd.ItemRole,
+		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.ServiceRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
 	from doc.DocDetails dd
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Service';
@@ -192,6 +195,15 @@ begin
 	select [!TRespCenter!Map] = null, [Id!!Id] = rc.Id, [Name!!Name] = rc.[Name]
 	from cat.RespCenters rc inner join doc.Documents d on d.TenantId = rc.TenantId and d.RespCenter = rc.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
+
+	with T as (
+		select CostItem from doc.Documents d where TenantId = @TenantId and d.Id = @Id
+		union all 
+		select CostItem from doc.DocDetails dd where dd.TenantId = @TenantId and dd.Document = @Id
+	)
+	select [!TCostItem!Map] = null, [Id!!Id] = ci.Id, [Name!!Name] = ci.[Name]
+	from cat.CostItems ci 
+	where ci.TenantId = @TenantId and ci.Id in (select CostItem from T);
 
 	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
 	from cat.PriceKinds pk inner join doc.Documents d on d.TenantId = pk.TenantId and d.PriceKind = pk.Id
@@ -241,6 +253,7 @@ as table(
 	[Contract] bigint,
 	PriceKind bigint,
 	RespCenter bigint,
+	CostItem bigint,
 	Memo nvarchar(255)
 )
 go
@@ -256,7 +269,8 @@ as table(
 	[Qty] float,
 	[Price] money,
 	[Sum] money,
-	Memo nvarchar(255)
+	Memo nvarchar(255),
+	CostItem bigint
 )
 go
 ------------------------------------------------
@@ -307,10 +321,13 @@ begin
 		t.[Contract] = s.[Contract],
 		t.PriceKind = s.PriceKind,
 		t.RespCenter = s.RespCenter,
+		t.CostItem = s.CostItem,
 		t.Memo = s.Memo
 	when not matched by target then insert
-		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], PriceKind, RespCenter, Memo, UserCreated) values
-		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], s.PriceKind, s.RespCenter, s.Memo, @UserId)
+		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
+			PriceKind, RespCenter, CostItem, Memo, UserCreated) values
+		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
+			s.PriceKind, s.RespCenter, s.CostItem, s.Memo, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
@@ -324,10 +341,11 @@ begin
 		t.ItemRole = nullif(s.ItemRole, 0),
 		t.Qty = s.Qty,
 		t.Price = s.Price,
-		t.[Sum] = s.[Sum]
+		t.[Sum] = s.[Sum],
+		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum]) values
-		(@TenantId, @id, N'Stock', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum])
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], CostItem) values
+		(@TenantId, @id, N'Stock', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.CostItem)
 	when not matched by source and t.TenantId = @TenantId and t.Document = @id and t.Kind=N'Stock' then delete;
 
 	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id and Kind=N'Service')
@@ -340,10 +358,11 @@ begin
 		t.ItemRole = nullif(s.ItemRole, 0),
 		t.Qty = s.Qty,
 		t.Price = s.Price,
-		t.[Sum] = s.[Sum]
+		t.[Sum] = s.[Sum],
+		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum]) values
-		(@TenantId, @id, N'Service', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum])
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], CostItem) values
+		(@TenantId, @id, N'Service', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.CostItem)
 	when not matched by source and t.TenantId = @TenantId and t.Document = @id and t.Kind=N'Service' then delete;
 
 	exec doc.[Document.Stock.Load] @TenantId = @TenantId, 

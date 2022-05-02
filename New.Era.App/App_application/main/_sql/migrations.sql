@@ -1,23 +1,15 @@
 -- MIGRATIONS
-
-if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'Currencies' and COLUMN_NAME=N'Symbol')
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'acc' and TABLE_NAME = N'Accounts' and COLUMN_NAME=N'IsRespCenter')
 begin
-	alter table cat.Currencies add Symbol nvarchar(3);
-	alter table cat.Currencies drop column [Char];
+	alter table acc.Accounts add IsRespCenter bit;
+	alter table acc.Accounts add IsCostItem bit;
 end
 go
-
-drop table if exists cat.ItemTreeItems;
-drop procedure if exists cat.[Item.Folder.Metadata];
-drop procedure if exists cat.[Item.Folder.Update];
-drop procedure if exists cat.[Item.Folder.Load];
-drop type if exists cat.[Item.Folder.TableType];
-drop procedure if exists cat.[Item.Item.Load];
-drop procedure if exists cat.[Item.Item.Metadata];
-drop procedure if exists cat.[Item.Item.Update];
-drop type if exists cat.[Item.Item.TableType];
-drop procedure if exists cat.[Item.Expand];
-drop procedure if exists cat.[Item.Children];
-drop procedure if exists cat.[Item.Index];
-drop procedure if exists doc.[Operation.Children];
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'DocDetails' and COLUMN_NAME=N'CostItem')
+begin
+	alter table doc.DocDetails add CostItem bigint;
+	alter table doc.DocDetails add constraint FK_DocDetails_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id);
+end
 go

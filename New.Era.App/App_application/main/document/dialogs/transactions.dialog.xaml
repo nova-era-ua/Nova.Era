@@ -5,7 +5,8 @@
 	</Dialog.Buttons>
 
 	<Table ItemsSource="{Bind Transactions}" Width="100%"
-		   GridLines="Both" Columns="1rem,5rem,8rem,5rem,Auto,5rem,8rem,5rem,Auto">
+		   GridLines="Both" Columns="1rem,5rem,8rem,5rem,Auto,5rem,8rem,5rem,Auto"
+		   Striped="True">
 		<Table.Header>
 			<TableRow>
 				<TableCell RowSpan="2" Content="#"/>
@@ -56,6 +57,14 @@
 								<TableCell Content="@[CashFlowItemShort]" Wrap="NoWrap"/>
 								<TableCell Content="{Bind CashFlowItem.Name}"/>
 							</TableRow>
+							<TableRow If="{Bind RespCenter.Id}">
+								<TableCell Content="@[RespCenterShort]" Wrap="NoWrap"/>
+								<TableCell Content="{Bind RespCenter.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind CostItem.Id}">
+								<TableCell Content="@[CostItem]" Wrap="NoWrap"/>
+								<TableCell Content="{Bind CostItem.Name}"/>
+							</TableRow>
 						</Table>
 					</TableRow>
 				</Table>
@@ -90,6 +99,14 @@
 							<TableRow If="{Bind CashFlowItem.Id}">
 								<TableCell Content="@[CashFlowItemShort]" Wrap="NoWrap"/>
 								<TableCell Content="{Bind CashFlowItem.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind RespCenter.Id}">
+								<TableCell Content="@[RespCenterShort]" Wrap="NoWrap"/>
+								<TableCell Content="{Bind RespCenter.Name}"/>
+							</TableRow>
+							<TableRow If="{Bind CostItem.Id}">
+								<TableCell Content="@[CostItem]" Wrap="NoWrap"/>
+								<TableCell Content="{Bind CostItem.Name}"/>
 							</TableRow>
 						</Table>
 					</TableRow>

@@ -22,6 +22,8 @@
 				<CheckBox Grid.Row="4" Grid.Col="1" Label="@[Contract]" Value="{Bind Account.IsContract}" />
 				<CheckBox Grid.Row="1" Grid.Col="2" Label="@[BankAccount]" Value="{Bind Account.IsBankAccount}" />
 				<CheckBox Grid.Row="2" Grid.Col="2" Label="@[CashAccount]" Value="{Bind Account.IsCash}" />
+				<CheckBox Grid.Row="3" Grid.Col="2" Label="@[RespCenter]" Value="{Bind Account.IsRespCenter}" />
+				<CheckBox Grid.Row="4" Grid.Col="2" Label="@[CostItem]" Value="{Bind Account.IsCostItem}" />
 			</Grid>
 		</Block>
 		<TextBox Grid.Row="5" Label="@[Memo]" Value="{Bind Account.Memo}" UpdateTrigger="Input" Multiline="True"/>
