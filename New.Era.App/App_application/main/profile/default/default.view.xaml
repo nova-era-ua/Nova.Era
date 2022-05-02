@@ -1,5 +1,5 @@
 ﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<Block Width="40rem">
+	<Block Width="30rem">
 		<Grid AutoFlow="Row">
 			<Header>@[Defaults]</Header>
 			<PeriodPicker Label="@[Period]" Value="{Bind Default.Period}" 
@@ -14,6 +14,12 @@
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" 
 					Command="{BindCmd Browse, Argument={Bind Default.Warehouse}, Url='/catalog/warehouse/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Selector Label="@[RespCenter]" Value="{Bind Default.RespCenter}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" 
+					Command="{BindCmd Browse, Argument={Bind Default.RespCenter}, Url='/catalog/respcenter/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
 		</Grid>

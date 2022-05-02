@@ -27,6 +27,7 @@
       "main/catalog/currency/currency.sql",
       "main/catalog/pricekind/pricekind.sql",
       "main/catalog/cashflowitem/cashflowitem.sql",
+      "main/catalog/costitem/costitem.sql",
       "main/settings/accountplan/plan.sql",
       "main/settings/operation/operation.sql",
       "main/document/document.stock.sql",

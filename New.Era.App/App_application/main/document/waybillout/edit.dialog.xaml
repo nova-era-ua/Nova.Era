@@ -8,93 +8,122 @@
 			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
 		<Button Content="@[Close]" Command="{BindCmd Close}" />
 		<Separator />
+		<Label Content="@[Operation]"/>
+		<ComboBox ItemsSource="{Bind Operations}" Width="20rem"
+					  Value="{Bind Document.Operation}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
 		<Taskpad Width="20rem" Collapsible="False" Margin="0,0,0,1rem" Background="WhiteSmoke">
-			<ComboBox Label="Операція" ItemsSource="{Bind Operations}"
-					  Value="{Bind Document.Operation}">
-				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-			</ComboBox>
 			<Block If="{Bind Document.Done}">
 				<Hyperlink 
 					Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
 			</Block>
 		</Taskpad>
 	</Dialog.Taskpad>
-	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem">
-		<Grid Grid.Row="1" AutoFlow="Column" AlignItems="Baseline"
-			  Columns="20rem,4.5rem,Auto,1*,Auto">
-			<Header Content="Видаткова накладна" Size="Large" Grid.VAlign="Baseline"/>
+	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem" AutoFlow="Row">
+		<Grid AutoFlow="Column" AlignItems="Baseline" Margin="0,0,1rem,0"
+			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem">
+			<Header Content="Продаж товарів/послуг" Wrap="NoWrap"/>
+			<Label Align="Right">№</Label>
+			<TextBox Disabled="True" Placeholder="Авто"/>
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />
-			<ComboBox ItemsSource="{Bind Operations}" Width="20rem"
-					  Value="{Bind Document.Operation}">
-				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-			</ComboBox>
-		</Grid>
-		<Grid Grid.Row="2" Padding="0" Columns="25rem,25rem,15rem,1*">
-			<Selector Grid.Row="1" Grid.Col="1" Label="@[Agent]" Value="{Bind Document.Agent}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
-				</Selector.AddOns>
-			</Selector>
-			<Selector Grid.Row="1" Grid.Col="2" Label="@[Company]" Value="{Bind Document.Company}" DisplayProperty="Name">
+			<Label Content="@[Company]"/>
+			<Selector Value="{Bind Document.Company}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Selector Grid.Row="2" Grid.Col="2" Label="@[Warehouse]" Value="{Bind Document.WhFrom}" DisplayProperty="Name">
+		</Grid>
+		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,1px,Auto,22rem,1*" 
+			  AlignItems="Baseline" Gap="1rem">
+			<Label Grid.Row="1" Grid.Col="1" Content="@[Agent]"/>
+			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Label Grid.Row="2" Grid.Col="1" Content="@[Contract]"/>
+			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+
+			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
+			<Selector Grid.Row="1" Grid.Col="5"
+					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
+						Url='/catalog/respcenter/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+
+			<Label Grid.Row="2" Grid.Col="4" Content="@[Warehouse]"/>
+			<Selector Grid.Row="2" Grid.Col="5" Value="{Bind Document.WhFrom}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
 		</Grid>
 		<TabBar Grid.Row="3" Value="{Bind Root.$$TabNo}" Margin="0">
-			<TabButton Content="Товари та послуги" ActiveValue=""/>
+			<TabButton Content="Запаси" ActiveValue=""/>
 		</TabBar>
-		<Toolbar Style="Light" Padding="0" Grid.Row="4">
-			<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.Rows}}"/>
-		</Toolbar>
-		<Block Scroll="True" Grid.Row="5" Height="100%">
-			<Table ItemsSource="{Bind Document.Rows}" Background="Paper" GridLines="Both" Width="100%"
-		   Columns="Fit,11rem,Auto,Fit,10rem,10rem,10rem,Fit">
-				<Table.Header>
-					<TableRow>
-						<TableCell Content="#"/>
-						<TableCell Content="@[Article]"/>
-						<TableCell />
-						<TableCell Content="@[Unit]"/>
-						<TableCell Content="@[Qty]"/>
-						<TableCell Content="@[Price]"/>
-						<TableCell Content="@[Sum]"/>
-						<TableCell />
-					</TableRow>
-				</Table.Header>
-				<TableRow>
-					<TableCell Content="{Bind RowNo}"/>
-					<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
-					<Selector Value="{Bind Item}" DisplayProperty="Name">
+		<Switch Expression="{Bind Root.$$TabNo}">
+			<Case Value="">
+				<Toolbar Style="Light" Padding="0">
+					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
+					<ToolbarAligner/>
+					<Label Content="@[PriceKind]" Margin="0,.5rem,0,0"/>
+					<Selector Value="{Bind Document.PriceKind}" DisplayProperty="Name">
 						<Selector.AddOns>
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browse'}"/>
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
 						</Selector.AddOns>
 					</Selector>
-					<TableCell Content="{Bind Unit.Short}" Align="Center"/>
-					<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
-					<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
-					<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
-					<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"></Hyperlink>
-				</TableRow>
-				<Table.Footer>
+				</Toolbar>
+				<Table ItemsSource="{Bind Document.StockRows}" 
+				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%"
+				   Columns="Fit,11rem,Auto,Fit,10rem,10rem,10rem,Fit">
+					<Table.Header>
+						<TableRow>
+							<TableCell Content="#"/>
+							<TableCell Content="@[Article]"/>
+							<TableCell />
+							<TableCell Content="@[Unit]"/>
+							<TableCell Content="@[Qty]"/>
+							<TableCell Content="@[Price]"/>
+							<TableCell Content="@[Sum]"/>
+							<TableCell />
+						</TableRow>
+					</Table.Header>
 					<TableRow>
-						<TableCell ColSpan="5"/>
-						<TableCell Content="Всього"/>
-						<Static Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
-						<TableCell />
+						<TableCell Content="{Bind RowNo}"/>
+						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
+						<Selector Value="{Bind Item}" DisplayProperty="Name">
+							<Selector.AddOns>
+								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browse'}"/>
+							</Selector.AddOns>
+						</Selector>
+						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
+						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
+						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
+						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
+						<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"></Hyperlink>
 					</TableRow>
-				</Table.Footer>
-			</Table>
-		</Block>
-		<TextBox Grid.Row="6" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
+					<Table.Footer>
+						<TableRow>
+							<TableCell ColSpan="5"/>
+							<TableCell Content="Всього"/>
+							<Static Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
+							<TableCell />
+						</TableRow>
+					</Table.Footer>
+				</Table>
+			</Case>
+		</Switch>
+		<TextBox Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
 </Dialog>

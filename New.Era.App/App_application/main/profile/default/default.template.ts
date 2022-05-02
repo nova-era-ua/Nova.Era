@@ -3,6 +3,7 @@ const template: Template = {
 	events: {
 		'Default.Company.change': companyChange,
 		'Default.Warehouse.change': warehouseChange,
+		'Default.RespCenter.change': respCenterChange,
 		'Default.Period.change': periodChange
 	}
 }
@@ -21,8 +22,15 @@ async function warehouseChange(def, wh) {
 	ctrl.$toast('@[Default.Warehouse.Changed]', CommonStyle.success);
 }
 
+async function respCenterChange(def, resp) {
+	let ctrl: IController = this.$ctrl;
+	await ctrl.$invoke('setRespCenter', { Id: resp.Id });
+	ctrl.$toast('@[Default.RespCenter.Changed]', CommonStyle.success);
+}
+
 async function periodChange(def, period) {
 	let ctrl: IController = this.$ctrl;
 	await ctrl.$invoke('setPeriod', { From: period.From, To:period.To });
 	ctrl.$toast('@[Default.Period.Changed]', CommonStyle.success);
 }
+

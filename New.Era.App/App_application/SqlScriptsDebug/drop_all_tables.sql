@@ -3,6 +3,7 @@ drop table if exists usr.Defaults;
 --
 drop table if exists jrn.StockJournal;
 drop table if exists jrn.Journal;
+drop table if exists jrn.SupplierPrices;
 drop table if exists doc.DocDetails;
 drop table if exists doc.Documents;
 drop table if exists doc.OpTrans;
@@ -10,6 +11,7 @@ drop table if exists doc.OpJournalStore;
 drop table if exists cat.CashAccounts;
 drop table if exists cat.CashFlowItems;
 drop table if exists cat.CostItems;
+drop table if exists cat.RespCenters;
 drop table if exists doc.Contracts;
 drop table if exists cat.PriceKinds;
 drop table if exists cat.Currencies;

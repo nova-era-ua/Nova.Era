@@ -10,7 +10,9 @@ create type cat.[ItemRole.TableType] as table
 	Id bigint,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	[Color] nvarchar(32)
+	[Color] nvarchar(32),
+	HasPrice bit,
+	IsStock bit
 )
 go
 ------------------------------------------------
@@ -33,7 +35,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [ItemRoles!TItemRole!Array] = null,
-		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Color
+		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Color, ir.HasPrice, ir.IsStock
 	from cat.ItemRoles ir
 	where TenantId = @TenantId
 	order by ir.Id;
@@ -50,7 +52,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [ItemRole!TItemRole!Object] = null,
-		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Color,
+		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Color, ir.HasPrice, ir.IsStock,
 		[Accounts!TRoleAccount!Array] = null
 	from cat.ItemRoles ir
 	where ir.TenantId = @TenantId and ir.Id = @Id;
@@ -105,10 +107,12 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name], 
 		t.[Memo] = s.[Memo],
-		t.Color = s.Color
+		t.Color = s.Color,
+		t.HasPrice = s.HasPrice,
+		t.IsStock = s.IsStock
 	when not matched by target then insert
-		(TenantId, [Name], Memo, Color) values
-		(@TenantId, [Name], Memo, Color)
+		(TenantId, [Name], Memo, Color, HasPrice, IsStock) values
+		(@TenantId, [Name], Memo, Color, HasPrice, IsStock)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;

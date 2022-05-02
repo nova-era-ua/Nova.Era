@@ -8,9 +8,6 @@
 		'TOpTrans.$DtRoleVisible'() { return this.Plan.Id && this.DtAccMode === 'R'; },
 		'TOpTrans.$CtRoleVisible'() { return this.Plan.Id && this.CtAccMode === 'R'; },
 	},
-	defaults: {
-		"Operation.Menu"(this: any) { return this.Params.ParentMenu; }
-	},
 	validators: {
 		'Operation.Form': '@[Error.Required]',
 		'Operation.Name': '@[Error.Required]'

@@ -6,7 +6,7 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
-		<TextBox Label="@[Name]" Value="{Bind Agent.Name}" Bold="True"/>
+		<TextBox Label="@[Name]" Value="{Bind Agent.Name}" Bold="True" TabIndex="1"/>
 		<TextBox Label="@[FullName]" Value="{Bind Agent.FullName}"/>
 		<TextBox Label="@[Memo]" Value="{Bind Agent.Memo}" UpdateTrigger="Input" Multiline="True"/>
 	</Grid>

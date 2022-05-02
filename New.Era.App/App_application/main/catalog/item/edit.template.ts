@@ -1,10 +1,13 @@
 ﻿
-import { TRoot, TItem } from './item';
+import { TRoot, TItem, TItemRole } from './item';
 
 const template: Template = {
 	properties: {
 		'TRoot.$$Tab': String,
 		'TItem.$Title'(this: TItem) { return this.Id ? this.Id : '@[NewItem]' }
+	},
+	defaults: {
+		'Item.Role'(this: TRoot) { return this.ItemRoles.$isEmpty ? undefined : this.ItemRoles[0]; }
 	},
 	validators: {
 		'Item.Name': '@[Error.Required]',

@@ -143,7 +143,8 @@ begin
 	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.Notice, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
-		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract],
+		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
+		[PriceKind!TPriceKind!RefId] = d.PriceKind, [RespCenter!TRespCenter!RefId] = d.RespCenter,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null
 	from doc.Documents d
@@ -188,6 +189,14 @@ begin
 	from cat.Companies c inner join doc.Documents d on d.TenantId = c.TenantId and d.Company = c.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
+	select [!TRespCenter!Map] = null, [Id!!Id] = rc.Id, [Name!!Name] = rc.[Name]
+	from cat.RespCenters rc inner join doc.Documents d on d.TenantId = rc.TenantId and d.RespCenter = rc.Id
+	where d.Id = @Id and d.TenantId = @TenantId;
+
+	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
+	from cat.PriceKinds pk inner join doc.Documents d on d.TenantId = pk.TenantId and d.PriceKind = pk.Id
+	where d.Id = @Id and d.TenantId = @TenantId;
+
 	with T as (select item from @rows group by item)
 	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article,
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short, ItemRole = i.[Role]
@@ -230,6 +239,8 @@ as table(
 	WhFrom bigint,
 	WhTo bigint,
 	[Contract] bigint,
+	PriceKind bigint,
+	RespCenter bigint,
 	Memo nvarchar(255)
 )
 go
@@ -294,10 +305,12 @@ begin
 		t.WhFrom = s.WhFrom,
 		t.WhTo = s.WhTo,
 		t.[Contract] = s.[Contract],
+		t.PriceKind = s.PriceKind,
+		t.RespCenter = s.RespCenter,
 		t.Memo = s.Memo
 	when not matched by target then insert
-		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], Memo, UserCreated) values
-		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], s.Memo, @UserId)
+		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], PriceKind, RespCenter, Memo, UserCreated) values
+		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], s.PriceKind, s.RespCenter, s.Memo, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

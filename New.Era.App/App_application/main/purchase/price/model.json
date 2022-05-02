@@ -5,7 +5,7 @@
   "actions": {
     "index": {
       "index": true,
-      "view": "index.view"
+      "view": "../../settings/develop/yetnotimplemented.view"
     }
   }
 }

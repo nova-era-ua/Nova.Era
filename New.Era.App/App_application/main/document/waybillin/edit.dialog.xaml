@@ -23,20 +23,22 @@
 		</Taskpad>
 	</Dialog.Taskpad>
 	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem" AutoFlow="Row">
-		<Grid AutoFlow="Column" AlignItems="Baseline" Margin="0,0,1rem,0"
-			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto">
-			<Header Content="Покупка товарів/послуг" Size="Large" Grid.VAlign="Baseline"/>
+		<Grid AutoFlow="Column" AlignItems="Baseline" Margin="0,0,1rem,0" Gap="1rem"
+			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem">
+			<Header Content="Покупка товарів/послуг" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
 			<TextBox Disabled="True" Placeholder="Авто"/>
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />
-			<ComboBox ItemsSource="{Bind Operations}" Width="20rem"
-					  Value="{Bind Document.Operation}">
-				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-			</ComboBox>
+			<Label Content="@[Company]"/>
+			<Selector Value="{Bind Document.Company}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
 		</Grid>
-		<Grid Grid.Row="2" Padding="0" Columns="Auto,25rem,3rem,Auto,25rem,1*" AlignItems="Baseline" Gap="1rem">
+		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,1px,Auto,22rem,1*" AlignItems="Baseline" Gap="1rem">
 			<Label Grid.Row="1" Grid.Col="1" Content="@[Agent]"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
 				<Selector.AddOns>
@@ -49,12 +51,16 @@
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Label Grid.Row="1" Grid.Col="4" Content="@[Company]"/>
-			<Selector Grid.Row="1" Grid.Col="5" Value="{Bind Document.Company}" DisplayProperty="Name">
+
+			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
+			<Selector Grid.Row="1" Grid.Col="5"
+					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
 				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
+						Url='/catalog/respcenter/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
+
 			<Label Grid.Row="2" Grid.Col="4" Content="@[Warehouse]"/>
 			<Selector Grid.Row="2" Grid.Col="5" Value="{Bind Document.WhTo}" DisplayProperty="Name">
 				<Selector.AddOns>

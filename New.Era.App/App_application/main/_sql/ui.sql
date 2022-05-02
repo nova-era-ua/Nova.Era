@@ -97,8 +97,9 @@ begin
 		(1204,   120, 4, N'@[Payment]',        N'payment',   N'currency-uah', null),
 		(122,    12, 12, N'@[Catalogs]',      null,  null, null),
 		(1220,   122, 30, N'@[Customers]',      N'agent',     N'users', null),
-		(1221,   122, 31, N'@[Items]',          N'item',      N'package-outline', null),
-		(1222,   122, 32, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1221,   122, 31, N'@[Contracts]',      N'contract',  N'user-image', null),
+		(1223,   122, 32, N'@[Items]',          N'item',      N'package-outline', N'line-top'),
+		(1224,   122, 33, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		(1230,   12, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1231,   12, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Purchase
@@ -108,11 +109,13 @@ begin
 		(1303,  130, 11, N'@[Warehouse]',      N'stock',     N'warehouse', null),
 		(1304,  130, 12, N'@[Payment]',        N'payment',   N'currency-uah', null),
 		--(1310,   13, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
-		--(1311,   13, 21, N'@[Prices]',         N'price',     N'chart-column', N'border-top'),
+		(131,    13, 12, N'@[Prices]', null, null, null),
+		(1311,  131, 10, N'@[PriceList]',      N'price',     N'tag-outline', null),
 		(133,    13, 14, N'@[Catalogs]',  null, null, null),
 		(1320,  133, 10, N'@[Suppliers]',      N'agent',     N'users', null),
-		(1321,  133, 11, N'@[Items]',          N'item',      N'package-outline', null),
-		(1322,  133, 12, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1321,  133, 11, N'@[Contracts]',      N'contract',  N'user-image', null),
+		(1322,  133, 12, N'@[Items]',          N'item',      N'package-outline', N'line-top'),
+		(1323,  133, 13, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		(1330,   13, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1331,   13, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Accounting
@@ -174,14 +177,16 @@ begin
 	(306, N'Accounting',  13, N'@[Prices]',    N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N''),
 
 	-- settings
-	(900, N'Settings',  10, N'@[Accounts]', N'@[AccKinds]', N'/catalog/acckind/index', N'list',  N''),
-	(901, N'Settings',  11, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
-	(902, N'Settings',  12, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
-	(903, N'Settings',  13, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
-	(904, N'Settings',  14, N'@[Items]',  N'@[ItemRoles]',      N'/catalog/itemrole/index', N'list',  N''),
-	(905, N'Settings',  15, N'@[Items]',  N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
-	(906, N'Settings',  16, N'@[Items]',  N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
-	(907, N'Settings',  17, N'@[Prices]', N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N'');
+	(900, N'Settings',  10, N'@[General]', N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
+	(901, N'Settings',  11, N'@[Accounts]', N'@[AccKinds]',   N'/catalog/acckind/index', N'list',  N''),
+	(902, N'Settings',  12, N'@[Accounting]', N'@[Banks]',    N'/catalog/bank/index', N'list',  N''),
+	(903, N'Settings',  13, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
+	(904, N'Settings',  14, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
+	(905, N'Settings',  15, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
+	(906, N'Settings',  16, N'@[Items]',  N'@[ItemRoles]',         N'/catalog/itemrole/index', N'list',  N''),
+	(907, N'Settings',  17, N'@[Items]',  N'@[Grouping.Item]',     N'/catalog/itemgroup/index', N'list',  N''),
+	(908, N'Settings',  18, N'@[Items]',  N'@[Units]',             N'/catalog/unit/index', N'list',  N''),
+	(909, N'Settings',  19, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N'');
 
 	merge a2ui.[Catalog] as t
 	using @cat as s on t.Id = s.Id

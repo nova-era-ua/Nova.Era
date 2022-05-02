@@ -18,6 +18,7 @@
 		<TabBar Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton Content="Проводки по рахунках" ActiveValue="" />
 			<TabButton Content="Меню" ActiveValue="Menu" />
+			<TabButton Content="Додатково" ActiveValue="Other" />
 			<!--
 			<TabButton Content="Документ" ActiveValue="Document" />
 			<TabButton Content="Управліньский облік" ActiveValue="Management" />
@@ -191,6 +192,11 @@
 							<CheckBox Value="{Bind Checked}"/>
 						</FlexList>
 					</List>
+				</Case>
+				<Case Value="Other">
+					<Block Padding="1rem,6">
+						<CheckBox Label="Записати ціни постачальника" Value="{Bind Operation.WriteSupplierPrices}"/>
+					</Block>
 				</Case>
 			</Switch>
 		</Block>

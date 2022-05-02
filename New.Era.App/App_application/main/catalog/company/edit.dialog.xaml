@@ -6,8 +6,8 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
-		<TextBox Label="@[Name]" Value="{Bind Company.Name}" UpdateTrigger="Input" Bold="True"/>
-		<TextBox Label="@[Memo]" Value="{Bind Company.Memo}" UpdateTrigger="Input" Multiline="True"/>
+		<TextBox Label="@[Name]" Value="{Bind Company.Name}" Bold="True" TabIndex="1"/>
+		<TextBox Label="@[Memo]" Value="{Bind Company.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>
 

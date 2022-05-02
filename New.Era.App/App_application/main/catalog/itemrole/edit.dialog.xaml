@@ -27,10 +27,14 @@
 		</ComboBox>
 		<TagLabel Grid.Row="2" Grid.Col="2" Style="{Bind ItemRole.Color}" Content="{Bind ItemRole.Name}" 
 				  Padding=".475rem"/>
-		<TabBar Grid.Row="3" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
+		<StackPanel Grid.Row="3" Grid.ColSpan="2" Orientation="Horizontal" Gap="2rem" Margin="1rem,0,0,0">
+			<CheckBox Label="@[Stock]" Value="{Bind ItemRole.IsStock}"/>
+			<CheckBox Label="@[HasPrice]" Value="{Bind ItemRole.HasPrice}"/>
+		</StackPanel>
+		<TabBar Grid.Row="4" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton ActiveValue="">@[Accounts]</TabButton>
 		</TabBar>
-		<Block Grid.Row="4" Grid.ColSpan="2" Height="20rem" Scroll="True">
+		<Block Grid.Row="5" Grid.ColSpan="2" Height="15rem" Scroll="True">
 			<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 				<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind ItemRole.Accounts}}"/>
 			</Toolbar>
@@ -63,7 +67,7 @@
 				</TableRow>
 			</Table>
 		</Block>
-		<TextBox Grid.Row="5" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind ItemRole.Memo}" Multiline="True"/>
+		<TextBox Grid.Row="6" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind ItemRole.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>
 

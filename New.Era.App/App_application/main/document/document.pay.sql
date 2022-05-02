@@ -146,7 +146,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, 
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[Contract!TContract!RefId] = d.[Contract], [CashFlowItem!TCashFlowItem!RefId] = d.CashFlowItem,
-		[Rows!TRow!Array] = null
+		[RespCenter!TRespCenter!RefId] = d.RespCenter
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
@@ -168,6 +168,11 @@ begin
 	from cat.CashFlowItems cf inner join doc.Documents d on d.TenantId = cf.TenantId and cf.Id = d.CashFlowItem
 	where d.Id = @Id and d.TenantId = @TenantId
 	group by cf.Id, cf.[Name];
+
+	select [!TRespCenter!Map] = null, [Id!!Id] = rc.Id, [Name!!Name] = rc.[Name]
+	from cat.RespCenters rc inner join doc.Documents d on d.TenantId = rc.TenantId and rc.Id = d.RespCenter
+	where d.Id = @Id and d.TenantId = @TenantId
+	group by rc.Id, rc.[Name];
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join doc.Documents d on d.TenantId = c.TenantId and d.Company = c.Id
@@ -207,6 +212,7 @@ as table(
 	CashAccTo bigint,
 	[Contract] bigint,
 	[CashFlowItem] bigint,
+	RespCenter bigint,
 	Memo nvarchar(255),
 	Notice nvarchar(255)
 )
@@ -247,13 +253,14 @@ begin
 		t.CashAccTo = s.CashAccTo,
 		t.[Contract] = s.[Contract],
 		t.CashFlowItem = s.CashFlowItem,
+		t.RespCenter = s.RespCenter,
 		t.Memo = s.Memo,
 		t.Notice = s.Notice
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, 
-			CashAccFrom, CashAccTo, [Contract], CashFlowItem, Memo, Notice, UserCreated) values
+			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, 
-			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.Memo, s.Notice, @UserId)
+			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

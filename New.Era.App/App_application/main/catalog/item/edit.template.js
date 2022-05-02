@@ -6,6 +6,9 @@ define(["require", "exports"], function (require, exports) {
             'TRoot.$$Tab': String,
             'TItem.$Title'() { return this.Id ? this.Id : '@[NewItem]'; }
         },
+        defaults: {
+            'Item.Role'() { return this.ItemRoles.$isEmpty ? undefined : this.ItemRoles[0]; }
+        },
         validators: {
             'Item.Name': '@[Error.Required]',
             'Item.Role': '@[Error.Required]'

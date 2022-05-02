@@ -101,30 +101,31 @@ begin
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- forms
-	declare @df table(id nvarchar(16), [order] int, [name] nvarchar(255));
-	insert into @df (id, [order], [name]) values
+	declare @df table(id nvarchar(16), [order] int, inout smallint, [name] nvarchar(255));
+	insert into @df (id, [order], inout, [name]) values
 		-- Sales
-		(N'invoice',    1, N'Замовлення клієнта'),
-		(N'complcert',  2, N'Акт виконаних робіт'),
+		(N'invoice',    null, 1, N'Замовлення клієнта'),
+		(N'complcert',  null, 2, N'Акт виконаних робіт'),
 		-- 
-		(N'waybillin',  3, N'Покупка товарів/послуг'),
-		(N'waybillout', 4, N'Продаж товарів/послуг'),
+		(N'waybillin',  null, 3, N'Покупка товарів/послуг'),
+		(N'waybillout', null, 4, N'Продаж товарів/послуг'),
 		--
-		(N'payout',    5, N'Витрата безготівкових коштів'),
-		(N'payin',     6, N'Надходження безготівкових коштів'),
-		(N'cashin',    7, N'Надходження готівки'),
-		(N'cashout',   8, N'Витрата готівки'),
+		(N'payout',    -1, 5, N'Витрата безготівкових коштів'),
+		(N'payin',      1, 6, N'Надходження безготівкових коштів'),
+		(N'cashout',   -1, 7, N'Витрата готівки'),
+		(N'cashin',     1, 8, N'Надходження готівки'),
 		-- 
-		(N'manufact',  9, N'Виробничий акт-звіт');
+		(N'manufact',  null, 9, N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
 	when matched then update set
 		t.[Name] = s.[name],
-		t.[Order] = s.[order]
+		t.[Order] = s.[order],
+		t.InOut = s.inout
 	when not matched by target then insert
-		(TenantId, Id, [Order], [Name]) values
-		(@TenantId, s.id, s.[order], s.[name])
+		(TenantId, Id, [Order], [Name], InOut) values
+		(@TenantId, s.id, s.[order], s.[name], inout)
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- form row kinds

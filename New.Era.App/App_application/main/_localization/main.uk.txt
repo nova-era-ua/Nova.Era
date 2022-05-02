@@ -6,6 +6,7 @@
 @Settings=Налаштування
 @Administration=Администрування
 @KindStock=Запаси
+@Stock=Запас
 @KindServices=Послуги
 @KindAllRows=Всі рядки
 @KindPayment=Оплата
@@ -50,6 +51,7 @@
 @Grouping.Item=Групування об'єктів обліку
 @NoGrouping=<Без групування>
 @ItemCategory=Категорії об'єктів обліку
+@HasPrice=Має ціну
 ;
 @Id=Id
 @Unit=Од.вим.
@@ -74,12 +76,17 @@
 @Brands=Бренди
 @Currency=Валюта
 @Currencies=Валюти
-@PriceLists=Прайс-листи
+@PriceLists=Прайс листи
+@PriceList=Прайс лист
 @PriceKinds=Види цін
 @PriceKind=Вид ціни
 @CashFlowItem=Стаття руху грошових коштів
 @CashFlowItems=Статті руху грошових коштів
 @CashFlowItemShort=Стаття РГК
+@CostItems=Статті витрат
+@CostItem=Стаття витрат
+@RespCenters=Центри відповідальності
+@RespCenter=Центр відповідальності
 @ItemRoles=Ролі в обліку
 @ItemRole=Роль в обліку
 @Roles=Ролі
@@ -177,3 +184,4 @@
 @Default.Company.Changed=Підприємство за замовчуванням змінено
 @Default.Warehouse.Changed=Склад за замовчуванням змінено
 @Default.Period.Changed=Період за замовчуванням змінено
+@Default.RespCenter.Changed=Центр відповідальності змінено

@@ -1,0 +1,62 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Page.CollectionView>
+		<CollectionView RunAt="ServerUrl" ItemsSource="{Bind Documents}">
+			<CollectionView.Filter>
+				<FilterDescription>
+					<FilterItem Property="Period" DataType="Period" />
+					<FilterItem Property="Company" DataType="Object"/>
+				</FilterDescription>
+			</CollectionView.Filter>
+		</CollectionView>
+	</Page.CollectionView>
+	<Grid Rows="Auto,1*,Auto" Height="100%" Gap=".5rem" Padding="1rem">
+		<Toolbar Grid.Row="1" Style="Light">
+			<Button Icon="Plus" Content="@[Create]">
+				<Button.DropDown>
+					<DropDownMenu ItemsSource="{Bind Menu}">
+						<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=create, Argument={Bind}}"/>
+					</DropDownMenu>
+					<!--
+					<DropDownMegaMenu ItemsSource="{Bind Menu}" GroupBy="FormName" Columns="2">
+						<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=create, Argument={Bind}}"/>
+					</DropDownMegaMenu>
+					-->
+				</Button.DropDown>
+			</Button>
+			<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"/>
+			<Separator />
+			<Button Icon="Reload" Command="{BindCmd Reload}"/>
+		</Toolbar>
+		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True"
+				Style="Light" GridLines="Horizontal" Hover="True" FixedHeader="True" Striped="True"
+				DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"
+				  Mark="{Bind $Mark}" MarkerStyle="Marker">
+			<DataGridColumn Content="{Bind Id}" Role="Id" Sort="False"/>
+			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date" SortProperty="date"/>
+			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Sort="False"/>
+			<DataGridColumn Fit="True" Wrap="NoWrap">
+				<CommandBar Visibility="Hover">
+					<Button Icon="Edit" Command="{BindCmd Execute, CommandName=edit, Argument={Bind}}"/>
+					<Button Icon="Delete" Command="{BindCmd Execute, CommandName=delete, Argument={Bind}}"/>
+				</CommandBar>
+			</DataGridColumn>
+		</DataGrid>
+		<Pager Grid.Row="3" Source="{Bind Parent.Pager}" Padding=".5rem,.5rem,0,.5rem"/>
+	</Grid>
+	<Page.Taskpad>
+		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
+			<PeriodPicker Label="@[Period]" Display="Name" Placement="BottomRight"
+				Value="{Bind Parent.Filter.Period}"
+				Description="{Bind Parent.Filter.Period.Name}"/>
+			<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+					<Hyperlink If="{Bind Parent.Filter.Company.Id}"
+						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
+				</Selector.AddOns>
+			</Selector>
+		</Taskpad>
+	</Page.Taskpad>
+</Page>

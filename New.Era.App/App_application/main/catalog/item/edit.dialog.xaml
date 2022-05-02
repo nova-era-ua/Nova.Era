@@ -20,7 +20,6 @@
 	</Grid>
 	<TabBar Grid.Row="4" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0,1rem">
 		<TabButton Content="Групування" ActiveValue=""/>
-		<TabButton Content="Рахунки" ActiveValue="A"/>
 	</TabBar>
 	<Block Height="15rem" Scroll="True" Margin="1rem">
 		<Switch Expression="{Bind Root.$$Tab}">

@@ -50,7 +50,7 @@ begin
 
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
-		[Form!TForm!RefId] = o.Form,
+		[Form!TForm!RefId] = o.Form, o.WriteSupplierPrices,
 		[JournalStore!TOpJournalStore!Array] = null,
 		[Trans!TOpTrans!Array] = null
 	from doc.Operations o
@@ -116,7 +116,8 @@ as table(
 	[Menu] nvarchar(32),
 	[Form] nvarchar(16),
 	[Name] nvarchar(255),
-	[Memo] nvarchar(255)
+	[Memo] nvarchar(255),
+	WriteSupplierPrices bit
 )
 go
 -------------------------------------------------
@@ -195,10 +196,11 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.[Form] = s.[Form]
+		t.[Form] = s.[Form],
+		t.WriteSupplierPrices = s.WriteSupplierPrices
 	when not matched by target then insert
-		(TenantId, [Name], Form, Memo) values
-		(@TenantId, s.[Name], s.Form, s.Memo)
+		(TenantId, [Name], Form, Memo, WriteSupplierPrices) values
+		(@TenantId, s.[Name], s.Form, s.Memo, s.WriteSupplierPrices)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 

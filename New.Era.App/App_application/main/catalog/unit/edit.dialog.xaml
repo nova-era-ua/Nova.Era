@@ -6,7 +6,7 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
-		<TextBox Label="@[Short]" Value="{Bind Unit.Short}" Width="10rem"/>
+		<TextBox Label="@[Short]" Value="{Bind Unit.Short}" Width="10rem" TabIndex="1"/>
 		<TextBox Label="@[Name]" Value="{Bind Unit.Name}"/>
 		<TextBox Label="@[Label.Unit.CodeUA]" Value="{Bind Unit.CodeUA}" Width="10rem" Number="True"/>
 		<TextBox Label="@[Memo]" Value="{Bind Unit.Memo}" Multiline="True" Rows="3"/>

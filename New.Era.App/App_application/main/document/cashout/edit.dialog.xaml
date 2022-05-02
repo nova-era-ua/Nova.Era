@@ -24,7 +24,7 @@
 	</Dialog.Taskpad>
 	<Grid Height="100%" Rows="Auto,Auto,1*,Auto">
 		<Grid Grid.Row="1" AutoFlow="Column" AlignItems="Baseline"
-			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,25rem" Padding="0,0,1rem,0">
+			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem" Padding="0,0,1rem,0" Gap="1rem">
 			<Header Content="Витрата готівки" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
 			<TextBox Placeholder="(Авто)" Disabled="True"/>
@@ -38,7 +38,7 @@
 				</Selector.AddOns>
 			</Selector>
 		</Grid>
-		<Grid Columns="Auto,34.4rem,1*,Auto,25rem" Gap="1rem">
+		<Grid Columns="Auto,22rem,1px,Auto,22rem,1*" Gap="1rem">
 			<Label Content="@[Agent]" Grid.Row="1" Grid.Col="1"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
 				<Selector.AddOns>
@@ -64,8 +64,18 @@
 					 Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
 			<Label Content="@[PaymentPurpose]" Grid.Row="5" Grid.Col="1" Grid.VAlign="Top"/>
 			<TextBox Grid.Row="5" Grid.Col="2" Value="{Bind Document.Notice}" Multiline="True" Rows="3"/>
-			<Label Content="@[CashFlowItem]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
+
+			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
 			<Selector Grid.Row="1" Grid.Col="5"
+					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
+						Url='/catalog/respcenter/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+
+			<Label Content="@[CashFlowItem]" Grid.Row="2" Grid.Col="4" Wrap="NoWrap"/>
+			<Selector Grid.Row="2" Grid.Col="5"
 					Value="{Bind Document.CashFlowItem}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashFlowItem}, 

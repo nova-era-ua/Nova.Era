@@ -31,10 +31,10 @@ begin
 	delete from acc.Accounts where TenantId = @TenantId;
 	commit tran;
 
-	insert into cat.ItemRoles (TenantId, Id, [Name], Color)
+	insert into cat.ItemRoles (TenantId, Id, [Name], Color, IsStock, HasPrice)
 	values 
-		(@TenantId, 50, N'Товар', N'green'),
-		(@TenantId, 51, N'Послуга', N'cyan');
+		(@TenantId, 50, N'Товар', N'green', 1, 1),
+		(@TenantId, 51, N'Послуга', N'cyan', 0, 0);
 
 	insert into acc.Accounts(TenantId, Id, [Plan], Parent, IsFolder, Code, [Name], 
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract)
@@ -69,13 +69,13 @@ begin
 		(@TenantId, 20, N'Товар №1', 50),
 		(@TenantId, 21, N'Послуга №1', 51);
 
-	insert into doc.Operations (TenantId, Id, [Name], [Form]) values
-		(@TenantId, 100, N'Покупка товарів/послуг',			N'waybillin'),
-		(@TenantId, 101, N'Оплата постачальнику (банк)',	N'payout'),
-		(@TenantId, 102, N'Оплата постачальнику (готівка)',	N'cashout'),
-		(@TenantId, 103, N'Продаж товарів/послуг',			N'waybillout'),
-		(@TenantId, 104, N'Оплата від покупця (банк)',		N'payin'),
-		(@TenantId, 105, N'Оплата від покупця (готівка)',	N'cashin');
+	insert into doc.Operations (TenantId, Id, [Name], [Form], WriteSupplierPrices) values
+		(@TenantId, 100, N'Покупка товарів/послуг',			N'waybillin', 1),
+		(@TenantId, 101, N'Оплата постачальнику (банк)',	N'payout', null),
+		(@TenantId, 102, N'Оплата постачальнику (готівка)',	N'cashout', null),
+		(@TenantId, 103, N'Продаж товарів/послуг',			N'waybillout', null),
+		(@TenantId, 104, N'Оплата від покупця (банк)',		N'payin', null),
+		(@TenantId, 105, N'Оплата від покупця (готівка)',	N'cashin', null);
 
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
 		[DtSum], DtRow, DtAccMode, DtAccKind,  [CtSum], [CtRow], CtAccMode, CtAccKind)

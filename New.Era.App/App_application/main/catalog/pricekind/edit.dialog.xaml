@@ -6,7 +6,7 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
-		<TextBox Label="@[Name]" Value="{Bind PriceKind.Name}"/>
+		<TextBox Label="@[Name]" Value="{Bind PriceKind.Name}" TabIndex="1"/>
 		<TextBox Label="@[Memo]" Value="{Bind PriceKind.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
 </Dialog>

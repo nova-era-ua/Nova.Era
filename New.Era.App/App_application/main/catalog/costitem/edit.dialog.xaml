@@ -1,12 +1,12 @@
 ﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
-		Title="{Bind CashFlowItem.$Id, Format='@[ItemProperties] [{0}]'}" Size="Small">
+		Title="{Bind CostItem.$Id, Format='@[ItemProperties] [{0}]'}" Size="Small">
 	<Dialog.Buttons>
 		<Button Style="Primary" Content="@[SaveAndClose]" 
 				Command="{BindCmd SaveAndClose, ValidRequired=True}"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
-		<TextBox Label="@[Name]" Value="{Bind CashFlowItem.Name}" TabIndex="1"/>
-		<TextBox Label="@[Memo]" Value="{Bind CashFlowItem.Memo}" Multiline="True" Rows="3"/>
+		<TextBox Label="@[Name]" Value="{Bind CostItem.Name}" TabIndex="1"/>
+		<TextBox Label="@[Memo]" Value="{Bind CostItem.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
 </Dialog>

@@ -10,7 +10,8 @@ const template: Template = {
 	defaults: {
 		'Document.Date': dateUtils.today(),
 		'Document.Operation'(this: any) { return this.Operations.find(o => o.Id === this.Params.Operation); },
-		'Document.Company'(this: any) { return this.Default.Company; }
+		'Document.Company'(this: any) { return this.Default.Company; },
+		'Document.RespCenter'(this: any) { return this.Default.RespCenter; }
 	},
 	validators: {
 		'Document.Company': '@[Error.Required]',

@@ -17,6 +17,10 @@
       "type": "sql",
       "procedure": "Default.SetWarehouse"
     },
+    "setRespCenter": {
+      "type": "sql",
+      "procedure": "Default.SetRespCenter"
+    },
     "setPeriod": {
       "type": "sql",
       "procedure": "Default.SetPeriod"

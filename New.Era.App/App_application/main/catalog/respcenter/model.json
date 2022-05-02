@@ -1,0 +1,21 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "RespCenter",
+  "actions": {
+    "index": {
+      "index": true,
+      "view": "index.view"
+    }
+  },
+  "dialogs": {
+    "edit": {
+      "template": "edit.template",
+      "view": "edit.dialog"
+    },
+    "browse": {
+      "index": true,
+      "view": "browse.dialog"
+    }
+  }
+}

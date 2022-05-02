@@ -5,6 +5,7 @@ define(["require", "exports"], function (require, exports) {
         events: {
             'Default.Company.change': companyChange,
             'Default.Warehouse.change': warehouseChange,
+            'Default.RespCenter.change': respCenterChange,
             'Default.Period.change': periodChange
         }
     };
@@ -18,6 +19,11 @@ define(["require", "exports"], function (require, exports) {
         let ctrl = this.$ctrl;
         await ctrl.$invoke('setWarehouse', { Id: wh.Id });
         ctrl.$toast('@[Default.Warehouse.Changed]', "success");
+    }
+    async function respCenterChange(def, resp) {
+        let ctrl = this.$ctrl;
+        await ctrl.$invoke('setRespCenter', { Id: resp.Id });
+        ctrl.$toast('@[Default.RespCenter.Changed]', "success");
     }
     async function periodChange(def, period) {
         let ctrl = this.$ctrl;
