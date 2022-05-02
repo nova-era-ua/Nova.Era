@@ -683,10 +683,12 @@ create table doc.DocDetails
 		constraint DF_DocDetails_Sum default(0),
 	Memo nvarchar(255),
 		constraint PK_DocDetails primary key (TenantId, Id),
+	CostItem bigint,
 	constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 	constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
 	constraint FK_DocDetails_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id),
-	constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id)
+	constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
+	constraint FK_DocDetails_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id)
 );
 go
 ------------------------------------------------
