@@ -34,7 +34,8 @@ begin
 		where dd.TenantId = @TenantId and dd.Document = @Id and ot.Operation = @Operation 
 			--and (ot.DtRow = N'R' or ot.CtRow = N'R')
 	)
-	insert into @trans
+	insert into @trans(TrNo, RowNo, DtCt, Acc, CorrAcc, [Plan], [Detail], Item, RowMode, Wh, CashAcc, 
+		[Date], Agent, Company, RespCenter, CostItem, [Contract],  CashFlowItem, Qty,[Sum], SumMode, CostSum, ResultSum)
 	select TrNo, RowNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], Detail, Item, RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
 		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
 		from TR

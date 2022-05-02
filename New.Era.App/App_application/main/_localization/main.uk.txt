@@ -51,7 +51,7 @@
 @Grouping.Item=Групування об'єктів обліку
 @NoGrouping=<Без групування>
 @ItemCategory=Категорії об'єктів обліку
-@HasPrice=Має ціну
+@HasPrice=Включати в прайс лист
 ;
 @Id=Id
 @Unit=Од.вим.
