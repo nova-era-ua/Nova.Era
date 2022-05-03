@@ -57,7 +57,8 @@
 					<ComboBox ItemsSource="{Bind Root.AccKinds}" Value="{Bind AccKind}">
 						<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 					</ComboBox>
-					<Selector Value="{Bind Account}" DisplayProperty="Code" Tip="{Bind Account.Name}">
+					<Selector Value="{Bind Account}" DisplayProperty="Code" Tip="{Bind Account.Name}"
+						Disabled="{Bind !Plan.Id}">
 						<Selector.AddOns>
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Account}, 
 								Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>

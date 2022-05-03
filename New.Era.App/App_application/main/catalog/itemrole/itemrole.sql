@@ -37,7 +37,7 @@ begin
 	select [ItemRoles!TItemRole!Array] = null,
 		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Color, ir.HasPrice, ir.IsStock
 	from cat.ItemRoles ir
-	where TenantId = @TenantId
+	where ir.TenantId = @TenantId and ir.Void = 0
 	order by ir.Id;
 end
 go
@@ -71,7 +71,7 @@ begin
 
 	select [AccKinds!TAccKind!Array] = null, [Id!!Id] = ak.Id, [Name!!Name] = ak.[Name]
 	from acc.AccKinds ak
-	where TenantId = @TenantId;
+	where ak.TenantId = @TenantId and ak.Void = 0;
 end
 go
 ---------------------------------------------

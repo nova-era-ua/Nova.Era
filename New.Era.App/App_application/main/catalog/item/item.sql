@@ -282,7 +282,7 @@ begin
 
 	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color
 	from cat.ItemRoles ir 
-	where ir.TenantId = @TenantId;
+	where ir.TenantId = @TenantId and ir.Void = 0;
 	
 	select [!THieElem!Array] = null, [!THie.Elements!ParentId] = iti.[Root],
 		[Group] = iti.Parent,

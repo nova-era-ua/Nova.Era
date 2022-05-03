@@ -24,7 +24,7 @@ begin
 	select [AccKinds!TAccKind!Array] = null,
 		[Id!!Id] = ak.Id, [Name!!Name] = ak.[Name], ak.Memo
 	from acc.AccKinds ak
-	where TenantId = @TenantId
+	where ak.TenantId = @TenantId and ak.Void = 0
 	order by ak.Id;
 end
 go

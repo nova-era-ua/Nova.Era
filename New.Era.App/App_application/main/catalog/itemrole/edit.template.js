@@ -9,7 +9,10 @@ define(["require", "exports"], function (require, exports) {
         },
         defaults: {},
         validators: {
-            'ItemRole.Name': '@[Error.Required]'
+            'ItemRole.Name': '@[Error.Required]',
+            'ItemRole.Accounts[].Plan': '@[Error.Required]',
+            'ItemRole.Accounts[].AccKind': '@[Error.Required]',
+            'ItemRole.Accounts[].Account': '@[Error.Required]'
         }
     };
     exports.default = template;
