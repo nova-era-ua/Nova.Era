@@ -9,7 +9,13 @@ define(["require", "exports"], function (require, exports) {
         },
         validators: {
             'Document.WhFrom': '@[Error.Required]'
+        },
+        events: {
+            'Document.Contract.change': contractChange
         }
     };
     exports.default = utils.mergeTemplate(base, template);
+    function contractChange(doc, contract) {
+        doc.PriceKind.$set(contract.PriceKind);
+    }
 });

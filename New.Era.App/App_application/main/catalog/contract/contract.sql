@@ -9,7 +9,8 @@ create or alter procedure doc.[Contract.Index]
 @Order nvarchar(255) = N'date',
 @Dir nvarchar(20) = N'asc',
 @Agent bigint = null,
-@Company bigint = null
+@Company bigint = null,
+@Fragment nvarchar(255) = null
 as
 begin
 	set nocount on;
@@ -17,6 +18,9 @@ begin
 
 	set @Order = lower(@Order);
 	set @Dir = lower(@Dir);
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Fragment + N'%';
 
 	declare @cnts table(rowno int identity(1, 1), id bigint, agent bigint, 
 		comp bigint, pkind bigint, rowcnt int);
@@ -28,6 +32,7 @@ begin
 	where c.TenantId = @TenantId and c.Void = 0
 		and (@Agent is null or c.Agent = @Agent)
 		and (@Company is null or c.Company = @Company)
+		and (@fr is null or c.[Name] like @fr or c.[SNo] like @fr or c.Memo like @fr)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -83,7 +88,8 @@ begin
 	select [!$System!] = null, [!Contracts!Offset] = @Offset, [!Contracts!PageSize] = @PageSize, 
 		[!Contracts!SortOrder] = @Order, [!Contracts!SortDir] = @Dir,
 		[!Contracts.Agent.Id!Filter] = @Agent, [!Contracts.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
-		[!Contracts.Company.Id!Filter] = @Company, [!Contracts.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
+		[!Contracts.Company.Id!Filter] = @Company, [!Contracts.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
+		[!Contracts.Fragment!Filter] = @Fragment;
 end
 go
 -------------------------------------------------

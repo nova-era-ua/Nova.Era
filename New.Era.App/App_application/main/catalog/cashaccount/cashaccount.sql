@@ -17,7 +17,7 @@ begin
 		crc bigint, rowcnt int);
 
 	declare @fr nvarchar(255);
-	set @fr = N'%' + upper(@Fragment) + N'%';
+	set @fr = N'%' + @Fragment + N'%';
 	set @Order = lower(@Order);
 	set @Dir = lower(@Dir);
 

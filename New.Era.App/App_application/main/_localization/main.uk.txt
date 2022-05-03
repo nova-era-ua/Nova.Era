@@ -78,12 +78,13 @@
 @Currencies=Валюти
 @PriceLists=Прайс листи
 @PriceList=Прайс лист
+@PriceDoc=Встановлення цін
 @PriceKinds=Види цін
 @PriceKind=Вид ціни
 @CashFlowItem=Стаття руху грошових коштів
 @CashFlowItems=Статті руху грошових коштів
 @CashFlowItemShort=Стаття РГК
-@RespCenterShort=Центр ФВ
+@RespCenterShort=Центр відпов.
 @CostItems=Статті витрат
 @CostItem=Стаття витрат
 @RespCenters=Центри відповідальності

@@ -10,6 +10,7 @@
 			<FilterDescription>
 				<FilterItem Property="Agent" DataType="Object"/>
 				<FilterItem Property="Company" DataType="Object"/>
+				<FilterItem Property="Fragment" DataType="String"/>
 			</FilterDescription>
 		</CollectionView.Filter>
 		<Grid Rows="Auto,1*,Auto" Height="100%">
@@ -17,7 +18,9 @@
 				<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Dialog, Action=Append, Argument={Bind Contracts}, Url='/catalog/contract/edit'}"/>
 				<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Contracts}, Url='/catalog/contract/edit'}"/>
 				<Button Icon="Delete" Command="{BindCmd DbRemoveSelected, Argument={Bind Contracts}, Confirm='@[Confirm.Delete.Element]'}"/>
-				<Separator />
+				<ToolbarAligner />
+				<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"
+					 ShowClear="True" ShowFilter="True"/>
 				<Button Icon="Reload" Command="{BindCmd Reload}"/>
 			</Toolbar>
 			<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True" Height="30rem"

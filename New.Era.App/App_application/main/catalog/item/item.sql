@@ -106,7 +106,7 @@ begin
 	set @Asc = N'asc'; set @Desc = N'desc';
 	set @Dir = lower(isnull(@Dir, @Asc));
 	set @Order = lower(@Order);
-	set @fr = N'%' + upper(@Fragment) + N'%';
+	set @fr = N'%' + @Fragment + N'%';
 
 	declare @items table(rowno int identity(1, 1), id bigint, unit bigint, [role] bigint, rowcnt int);
 

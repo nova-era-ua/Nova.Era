@@ -179,7 +179,8 @@ begin
 	from cat.Agents a inner join doc.Documents d on d.TenantId = a.TenantId and d.Agent = a.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
-	select [!TContract!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.[SNo]
+	select [!TContract!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.[SNo],
+		[PriceKind!TPriceKind!RefId] = c.PriceKind
 	from doc.Contracts c inner join doc.Documents d on d.TenantId = c.TenantId and d.[Contract] = c.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
@@ -205,9 +206,14 @@ begin
 	from cat.CostItems ci 
 	where ci.TenantId = @TenantId and ci.Id in (select CostItem from T);
 
+	with T as (select PriceKind from doc.Documents d where TenantId = @TenantId and d.Id = @Id
+		union all 
+		select c.PriceKind from doc.Documents d inner join doc.Contracts c on d.TenantId = @TenantId and d.[Contract] = c.Id
+		where d.TenantId = @TenantId and d.Id = @Id
+	)
 	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
-	from cat.PriceKinds pk inner join doc.Documents d on d.TenantId = pk.TenantId and d.PriceKind = pk.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
+	from cat.PriceKinds pk 
+	where pk.TenantId = @TenantId and pk.Id in (select PriceKind from T);
 
 	with T as (select item from @rows group by item)
 	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article,

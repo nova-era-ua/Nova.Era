@@ -125,8 +125,6 @@
 			<Case Value="service">
 				<Toolbar Style="Light" Padding="0">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.ServiceRows}}"/>
-					<ToolbarAligner />
-					<CheckBox Label="Розподілити послуги на собівартість"></CheckBox>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" Background="Paper" GridLines="Both" Width="100%"
 					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,8rem,8rem,8rem,12rem,Fit">
