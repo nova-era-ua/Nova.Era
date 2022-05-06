@@ -5,7 +5,8 @@ const dateUtils: UtilsDate = require("std:utils").date;
 
 const template: Template = {
 	properties: {
-		'TRoot.$CompArg'() { return { Company: this.Document.Company?.Id }; }
+		'TRoot.$CompArg'() { return { Company: this.Document.Company?.Id }; },
+		'TDocument.$CompanyAgentArg'() { return { Company: this.Company.Id, Agent: this.Agent.Id }; }
 	},
 	defaults: {
 		'Document.Date': dateUtils.today(),

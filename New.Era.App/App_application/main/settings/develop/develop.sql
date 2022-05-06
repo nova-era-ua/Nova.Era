@@ -18,12 +18,13 @@ begin
 	begin tran;
 	delete from rep.Reports where TenantId = @TenantId;
 	delete from jrn.Journal where TenantId = @TenantId;
+	delete from jrn.SupplierPrices where TenantId = @TenantId;
 	delete from doc.DocDetails where TenantId = @TenantId;
 	delete from doc.Documents where TenantId = @TenantId;
 	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
+	delete from cat.ItemTreeElems where TenantId = @TenantId;
 	delete from cat.Items where TenantId = @TenantId;
 	delete from cat.ItemRoles where TenantId = @TenantId;
-	delete from cat.ItemTreeElems where TenantId = @TenantId;
 	delete from doc.OpTrans where TenantId = @TenantId;
 	delete from ui.OpMenuLinks where TenantId = @TenantId;
 	delete from doc.Operations where TenantId = @TenantId;
@@ -62,7 +63,8 @@ begin
 		(@TenantId, 11, 10, 50, 702, 71),
 		(@TenantId, 12, 10, 50, 902, 72),
 		-- Послуги
-		(@TenantId, 20, 10, 51, 91,  70);
+		(@TenantId, 20, 10, 51, 91,  70),
+		(@TenantId, 21, 10, 51, 702, 71);
 
 	insert into cat.Items(TenantId, Id, [Name], [Role]) 
 	values
@@ -80,13 +82,14 @@ begin
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
 		[DtSum], DtRow, DtAccMode, DtAccKind,  [CtSum], [CtRow], CtAccMode, CtAccKind)
 	values
-		(@TenantId, 106, 104, 1, N'',      10,  311,  361,   null, null, null, null,   null, null, null, null),
-		(@TenantId, 107, 102, 1, N'',      10,  631,  301,   null, null, null, null,   null, null, null, null),
-		(@TenantId, 108, 101, 1, N'',      10,  631,  311,   null, null, null, null,   null, null, null, null),
-		(@TenantId, 109, 100, 1, N'All',   10, null,  631,   null, N'R', N'R',   70,   null, null, null, null),
-		(@TenantId, 110, 105, 1, N'',      10,  301,  361,   null, null, null, null,   null, null, null, null),
-		(@TenantId, 111, 103, 1, N'Stock', 10,  361,  702,   null, null, null, null,   null, null, null, null),
-		(@TenantId, 112, 103, 2, N'Stock', 10,  902, null,   N'S', null, null, null,   N'S', N'R', N'R', 70);
+		(@TenantId, 106, 104, 1, N'',        10,  311,  361,   null, null, null, null,   null, null, null, null),
+		(@TenantId, 107, 102, 1, N'',        10,  631,  301,   null, null, null, null,   null, null, null, null),
+		(@TenantId, 108, 101, 1, N'',        10,  631,  311,   null, null, null, null,   null, null, null, null),
+		(@TenantId, 109, 100, 1, N'All',     10, null,  631,   null, N'R', N'R',   70,   null, null, null, null),
+		(@TenantId, 110, 105, 1, N'',        10,  301,  361,   null, null, null, null,   null, null, null, null),
+		(@TenantId, 111, 103, 1, N'Stock',   10,  361,  702,   null, null, null, null,   null, N'R', N'R', 71),
+		(@TenantId, 112, 103, 2, N'Stock',   10,  902, null,   N'S', N'R', N'R',   72,   N'S', N'R', N'R', 70),
+		(@TenantId, 113, 103, 3, N'Service', 10,  361, null,   null, null, null, null,   null, N'R', N'R', 71);
 
 	insert into ui.OpMenuLinks(TenantId, Operation, Menu) 
 	values

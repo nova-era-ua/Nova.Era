@@ -1,14 +1,20 @@
 ﻿// stock documents
 
+import { TRow } from 'stock.d';
+
 const dateUtils: UtilsDate = require("std:utils").date;
 
 const template: Template = {
 	properties: {
 		'TRoot.$$TabNo': String,
-		'TRow.Sum'() { return this.Price * this.Qty; },
+		'TRow.Sum': {
+			get(this: TRow) { return this.Price * this.Qty; },
+			set(this: TRow, val: number) { this.Qty = val / this.Price; }
+		},
 		'TDocument.Sum': docSum,
 		'TDocument.$StockSum': stockSum,
-		'TDocument.$ServiceSum': serviceSum
+		'TDocument.$ServiceSum': serviceSum,
+		'TDocument.$CompanyAgentArg'() { return { Company: this.Company.Id, Agent: this.Agent.Id };}
 	},
 	defaults: {
 		'Document.Date': dateUtils.today(),
@@ -19,6 +25,8 @@ const template: Template = {
 	validators: {
 		'Document.Company': '@[Error.Required]',
 		'Document.Agent': '@[Error.Required]',
+		'Document.StockRows[].Item': '@[Error.Required]',
+		'Document.ServiceRows[].Item': '@[Error.Required]',
 	},
 	events: {
 		'Document.StockRows[].add'(rows, row) { row.Qty = 1; },
@@ -41,17 +49,17 @@ function docSum() {
 }
 
 function stockSum() {
-	return this.StockRows.reduce((p, c) => p + c.Sum, 0);
+	return this.StockRows.reduce((p:number, c:TRow) => p + c.Sum, 0);
 }
 
 function serviceSum() {
-	return this.ServiceRows.reduce((p, c) => p + c.Sum, 0);
+	return this.ServiceRows.reduce((p:number, c:TRow) => p + c.Sum, 0);
 }
 
 // events
 function itemChange(row, val) {
 	row.Unit = val.Unit;
-	row.ItemRole = val.ItemRole;
+	row.ItemRole = val.Role;
 }
 
 async function articleChange(item, val) {

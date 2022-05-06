@@ -11,7 +11,7 @@
 				</Button.DropDown>
 			</Button>
 			<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editItem}"/>
-			<Button Icon="Delete" />
+			<Button Icon="Delete" Command="{BindCmd Execute, CommandName=deleteItem, Argument={Bind Groups.$selected}}"/>
 			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>

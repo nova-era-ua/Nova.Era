@@ -12,7 +12,12 @@ const template: Template = {
 			exec: editItem,
 			canExec(this: any) { return !!this.Groups.$selected; }
 		},
-		addHierarchy
+		addHierarchy,
+		deleteItem: {
+			exec: deleteItem,
+			canExec(elem: any) { return elem && !elem.HasItems && !elem.Items?.length; },
+			confirm: '@[Confirm.Delete.Element]'
+		}
 	}
 };
 
@@ -51,4 +56,12 @@ async function addHierarchy() {
 	group.Icon = 'folders-outline';
 	let newhie = this.Groups.$append(group);
 	newhie.$select(this.Groups);
+}
+
+async function deleteItem(item) {
+	if (!item) return;
+	if (item.HasItems || item.Items.length) return;
+	const ctrl: IController = this.$ctrl;
+	await ctrl.$invoke('deleteItem', { Id: item.Id });
+	item.$remove();
 }

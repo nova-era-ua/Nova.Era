@@ -26,15 +26,6 @@
 .a2-table > tfoot > tr.footer-normal > td {
   background-color: transparent;
 }
-/*PLATFORM*/
-/* specify */
-.a2-table.table-cell-spacing-medium {
-  border-spacing: 6px;
-  border-collapse: separate;
-}
-.a2-table.table-separate-border {
-  border-collapse: separate;
-}
 .inner-table td {
   border: none!important;
 }
@@ -54,3 +45,4 @@ li.line-top:before {
   margin-left: 24px;
   display: list-item;
 }
+/*PLATFORM*/

@@ -11,7 +11,7 @@
 		</CollectionView>
 	</Page.CollectionView>
 	<Grid Rows="Auto,1*,Auto" Height="100%" Gap=".5rem" Padding="1rem">
-		<Toolbar Grid.Row="1" Style="Light">
+		<Toolbar Grid.Row="1" XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Dialog, Action=Append, Argument={Bind Contracts}, Url='/catalog/contract/edit'}"/>
 			<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Contracts}, Url='/catalog/contract/edit'}"/>
 			<Button Icon="Delete" Command="{BindCmd DbRemoveSelected, Argument={Bind Contracts}, Confirm='@[Confirm.Delete.Element]'}"/>

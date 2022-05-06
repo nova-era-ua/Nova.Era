@@ -69,7 +69,7 @@ begin
 		[DtAccKind!TAccKind!RefId] = ot.DtAccKind, [CtAccKind!TAccKind!RefId] = ot.CtAccKind
 	from doc.OpTrans ot 
 	where ot.TenantId = @TenantId and ot.Operation = @Id
-	order by ot.RowKind
+	order by ot.Id;
 
 	select [!TAccount!Map] = null, [Id!!Id] = a.Id, a.Code, [Name!!Name] = a.[Name],
 		a.IsItem, a.IsAgent, a.IsWarehouse, a.IsBankAccount, a.IsCash

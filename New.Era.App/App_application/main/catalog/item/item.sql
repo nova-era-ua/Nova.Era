@@ -6,11 +6,13 @@ select [Id!!Id] = i.Id,
 	[Name!!Name] = i.[Name], i.Article, i.Memo,
 	[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 	[Role.Id!TItemRole!Id] = i.[Role], [Role.Name!TItemRole!Name] = ir.[Name], [Role.Color!TItemRole!] = ir.Color,
+	[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name],
 	ItemRole = i.[Role],
 	[!TenantId] = i.TenantId
 from cat.Items i
 	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	left join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
+	left join cat.CostItems ci on ir.TenantId = ci.TenantId and ir.CostItem =ci.Id
 go
 -------------------------------------------------
 create or alter procedure cat.[Item.Group.Index]
@@ -25,11 +27,14 @@ begin
 	if @Group is null
 		select top(1) @Group = Id from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
 
-	with T(Id, [Name], HasChildren, Icon)
+	with T(Id, _order, [Name], HasChildren, Icon)
 	as (
-		select Id = -1, [Name] = N'@[NoGrouping]', 0, Icon=N'package-outline'
+		select Id = -1, 0, [Name] = N'@[NoGrouping]', 0, Icon=N'package-outline'
 		union all
-		select Id, [Name],
+		-- hack = negative!
+		select Id = -@Group, 2, [Name] = N'@[WithoutGroup]', 0, Icon=N'ban'
+		union all
+		select Id, 1, [Name],
 			HasChildren= case when exists(
 				select 1 from cat.ItemTree it where it.Void = 0 
 				and it.Parent = t.Id and it.TenantId = @TenantId and t.TenantId = @TenantId
@@ -46,7 +51,7 @@ begin
 		/*nested items (not folders!) */
 		[Elements!TItem!LazyArray] = null
 	from T
-	order by [Id];
+	order by _order, [Id];
 
 	-- Elements definition
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
@@ -109,14 +114,16 @@ begin
 	set @fr = N'%' + @Fragment + N'%';
 
 	declare @items table(rowno int identity(1, 1), id bigint, unit bigint, [role] bigint, rowcnt int);
-
+	--@Id = ite.Parent or 
 	insert into @items(id, unit, [role], rowcnt)
 	select i.Id, i.Unit, i.[Role],
 		count(*) over()
 	from cat.Items i
 		left join cat.ItemTreeElems ite on i.TenantId = ite.TenantId and i.Id = ite.Item
 	where i.TenantId = @TenantId
-		and (@Id = -1 or @Id = ite.Parent)
+		and (@Id = -1 or @Id = ite.Parent or (@Id < 0 and i.Id not in (
+			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
+		)))
 		and (@fr is null or [Name] like @fr or Memo like @fr or Article like @fr)
 	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role]
 	order by 

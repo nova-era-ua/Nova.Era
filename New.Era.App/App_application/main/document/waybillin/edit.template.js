@@ -9,7 +9,14 @@ define(["require", "exports"], function (require, exports) {
         },
         validators: {
             'Document.WhTo': '@[Error.Required]'
+        },
+        events: {
+            'Document.ServiceRows[].Item.change': itemChange,
         }
     };
     exports.default = utils.mergeTemplate(base, template);
+    function itemChange(row, val) {
+        base.events['Document.ServiceRows[].Item.change'].call(this, row, val);
+        row.CostItem = val.CostItem;
+    }
 });

@@ -33,40 +33,54 @@
 		</StackPanel>
 		<TabBar Grid.Row="4" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton ActiveValue="">@[Accounts]</TabButton>
+			<TabButton ActiveValue="costitem">Витрати</TabButton>
 		</TabBar>
 		<Block Grid.Row="5" Grid.ColSpan="2" Height="15rem" Scroll="True">
-			<Toolbar XamlStyle="{StyleResource ToolbarLight}">
-				<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind ItemRole.Accounts}}"/>
-			</Toolbar>
-			<Table CellSpacing="Medium" Columns="10rem,15rem,10rem,Fit"
+			<Switch Expression="{Bind Root.$$Tab}">
+				<Case Value="">
+					<!--TODO: Toolbar LightStyle -->
+					<Toolbar Style="Light" Padding="0">
+						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind ItemRole.Accounts}}"/>
+					</Toolbar>
+					<Table CellSpacing="Medium" Columns="10rem,15rem,10rem,Fit"
 				   ItemsSource="{Bind ItemRole.Accounts}" Width="100%" Margin="0, -6px">
-				<Table.Header>
-					<TableRow>
-						<TableCell Wrap="NoWrap">@[AccountPlan]</TableCell>
-						<TableCell>@[ItemRole]</TableCell>
-						<TableCell>@[Account]</TableCell>
-						<TableCell />
-					</TableRow>
-				</Table.Header>
-				<TableRow>
-					<Selector Value="{Bind Plan}" DisplayProperty="Code" Tip="{Bind Plan.Name}">
-						<Selector.AddOns>
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
-						</Selector.AddOns>
-					</Selector>
-					<ComboBox ItemsSource="{Bind Root.AccKinds}" Value="{Bind AccKind}">
-						<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-					</ComboBox>
-					<Selector Value="{Bind Account}" DisplayProperty="Code" Tip="{Bind Account.Name}"
+						<Table.Header>
+							<TableRow>
+								<TableCell Wrap="NoWrap">@[AccountPlan]</TableCell>
+								<TableCell>@[ItemRole]</TableCell>
+								<TableCell>@[Account]</TableCell>
+								<TableCell />
+							</TableRow>
+						</Table.Header>
+						<TableRow>
+							<Selector Value="{Bind Plan}" DisplayProperty="Code" Tip="{Bind Plan.Name}">
+								<Selector.AddOns>
+									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
+								</Selector.AddOns>
+							</Selector>
+							<ComboBox ItemsSource="{Bind Root.AccKinds}" Value="{Bind AccKind}">
+								<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+							</ComboBox>
+							<Selector Value="{Bind Account}" DisplayProperty="Code" Tip="{Bind Account.Name}"
 						Disabled="{Bind !Plan.Id}">
-						<Selector.AddOns>
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Account}, 
+								<Selector.AddOns>
+									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Account}, 
 								Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
+								</Selector.AddOns>
+							</Selector>
+							<Hyperlink Size="Small" Icon="Delete" Command="{BindCmd Remove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
+						</TableRow>
+					</Table>
+				</Case>
+				<Case Value="costitem">
+					<Selector Label="@[CostItem]"
+						Value="{Bind ItemRole.CostItem}" DisplayProperty="Name" Padding=".5rem,0" Width="50%">
+						<Selector.AddOns>
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind ItemRole.CostItem}, Url='/catalog/costitem/browse' }"/>
 						</Selector.AddOns>
 					</Selector>
-					<Hyperlink Size="Small" Icon="Delete" Command="{BindCmd Remove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
-				</TableRow>
-			</Table>
+				</Case>
+			</Switch>
 		</Block>
 		<TextBox Grid.Row="6" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind ItemRole.Memo}" Multiline="True"/>
 	</Grid>

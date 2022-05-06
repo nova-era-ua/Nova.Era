@@ -4,7 +4,8 @@ define(["require", "exports"], function (require, exports) {
     const dateUtils = require("std:utils").date;
     const template = {
         properties: {
-            'TRoot.$CompArg'() { var _a; return { Company: (_a = this.Document.Company) === null || _a === void 0 ? void 0 : _a.Id }; }
+            'TRoot.$CompArg'() { var _a; return { Company: (_a = this.Document.Company) === null || _a === void 0 ? void 0 : _a.Id }; },
+            'TDocument.$CompanyAgentArg'() { return { Company: this.Company.Id, Agent: this.Agent.Id }; }
         },
         defaults: {
             'Document.Date': dateUtils.today(),

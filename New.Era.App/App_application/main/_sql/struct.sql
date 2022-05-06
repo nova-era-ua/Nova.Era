@@ -270,9 +270,11 @@ create table cat.ItemRoles (
 	[Color] nvarchar(32),
 	HasPrice bit,
 	IsStock bit,
+	CostItem bigint,
 	[Uid] uniqueidentifier not null
 		constraint DF_ItemRoles_Uid default(newid()),
-	constraint PK_ItemRoles primary key (TenantId, Id)
+	constraint PK_ItemRoles primary key (TenantId, Id),
+	constraint FK_ItemRoles_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
 )
 go
 ------------------------------------------------

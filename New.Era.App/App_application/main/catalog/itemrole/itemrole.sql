@@ -12,7 +12,8 @@ create type cat.[ItemRole.TableType] as table
 	[Memo] nvarchar(255),
 	[Color] nvarchar(32),
 	HasPrice bit,
-	IsStock bit
+	IsStock bit,
+	CostItem bigint
 )
 go
 ------------------------------------------------
@@ -53,6 +54,7 @@ begin
 
 	select [ItemRole!TItemRole!Object] = null,
 		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Color, ir.HasPrice, ir.IsStock,
+		[CostItem!TCostItem!RefId] = ir.CostItem,
 		[Accounts!TRoleAccount!Array] = null
 	from cat.ItemRoles ir
 	where ir.TenantId = @TenantId and ir.Id = @Id;
@@ -68,6 +70,11 @@ begin
 		inner join cat.ItemRoleAccounts ira on a.TenantId = ira.TenantId and a.Id in (ira.[Plan], ira.[Account])
 	where ira.TenantId = @TenantId and ira.[Role] = @Id
 	group by a.Id, a.Code, a.[Name];
+
+	select [!TCostItem!Map] = null, [Id!!Id] = ci.Id, [Name!!Name] = ci.[Name]
+	from cat.CostItems ci
+		inner join cat.ItemRoles ir on ci.TenantId = ir.TenantId and ir.CostItem = ci.Id
+	where ci.TenantId = @TenantId and ir.Id = @Id;
 
 	select [AccKinds!TAccKind!Array] = null, [Id!!Id] = ak.Id, [Name!!Name] = ak.[Name]
 	from acc.AccKinds ak
@@ -109,10 +116,11 @@ begin
 		t.[Memo] = s.[Memo],
 		t.Color = s.Color,
 		t.HasPrice = s.HasPrice,
-		t.IsStock = s.IsStock
+		t.IsStock = s.IsStock,
+		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, [Name], Memo, Color, HasPrice, IsStock) values
-		(@TenantId, [Name], Memo, Color, HasPrice, IsStock)
+		(TenantId, [Name], Memo, Color, HasPrice, IsStock, CostItem) values
+		(@TenantId, [Name], Memo, Color, HasPrice, IsStock, CostItem)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;

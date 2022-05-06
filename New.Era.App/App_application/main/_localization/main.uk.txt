@@ -50,6 +50,7 @@
 @Grouping=Групування
 @Grouping.Item=Групування об'єктів обліку
 @NoGrouping=<Без групування>
+@WithoutGroup=<Не в групах>
 @ItemCategory=Категорії об'єктів обліку
 @HasPrice=Включати в прайс лист
 ;

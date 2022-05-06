@@ -9,8 +9,16 @@ const template: Template = {
 	},
 	validators: {
 		'Document.WhTo': '@[Error.Required]'
+	},
+	events: {
+		'Document.ServiceRows[].Item.change': itemChange,
 	}
 };
 
 export default utils.mergeTemplate(base, template);
 
+// events
+function itemChange(row, val) {
+	base.events['Document.ServiceRows[].Item.change'].call(this, row, val);
+	row.CostItem = val.CostItem;
+}

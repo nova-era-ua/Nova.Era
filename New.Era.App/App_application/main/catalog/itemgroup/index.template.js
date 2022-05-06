@@ -12,7 +12,12 @@ define(["require", "exports"], function (require, exports) {
                 exec: editItem,
                 canExec() { return !!this.Groups.$selected; }
             },
-            addHierarchy
+            addHierarchy,
+            deleteItem: {
+                exec: deleteItem,
+                canExec(elem) { var _a; return elem && !elem.HasItems && !((_a = elem.Items) === null || _a === void 0 ? void 0 : _a.length); },
+                confirm: '@[Confirm.Delete.Element]'
+            }
         }
     };
     exports.default = template;
@@ -43,5 +48,14 @@ define(["require", "exports"], function (require, exports) {
         group.Icon = 'folders-outline';
         let newhie = this.Groups.$append(group);
         newhie.$select(this.Groups);
+    }
+    async function deleteItem(item) {
+        if (!item)
+            return;
+        if (item.HasItems || item.Items.length)
+            return;
+        const ctrl = this.$ctrl;
+        await ctrl.$invoke('deleteItem', { Id: item.Id });
+        item.$remove();
     }
 });

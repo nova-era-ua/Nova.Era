@@ -26,8 +26,6 @@ function selectedElem() {
 
 function clearLazyElements(items, sel) {
 	items.forEach(el => {
-		if (el !== sel)
-			el.Elements.$resetLazy();
 		clearLazyElements(el.Items, sel);
 	});
 }

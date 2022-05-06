@@ -151,20 +151,20 @@ begin
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
-	declare @rows table(id bigint, item bigint, unit bigint);
-	insert into @rows (id, item, unit)
-	select Id, Item, Unit from doc.DocDetails dd
+	declare @rows table(id bigint, item bigint, unit bigint, [role] bigint);
+	insert into @rows (id, item, unit, [role])
+	select Id, Item, Unit, ItemRole from doc.DocDetails dd
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
-		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, dd.ItemRole,
+		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.StockRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
 	from doc.DocDetails dd
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock';
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
-		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, dd.ItemRole,
+		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.ServiceRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
 	from doc.DocDetails dd
@@ -206,6 +206,10 @@ begin
 	from cat.CostItems ci 
 	where ci.TenantId = @TenantId and ci.Id in (select CostItem from T);
 
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name]
+	from cat.ItemRoles ir inner join @rows T  on ir.TenantId = @TenantId and ir.Id = T.[role]
+	group by ir.Id, ir.[Name];
+
 	with T as (select PriceKind from doc.Documents d where TenantId = @TenantId and d.Id = @Id
 		union all 
 		select c.PriceKind from doc.Documents d inner join doc.Contracts c on d.TenantId = @TenantId and d.[Contract] = c.Id
@@ -217,9 +221,13 @@ begin
 
 	with T as (select item from @rows group by item)
 	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short, ItemRole = i.[Role]
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short, 
+		[Role.Id!TItemRole!RefId] = i.[Role],
+		[CostItem.Id!TCostItem!Id] = ir.[CostItem], [CostItem.Name!TCostItem!Name] = ci.[Name]
 	from cat.Items i inner join T on i.Id = T.item and i.TenantId = @TenantId
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
+		left join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
+		left join cat.CostItems ci on i.TenantId = ci.TenantId and ir.CostItem = ci.Id
 	where i.TenantId = @TenantId;
 
 	with T as (select unit from @rows group by unit)

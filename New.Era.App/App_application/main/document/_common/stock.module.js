@@ -5,10 +5,14 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         properties: {
             'TRoot.$$TabNo': String,
-            'TRow.Sum'() { return this.Price * this.Qty; },
+            'TRow.Sum': {
+                get() { return this.Price * this.Qty; },
+                set(val) { this.Qty = val / this.Price; }
+            },
             'TDocument.Sum': docSum,
             'TDocument.$StockSum': stockSum,
-            'TDocument.$ServiceSum': serviceSum
+            'TDocument.$ServiceSum': serviceSum,
+            'TDocument.$CompanyAgentArg'() { return { Company: this.Company.Id, Agent: this.Agent.Id }; }
         },
         defaults: {
             'Document.Date': dateUtils.today(),
@@ -19,6 +23,8 @@ define(["require", "exports"], function (require, exports) {
         validators: {
             'Document.Company': '@[Error.Required]',
             'Document.Agent': '@[Error.Required]',
+            'Document.StockRows[].Item': '@[Error.Required]',
+            'Document.ServiceRows[].Item': '@[Error.Required]',
         },
         events: {
             'Document.StockRows[].add'(rows, row) { row.Qty = 1; },
@@ -45,7 +51,7 @@ define(["require", "exports"], function (require, exports) {
     }
     function itemChange(row, val) {
         row.Unit = val.Unit;
-        row.ItemRole = val.ItemRole;
+        row.ItemRole = val.Role;
     }
     async function articleChange(item, val) {
         if (!val) {

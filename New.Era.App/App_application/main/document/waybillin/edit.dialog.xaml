@@ -48,7 +48,9 @@
 			<Label Grid.Row="2" Grid.Col="1" Content="@[Contract]"/>
 			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
 				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Contract}, 
+						Data={Bind Document.$CompanyAgentArg},
+						Url='/catalog/contract/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
 
@@ -67,13 +69,6 @@
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
-
-			<Label Grid.Row="3" Grid.Col="4" Content="@[CostItem]"/>
-			<Selector Grid.Row="3" Grid.Col="5" Value="{Bind Document.CostItem}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CostItem}, Url='/catalog/costitem/browse'}"/>
-				</Selector.AddOns>
-			</Selector>
 		</Grid>
 		<TabBar Value="{Bind Root.$$TabNo}" Margin="0">
 			<TabButton Content="@[KindStock]" ActiveValue=""/>
@@ -81,7 +76,7 @@
 		</TabBar>
 		<Switch Expression="{Bind Root.$$TabNo}">
 			<Case Value="">
-				<Toolbar Style="Light" Padding="0">
+				<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" Width="100%"
@@ -123,7 +118,7 @@
 				</Table>
 			</Case>
 			<Case Value="service">
-				<Toolbar Style="Light" Padding="0">
+				<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.ServiceRows}}"/>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" Background="Paper" GridLines="Both" Width="100%"
