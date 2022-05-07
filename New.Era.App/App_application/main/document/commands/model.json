@@ -1,0 +1,14 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "doc",
+  "commands": {
+    "delete": {
+      "type": "sql",
+      "procedure": "Document.Delete"
+    },
+    "createonbase": {
+      "type": "sql",
+      "procedure": "Document.CreateOnBase"
+    }
+  }
+}

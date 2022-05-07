@@ -52,6 +52,7 @@ begin
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
 		[Form!TForm!RefId] = o.Form, o.WriteSupplierPrices,
 		[JournalStore!TOpJournalStore!Array] = null,
+		[OpLinks!TOpLink!Array] = null,
 		[Trans!TOpTrans!Array] = null
 	from doc.Operations o
 	where o.TenantId = @TenantId and o.Id=@Id;
@@ -70,6 +71,13 @@ begin
 	from doc.OpTrans ot 
 	where ot.TenantId = @TenantId and ot.Operation = @Id
 	order by ot.Id;
+
+	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, [Type], [Category],
+		[Operation.Id!TOper!Id] = o.Id, [Operation.Name!TOper!Name] = o.[Name],
+		[!TOperation.OpLinks!ParentId] = ol.Parent
+	from doc.OperationLinks ol 
+		inner join doc.Operations o on ol.TenantId = o.TenantId and ol.Operation = o.Id
+	where ol.TenantId = @TenantId and ol.Parent = @Id;
 
 	select [!TAccount!Map] = null, [Id!!Id] = a.Id, a.Code, [Name!!Name] = a.[Name],
 		a.IsItem, a.IsAgent, a.IsWarehouse, a.IsBankAccount, a.IsCash
@@ -108,6 +116,7 @@ drop type if exists doc.[Operation.TableType];
 drop type if exists doc.[OpJournalStore.TableType];
 drop type if exists doc.[OpTrans.TableType];
 drop type if exists doc.[OpMenu.TableType]
+drop type if exists doc.[OpLink.TableType];
 go
 -------------------------------------------------
 create type doc.[Operation.TableType]
@@ -125,6 +134,15 @@ create type doc.[OpMenu.TableType]
 as table(
 	Id nvarchar(32),
 	Checked bit
+)
+go
+-------------------------------------------------
+create type doc.[OpLink.TableType]
+as table(
+	Id bigint,
+	[Type] nvarchar(32),
+	[Category] nvarchar(32),
+	Operation bigint
 )
 go
 -------------------------------------------------
@@ -166,10 +184,12 @@ begin
 	declare @JournalStore doc.[OpJournalStore.TableType];
 	declare @OpTrans doc.[OpTrans.TableType];
 	declare @OpMenu doc.[OpMenu.TableType];
+	declare @OpLinks doc.[OpLink.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
 	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
 	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 	select [Menu!Menu!Metadata] = null, * from @OpMenu;
+	select [Links!Operation.OpLinks!Metadata] = null, * from @OpLinks;
 end
 go
 ------------------------------------------------
@@ -180,7 +200,8 @@ create or alter procedure doc.[Operation.Update]
 @Operation doc.[Operation.TableType] readonly,
 @JournalStore doc.[OpJournalStore.TableType] readonly,
 @Trans doc.[OpTrans.TableType] readonly,
-@Menu doc.[OpMenu.TableType] readonly
+@Menu doc.[OpMenu.TableType] readonly,
+@Links doc.[OpLink.TableType] readonly
 as
 begin
 	set nocount on;
@@ -249,6 +270,18 @@ begin
 		(TenantId, Operation, Menu) values
 		(@TenantId, @Id, s.Id)
 	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
+
+	merge doc.OperationLinks as t
+	using @Links as s
+	on t.TenantId = @TenantId and t.Id = s.Id and t.Parent = @Id
+	when matched then update set
+		t.[Type] = s.[Type],
+		t.Category = s.[Category],
+		t.Operation = s.Operation
+	when not matched by target then insert
+		(TenantId, Parent, Operation, [Type], [Category]) values
+		(@TenantId, @Id, s.Operation, s.[Type], s.[Category])
+	when not matched by source and t.TenantId = @TenantId and t.Parent = @Id then delete;
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,
 		@Id = @Id;

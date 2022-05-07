@@ -19,7 +19,12 @@ define(["require", "exports"], function (require, exports) {
                 exec: editSelected,
                 canExec(docs) { return docs.$hasSelected; }
             },
-            edit
+            edit,
+            delete: {
+                exec: deleteDoc,
+                canExec(doc) { return !doc.Done; },
+                confirm: '@[Confirm.Delete.Element]'
+            }
         }
     };
     exports.default = template;
@@ -60,5 +65,10 @@ define(["require", "exports"], function (require, exports) {
         if (!found)
             return;
         found.Done = elem.Done;
+    }
+    async function deleteDoc(doc) {
+        const ctrl = this.$ctrl;
+        ctrl.$invoke('delete', { Id: doc.Id }, '/document/commands');
+        doc.$remove();
     }
 });

@@ -35,6 +35,8 @@
       "main/document/document.pay.sql",
       "main/document/document.apply.sql",
       "main/document/document.dialogs.sql",
+      "main/document/document.commands.sql",
+      "main/document/document.common.sql",
       "main/reports/report.sql",
       "main/reports/stock/report.stock.sql",
       "main/reports/agent/report.agent.sql",

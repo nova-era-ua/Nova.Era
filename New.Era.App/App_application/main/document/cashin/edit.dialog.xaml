@@ -58,7 +58,7 @@
 					  Value="{Bind Document.CashAccTo}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccTo}, 
-						Url='/catalog/cashaccount/browse', Data={Bind Root.$CompArg}}"/>
+						Url='/catalog/cashaccount/browse', Data={Bind Document.$CompanyArg}}"/>
 				</Selector.AddOns>
 			</Selector>
 			<Label Content="@[Sum]" Grid.Row="4" Grid.Col="1"/>

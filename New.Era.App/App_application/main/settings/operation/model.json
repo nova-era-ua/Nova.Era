@@ -13,6 +13,11 @@
     "edit": {
       "template": "edit.template",
       "view": "edit.dialog"
+    },
+    "browse": {
+      "index": true,
+      "model": "Operation.Plain",
+      "view": "browse.dialog"
     }
   }
 }

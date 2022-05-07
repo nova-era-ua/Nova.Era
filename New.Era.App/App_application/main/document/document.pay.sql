@@ -146,17 +146,15 @@ begin
 		[Company!TCompany!RefId] = d.Company, 
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[Contract!TContract!RefId] = d.[Contract], [CashFlowItem!TCashFlowItem!RefId] = d.CashFlowItem,
-		[RespCenter!TRespCenter!RefId] = d.RespCenter
+		[RespCenter!TRespCenter!RefId] = d.RespCenter,
+		[ParentDoc!TDocBase!RefId] = d.Parent,
+		[LinkedDocs!TDocBase!LazyArray] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
 	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
 	from doc.Operations o 
 		left join doc.Documents d on d.TenantId = o.TenantId and d.Operation = o.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
-
-	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
-	from cat.Agents a inner join doc.Documents d on d.TenantId = a.TenantId and d.Agent = a.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
 	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.AccountNo
@@ -169,22 +167,17 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId
 	group by cf.Id, cf.[Name];
 
-	select [!TRespCenter!Map] = null, [Id!!Id] = rc.Id, [Name!!Name] = rc.[Name]
-	from cat.RespCenters rc inner join doc.Documents d on d.TenantId = rc.TenantId and rc.Id = d.RespCenter
-	where d.Id = @Id and d.TenantId = @TenantId
-	group by rc.Id, rc.[Name];
 
-	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
-	from cat.Companies c inner join doc.Documents d on d.TenantId = c.TenantId and d.Company = c.Id
+	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
+
+	select [!TDocParent!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], [OperationName] = o.[Name]
+	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and d.Parent = p.Id
+	inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
 	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Form]
 	from doc.Operations where TenantId = @TenantId and Form=@docform
 	order by Id;
-
-	select [!TContract!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.[SNo]
-	from doc.Contracts c inner join doc.Documents d on d.TenantId = c.TenantId and d.[Contract] = c.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
 
 	select [Params!TParam!Object] = null, [Operation] = @Operation;
 

@@ -96,6 +96,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\document\document.commands.sql" />
+    <Content Include="App_application\main\document\document.common.sql" />
     <Content Include="App_application\main\document\document.dialogs.sql" />
     <Content Include="App_application\main\document\document.pay.sql" />
     <Content Include="App_application\main\document\document.apply.sql" />
@@ -398,9 +400,11 @@
     <Content Include="App_application\main\purchase\contract\model.json" />
     <Content Include="App_application\main\purchase\pricedoc\model.json" />
     <Content Include="tsconfig.json" />
+    <Content Include="App_application\main\document\commands\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\contract\browse.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\contract\edit.template.ts" />
@@ -435,6 +439,7 @@
     <TypeScriptCompile Include="App_application\main\document\payout\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\stock.d.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\pay.module.ts" />
+    <TypeScriptCompile Include="App_application\main\document\_common\common.module.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accagentcontract.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accagent.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accdate.template.ts" />
@@ -708,6 +713,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\catalog\respcenter\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\document\_common\stock.taskpad.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\settings\operation\browse.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

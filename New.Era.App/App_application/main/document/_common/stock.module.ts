@@ -1,8 +1,9 @@
 ﻿// stock documents
 
 import { TRow } from 'stock.d';
+const utils: Utils = require("std:utils");
 
-const dateUtils: UtilsDate = require("std:utils").date;
+const base: Template = require('/document/_common/common.module');
 
 const template: Template = {
 	properties: {
@@ -13,18 +14,10 @@ const template: Template = {
 		},
 		'TDocument.Sum': docSum,
 		'TDocument.$StockSum': stockSum,
-		'TDocument.$ServiceSum': serviceSum,
-		'TDocument.$CompanyAgentArg'() { return { Company: this.Company.Id, Agent: this.Agent.Id };}
-	},
-	defaults: {
-		'Document.Date': dateUtils.today(),
-		'Document.Operation'(this: any) { return this.Operations.find(o => o.Id === this.Params.Operation); },
-		'Document.Company'(this: any) { return this.Default.Company; },
-		'Document.RespCenter'(this: any) { return this.Default.RespCenter; }
+		'TDocument.$ServiceSum': serviceSum
+
 	},
 	validators: {
-		'Document.Company': '@[Error.Required]',
-		'Document.Agent': '@[Error.Required]',
 		'Document.StockRows[].Item': '@[Error.Required]',
 		'Document.ServiceRows[].Item': '@[Error.Required]',
 	},
@@ -37,12 +30,10 @@ const template: Template = {
 		'Document.ServiceRows[].Item.Article.change': articleChange
 	},
 	commands: {
-		apply,
-		unApply
 	}
 };
 
-export default template;
+export default utils.mergeTemplate(base, template);
 
 function docSum() {
 	return this.$StockSum + this.$ServiceSum;
@@ -71,18 +62,3 @@ async function articleChange(item, val) {
 	let result = await ctrl.$invoke('findArticle', { Text: val }, '/catalog/item');
 	result?.Item ? item.$merge(result.Item) : item.$empty();
 }
-
-async function apply() {
-	const ctrl: IController = this.$ctrl;
-	await ctrl.$invoke('apply', { Id: this.Document.Id });
-	ctrl.$emitCaller('app.document.apply', { Id: this.Document.Id, Done: true });
-	ctrl.$requery();
-}
-
-async function unApply() {
-	let ctrl: IController = this.$ctrl;
-	await ctrl.$invoke('unApply', { Id: this.Document.Id });
-	ctrl.$emitCaller('app.document.apply', { Id: this.Document.Id, Done: false });
-	ctrl.$requery();
-}
-

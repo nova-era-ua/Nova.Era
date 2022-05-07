@@ -147,7 +147,9 @@ begin
 		[PriceKind!TPriceKind!RefId] = d.PriceKind, [RespCenter!TRespCenter!RefId] = d.RespCenter,
 		[CostItem!TCostItem!RefId] = d.CostItem,
 		[StockRows!TRow!Array] = null,
-		[ServiceRows!TRow!Array] = null
+		[ServiceRows!TRow!Array] = null,
+		[ParentDoc!TDocBase!RefId] = d.Parent,
+		[LinkedDocs!TDocBase!Array] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
@@ -170,32 +172,20 @@ begin
 	from doc.DocDetails dd
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Service';
 
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form,
+		[Links!TOpLink!Array] = null
 	from doc.Operations o 
-		left join doc.Documents d on d.TenantId = o.TenantId and d.Operation = o.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
+	where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
-	from cat.Agents a inner join doc.Documents d on d.TenantId = a.TenantId and d.Agent = a.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
-
-	select [!TContract!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.[SNo],
-		[PriceKind!TPriceKind!RefId] = c.PriceKind
-	from doc.Contracts c inner join doc.Documents d on d.TenantId = c.TenantId and d.[Contract] = c.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
+	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, ol.Category, ch.[Name], [!TOperation.Links!ParentId] = ol.Parent
+	from doc.OperationLinks ol 
+		inner join doc.Operations ch on ol.TenantId = ch.TenantId and ol.Operation = ch.Id
+	where ol.TenantId = @TenantId and ol.Parent = @Operation;
 
 	select [!TWarehouse!Map] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name]
 	from cat.Warehouses w inner join doc.Documents d on d.TenantId = w.TenantId and w.Id in (d.WhFrom, d.WhTo)
 	where d.Id = @Id and d.TenantId = @TenantId
 	group by w.Id, w.[Name];
-
-	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
-	from cat.Companies c inner join doc.Documents d on d.TenantId = c.TenantId and d.Company = c.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
-
-	select [!TRespCenter!Map] = null, [Id!!Id] = rc.Id, [Name!!Name] = rc.[Name]
-	from cat.RespCenters rc inner join doc.Documents d on d.TenantId = rc.TenantId and d.RespCenter = rc.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
 
 	with T as (
 		select CostItem from doc.Documents d where TenantId = @TenantId and d.Id = @Id
@@ -218,6 +208,8 @@ begin
 	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
 	from cat.PriceKinds pk 
 	where pk.TenantId = @TenantId and pk.Id in (select PriceKind from T);
+
+	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
 
 	with T as (select item from @rows group by item)
 	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article,

@@ -19,7 +19,12 @@ const template: Template = {
 			exec: editSelected,
 			canExec(docs: TDocuments) { return docs.$hasSelected; }
 		},
-		edit
+		edit,
+		delete: {
+			exec: deleteDoc,
+			canExec(doc: TDocument) { return !doc.Done; },
+			confirm:'@[Confirm.Delete.Element]'
+		}
 	}
 };
 
@@ -65,4 +70,10 @@ function handleApply(elem) {
 	let found = this.Documents.find(d => d.Id == elem.Id);
 	if (!found) return;
 	found.Done = elem.Done;
+}
+
+async function deleteDoc(doc: TDocument) {
+	const ctrl = this.$ctrl;
+	ctrl.$invoke('delete', {Id: doc.Id}, '/document/commands')
+	doc.$remove();
 }

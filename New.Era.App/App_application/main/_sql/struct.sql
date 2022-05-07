@@ -446,6 +446,17 @@ create table cat.CashAccounts
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'ContractKinds')
+create table doc.ContractKinds
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_ContractKinds primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Contracts')
 	create sequence doc.SQ_Contracts as bigint start with 100 increment by 1;
 go
@@ -539,6 +550,27 @@ create table doc.Operations
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OperationLinks')
+	create sequence doc.SQ_OperationLinks as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationLinks')
+create table doc.OperationLinks
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_OperationLinks_Id default(next value for doc.SQ_OperationLinks),
+	Category nvarchar(32) not null,
+	Parent bigint not null,
+	Operation bigint not null,
+	Memo nvarchar(255),
+	[Type] nvarchar(32),
+	constraint PK_OperationLinks primary key (TenantId, Id),
+	constraint FK_OperationLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
+	constraint FK_OperationLinks_Parent_Operations foreign key (TenantId, Parent) references doc.Operations(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpJournalStore')
 	create sequence doc.SQ_OpJournalStore as bigint start with 100 increment by 1;
 go
@@ -626,6 +658,9 @@ create table doc.Documents
 		constraint DF_Documents_Sum default(0),
 	Done bit not null
 		constraint DF_Documents_Done default(0),
+	[Parent] bigint,
+	[Base] bigint,
+	OpLink bigint,
 	Company bigint null,
 	Agent bigint null,
 	[Contract] bigint null,
@@ -645,6 +680,9 @@ create table doc.Documents
 	UtcDateCreated datetime not null 
 		constraint DF_Documents_UtcDateCreated default(getutcdate()),
 	constraint PK_Documents primary key (TenantId, Id),
+	constraint FK_Documents_Parent_Documents foreign key (TenantId, [Parent]) references doc.Documents(TenantId, Id),
+	constraint FK_Documents_Base_Documents foreign key (TenantId, [Base]) references doc.Documents(TenantId, Id),
+	constraint FK_Documents_OpLink_OperationLinks foreign key (TenantId, OpLink) references doc.OperationLinks(TenantId, Id),
 	constraint FK_Documents_Operation_Operations foreign key (TenantId, [Operation]) references doc.Operations(TenantId, Id),
 	constraint FK_Documents_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 	constraint FK_Documents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),

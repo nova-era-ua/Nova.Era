@@ -10,18 +10,27 @@ define(["require", "exports"], function (require, exports) {
             'TOpTrans.$CtAccVisible'() { return this.Plan.Id && this.CtAccMode === ''; },
             'TOpTrans.$DtRoleVisible'() { return this.Plan.Id && this.DtAccMode === 'R'; },
             'TOpTrans.$CtRoleVisible'() { return this.Plan.Id && this.CtAccMode === 'R'; },
+            'TOpLink.$Types': opLinkTypes
         },
         validators: {
             'Operation.Form': '@[Error.Required]',
-            'Operation.Name': '@[Error.Required]'
+            'Operation.Name': '@[Error.Required]',
+            'Operation.OpLinks[].Operation': '@[Error.Required]',
+            'Operation.OpLinks[].Category': '@[Error.Required]'
         },
         events: {
             'Operation.Form.change': formChange,
             'Operation.Trans[].DtAccMode.change'(elem) { elem.Dt.$empty(); },
-            'Operation.Trans[].CtAccMode.change'(elem) { elem.Ct.$empty(); }
+            'Operation.Trans[].CtAccMode.change'(elem) { elem.Ct.$empty(); },
+            'Operation.OpLinks[].add'(links, link) { link.Type = 'BySum'; }
         }
     };
     exports.default = template;
     function formChange() {
+    }
+    function opLinkTypes() {
+        return [
+            { Name: 'По сумі', Value: 'BySum' }
+        ];
     }
 });

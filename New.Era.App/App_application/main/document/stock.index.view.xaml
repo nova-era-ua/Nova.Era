@@ -13,7 +13,7 @@
 		</CollectionView>
 	</Page.CollectionView>
 	<Grid Rows="Auto,1*,Auto" Height="100%" Gap=".5rem" Padding="1rem">
-		<Toolbar Grid.Row="1" Style="Light">
+		<Toolbar Grid.Row="1" XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Plus" Content="@[Create]">
 				<Button.DropDown>
 					<DropDownMenu ItemsSource="{Bind Menu}">

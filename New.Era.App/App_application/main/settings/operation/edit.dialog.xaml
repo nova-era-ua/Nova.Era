@@ -18,6 +18,7 @@
 		<TabBar Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton Content="Проводки по рахунках" ActiveValue="" />
 			<TabButton Content="Меню" ActiveValue="Menu" />
+			<TabButton Content="Зв'язані операції" ActiveValue="Links" />
 			<TabButton Content="Додатково" ActiveValue="Other" />
 			<!--
 			<TabButton Content="Документ" ActiveValue="Document" />
@@ -192,6 +193,34 @@
 							<CheckBox Value="{Bind Checked}"/>
 						</FlexList>
 					</List>
+				</Case>
+				<Case Value="Links">
+					<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.OpLinks}}"/>
+					</Toolbar>
+					<Table CellSpacing="Medium" ItemsSource="{Bind Operation.OpLinks}" 
+						   Width="52rem" Columns="30rem,10rem,10rem,16px">
+						<Table.Header>
+							<TableRow>
+								<TableCell>@[Operation]</TableCell>
+								<TableCell>Категорія</TableCell>
+								<TableCell>Режим</TableCell>
+								<TableCell/>
+							</TableRow>
+						</Table.Header>
+						<TableRow>
+							<Selector Value="{Bind Operation}" DisplayProperty="Name">
+								<Selector.AddOns>
+									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Operation}, Url='/settings/operation/browse'}"/>
+								</Selector.AddOns>
+							</Selector>
+							<TextBox Value="{Bind Category}"/>
+							<ComboBox Value="{Bind Type}" ItemsSource="{Bind $Types}">
+								<ComboBoxItem Content="{Bind Name}" Value="{Bind Value}"/>
+							</ComboBox>
+							<Hyperlink Icon="Delete" Size="Small" Command="{BindCmd Remove, Argument={Bind}}"/>
+						</TableRow>
+					</Table>
 				</Case>
 				<Case Value="Other">
 					<Block Padding="1rem,6">

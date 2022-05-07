@@ -6,6 +6,13 @@
 			Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
 		<Button If="{Bind Document.Done}"
 			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
+		<Button Content="Створити на підставі" Render="Show">
+			<Button.DropDown>
+				<DropDownMegaMenu ItemsSource="{Bind Document.Operation.Links}" GroupBy="Category">
+					<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=createOnBase, Argument={Bind}}"/>
+				</DropDownMegaMenu>
+			</Button.DropDown>
+		</Button>
 		<Button Content="@[Close]" Command="{BindCmd Close}" />
 		<Separator />
 		<Label Content="@[Operation]"/>
@@ -15,12 +22,7 @@
 		</ComboBox>
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
-		<Taskpad Width="20rem" Collapsible="False" Margin="0,0,0,1rem" Background="WhiteSmoke">
-			<Block If="{Bind Document.Done}">
-				<Hyperlink 
-					Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
-			</Block>
-		</Taskpad>
+		<ContentControl Content="{Source '../_common/stock.taskpad.xaml'}"/>
 	</Dialog.Taskpad>
 	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem" AutoFlow="Row">
 		<Grid AutoFlow="Column" AlignItems="Baseline" Margin="0,0,1rem,0" Gap="1rem"

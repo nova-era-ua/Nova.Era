@@ -55,9 +55,12 @@
 				</Selector.AddOns>
 			</Selector>
 			<Label Grid.Row="1" Grid.Col="4">@[Contract]</Label>
-			<Selector Grid.Row="1" Grid.Col="5" DisplayProperty="Name" Placeholder="">
+			<Selector Grid.Row="1" Grid.Col="5" DisplayProperty="Name"
+					  Value="{Bind Document.Contract}">
 				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/contract/browse'}"/>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Contract}, 
+						Data={Bind Document.$CompanyAgentArg},
+						Url='/catalog/contract/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
 		</Grid>

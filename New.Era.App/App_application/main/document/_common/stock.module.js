@@ -1,7 +1,8 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const dateUtils = require("std:utils").date;
+    const utils = require("std:utils");
+    const base = require('/document/_common/common.module');
     const template = {
         properties: {
             'TRoot.$$TabNo': String,
@@ -11,18 +12,9 @@ define(["require", "exports"], function (require, exports) {
             },
             'TDocument.Sum': docSum,
             'TDocument.$StockSum': stockSum,
-            'TDocument.$ServiceSum': serviceSum,
-            'TDocument.$CompanyAgentArg'() { return { Company: this.Company.Id, Agent: this.Agent.Id }; }
-        },
-        defaults: {
-            'Document.Date': dateUtils.today(),
-            'Document.Operation'() { return this.Operations.find(o => o.Id === this.Params.Operation); },
-            'Document.Company'() { return this.Default.Company; },
-            'Document.RespCenter'() { return this.Default.RespCenter; }
+            'TDocument.$ServiceSum': serviceSum
         },
         validators: {
-            'Document.Company': '@[Error.Required]',
-            'Document.Agent': '@[Error.Required]',
             'Document.StockRows[].Item': '@[Error.Required]',
             'Document.ServiceRows[].Item': '@[Error.Required]',
         },
@@ -34,12 +26,9 @@ define(["require", "exports"], function (require, exports) {
             'Document.ServiceRows[].Item.change': itemChange,
             'Document.ServiceRows[].Item.Article.change': articleChange
         },
-        commands: {
-            apply,
-            unApply
-        }
+        commands: {}
     };
-    exports.default = template;
+    exports.default = utils.mergeTemplate(base, template);
     function docSum() {
         return this.$StockSum + this.$ServiceSum;
     }
@@ -62,17 +51,5 @@ define(["require", "exports"], function (require, exports) {
         const ctrl = this.$ctrl;
         let result = await ctrl.$invoke('findArticle', { Text: val }, '/catalog/item');
         (result === null || result === void 0 ? void 0 : result.Item) ? item.$merge(result.Item) : item.$empty();
-    }
-    async function apply() {
-        const ctrl = this.$ctrl;
-        await ctrl.$invoke('apply', { Id: this.Document.Id });
-        ctrl.$emitCaller('app.document.apply', { Id: this.Document.Id, Done: true });
-        ctrl.$requery();
-    }
-    async function unApply() {
-        let ctrl = this.$ctrl;
-        await ctrl.$invoke('unApply', { Id: this.Document.Id });
-        ctrl.$emitCaller('app.document.apply', { Id: this.Document.Id, Done: false });
-        ctrl.$requery();
     }
 });

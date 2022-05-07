@@ -20,3 +20,22 @@ begin
 	alter table cat.ItemRoles add constraint FK_ItemRoles_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id);
 end
 go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Documents' and COLUMN_NAME=N'Parent')
+begin
+	alter table doc.Documents add [Parent] bigint;
+	alter table doc.Documents add [Base] bigint;
+	alter table doc.Documents add 
+		constraint FK_Documents_Base_Documents foreign key (TenantId, [Base]) references doc.Documents(TenantId, Id);
+	alter table doc.Documents add 
+		constraint FK_Documents_Parent_Documents foreign key (TenantId, [Parent]) references doc.Documents(TenantId, Id);
+end
+go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Documents' and COLUMN_NAME=N'OpLink')
+begin
+	alter table doc.Documents add OpLink bigint;
+	alter table doc.Documents add 
+		constraint FK_Documents_OpLink_Documents foreign key (TenantId, OpLink) references doc.OperationLinks(TenantId, Id);
+end
+go
