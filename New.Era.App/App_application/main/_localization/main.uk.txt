@@ -82,6 +82,7 @@
 @PriceDoc=Встановлення цін
 @PriceKinds=Види цін
 @PriceKind=Вид ціни
+@ContractKind=Вид контракту
 @CashFlowItem=Стаття руху грошових коштів
 @CashFlowItems=Статті руху грошових коштів
 @CashFlowItemShort=Стаття РГК
@@ -166,9 +167,14 @@
 @Browse.CashFlowItem=Вибір статті руху грошових коштів
 @Browse.RespCenter=Вибір центру відповідальності
 @Browse.CostItem=Вибір статті витрат
+@Browse.Operation=Вибір операції
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків
+;
+@ContractKind.Supplier = З постачальником
+@ContractKind.Customer = З покупцем
+@ContractKind.Other = Інший
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
 @Label.Cash.Account=Каса/Рахунок

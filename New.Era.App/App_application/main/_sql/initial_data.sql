@@ -156,6 +156,23 @@ begin
 		(@TenantId, s.Id, s.[Form], s.[Name], s.[Order])
 	when not matched by source and t.TenantId = @TenantId then delete;
 
+
+	-- contract kinds
+	declare @ck table(Id nvarchar(16), [Order] int, [Name] nvarchar(255));
+	insert into @ck(Id, [Order], [Name]) values
+	(N'supplier', 1, N'@[ContractKind.Supplier]'),
+	(N'customer', 2, N'@[ContractKind.Customer]'),
+	(N'other',    9, N'@[ContractKind.Other]');
+
+	merge doc.ContractKinds as t
+	using @ck as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set 
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order]
+	when not matched by target then insert
+		(TenantId, Id, [Name], [Order]) values
+		(@TenantId, s.Id, s.[Name], s.[Order])
+	when not matched by source and t.TenantId = @TenantId then delete;
 end
 go
 ------------------------------------------------

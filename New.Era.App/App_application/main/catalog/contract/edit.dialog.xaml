@@ -9,6 +9,9 @@
 		<DatePicker Label="@[Date]" Value="{Bind Contract.Date}"/>
 		<TextBox Grid.ColSpan="2" Grid.Col="2" Label="@[Number]" Value="{Bind Contract.SNo}"/>
 
+		<ComboBox Label="@[ContractKind]" Grid.ColSpan="3" ItemsSource="{Bind ContractKinds}" Value="{Bind Contract.Kind}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
 		<TextBox Grid.ColSpan="3" Label="@[Name]" Value="{Bind Contract.Name}"/>
 		<Selector Grid.ColSpan="3" Label="@[Company]" Value="{Bind Contract.Company}" DisplayProperty="Name">
 			<Selector.AddOns>

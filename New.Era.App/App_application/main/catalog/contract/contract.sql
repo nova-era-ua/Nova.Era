@@ -23,10 +23,10 @@ begin
 	set @fr = N'%' + @Fragment + N'%';
 
 	declare @cnts table(rowno int identity(1, 1), id bigint, agent bigint, 
-		comp bigint, pkind bigint, rowcnt int);
+		comp bigint, pkind bigint, kind nvarchar(16), rowcnt int);
 
-	insert into @cnts(id, agent, comp, pkind, rowcnt)
-	select c.Id, c.Agent, c.Company, c.PriceKind,
+	insert into @cnts(id, agent, comp, pkind, kind, rowcnt)
+	select c.Id, c.Agent, c.Company, c.PriceKind, c.Kind,
 		count(*) over()
 	from doc.Contracts c
 	where c.TenantId = @TenantId and c.Void = 0
@@ -64,6 +64,7 @@ begin
 	select [Contracts!TContract!Array] = null, [Id!!Id] = c.Id, c.[Date], [Name!!Name] = c.[Name], c.[Memo], c.SNo,
 		[Agent!TAgent!RefId] = c.Agent, [Company!TCompany!RefId] = c.Company,
 		[PriceKind!TPriceKind!RefId] = c.PriceKind,
+		[Kind!TContractKind!RefId] = c.Kind,
 		[!!RowCount] = t.rowcnt
 	from @cnts t inner join 
 		doc.Contracts c on c.TenantId = @TenantId and c.Id = t.id
@@ -85,6 +86,11 @@ begin
 	from cat.PriceKinds pk 
 		inner join T t on pk.TenantId = @TenantId and pk.Id = pkind;
 
+	with T as (select kind from @cnts group by kind)
+	select [!TContractKind!Map] = null, [Id!!Id] = ck.Id, [Name!!Name] = ck.[Name]
+	from doc.ContractKinds ck 
+		inner join T t on ck.TenantId = @TenantId and ck.Id = kind;
+
 	select [!$System!] = null, [!Contracts!Offset] = @Offset, [!Contracts!PageSize] = @PageSize, 
 		[!Contracts!SortOrder] = @Order, [!Contracts!SortDir] = @Dir,
 		[!Contracts.Agent.Id!Filter] = @Agent, [!Contracts.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
@@ -103,7 +109,8 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Contract!TContract!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.Memo, c.SNo,
-		[Agent!TAgent!RefId] = c.Agent, [Company!TCompany!RefId] = c.Company, [PriceKind!TPriceKind!RefId] = c.PriceKind
+		[Agent!TAgent!RefId] = c.Agent, [Company!TCompany!RefId] = c.Company, [PriceKind!TPriceKind!RefId] = c.PriceKind,
+		[Kind!TContractKind!RefId] = c.Kind
 	from doc.Contracts c
 	where c.TenantId = @TenantId and c.Id = @Id;
 
@@ -120,6 +127,10 @@ begin
 	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
 	from cat.PriceKinds pk inner join doc.Contracts c on pk.TenantId = c.TenantId and c.PriceKind = pk.Id
 	where c.Id = @Id and c.TenantId = @TenantId;
+
+	select [ContractKinds!TContractKind!Array] = null, [Id!!Id] = ck.Id, [Name!!Name] = ck.[Name]
+	from doc.ContractKinds ck
+	where ck.TenantId = @TenantId order by [Order];
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 end
@@ -139,7 +150,8 @@ as table(
 	[Date] date,
 	Company bigint,
 	Agent bigint,
-	PriceKind bigint
+	PriceKind bigint,
+	Kind nvarchar(16)
 )
 go
 ------------------------------------------------
@@ -175,10 +187,11 @@ begin
 		t.SNo =  s.SNo,
 		t.Company = s.Company,
 		t.Agent = s.Agent,
-		t.PriceKind = s.PriceKind
+		t.PriceKind = s.PriceKind,
+		t.Kind = s.Kind
 	when not matched by target then insert
-		(TenantId, [Name], Memo, [Date], SNo, Company, Agent, PriceKind) values
-		(@TenantId, s.[Name], s.Memo, s.[Date], s.[SNo], s.Company, s.Agent, s.PriceKind)
+		(TenantId, [Name], Memo, [Date], SNo, Company, Agent, PriceKind, Kind) values
+		(@TenantId, s.[Name], s.Memo, s.[Date], s.[SNo], s.Company, s.Agent, s.PriceKind, s.Kind)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 	exec doc.[Contract.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;

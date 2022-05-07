@@ -453,6 +453,7 @@ create table doc.ContractKinds
 	Id nvarchar(16) not null,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
+	[Order] int,
 		constraint PK_ContractKinds primary key (TenantId, Id)
 );
 go
@@ -473,11 +474,13 @@ create table doc.Contracts
 	[Date] date,
 	Company bigint,
 	PriceKind bigint,
+	Kind nvarchar(16),
 	Currency bigint,
 	Void bit not null 
 		constraint DF_Contracts_Void default(0),
 	[Memo] nvarchar(255),
 		constraint PK_Contracts primary key (TenantId, Id),
+		constraint FK_Contracts_Kind_ContractKinds foreign key (TenantId, Kind) references doc.ContractKinds(TenantId, Id),
 		constraint FK_Contracts_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
 		constraint FK_Contracts_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
 		constraint FK_Contracts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),

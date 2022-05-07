@@ -39,3 +39,10 @@ begin
 		constraint FK_Documents_OpLink_Documents foreign key (TenantId, OpLink) references doc.OperationLinks(TenantId, Id);
 end
 go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Contracts' and COLUMN_NAME=N'Kind')
+begin
+	alter table doc.Contracts add Kind nvarchar(16);
+	alter table doc.Contracts add constraint FK_Contracts_Kind_ContractKinds foreign key (TenantId, Kind) references doc.ContractKinds(TenantId, Id);
+end
+go

@@ -8,7 +8,8 @@ define(["require", "exports"], function (require, exports) {
         },
         validators: {
             'Contract.Company': '@[Error.Required]',
-            'Contract.Agent': '@[Error.Required]'
+            'Contract.Agent': '@[Error.Required]',
+            'Contract.Kind': '@[Error.Required]'
         },
         defaults: {
             'Contract.Date': dateUtils.today(),

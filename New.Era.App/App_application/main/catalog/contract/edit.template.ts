@@ -8,7 +8,8 @@ const template: Template = {
 	},
 	validators: {
 		'Contract.Company': '@[Error.Required]',
-		'Contract.Agent': '@[Error.Required]'
+		'Contract.Agent': '@[Error.Required]',
+		'Contract.Kind': '@[Error.Required]'
 	},
 	defaults: {
 		'Contract.Date': dateUtils.today(),

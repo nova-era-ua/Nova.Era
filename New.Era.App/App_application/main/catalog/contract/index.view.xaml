@@ -27,6 +27,7 @@
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
 			<DataGridColumn Header="@[Number]" Content="{Bind SNo}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+			<DataGridColumn Header="@[ContractKind]" Content="{Bind Kind.Name}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
 			<DataGridColumn Header="@[PriceKind]" Content="{Bind PriceKind.Name}" Sort="False"/>
