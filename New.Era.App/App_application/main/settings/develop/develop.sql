@@ -20,6 +20,7 @@ begin
 	delete from jrn.Journal where TenantId = @TenantId;
 	delete from jrn.SupplierPrices where TenantId = @TenantId;
 	delete from doc.DocDetails where TenantId = @TenantId;
+	delete from doc.DocumentApply where TenantId = @TenantId;
 	delete from doc.Documents where TenantId = @TenantId;
 	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
 	delete from cat.ItemTreeElems where TenantId = @TenantId;
@@ -27,6 +28,7 @@ begin
 	delete from cat.ItemRoles where TenantId = @TenantId;
 	delete from doc.OpTrans where TenantId = @TenantId;
 	delete from ui.OpMenuLinks where TenantId = @TenantId;
+	delete from doc.OperationLinks where TenantId = @TenantId;
 	delete from doc.Operations where TenantId = @TenantId;
 	delete from acc.AccKinds where TenantId = @TenantId;
 	delete from acc.Accounts where TenantId = @TenantId;
@@ -71,13 +73,13 @@ begin
 		(@TenantId, 20, N'Товар №1', 50),
 		(@TenantId, 21, N'Послуга №1', 51);
 
-	insert into doc.Operations (TenantId, Id, [Name], [Form], WriteSupplierPrices) values
-		(@TenantId, 100, N'Покупка товарів/послуг',			N'waybillin', 1),
-		(@TenantId, 101, N'Оплата постачальнику (банк)',	N'payout', null),
-		(@TenantId, 102, N'Оплата постачальнику (готівка)',	N'cashout', null),
-		(@TenantId, 103, N'Продаж товарів/послуг',			N'waybillout', null),
-		(@TenantId, 104, N'Оплата від покупця (банк)',		N'payin', null),
-		(@TenantId, 105, N'Оплата від покупця (готівка)',	N'cashin', null);
+	insert into doc.Operations (TenantId, Id, [Name], [Form]) values
+		(@TenantId, 100, N'Покупка товарів/послуг',			N'waybillin'),
+		(@TenantId, 101, N'Оплата постачальнику (банк)',	N'payout'),
+		(@TenantId, 102, N'Оплата постачальнику (готівка)',	N'cashout'),
+		(@TenantId, 103, N'Продаж товарів/послуг',			N'waybillout'),
+		(@TenantId, 104, N'Оплата від покупця (банк)',		N'payin'),
+		(@TenantId, 105, N'Оплата від покупця (готівка)',	N'cashin');
 
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
 		[DtSum], DtRow, DtAccMode, DtAccKind,  [CtSum], [CtRow], CtAccMode, CtAccKind)
@@ -103,6 +105,13 @@ begin
 		(@TenantId, 104, N'Sales.Payment'),
 		(@TenantId, 105, N'Accounting.Cash'),
 		(@TenantId, 105, N'Sales.Payment');
+
+	insert into doc.OperationLinks(TenantId, Id, Parent, Operation, Category, [Type]) 
+	values 
+		(@TenantId, 20, 100, 101, N'Оплата', N'BySum'),
+		(@TenantId, 21, 100, 102, N'Оплата', N'BySum'),
+		(@TenantId, 30, 103, 104, N'Оплата', N'BySum'),
+		(@TenantId, 31, 103, 105, N'Оплата', N'BySum');
 
 	/*
 	select * from doc.Operations where TenantId = 1;

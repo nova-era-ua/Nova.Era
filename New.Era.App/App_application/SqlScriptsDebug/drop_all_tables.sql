@@ -5,6 +5,7 @@ drop table if exists jrn.StockJournal;
 drop table if exists jrn.Journal;
 drop table if exists jrn.SupplierPrices;
 drop table if exists doc.DocDetails;
+drop table if exists doc.DocumentApply;
 drop table if exists doc.Documents;
 drop table if exists doc.OpTrans;
 drop table if exists doc.OpJournalStore;

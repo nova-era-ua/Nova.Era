@@ -1,18 +1,23 @@
 ﻿/* Item */
 -------------------------------------------------
-create or alter view cat.[view_Items]
+create or alter view cat.view_Items
 as
 select [Id!!Id] = i.Id, 
 	[Name!!Name] = i.[Name], i.Article, i.Memo,
 	[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
-	[Role.Id!TItemRole!Id] = i.[Role], [Role.Name!TItemRole!Name] = ir.[Name], [Role.Color!TItemRole!] = ir.Color,
-	[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name],
-	ItemRole = i.[Role],
+	[Role!TItemRole!RefId] = i.[Role],
 	[!TenantId] = i.TenantId
 from cat.Items i
-	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
-	left join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
-	left join cat.CostItems ci on ir.TenantId = ci.TenantId and ir.CostItem =ci.Id
+	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id;
+go
+-------------------------------------------------
+create or alter view cat.view_ItemRoles
+as
+select [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color,
+	[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name],
+	[!TenantId] = ir.TenantId
+from cat.ItemRoles ir
+	left join cat.CostItems ci on ir.TenantId = ci.TenantId and ir.CostItem =ci.Id;
 go
 -------------------------------------------------
 create or alter procedure cat.[Item.Group.Index]
@@ -55,7 +60,7 @@ begin
 
 	-- Elements definition
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role], [ItemRole] = i.[Role],
+		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
@@ -146,7 +151,7 @@ begin
 	option (recompile);
 
 	select [Elements!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role], ItemRole = i.[Role],
+		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id
@@ -224,8 +229,7 @@ begin
 	option (recompile);
 
 	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Memo,
-		[Role!TItemRole!RefId] = i.[Role], ItemRole = i.[Role],
-		[Unit!TUnit!RefId] = i.Unit,
+		[Role!TItemRole!RefId] = i.[Role], [Unit!TUnit!RefId] = i.Unit,
 		[!!RowCount] = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and t.id = i.Id
 	order by t.rowno;
@@ -276,8 +280,9 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
-		[Role!TItemRole!RefId] = i.[Role], ItemRole = i.[Role],
+		[Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i 
 		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
@@ -287,8 +292,10 @@ begin
 		[Elements!THieElem!Array] = null
 	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
 
-	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color
+	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color,
+		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name]
 	from cat.ItemRoles ir 
+		left join cat.CostItems ci on ir.TenantId = ci.TenantId and ir.CostItem =ci.Id
 	where ir.TenantId = @TenantId and ir.Void = 0;
 	
 	select [!THieElem!Array] = null, [!THie.Elements!ParentId] = iti.[Root],
@@ -477,6 +484,13 @@ begin
 	from cat.view_Items v
 	where v.[!TenantId] = @TenantId
 	order by v.[Id!!Id];
+
+	-- all
+	select [!TItemRole!Map] = null, vir.* 
+	from cat.view_ItemRoles vir 
+	where vir.[!TenantId] = @TenantId and vir.[Id!!Id] in (
+		select vi.[Role!TItemRole!RefId] from cat.view_Items vi where vi.[!TenantId] = @TenantId
+	);
 end
 go
 -------------------------------------------------
@@ -489,9 +503,19 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	declare @id bigint, @role bigint;
+
+	select @id = Id, @role = [Role]
+	from cat.Items i
+	where i.TenantId = @TenantId and i.Article = @Text;
+
 	select top(1) [Item!TItem!Object] = null, *
 	from cat.view_Items v
-	where v.[!TenantId] = @TenantId and v.Article = @Text;
+	where v.[!TenantId] = @TenantId and v.[Id!!Id] = @id;
+
+	select [!TItemRole!Map] = null, * 
+	from cat.view_ItemRoles vir 
+	where vir.[!TenantId] = @TenantId and vir.[Id!!Id] = @role;
 end
 go
 -------------------------------------------------

@@ -75,6 +75,7 @@
 		<TabBar Value="{Bind Root.$$TabNo}" Margin="0">
 			<TabButton Content="@[KindStock]" ActiveValue=""/>
 			<TabButton Content="@[KindServices]" ActiveValue="service"/>
+			<TabButton Content="@[Extra]" ActiveValue="extra"/>
 		</TabBar>
 		<Switch Expression="{Bind Root.$$TabNo}">
 			<Case Value="">
@@ -167,6 +168,12 @@
 						</TableRow>
 					</Table.Footer>
 				</Table>
+			</Case>
+			<Case Value="extra">
+				<Block Padding="1rem,0">
+					<CheckBox Label="@[Flag.WriteSupplierPrices]" Value="{Bind Document.DocApply.WriteSupplierPrices}"/>
+				</Block>
+				<Block />
 			</Case>
 		</Switch>
 		<Grid Columns="Auto, 1*, Auto, 12rem" AlignItems="Top" Gap="1rem">

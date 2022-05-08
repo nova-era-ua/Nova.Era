@@ -25,6 +25,7 @@
 @Companies=Підприємства
 @Company=Підприємство
 @Other=Інше
+@Extra=Додатково
 @Period=Період
 @Warehouse=Склад
 @Warehouses=Склади
@@ -178,6 +179,8 @@
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
 @Label.Cash.Account=Каса/Рахунок
+;
+@Flag.WriteSupplierPrices=Записати ціни постачальників
 ; 
 @Error.Required=Обов\'язкове поле
 @Error.Currency.Len=Код має мати довжину 3 символа

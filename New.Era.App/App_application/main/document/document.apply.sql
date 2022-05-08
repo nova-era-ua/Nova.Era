@@ -250,11 +250,11 @@ begin
 	declare @done bit;
 	declare @wsp bit;
 
-	select @operation = d.Operation, @done = d.Done, @wsp = o.WriteSupplierPrices
+	select @operation = d.Operation, @done = d.Done, @wsp = da.WriteSupplierPrices
 	from doc.Documents d
-		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
-
+		inner join doc.DocumentApply da on d.TenantId = da.TenantId and d.Id = da.Id
 	where d.TenantId = @TenantId and d.Id=@Id;
+
 	if 1 = @done
 		throw 60000, N'UI:@[Error.Document.AlreadyApplied]', 0;
 

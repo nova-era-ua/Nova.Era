@@ -5,7 +5,8 @@ define(["require", "exports"], function (require, exports) {
     const utils = require("std:utils");
     const template = {
         defaults: {
-            'Document.WhTo'() { return this.Default.Warehouse; }
+            'Document.WhTo'() { return this.Default.Warehouse; },
+            'Document.DocApply.WriteSupplierPrices': true
         },
         validators: {
             'Document.WhTo': '@[Error.Required]'
@@ -17,6 +18,6 @@ define(["require", "exports"], function (require, exports) {
     exports.default = utils.mergeTemplate(base, template);
     function itemChange(row, val) {
         base.events['Document.ServiceRows[].Item.change'].call(this, row, val);
-        row.CostItem = val.CostItem;
+        row.CostItem = val.Role.CostItem;
     }
 });

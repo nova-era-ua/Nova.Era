@@ -545,7 +545,6 @@ create table doc.Operations
 	Form nvarchar(16) not null,
 	[WarehouseFrom] nchar(1),
 	[WarehouseTo] nchar(1),
-	[WriteSupplierPrices] bit,
 	[Uid] uniqueidentifier not null
 		constraint DF_Operations_Uid default(newid()),
 	constraint PK_Operations primary key (TenantId, Id),
@@ -700,6 +699,17 @@ create table doc.Documents
 	constraint FK_Documents_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
 	constraint FK_Documents_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
 	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocumentApply')
+create table doc.DocumentApply
+(
+	TenantId int not null,
+	Id bigint not null,
+	WriteSupplierPrices bit,
+	constraint PK_DocumentApply primary key (TenantId, Id),
+	constraint FK_DocumentApply_Id_Documents foreign key (TenantId, Id) references doc.Documents(TenantId, Id),
 );
 go
 ------------------------------------------------

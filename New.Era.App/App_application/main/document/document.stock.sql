@@ -149,13 +149,14 @@ begin
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
-		[LinkedDocs!TDocBase!Array] = null
+		[LinkedDocs!TDocBase!Array] = null,
+		[DocApply!TDocApply!Object] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
-	declare @rows table(id bigint, item bigint, unit bigint, [role] bigint);
-	insert into @rows (id, item, unit, [role])
-	select Id, Item, Unit, ItemRole from doc.DocDetails dd
+	declare @rows table(id bigint, item bigint, unit bigint, [role] bigint, costitem bigint);
+	insert into @rows (id, item, unit, [role], costitem)
+	select Id, Item, Unit, ItemRole, CostItem from doc.DocDetails dd
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
@@ -172,6 +173,10 @@ begin
 	from doc.DocDetails dd
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Service';
 
+	select [!TDocApply!Object] = null, [Id!!Id] = da.Id, da.[WriteSupplierPrices], [!TDocument.DocApply!ParentId] = da.Id
+	from doc.DocumentApply da where da.TenantId = @TenantId and da.Id = @Id;
+
+	-- maps
 	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form,
 		[Links!TOpLink!Array] = null
 	from doc.Operations o 
@@ -187,18 +192,22 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId
 	group by w.Id, w.[Name];
 
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name],
+		[CostItem!TCostItem!RefId] = ir.CostItem
+	from cat.ItemRoles ir inner join @rows T  on ir.TenantId = @TenantId and ir.Id = T.[role]
+	group by ir.Id, ir.[Name], ir.CostItem;
+
 	with T as (
 		select CostItem from doc.Documents d where TenantId = @TenantId and d.Id = @Id
 		union all 
-		select CostItem from doc.DocDetails dd where dd.TenantId = @TenantId and dd.Document = @Id
+		select costitem from @rows dd group by costitem
+		union all
+		select ir.CostItem from @rows r inner join cat.ItemRoles ir on ir.TenantId = @TenantId and r.[role] = ir.Id
+		group by ir.CostItem
 	)
 	select [!TCostItem!Map] = null, [Id!!Id] = ci.Id, [Name!!Name] = ci.[Name]
 	from cat.CostItems ci 
 	where ci.TenantId = @TenantId and ci.Id in (select CostItem from T);
-
-	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name]
-	from cat.ItemRoles ir inner join @rows T  on ir.TenantId = @TenantId and ir.Id = T.[role]
-	group by ir.Id, ir.[Name];
 
 	with T as (select PriceKind from doc.Documents d where TenantId = @TenantId and d.Id = @Id
 		union all 
@@ -244,6 +253,7 @@ drop procedure if exists doc.[Document.Stock.Metadata];
 drop procedure if exists doc.[Document.Stock.Update];
 drop type if exists cat.[Document.Stock.TableType];
 drop type if exists cat.[Document.Stock.Row.TableType];
+drop type if exists cat.[Document.Apply.TableType];
 go
 ------------------------------------------------
 create type cat.[Document.Stock.TableType]
@@ -280,6 +290,13 @@ as table(
 )
 go
 ------------------------------------------------
+create type cat.[Document.Apply.TableType]
+as table(
+	ParentId bigint,
+	WriteSupplierPrices bit
+)
+go
+------------------------------------------------
 create or alter procedure doc.[Document.Stock.Metadata]
 as
 begin
@@ -287,7 +304,10 @@ begin
 	set transaction isolation level read uncommitted;
 	declare @Document cat.[Document.Stock.TableType];
 	declare @Rows cat.[Document.Stock.Row.TableType]
+	declare @Apply cat.[Document.Apply.TableType];
+
 	select [Document!Document!Metadata] = null, * from @Document;
+	select [Apply!Document.DocApply!Metadata] = null, * from @Apply;
 	select [StockRows!Document.StockRows!Metadata] = null, * from @Rows;
 	select [ServiceRows!Document.ServiceRows!Metadata] = null, * from @Rows;
 end
@@ -297,6 +317,7 @@ create or alter procedure doc.[Document.Stock.Update]
 @TenantId int = 1,
 @UserId bigint,
 @Document cat.[Document.Stock.TableType] readonly,
+@Apply cat.[Document.Apply.TableType] readonly,
 @StockRows cat.[Document.Stock.Row.TableType] readonly,
 @ServiceRows cat.[Document.Stock.Row.TableType] readonly
 as
@@ -306,7 +327,7 @@ begin
 
 	/*
 	declare @xml nvarchar(max);
-	set @xml = (select * from @StockRows for xml auto);
+	set @xml = (select * from @Apply for xml auto);
 	throw 60000, @xml, 0;
 	*/
 
@@ -336,6 +357,15 @@ begin
 			s.PriceKind, s.RespCenter, s.CostItem, s.Memo, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
+
+	merge doc.DocumentApply as t
+	using @Apply as s
+	on t.TenantId = @TenantId and t.Id = @id
+	when matched then update set
+		t.WriteSupplierPrices = s.WriteSupplierPrices
+	when not matched then insert
+		(TenantId, Id, WriteSupplierPrices) values
+		(@TenantId, @id, s.WriteSupplierPrices);
 
 	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id and Kind=N'Stock')
 	merge DD as t

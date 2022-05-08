@@ -46,3 +46,7 @@ begin
 	alter table doc.Contracts add constraint FK_Contracts_Kind_ContractKinds foreign key (TenantId, Kind) references doc.ContractKinds(TenantId, Id);
 end
 go
+------------------------------------------------
+if exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Operations' and COLUMN_NAME=N'WriteSupplierPrices')
+	alter table doc.Operations drop column [WriteSupplierPrices];
+go
