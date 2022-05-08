@@ -145,6 +145,7 @@ begin
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
 
 	declare @mode nvarchar(10) = N'bydoc';
+
 	if exists(select * from doc.DocDetails where TenantId = @TenantId and Document = @Id)
 		exec doc.[Document.Apply.Account.ByRows] @TenantId = @TenantId, @UserId = @UserId, @Operation = @Operation, @Id = @Id
 	else
@@ -252,7 +253,7 @@ begin
 
 	select @operation = d.Operation, @done = d.Done, @wsp = da.WriteSupplierPrices
 	from doc.Documents d
-		inner join doc.DocumentApply da on d.TenantId = da.TenantId and d.Id = da.Id
+		left join doc.DocumentApply da on d.TenantId = da.TenantId and d.Id = da.Id
 	where d.TenantId = @TenantId and d.Id=@Id;
 
 	if 1 = @done
