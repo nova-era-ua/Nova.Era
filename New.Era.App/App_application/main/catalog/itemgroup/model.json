@@ -24,5 +24,11 @@
       "template": "hierarchy.template",
       "view": "hierarchy.dialog"
     }
+  },
+  "commands": {
+    "deleteItem": {
+      "type": "sql",
+      "procedure": "GroupItem.Delete"
+    }
   }
 }

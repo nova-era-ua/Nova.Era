@@ -248,3 +248,22 @@ begin
 	from cat.ItemTree where TenantId = @TenantId and Id <> 0 and Parent = 0 and Id = [Root]
 end
 go
+-------------------------------------------------
+create or alter procedure cat.[GroupItem.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	begin tran;
+
+	delete from cat.ItemTreeElems where TenantId = @TenantId and Parent = @Id;
+	delete from cat.ItemTree where TenantId = @TenantId and Id = @Id;
+
+	commit tran;
+end
+go
