@@ -20,7 +20,7 @@ define(["require", "exports"], function (require, exports) {
             createPlan,
             createAccount: {
                 exec: createAccount,
-                canExec(parent) { return !!parent; }
+                canExec(parent) { return parent && parent.IsFolder; }
             },
             edit: {
                 exec: editAccount,

@@ -21,7 +21,7 @@ const template: Template = {
 		createPlan,
 		createAccount: {
 			exec: createAccount,
-			canExec(parent: TAccount): boolean { return !!parent; }
+			canExec(parent: TAccount): boolean { return parent && parent.IsFolder; }
 		},
 		edit: {
 			exec: editAccount,

@@ -2,7 +2,7 @@
 <Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
 	<Grid Height="100%" Rows="Auto,1*" Columns="MinMax(28rem;1*),1px,2*" Gap="1rem">
 		<Toolbar Style="Light" Padding="0">
-			<Button Icon="Plus">
+			<Button Icon="Plus" Content="@[Create]">
 				<Button.DropDown>
 					<DropDownMenu>
 						<MenuItem Content="@[CreateAccount]"
@@ -36,8 +36,6 @@
 				<DropDownMenu>
 					<MenuItem Content="@[CreateAccount]"
 							Command="{BindCmd Execute, CommandName=createAccount, Argument={Bind Accounts.$selected}}"/>
-					<MenuItem Content="@[CreateAccountPlan]"
-							Command="{BindCmd Execute, CommandName=createPlan}"/>
 					<Separator />
 					<MenuItem Content="@[Edit]" Command="{BindCmd Execute, CommandName=edit, 
 						Argument={Bind Accounts.$selected}}"/>

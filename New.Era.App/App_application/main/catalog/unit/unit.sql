@@ -135,6 +135,9 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
+	if exists(select 1 from doc.DocDetails where TenantId = @TenantId and Unit = @Id)
+		or exists(select 1 from cat.Items where TenantId = @TenantId and Unit = @Id)
+		throw 60000, N'UI:@[Error.Delete.Used]', 0;
 	update cat.Units set Void = 1 where TenantId = @TenantId and Id=@Id;
 end
 go

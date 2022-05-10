@@ -13,7 +13,7 @@
 				<ToolbarAligner />
 				<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"
 						 ShowClear="True" ShowFilter="True"/>
-				<Button Icon="Menu">
+				<Button Icon="EllipsisVertical">
 					<Button.DropDown>
 						<DropDownMenu Direction="DownLeft">
 							<MenuItem Content="@[AddFromCatalog]" Command="{BindCmd Execute, CommandName=addFromCatalog}"/>

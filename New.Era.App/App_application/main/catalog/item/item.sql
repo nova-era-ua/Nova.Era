@@ -125,7 +125,7 @@ begin
 		count(*) over()
 	from cat.Items i
 		left join cat.ItemTreeElems ite on i.TenantId = ite.TenantId and i.Id = ite.Item
-	where i.TenantId = @TenantId
+	where i.TenantId = @TenantId and i.Void = 0
 		and (@Id = -1 or @Id = ite.Parent or (@Id < 0 and i.Id not in (
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
 		)))
@@ -533,5 +533,24 @@ begin
 	select [Rems!TRem!Array] = null, WhId =  Id, [WhName] = w.[Name]
 	from cat.Warehouses w where TenantId = @TenantId
 	order by Id;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Item.Group.Elements.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	if exists(select 1 from doc.DocDetails where TenantId = @TenantId and Item = @Id)
+		throw 60000, N'UI:@[Error.Delete.Used]', 0;
+	begin tran;
+	delete from cat.ItemTreeElems where TenantId = @Id and Item = @Id;
+	update cat.Items set Void = 1 where TenantId = @TenantId and Id=@Id;
+	commit tran;
 end
 go

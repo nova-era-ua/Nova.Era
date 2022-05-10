@@ -5,8 +5,8 @@ export interface TAccount extends ITreeElement {
 	Name: string;
 	Plan: number;
 	Items: TAccounts,
-	IsFolder: Boolean;
-	$IsPlan: Boolean
+	IsFolder: boolean;
+	$IsPlan: boolean
 }
 
 declare type TAccounts = IElementArray<TAccount>;
