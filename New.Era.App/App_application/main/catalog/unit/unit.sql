@@ -3,6 +3,7 @@ drop procedure if exists cat.[Unit.Metadata];
 drop procedure if exists cat.[Unit.Update];
 drop type if exists cat.[Unit.TableType];
 go
+------------------------------------------------
 create type cat.[Unit.TableType] as table
 (
 	Id bigint,
@@ -25,7 +26,7 @@ begin
 	select [Units!TUnit!Array] = null,
 		[Id!!Id] = u.Id, [Name!!Name] = u.[Name], u.Memo, u.[Short], u.CodeUA
 	from cat.Units u
-	where TenantId = @TenantId
+	where TenantId = @TenantId and Void = 0
 	order by u.Id;
 end
 go

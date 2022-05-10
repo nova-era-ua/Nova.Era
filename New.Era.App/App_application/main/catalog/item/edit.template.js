@@ -4,14 +4,15 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         properties: {
             'TRoot.$$Tab': String,
-            'TItem.$Title'() { return this.Id ? this.Id : '@[NewItem]'; }
+            'TItem.$Title'() { return `@[Item] [${this.Id ? this.Id : '@[NewItem]'}]`; }
         },
         defaults: {
             'Item.Role'() { return this.ItemRoles.$isEmpty ? undefined : this.ItemRoles[0]; }
         },
         validators: {
             'Item.Name': '@[Error.Required]',
-            'Item.Role': '@[Error.Required]'
+            'Item.Role': '@[Error.Required]',
+            'Item.Unit': '@[Error.Required]'
         },
         commands: {
             addHierarchy

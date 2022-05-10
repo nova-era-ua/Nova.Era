@@ -9,14 +9,16 @@
 		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Plus" Content="@[Create]"
 				Command="{BindCmd Dialog, Action=Append, Argument={Bind Items}, Url='/catalog/item/edit'}"/>
+			<Button Icon="Edit"
+				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Items}, Url='/catalog/item/edit'}"/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Items}" XamlStyle="{StyleResource DataGridSimple}"
-			Height="30rem" FixedHeader="True"
-			DoubleClick="{BindCmd Select, Argument={Bind Items}}">
+				Height="30rem" FixedHeader="True"
+				DoubleClick="{BindCmd Select, Argument={Bind Items}}">
 			<DataGridColumn Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
-			<DataGridColumn Header="@[Unit]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap" Align="Center"/>
+			<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap" Align="Center"/>
 			<DataGridColumn Header="@[Role]" Fit="True" Wrap="NoWrap">
 				<TagLabel Style="{Bind Role.Color}" Content="{Bind Role.Name}"/>
 			</DataGridColumn>

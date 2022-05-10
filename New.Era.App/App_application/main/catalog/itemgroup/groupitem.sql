@@ -229,7 +229,8 @@ begin
 	update cat.ItemTree set [Root] = @RetId where TenantId=@TenantId and Id=@RetId and Parent = 0;
 	commit tran;
 
-	select [Group!TGroup!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Icon=N'folder-outline'
+	select [Group!TGroup!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], IsRoot = 1,
+		Icon=N'folders-outline'
 	from cat.ItemTree
 	where  TenantId = @TenantId and Id=@RetId;
 end

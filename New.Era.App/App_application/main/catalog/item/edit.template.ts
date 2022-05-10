@@ -4,14 +4,15 @@ import { TRoot, TItem, TItemRole } from './item';
 const template: Template = {
 	properties: {
 		'TRoot.$$Tab': String,
-		'TItem.$Title'(this: TItem) { return this.Id ? this.Id : '@[NewItem]' }
+		'TItem.$Title'(this: TItem) { return `@[Item] [${this.Id ? this.Id : '@[NewItem]'}]`; }
 	},
 	defaults: {
 		'Item.Role'(this: TRoot) { return this.ItemRoles.$isEmpty ? undefined : this.ItemRoles[0]; }
 	},
 	validators: {
 		'Item.Name': '@[Error.Required]',
-		'Item.Role': '@[Error.Required]'
+		'Item.Role': '@[Error.Required]',
+		'Item.Unit': '@[Error.Required]'
 	},
 	commands: {
 		addHierarchy

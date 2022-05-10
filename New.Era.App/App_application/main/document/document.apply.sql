@@ -24,7 +24,7 @@ begin
 			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty, dd.[Sum],
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
 			DtSum = isnull(ot.DtSum, N''), CtSum = isnull(ot.CtSum, N''),
-			d.[Date], d.Agent, d.Company, d.RespCenter, d.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
+			d.[Date], d.Agent, d.Company, d.RespCenter, dd.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
 			d.[Contract], d.[CashFlowItem]
 		from doc.DocDetails dd
 			inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id

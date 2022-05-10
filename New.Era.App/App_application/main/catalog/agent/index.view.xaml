@@ -12,6 +12,8 @@
 		<Toolbar Style="Light" Padding="0">
 			<Button Icon="Plus" Content="@[Create]"
 					Command="{BindCmd Dialog, Action=Append, Argument={Bind Agents}, Url='/catalog/agent/edit'}"/>
+			<Button Icon="Edit"
+				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Agents}, Url='/catalog/agent/edit'}"/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}"
 				  DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Agents}, Url='/catalog/agent/edit'}">

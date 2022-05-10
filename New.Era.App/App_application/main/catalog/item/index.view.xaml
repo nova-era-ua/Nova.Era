@@ -52,7 +52,7 @@
 					DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Parent.ItemsSource}}">
 				<DataGridColumn Content="{Bind Id}" Role="Id"/>
 				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
-				<DataGridColumn Header="@[Unit]" Content="{Bind Unit.Short}" 
+				<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" 
 					Sort="False" Fit="True" Wrap="NoWrap" Align="Center"/>
 				<DataGridColumn Header="@[ItemRole]" Sort="False" Fit="True" Wrap="NoWrap">
 					<TagLabel Style="{Bind Role.Color}" Content="{Bind Role.Name}"/>

@@ -56,8 +56,9 @@
 @HasPrice=Включати в прайс лист
 ;
 @Id=Id
-@Unit=Од.вим.
 @QtyS=К-ть
+@UnitShort=Од.вим.
+@Unit=Одиниця виміру
 @Units=Одиниці виміру
 @Folder=Папка
 @Group=Група
@@ -110,7 +111,6 @@
 @Total=Всього
 @Analysts=Aналітика
 @SearchResult=[Результат пошуку]
-@ItemProperties=Властивості елементу
 @OperationProperties=Властивості операції
 @Import=Імпортувати
 @DownloadFromNBU=Завантажити з сайта НБУ

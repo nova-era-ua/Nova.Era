@@ -93,7 +93,7 @@
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
 							<TableCell />
-							<TableCell Content="@[Unit]"/>
+							<TableCell Content="@[UnitShort]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>

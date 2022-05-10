@@ -89,7 +89,7 @@
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
 							<TableCell />
-							<TableCell Content="@[Unit]"/>
+							<TableCell Content="@[UnitShort]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
@@ -131,7 +131,7 @@
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
 							<TableCell Content="@[Service]"/>
-							<TableCell Content="@[Unit]"/>
+							<TableCell Content="@[UnitShort]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>

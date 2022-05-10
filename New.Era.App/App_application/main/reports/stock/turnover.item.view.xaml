@@ -70,7 +70,7 @@
 						<SheetRow Style="Header" Wrap="NoWrap">
 							<SheetCell>@[Article]</SheetCell>
 							<SheetCell>@[Name]</SheetCell>
-							<SheetCell>@[Unit]</SheetCell>
+							<SheetCell>@[UnitShort]</SheetCell>
 							<SheetCell>@[QtyS]</SheetCell>
 							<SheetCell>@[Sum]</SheetCell>
 							<SheetCell>@[QtyS]</SheetCell>
