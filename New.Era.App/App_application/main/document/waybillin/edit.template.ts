@@ -13,6 +13,7 @@ const template: Template = {
 	},
 	events: {
 		'Document.ServiceRows[].Item.change': itemChange,
+		'Document.ServiceRows[].ItemRole.change': itemRoleChange
 	}
 };
 
@@ -22,4 +23,8 @@ export default utils.mergeTemplate(base, template);
 function itemChange(row, val) {
 	base.events['Document.ServiceRows[].Item.change'].call(this, row, val);
 	row.CostItem = val.Role.CostItem;
+}
+
+function itemRoleChange(row, val) {
+	row.CostItem = val.CostItem;
 }

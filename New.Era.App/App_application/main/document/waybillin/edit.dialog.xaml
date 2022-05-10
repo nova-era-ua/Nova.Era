@@ -81,9 +81,17 @@
 			<Case Value="">
 				<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
+					<ToolbarAligner />
+					<Label>Додаткові витрати</Label>
+					<TextBox Width="7rem" Align="Right"/>
+					<Label>Розподілити</Label>
+					<ComboBox>
+						<ComboBoxItem Content="Не розподіляти"/>
+						<ComboBoxItem Content="Пропроційно сумі"/>
+					</ComboBox>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" Width="100%"
-					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,10rem,10rem,10rem,Fit">
+					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,7rem,7rem,7rem,7rem,Fit">
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
@@ -93,6 +101,7 @@
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
+							<TableCell Content="Націнка"/>
 							<TableCell />
 						</TableRow>
 					</Table.Header>
@@ -107,6 +116,7 @@
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
+						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
 						<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
 					</TableRow>
@@ -125,13 +135,14 @@
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.ServiceRows}}"/>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" Background="Paper" GridLines="Both" Width="100%"
-					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,8rem,8rem,8rem,12rem,Fit">
+					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,7rem,7rem,7rem,7rem,12rem,Fit">
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
 							<TableCell Content="@[Service]"/>
 							<TableCell Content="@[UnitShort]"/>
+							<TableCell Content="@[Role]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
@@ -148,6 +159,9 @@
 							</Selector.AddOns>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
+						<ComboBox ItemsSource="{Bind Root.ItemRoles}" Value="{Bind ItemRole}">
+							<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+						</ComboBox>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>

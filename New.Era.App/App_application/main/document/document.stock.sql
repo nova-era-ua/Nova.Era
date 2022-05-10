@@ -192,17 +192,16 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId
 	group by w.Id, w.[Name];
 
-	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name],
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name],
 		[CostItem!TCostItem!RefId] = ir.CostItem
-	from cat.ItemRoles ir inner join @rows T  on ir.TenantId = @TenantId and ir.Id = T.[role]
-	group by ir.Id, ir.[Name], ir.CostItem;
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0;
 
 	with T as (
 		select CostItem from doc.Documents d where TenantId = @TenantId and d.Id = @Id
 		union all 
 		select costitem from @rows dd group by costitem
 		union all
-		select ir.CostItem from @rows r inner join cat.ItemRoles ir on ir.TenantId = @TenantId and r.[role] = ir.Id
+		select ir.CostItem from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0
 		group by ir.CostItem
 	)
 	select [!TCostItem!Map] = null, [Id!!Id] = ci.Id, [Name!!Name] = ci.[Name]

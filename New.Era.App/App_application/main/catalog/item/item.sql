@@ -8,7 +8,8 @@ select [Id!!Id] = i.Id,
 	[Role!TItemRole!RefId] = i.[Role],
 	[!TenantId] = i.TenantId
 from cat.Items i
-	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id;
+	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
+where i.Void = 0;
 go
 -------------------------------------------------
 create or alter view cat.view_ItemRoles
@@ -196,7 +197,7 @@ begin
 	select i.Id, i.Unit, 
 		count(*) over()
 	from cat.Items i
-	where i.TenantId = @TenantId
+	where i.TenantId = @TenantId and i.Void = 0
 		and (@fr is null or i.Name like @fr or i.FullName like @fr or i.Memo like @fr or i.Article like @fr)
 	order by 
 		case when @Dir = N'asc' then

@@ -734,6 +734,10 @@ create table doc.DocDetails
 	Price money null,
 	[Sum] money not null
 		constraint DF_DocDetails_Sum default(0),
+	/*
+	[ESum] money null, -- extra sum
+	[DSum] money null, -- discount sum
+	*/
 	Memo nvarchar(255),
 		constraint PK_DocDetails primary key (TenantId, Id),
 	CostItem bigint,
