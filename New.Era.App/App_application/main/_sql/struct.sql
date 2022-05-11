@@ -737,6 +737,7 @@ create table doc.DocDetails
 	/*
 	[ESum] money null, -- extra sum
 	[DSum] money null, -- discount sum
+	[TSum] money null, -- total sum
 	*/
 	Memo nvarchar(255),
 		constraint PK_DocDetails primary key (TenantId, Id),

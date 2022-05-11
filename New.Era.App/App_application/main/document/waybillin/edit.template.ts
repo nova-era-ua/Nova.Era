@@ -4,6 +4,9 @@ const base: Template = require('/document/_common/stock.module');
 const utils: Utils = require("std:utils");
 
 const template: Template = {
+	properties: {
+		'TDocument.ESum': Number,
+	},
 	defaults: {
 		'Document.WhTo'(this: any) { return this.Default.Warehouse; },
 		'Document.DocApply.WriteSupplierPrices': true

@@ -45,4 +45,11 @@ li.line-top:before {
   margin-left: 24px;
   display: list-item;
 }
+/*UTILS (like bootstrap) */
+.mr-1 {
+  margin-right: 0.25rem;
+}
+.ml-3 {
+  margin-left: 1rem;
+}
 /*PLATFORM*/

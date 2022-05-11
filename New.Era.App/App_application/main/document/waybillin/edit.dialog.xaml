@@ -82,9 +82,9 @@
 				<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
 					<ToolbarAligner />
-					<Label>Додаткові витрати</Label>
-					<TextBox Width="7rem" Align="Right"/>
-					<Label>Розподілити</Label>
+					<Label CssClass="mr-1">Додаткові витрати</Label>
+					<TextBox Width="7rem" Value="{Bind Document.ESum, DataType=Currency, HideZeros=True}" Align="Right"/>
+					<Label CssClass="mr-1 ml-3">Розподілити</Label>
 					<ComboBox>
 						<ComboBoxItem Content="Не розподіляти"/>
 						<ComboBoxItem Content="Пропроційно сумі"/>
