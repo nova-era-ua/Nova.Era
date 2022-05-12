@@ -12,7 +12,8 @@ define(["require", "exports"], function (require, exports) {
             },
             'TDocument.Sum': docSum,
             'TDocument.$StockSum': stockSum,
-            'TDocument.$ServiceSum': serviceSum
+            'TDocument.$ServiceSum': serviceSum,
+            'TDocument.$StockESum': stockESum,
         },
         validators: {
             'Document.StockRows[].Item': '@[Error.Required]',
@@ -34,6 +35,9 @@ define(["require", "exports"], function (require, exports) {
     }
     function stockSum() {
         return this.StockRows.reduce((p, c) => p + c.Sum, 0);
+    }
+    function stockESum() {
+        return this.StockRows.reduce((p, c) => p + c.ESum, 0);
     }
     function serviceSum() {
         return this.ServiceRows.reduce((p, c) => p + c.Sum, 0);

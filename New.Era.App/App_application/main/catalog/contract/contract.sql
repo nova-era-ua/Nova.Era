@@ -102,7 +102,9 @@ go
 create or alter procedure doc.[Contract.Load]
 @TenantId int = 1,
 @UserId bigint,
-@Id bigint = null
+@Id bigint = null,
+@Agent bigint = null,
+@Company bigint = null
 as
 begin
 	set nocount on;
@@ -133,6 +135,10 @@ begin
 	where ck.TenantId = @TenantId order by [Order];
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
+
+	select [Params!TParam!Object] = null, 
+		[Agent.Id!TAgent!Id] = @Agent, [Agent.Name!TAgent!Name] = cat.fn_GetAgentName(@TenantId, @Agent),
+		[Company.Id!TCompany!Id] =@Company, [Company.Name!TCompany!Name] = cat.fn_GetCompanyName(@TenantId, @Company);
 end
 go
 -------------------------------------------------

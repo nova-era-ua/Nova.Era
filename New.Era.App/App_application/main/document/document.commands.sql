@@ -65,7 +65,7 @@ begin
 	begin
 		begin tran;
 		delete from doc.DocDetails where TenantId = @TenantId and Document=@Id;
-		delete from doc.DocumentApply where TenantId = @TenantId and Id=@Id;
+		delete from doc.DocumentExtra where TenantId = @TenantId and Id=@Id;
 		delete from doc.Documents where TenantId = @TenantId and Id=@Id;
 		commit tran;
 	end

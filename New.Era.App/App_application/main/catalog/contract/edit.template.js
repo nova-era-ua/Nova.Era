@@ -13,7 +13,8 @@ define(["require", "exports"], function (require, exports) {
         },
         defaults: {
             'Contract.Date': dateUtils.today(),
-            'Contract.Company'() { return this.Default.Company; }
+            'Contract.Company'() { return this.Params.Company.Id ? this.Params.Company : this.Default.Company; },
+            'Contract.Agent'() { return this.Params.Agent; }
         }
     };
     exports.default = template;

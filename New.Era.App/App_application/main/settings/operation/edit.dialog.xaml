@@ -126,8 +126,9 @@
 							</TableCell>
 							<ComboBox Value="{Bind DtSum}">
 								<ComboBoxItem Content="Сума" Value=""/>
-								<ComboBoxItem Content="Сума без знижки" Value="W"/>
+								<ComboBoxItem Content="Націнка" Value="E"/>
 								<ComboBoxItem Content="Знижка" Value="D"/>
+								<ComboBoxItem Content="Сума без знижки" Value="W"/>
 								<ComboBoxItem Content="Собівартість" Value="S"/>
 								<ComboBoxItem Content="Маржа" Value="R"/>
 							</ComboBox>
@@ -155,8 +156,9 @@
 							</TableCell>
 							<ComboBox Value="{Bind CtSum}">
 								<ComboBoxItem Content="Сума" Value=""/>
-								<ComboBoxItem Content="Сума без знижки" Value="W"/>
+								<ComboBoxItem Content="Націнка" Value="E"/>
 								<ComboBoxItem Content="Знижка" Value="D"/>
+								<ComboBoxItem Content="Сума без знижки" Value="W"/>
 								<ComboBoxItem Content="Собівартість" Value="S"/>
 								<ComboBoxItem Content="Маржа" Value="R"/>
 							</ComboBox>

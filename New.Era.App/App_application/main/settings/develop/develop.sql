@@ -20,7 +20,7 @@ begin
 	delete from jrn.Journal where TenantId = @TenantId;
 	delete from jrn.SupplierPrices where TenantId = @TenantId;
 	delete from doc.DocDetails where TenantId = @TenantId;
-	delete from doc.DocumentApply where TenantId = @TenantId;
+	delete from doc.DocumentExtra where TenantId = @TenantId;
 	delete from doc.Documents where TenantId = @TenantId;
 	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
 	delete from cat.ItemTreeElems where TenantId = @TenantId;

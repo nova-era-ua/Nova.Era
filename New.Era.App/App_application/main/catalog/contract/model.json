@@ -9,7 +9,7 @@
     },
     "browse": {
       "index": true,
-      "template": "browse.template",
+      "template": "index.template",
       "view": "browse.dialog"
     }
   }

@@ -14,7 +14,8 @@ const template: Template = {
 		},
 		'TDocument.Sum': docSum,
 		'TDocument.$StockSum': stockSum,
-		'TDocument.$ServiceSum': serviceSum
+		'TDocument.$ServiceSum': serviceSum,
+		'TDocument.$StockESum': stockESum,
 
 	},
 	validators: {
@@ -41,6 +42,10 @@ function docSum() {
 
 function stockSum() {
 	return this.StockRows.reduce((p:number, c:TRow) => p + c.Sum, 0);
+}
+
+function stockESum() {
+	return this.StockRows.reduce((p: number, c: TRow) => p + c.ESum, 0);
 }
 
 function serviceSum() {

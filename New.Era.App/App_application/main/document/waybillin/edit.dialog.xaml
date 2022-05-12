@@ -82,16 +82,17 @@
 				<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
 					<ToolbarAligner />
-					<Label CssClass="mr-1">Додаткові витрати</Label>
-					<TextBox Width="7rem" Value="{Bind Document.ESum, DataType=Currency, HideZeros=True}" Align="Right"/>
-					<Label CssClass="mr-1 ml-3">Розподілити</Label>
-					<ComboBox>
-						<ComboBoxItem Content="Не розподіляти"/>
-						<ComboBoxItem Content="Пропроційно сумі"/>
-					</ComboBox>
+					<Button If="{Bind Document.Extra.IncludeServiceInCost}" Content="Розподілити послуги">
+						<Button.DropDown>
+							<DropDownMenu Direction="UpLeft">
+								<MenuItem Content="За сумою" Command="{BindCmd Execute, CommandName=distributeBySum}"/>
+							</DropDownMenu>
+						</Button.DropDown>
+						
+					</Button>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" Width="100%"
-					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,7rem,7rem,7rem,7rem,Fit">
+					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,6rem,6rem,6rem,6rem,Fit">
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
@@ -101,7 +102,7 @@
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
-							<TableCell Content="Націнка"/>
+							<TableCell Content="Послуги"/>
 							<TableCell />
 						</TableRow>
 					</Table.Header>
@@ -117,7 +118,7 @@
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
-						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
+						<TextBox Value="{Bind ESum, DataType=Currency, HideZeros=True}" Align="Right"/>
 						<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
 					</TableRow>
 					<Table.Footer>
@@ -125,6 +126,7 @@
 							<TableCell ColSpan="5"/>
 							<TableCell Content="Всього"/>
 							<Static Value="{Bind Document.$StockSum, DataType=Currency}" Align="Right" Bold="True"/>
+							<Static Value="{Bind Document.$StockESum, DataType=Currency}" Align="Right" Bold="True"/>
 							<TableCell />
 						</TableRow>
 					</Table.Footer>
@@ -133,6 +135,8 @@
 			<Case Value="service">
 				<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.ServiceRows}}"/>
+					<ToolbarAligner />
+					<CheckBox Label="Включити в собіватість запасів" Value="{Bind Document.Extra.IncludeServiceInCost}"/>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" Background="Paper" GridLines="Both" Width="100%"
 					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,7rem,7rem,7rem,7rem,12rem,Fit">
@@ -175,8 +179,7 @@
 					</TableRow>
 					<Table.Footer>
 						<TableRow>
-							<TableCell ColSpan="5"/>
-							<TableCell Content="Всього"/>
+							<TableCell ColSpan="7" Content="Всього" Align="Right"/>
 							<Static Value="{Bind Document.$ServiceSum, DataType=Currency}" Align="Right" Bold="True"/>
 							<TableCell ColSpan="2"/>
 						</TableRow>
@@ -185,7 +188,7 @@
 			</Case>
 			<Case Value="extra">
 				<Block Padding="1rem,0">
-					<CheckBox Label="@[Flag.WriteSupplierPrices]" Value="{Bind Document.DocApply.WriteSupplierPrices}"/>
+					<CheckBox Label="@[Flag.WriteSupplierPrices]" Value="{Bind Document.Extra.WriteSupplierPrices}"/>
 				</Block>
 				<Block />
 			</Case>

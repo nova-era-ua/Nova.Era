@@ -15,13 +15,13 @@ begin
 		Detail bigint, Item bigint, RowMode nchar(1),
 		Wh bigint, CashAcc bigint, [Date] date, Agent bigint, Company bigint, CostItem bigint,
 		[Contract] bigint, CashFlowItem bigint, RespCenter bigint,
-		Qty float, [Sum] money, SumMode nchar(1), CostSum money, [ResultSum] money);
+		Qty float, [Sum] money, ESum money, SumMode nchar(1), CostSum money, [ResultSum] money);
 
 	-- DOCUMENT with ROWS
 	with TR as (
 		select Dt = case ot.DtAccMode when N'R' then ird.Account else ot.Dt end,
 			Ct = case ot.CtAccMode when N'R' then irc.Account else ot.Ct end,
-			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty, dd.[Sum],
+			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty, dd.[Sum], dd.ESum,
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
 			DtSum = isnull(ot.DtSum, N''), CtSum = isnull(ot.CtSum, N''),
 			d.[Date], d.Agent, d.Company, d.RespCenter, dd.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
@@ -35,13 +35,13 @@ begin
 			--and (ot.DtRow = N'R' or ot.CtRow = N'R')
 	)
 	insert into @trans(TrNo, RowNo, DtCt, Acc, CorrAcc, [Plan], [Detail], Item, RowMode, Wh, CashAcc, 
-		[Date], Agent, Company, RespCenter, CostItem, [Contract],  CashFlowItem, Qty,[Sum], SumMode, CostSum, ResultSum)
+		[Date], Agent, Company, RespCenter, CostItem, [Contract],  CashFlowItem, Qty,[Sum], ESum, SumMode, CostSum, ResultSum)
 	select TrNo, RowNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], Detail, Item, RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
+		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
 		from TR
 	union all 
 	select TrNo, RowNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], Detail, Item, RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], SumMode = CtSum, CostSum = 0, ResultSum = [Sum]
+		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = CtSum, CostSum = 0, ResultSum = [Sum]
 		from TR;
 
 	if exists(select * from @trans where SumMode = N'S')
@@ -57,14 +57,15 @@ begin
 		update @trans set CostSum = W.ssum * t.Qty
 		from @trans t inner join W on t.Item = W.item
 		where t.SumMode = N'S';
-
-		update @trans set ResultSum = 
-			case SumMode
-			when N'S' then CostSum
-			when N'R' then [Sum] - CostSum
-			else [Sum]
-			end
 	end
+
+	update @trans set ResultSum = 
+		case SumMode
+		when N'S' then CostSum
+		when N'R' then [Sum] - CostSum
+		when N'E' then [ESum]
+		else [Sum]
+		end
 
 	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum], [Qty], [Item],
 		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter)
@@ -251,9 +252,9 @@ begin
 	declare @done bit;
 	declare @wsp bit;
 
-	select @operation = d.Operation, @done = d.Done, @wsp = da.WriteSupplierPrices
+	select @operation = d.Operation, @done = d.Done, @wsp = de.WriteSupplierPrices
 	from doc.Documents d
-		left join doc.DocumentApply da on d.TenantId = da.TenantId and d.Id = da.Id
+		left join doc.DocumentExtra de on d.TenantId = de.TenantId and d.Id = de.Id
 	where d.TenantId = @TenantId and d.Id=@Id;
 
 	if 1 = @done

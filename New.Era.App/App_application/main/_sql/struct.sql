@@ -702,14 +702,15 @@ create table doc.Documents
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocumentApply')
-create table doc.DocumentApply
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocumentExtra')
+create table doc.DocumentExtra
 (
 	TenantId int not null,
 	Id bigint not null,
 	WriteSupplierPrices bit,
-	constraint PK_DocumentApply primary key (TenantId, Id),
-	constraint FK_DocumentApply_Id_Documents foreign key (TenantId, Id) references doc.Documents(TenantId, Id),
+	IncludeServiceInCost bit,
+	constraint PK_DocumentExtra primary key (TenantId, Id),
+	constraint FK_DocumentExtra_Id_Documents foreign key (TenantId, Id) references doc.Documents(TenantId, Id),
 );
 go
 ------------------------------------------------
@@ -734,11 +735,12 @@ create table doc.DocDetails
 	Price money null,
 	[Sum] money not null
 		constraint DF_DocDetails_Sum default(0),
-	/*
-	[ESum] money null, -- extra sum
-	[DSum] money null, -- discount sum
-	[TSum] money null, -- total sum
-	*/
+	[ESum] money not null -- extra sum
+		constraint DF_DocDetails_ESum default(0),
+	[DSum] money null -- discount sum
+		constraint DF_DocDetails_DSum default(0),
+	[TSum] money null -- total sum
+		constraint DF_DocDetails_TSum default(0),
 	Memo nvarchar(255),
 		constraint PK_DocDetails primary key (TenantId, Id),
 	CostItem bigint,

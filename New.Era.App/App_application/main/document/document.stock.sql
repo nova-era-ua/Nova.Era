@@ -150,7 +150,7 @@ begin
 		[ServiceRows!TRow!Array] = null,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
 		[LinkedDocs!TDocBase!Array] = null,
-		[DocApply!TDocApply!Object] = null
+		[Extra!TDocExtra!Object] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
@@ -159,22 +159,23 @@ begin
 	select Id, Item, Unit, ItemRole, CostItem from doc.DocDetails dd
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
-	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
+	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum,
 		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.StockRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
 	from doc.DocDetails dd
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock';
 
-	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], 
+	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum, 
 		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.ServiceRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
 	from doc.DocDetails dd
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Service';
 
-	select [!TDocApply!Object] = null, [Id!!Id] = da.Id, da.[WriteSupplierPrices], [!TDocument.DocApply!ParentId] = da.Id
-	from doc.DocumentApply da where da.TenantId = @TenantId and da.Id = @Id;
+	select [!TDocExtra!Object] = null, [Id!!Id] = da.Id, da.[WriteSupplierPrices], da.[IncludeServiceInCost],
+		[!TDocument.Extra!ParentId] = da.Id
+	from doc.DocumentExtra da where da.TenantId = @TenantId and da.Id = @Id;
 
 	-- maps
 	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form,
@@ -252,7 +253,7 @@ drop procedure if exists doc.[Document.Stock.Metadata];
 drop procedure if exists doc.[Document.Stock.Update];
 drop type if exists cat.[Document.Stock.TableType];
 drop type if exists cat.[Document.Stock.Row.TableType];
-drop type if exists cat.[Document.Apply.TableType];
+drop type if exists cat.[Document.Extra.TableType];
 go
 ------------------------------------------------
 create type cat.[Document.Stock.TableType]
@@ -284,15 +285,19 @@ as table(
 	[Qty] float,
 	[Price] money,
 	[Sum] money,
+	ESum money,
+	DSum money,
+	TSum money,
 	Memo nvarchar(255),
 	CostItem bigint
 )
 go
 ------------------------------------------------
-create type cat.[Document.Apply.TableType]
+create type cat.[Document.Extra.TableType]
 as table(
 	ParentId bigint,
-	WriteSupplierPrices bit
+	WriteSupplierPrices bit,
+	IncludeServiceInCost bit
 )
 go
 ------------------------------------------------
@@ -303,10 +308,10 @@ begin
 	set transaction isolation level read uncommitted;
 	declare @Document cat.[Document.Stock.TableType];
 	declare @Rows cat.[Document.Stock.Row.TableType]
-	declare @Apply cat.[Document.Apply.TableType];
+	declare @Extra cat.[Document.Extra.TableType];
 
 	select [Document!Document!Metadata] = null, * from @Document;
-	select [Apply!Document.DocApply!Metadata] = null, * from @Apply;
+	select [Extra!Document.Extra!Metadata] = null, * from @Extra;
 	select [StockRows!Document.StockRows!Metadata] = null, * from @Rows;
 	select [ServiceRows!Document.ServiceRows!Metadata] = null, * from @Rows;
 end
@@ -316,7 +321,7 @@ create or alter procedure doc.[Document.Stock.Update]
 @TenantId int = 1,
 @UserId bigint,
 @Document cat.[Document.Stock.TableType] readonly,
-@Apply cat.[Document.Apply.TableType] readonly,
+@Extra cat.[Document.Extra.TableType] readonly,
 @StockRows cat.[Document.Stock.Row.TableType] readonly,
 @ServiceRows cat.[Document.Stock.Row.TableType] readonly
 as
@@ -357,14 +362,15 @@ begin
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
-	merge doc.DocumentApply as t
-	using @Apply as s
+	merge doc.DocumentExtra as t
+	using @Extra as s
 	on t.TenantId = @TenantId and t.Id = @id
 	when matched then update set
-		t.WriteSupplierPrices = s.WriteSupplierPrices
+		t.WriteSupplierPrices = s.WriteSupplierPrices,
+		t.IncludeServiceInCost = s.IncludeServiceInCost
 	when not matched then insert
-		(TenantId, Id, WriteSupplierPrices) values
-		(@TenantId, @id, s.WriteSupplierPrices);
+		(TenantId, Id, WriteSupplierPrices, IncludeServiceInCost) values
+		(@TenantId, @id, s.WriteSupplierPrices, s.IncludeServiceInCost);
 
 	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id and Kind=N'Stock')
 	merge DD as t
@@ -377,10 +383,13 @@ begin
 		t.Qty = s.Qty,
 		t.Price = s.Price,
 		t.[Sum] = s.[Sum],
+		t.ESum = s.ESum,
+		t.DSum = s.DSum,
+		t.TSum = s.TSum,
 		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], CostItem) values
-		(@TenantId, @id, N'Stock', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.CostItem)
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], ESum, DSum, TSum, CostItem) values
+		(@TenantId, @id, N'Stock', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, s.CostItem)
 	when not matched by source and t.TenantId = @TenantId and t.Document = @id and t.Kind=N'Stock' then delete;
 
 	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id and Kind=N'Service')
@@ -394,10 +403,13 @@ begin
 		t.Qty = s.Qty,
 		t.Price = s.Price,
 		t.[Sum] = s.[Sum],
+		t.ESum = s.ESum,
+		t.DSum = s.DSum,
+		t.TSum = s.TSum,
 		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], CostItem) values
-		(@TenantId, @id, N'Service', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.CostItem)
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], ESum, DSum, TSum, CostItem) values
+		(@TenantId, @id, N'Service', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, s.CostItem)
 	when not matched by source and t.TenantId = @TenantId and t.Document = @id and t.Kind=N'Service' then delete;
 
 	exec doc.[Document.Stock.Load] @TenantId = @TenantId, 

@@ -14,6 +14,17 @@ begin
 end
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'DocDetails' and COLUMN_NAME=N'ESum')
+begin
+	alter table doc.DocDetails add [ESum] money not null -- extra sum
+		constraint DF_DocDetails_ESum default(0);
+	alter table doc.DocDetails add [DSum] money null -- discount sum
+		constraint DF_DocDetails_DSum default(0);
+	alter table doc.DocDetails add [TSum] money null -- total sum
+		constraint DF_DocDetails_TSum default(0);
+end
+go
+------------------------------------------------
 if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'ItemRoles' and COLUMN_NAME=N'CostItem')
 begin
 	alter table cat.ItemRoles add CostItem bigint;
@@ -49,4 +60,9 @@ go
 ------------------------------------------------
 if exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Operations' and COLUMN_NAME=N'WriteSupplierPrices')
 	alter table doc.Operations drop column [WriteSupplierPrices];
+go
+------------------------------------------------
+drop table if exists doc.DocumentApply
+drop procedure if exists doc.[Document.Stock.Update];
+drop type if exists doc.[Document.Apply.TableType];
 go
