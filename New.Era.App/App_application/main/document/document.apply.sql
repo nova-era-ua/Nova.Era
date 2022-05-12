@@ -11,7 +11,7 @@ begin
 	set transaction isolation level read committed;
 	set xact_abort on;
 
-	declare @trans table(TrNo int, RowNo int, DtCt smallint, Acc bigint, CorrAcc bigint, [Plan] bigint, 
+	declare @trans table(Kind nvarchar(16), TrNo int, RowNo int, DtCt smallint, Acc bigint, CorrAcc bigint, [Plan] bigint, 
 		Detail bigint, Item bigint, RowMode nchar(1),
 		Wh bigint, CashAcc bigint, [Date] date, Agent bigint, Company bigint, CostItem bigint,
 		[Contract] bigint, CashFlowItem bigint, RespCenter bigint,
@@ -19,7 +19,7 @@ begin
 
 	-- DOCUMENT with ROWS
 	with TR as (
-		select Dt = case ot.DtAccMode when N'R' then ird.Account else ot.Dt end,
+		select Kind, Dt = case ot.DtAccMode when N'R' then ird.Account else ot.Dt end,
 			Ct = case ot.CtAccMode when N'R' then irc.Account else ot.Ct end,
 			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty, dd.[Sum], dd.ESum,
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
@@ -34,15 +34,18 @@ begin
 		where dd.TenantId = @TenantId and dd.Document = @Id and ot.Operation = @Operation 
 			--and (ot.DtRow = N'R' or ot.CtRow = N'R')
 	)
-	insert into @trans(TrNo, RowNo, DtCt, Acc, CorrAcc, [Plan], [Detail], Item, RowMode, Wh, CashAcc, 
+	insert into @trans(Kind, TrNo, RowNo, DtCt, Acc, CorrAcc, [Plan], [Detail], Item, RowMode, Wh, CashAcc, 
 		[Date], Agent, Company, RespCenter, CostItem, [Contract],  CashFlowItem, Qty,[Sum], ESum, SumMode, CostSum, ResultSum)
-	select TrNo, RowNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], Detail, Item, RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
+	select Kind, TrNo, RowNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], Detail, Item, RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
 		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
 		from TR
 	union all 
-	select TrNo, RowNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], Detail, Item, RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
+	select Kind, TrNo, RowNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], Detail, Item, RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
 		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = CtSum, CostSum = 0, ResultSum = [Sum]
 		from TR;
+
+	if 1 = (select IncludeServiceInCost from doc.DocumentExtra where TenantId = @TenantId and Id = @Id)
+		delete from @trans where Kind = N'Service';
 
 	if exists(select * from @trans where SumMode = N'S')
 	begin
@@ -61,11 +64,16 @@ begin
 
 	update @trans set ResultSum = 
 		case SumMode
-		when N'S' then CostSum
-		when N'R' then [Sum] - CostSum
-		when N'E' then [ESum]
-		else [Sum]
-		end
+			when N'S' then CostSum
+			when N'R' then [Sum] - CostSum
+			when N'E' then [ESum]
+			else [Sum]
+		end,
+		Qty = 
+		case SumMode
+			when N'E' then 0
+			else Qty
+		end;
 
 	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum], [Qty], [Item],
 		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter)
