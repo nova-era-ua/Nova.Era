@@ -1,6 +1,6 @@
 ﻿// waybill in
 
-import { TRoot } from "../_common/stock";
+import { TRoot, TDocument } from "../_common/stock";
 
 const base: Template = require('/document/_common/stock.module');
 const utils: Utils = require("std:utils");
@@ -13,7 +13,8 @@ const template: Template = {
 		'Document.Extra.WriteSupplierPrices': true
 	},
 	validators: {
-		'Document.WhTo': '@[Error.Required]'
+		'Document.WhTo': '@[Error.Required]',
+		'Document.$StockESum': validStockESum
 	},
 	events: {
 		'Document.ServiceRows[].Item.change': itemChange,
@@ -43,4 +44,11 @@ function distributeBySum(this: TRoot) {
 	if (!svcSum || !stockSum) return;
 	let k = svcSum / stockSum;
 	this.Document.StockRows.forEach(row => row.ESum = utils.currency.round(row.Sum * k, 2));
+}
+
+function validStockESum(doc: TDocument) {
+	if (!doc.Extra.IncludeServiceInCost) return true;
+	if (doc.$StockESum !== doc.$ServiceSum)
+		return 'Сума націнки не співпадає з сумою послуг';
+	return true;
 }

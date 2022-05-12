@@ -126,8 +126,12 @@
 							<TableCell ColSpan="5"/>
 							<TableCell Content="Всього"/>
 							<Static Value="{Bind Document.$StockSum, DataType=Currency}" Align="Right" Bold="True"/>
-							<Static Value="{Bind Document.$StockESum, DataType=Currency}" Align="Right" Bold="True"/>
-							<TableCell />
+							<Static Value="{Bind Document.$StockESum, DataType=Currency}" Align="Right" Bold="True">
+								<Static.Validator>
+									<Validator Placement="BottomRight"/>
+								</Static.Validator>
+							</Static>
+								<TableCell />
 						</TableRow>
 					</Table.Footer>
 				</Table>

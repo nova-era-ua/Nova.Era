@@ -10,7 +10,8 @@ define(["require", "exports"], function (require, exports) {
             'Document.Extra.WriteSupplierPrices': true
         },
         validators: {
-            'Document.WhTo': '@[Error.Required]'
+            'Document.WhTo': '@[Error.Required]',
+            'Document.$StockESum': validStockESum
         },
         events: {
             'Document.ServiceRows[].Item.change': itemChange,
@@ -37,5 +38,12 @@ define(["require", "exports"], function (require, exports) {
             return;
         let k = svcSum / stockSum;
         this.Document.StockRows.forEach(row => row.ESum = utils.currency.round(row.Sum * k, 2));
+    }
+    function validStockESum(doc) {
+        if (!doc.Extra.IncludeServiceInCost)
+            return true;
+        if (doc.$StockESum !== doc.$ServiceSum)
+            return 'Сума націнки не співпадає з сумою послуг';
+        return true;
     }
 });

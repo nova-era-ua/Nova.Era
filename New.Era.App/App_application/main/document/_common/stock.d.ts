@@ -19,6 +19,7 @@ export interface TDocument extends IElement {
 	Extra: TDocExtra;
 	// computed
 	$StockSum: number;
+	$StockESum: number;
 	$ServiceSum: number;
 }
 
