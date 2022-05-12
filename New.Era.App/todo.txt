@@ -1,4 +1,9 @@
 ﻿
+!!!
+99. Не включати в собівартість - почему-то размножает построчно.
+
+
+
 21. DocDetails -> Unit
 30. StockDoc -> Apply.Payment
 31. Unit: Pager, Filter, Sort

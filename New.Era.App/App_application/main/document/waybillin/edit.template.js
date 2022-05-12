@@ -15,7 +15,8 @@ define(["require", "exports"], function (require, exports) {
         },
         events: {
             'Document.ServiceRows[].Item.change': itemChange,
-            'Document.ServiceRows[].ItemRole.change': itemRoleChange
+            'Document.ServiceRows[].ItemRole.change': itemRoleChange,
+            'Document.Extra.IncludeServiceInCost.change': flagIncludeChange
         },
         commands: {
             distributeBySum
@@ -45,5 +46,9 @@ define(["require", "exports"], function (require, exports) {
         if (doc.$StockESum !== doc.$ServiceSum)
             return 'Сума націнки не співпадає з сумою послуг';
         return true;
+    }
+    function flagIncludeChange(extra, val) {
+        if (!val)
+            this.Document.StockRows.forEach(row => row.ESum = 0);
     }
 });

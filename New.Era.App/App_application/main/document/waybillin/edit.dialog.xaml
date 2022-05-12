@@ -92,7 +92,18 @@
 					</Button>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" Width="100%"
-					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,6rem,6rem,6rem,6rem,Fit">
+						StickyHeaders="True" Height="100%">
+					<Table.Columns>
+						<TableColumn Width="25px"/>
+						<TableColumn Width="Auto"/>
+						<TableColumn Width="100%"/>
+						<TableColumn Width="Fit"/>
+						<TableColumn Width="Auto"/>
+						<TableColumn Width="Auto"/>
+						<TableColumn Width="Auto"/>
+						<TableColumn Width="Auto" If="{Bind Document.Extra.IncludeServiceInCost}"/>
+						<TableColumn Width="25px"/>
+					</Table.Columns>
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
@@ -102,36 +113,40 @@
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
-							<TableCell Content="Послуги"/>
+							<TableCell Content="Націнка" If="{Bind Document.Extra.IncludeServiceInCost}"/>
 							<TableCell />
 						</TableRow>
 					</Table.Header>
 					<TableRow>
 						<TableCell Content="{Bind RowNo}"/>
-						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
+						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap" Width="11rem"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
 							<Selector.AddOns>
 								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browse'}"/>
 							</Selector.AddOns>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
-						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
-						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
-						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
-						<TextBox Value="{Bind ESum, DataType=Currency, HideZeros=True}" Align="Right"/>
+						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right" Width="6rem"/>
+						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right" Width="6rem"/>
+						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right" Width="6rem"/>
+						<TableCell If="{Bind Root.Document.Extra.IncludeServiceInCost}">
+							<TextBox Value="{Bind ESum, DataType=Currency, HideZeros=True}" Align="Right" Width="6rem"/>
+						</TableCell>
 						<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
 					</TableRow>
 					<Table.Footer>
 						<TableRow>
 							<TableCell ColSpan="5"/>
 							<TableCell Content="Всього"/>
-							<Static Value="{Bind Document.$StockSum, DataType=Currency}" Align="Right" Bold="True"/>
-							<Static Value="{Bind Document.$StockESum, DataType=Currency}" Align="Right" Bold="True">
-								<Static.Validator>
-									<Validator Placement="BottomRight"/>
-								</Static.Validator>
-							</Static>
-								<TableCell />
+							<Static Value="{Bind Document.$StockSum, DataType=Currency}" Align="Right" Bold="True" Wrap="NoWrap"/>
+							<TableCell If="{Bind Document.Extra.IncludeServiceInCost}" Wrap="NoWrap">
+								<Static Value="{Bind Document.$StockESum, DataType=Currency}" Align="Right" Bold="True">
+									<Static.Validator>
+										<Validator Placement="BottomRight"/>
+									</Static.Validator>
+								</Static>
+							</TableCell>
+							<TableCell />
 						</TableRow>
 					</Table.Footer>
 				</Table>

@@ -1,6 +1,6 @@
 ﻿// waybill in
 
-import { TRoot, TDocument } from "../_common/stock";
+import { TRoot, TDocument, TDocExtra } from "../_common/stock";
 
 const base: Template = require('/document/_common/stock.module');
 const utils: Utils = require("std:utils");
@@ -18,7 +18,8 @@ const template: Template = {
 	},
 	events: {
 		'Document.ServiceRows[].Item.change': itemChange,
-		'Document.ServiceRows[].ItemRole.change': itemRoleChange
+		'Document.ServiceRows[].ItemRole.change': itemRoleChange,
+		'Document.Extra.IncludeServiceInCost.change': flagIncludeChange
 	},
 	commands: {
 		distributeBySum
@@ -51,4 +52,9 @@ function validStockESum(doc: TDocument) {
 	if (doc.$StockESum !== doc.$ServiceSum)
 		return 'Сума націнки не співпадає з сумою послуг';
 	return true;
+}
+
+function flagIncludeChange(this: TRoot, extra: TDocExtra, val: boolean) {
+	if (!val)
+		this.Document.StockRows.forEach(row => row.ESum = 0);
 }
