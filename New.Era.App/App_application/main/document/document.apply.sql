@@ -79,7 +79,8 @@ begin
 		[Date], DtCt, [Plan], Acc, CorrAcc, 
 		iif(RowMode = N'R', Item, null),
 		iif(RowMode = N'R', Detail, null),
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter;
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
+	having sum(ResultSum) <> 0 or sum(iif(RowMode = N'R', Qty, null)) is not null;
 end
 go
 ------------------------------------------------
