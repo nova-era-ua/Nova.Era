@@ -136,7 +136,7 @@
 				<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.ServiceRows}}"/>
 					<ToolbarAligner />
-					<CheckBox Label="Включити в собіватість запасів" Value="{Bind Document.Extra.IncludeServiceInCost}"/>
+					<CheckBox Label="Включити в собівартість запасів" Value="{Bind Document.Extra.IncludeServiceInCost}"/>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" Background="Paper" GridLines="Both" Width="100%"
 					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,7rem,7rem,7rem,7rem,12rem,Fit">

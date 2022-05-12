@@ -9,6 +9,8 @@
 		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Plus" Content="@[Create]"
 				Command="{BindCmd Dialog, Action=Append, Argument={Bind Warehouses}, Url='/catalog/warehouse/edit'}"/>
+			<Button Icon="Edit"
+				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Warehouses}, Url='/catalog/warehouse/edit'}"/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Warehouses}"
 			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"

@@ -8,6 +8,7 @@
 	<Grid AutoFlow="Row">
 		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Dialog, Action=Append, Argument={Bind RespCenters}, Url='/catalog/respcenter/edit'}"/>
+			<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind RespCenters}, Url='/catalog/respcenter/edit'}"/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind RespCenters}" XamlStyle="{StyleResource DataGridSimple}"
 			Height="20rem" FixedHeader="True"
