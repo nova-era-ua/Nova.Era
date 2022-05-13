@@ -28,8 +28,14 @@ define(["require", "exports"], function (require, exports) {
             'app.document.apply': handleLinkApply
         },
         commands: {
-            apply,
-            unApply,
+            apply: {
+                exec: apply,
+                confirm: '@[Confirm.Apply]'
+            },
+            unApply: {
+                exec: unApply,
+                confirm: '@[Confirm.UnApply]'
+            },
             createOnBase,
             openLinked
         }

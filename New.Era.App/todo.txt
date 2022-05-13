@@ -1,20 +1,8 @@
 ﻿
-!!!
-99. Не включати в собівартість - почему-то размножает построчно.
 
-
-
-21. DocDetails -> Unit
-30. StockDoc -> Apply.Payment
 31. Unit: Pager, Filter, Sort
 34. StockReports: turnover
-40. Catalog.Currencies
-41. Apply/Unapply. Confirm
 42. Document:Number
-44. Document.PriceList
-45. DocList.EditSelected -> disabled
-46. Catalog.Contracts
-47. Catalog.Departments
 48. Agent.BankAccounts
 
 53. Operations. Form in list

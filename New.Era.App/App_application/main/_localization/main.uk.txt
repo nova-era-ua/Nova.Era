@@ -195,6 +195,8 @@
 ;
 @Confirm.Delete.Folder=Ви дійсно бажаєте видалити папку?
 @Confirm.Delete.Element=Ви дійсно бажаєте видалити елемент?
+@Confirm.Apply=Ви дійсно бажаєте провести документ?
+@Confirm.UnApply=Ви дійсно бажаєте скасувати проведення документу?
 ;
 @Default.Company.Changed=Підприємство за замовчуванням змінено
 @Default.Warehouse.Changed=Склад за замовчуванням змінено
