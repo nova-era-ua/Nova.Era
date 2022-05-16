@@ -4,7 +4,12 @@ define(["require", "exports"], function (require, exports) {
     const base = require('/document/_common/stock.module');
     const utils = require("std:utils");
     const template = {
-        properties: {},
+        properties: {
+            'TRoot.$ItemRolesSvc'() { return this.ItemRoles.filter(r => !r.IsStock); },
+            'TRoot.$ItemRolesStock'() { return this.ItemRoles.filter(r => r.IsStock); },
+            'TRoot.$IsStockArg'() { return { IsStock: 'T' }; },
+            'TRoot.$IsNoStockArg'() { return { IsStock: 'V' }; }
+        },
         defaults: {
             'Document.WhTo'() { return this.Default.Warehouse; },
             'Document.Extra.WriteSupplierPrices': true
@@ -33,12 +38,21 @@ define(["require", "exports"], function (require, exports) {
     function distributeBySum() {
         if (!this.Document.Extra.IncludeServiceInCost)
             return;
+        let stockRows = this.Document.StockRows;
         let svcSum = this.Document.$ServiceSum;
         let stockSum = this.Document.$StockSum;
         if (!svcSum || !stockSum)
             return;
         let k = svcSum / stockSum;
-        this.Document.StockRows.forEach(row => row.ESum = utils.currency.round(row.Sum * k, 2));
+        stockRows.forEach(row => row.ESum = utils.currency.round(row.Sum * k, 2));
+        let total = stockRows.reduce((p, c) => p + c.ESum, 0);
+        if (total != svcSum) {
+            let count = stockRows.length;
+            if (count < 2)
+                return;
+            let sumM1 = stockRows.reduce((p, c, ix) => p + (ix === count - 1 ? 0 : c.ESum), 0);
+            stockRows[count - 1].ESum = svcSum - sumM1;
+        }
     }
     function validStockESum(doc) {
         if (!doc.Extra.IncludeServiceInCost)

@@ -15,15 +15,7 @@
 		</ComboBox>
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
-		<Taskpad Width="25rem" Collapsible="False" Margin="0,0,0,1rem" Background="WhiteSmoke">
-			<Block If="{Bind Document.Done}" Padding="1rem,0">
-				<Hyperlink 
-					Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
-			</Block>
-			<Panel Header="Підстава" Collapsible="True">
-				<Code Content="{Bind Document.ParentDoc}" Multiline="True"></Code>
-			</Panel>
-		</Taskpad>
+		<ContentControl Content="{Source '../_common/pay.taskpad.xaml'}"/>
 	</Dialog.Taskpad>
 	<Grid Height="100%" Rows="Auto,Auto,1*,Auto">
 		<Grid Grid.Row="1" AutoFlow="Column" AlignItems="Baseline"

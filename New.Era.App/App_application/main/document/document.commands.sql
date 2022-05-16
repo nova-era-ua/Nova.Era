@@ -17,10 +17,10 @@ begin
 	select @parent = Parent, @operation = Operation from doc.OperationLinks where TenantId = @TenantId and Id=@LinkId
 
 	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, OpLink, Company, Agent, [Contract], [RespCenter], 
-		Currency, UserCreated, [Sum])
+		Currency, UserCreated, Temp, [Sum])
 	output inserted.Id, inserted.Operation into @rtable(id, op)
 	select @TenantId, cast(getdate() as date), @operation, @Document, isnull(Base, @Document), @LinkId, Company, Agent, [Contract], [RespCenter], 
-		Currency, @UserId, [Sum]
+		Currency, @UserId, 1, [Sum]
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
 	select [Document!TDocBase!Object] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],

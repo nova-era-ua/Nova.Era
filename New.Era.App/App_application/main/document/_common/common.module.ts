@@ -1,8 +1,20 @@
 ﻿// common documents
 
+
 const utils: Utils = require("std:utils");
 const dateUtils: UtilsDate = utils.date;
 const currencyUtils: UtilsCurrency = utils.currency;
+
+function docToBaseDoc(doc) {
+	return {
+		Id: doc.Id,
+		Date: doc.Date,
+		Sum: doc.Sum,
+		OpName: doc.Operation.Name,
+		Form: doc.Operation.Form,
+		Done: doc.Done
+	};
+}
 
 
 const template: Template = {
@@ -70,10 +82,12 @@ function companyChange(doc, company) {
 function handleLinkSaved(elem) {
 	let doc = elem.Document;
 	let found = this.Document.LinkedDocs.find(e => e.Id === doc.Id);
-	if (!found) return;
-	found.Sum = doc.Sum;
-	found.Date = doc.Date;
-	found.OpName = doc.Operation.Name;
+	if (found) {
+		found.Sum = doc.Sum;
+		found.Date = doc.Date;
+		found.OpName = doc.Operation.Name;
+	} else
+		this.Document.LinkedDocs.$append(docToBaseDoc(doc));
 }
 
 function handleLinkApply(elem) {
@@ -106,10 +120,9 @@ async function createOnBase(link) {
 	await ctrl.$save();
 	let res = await ctrl.$invoke('createonbase', { Document: this.Document.Id, LinkId: link.Id}, '/document/commands');
 
-	this.Document.LinkedDocs.$append(res.Document);
-
 	let url = `/document/${res.Document.Form}/edit`;
 	await ctrl.$showDialog(url, { Id: res.Document.Id });
+
 }
 
 async function openLinked(doc) {

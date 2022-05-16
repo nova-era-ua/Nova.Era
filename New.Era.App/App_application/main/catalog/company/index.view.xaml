@@ -29,6 +29,8 @@
 				<CommandBar Visibility="Hover">
 					<Button Icon="Edit" 
 							Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/company/edit'}"/>
+					<Button Icon="Delete" 
+							Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
 				</CommandBar>
 			</DataGridColumn>
 		</DataGrid>

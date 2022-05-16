@@ -13,7 +13,8 @@
 		'Operation.Form': '@[Error.Required]',
 		'Operation.Name': '@[Error.Required]',
 		'Operation.OpLinks[].Operation': '@[Error.Required]',
-		'Operation.OpLinks[].Category': '@[Error.Required]'
+		'Operation.OpLinks[].Category': '@[Error.Required]',
+		'Operation.Trans[].Plan': '@[Error.Required]'
 	},
 	events: {
 		'Operation.Form.change': formChange,

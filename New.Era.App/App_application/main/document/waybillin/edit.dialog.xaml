@@ -101,6 +101,7 @@
 						<TableColumn Width="Auto"/>
 						<TableColumn Width="Auto"/>
 						<TableColumn Width="Auto"/>
+						<TableColumn Width="Auto"/>
 						<TableColumn Width="Auto" If="{Bind Document.Extra.IncludeServiceInCost}"/>
 						<TableColumn Width="25px"/>
 					</Table.Columns>
@@ -110,6 +111,7 @@
 							<TableCell Content="@[Article]"/>
 							<TableCell />
 							<TableCell Content="@[UnitShort]"/>
+							<TableCell Content="@[Role]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
@@ -122,10 +124,14 @@
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap" Width="11rem"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
 							<Selector.AddOns>
-								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browse'}"/>
+								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
+									Url='/catalog/item/browse', Data={Bind Root.$IsStockArg}}"/>
 							</Selector.AddOns>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
+						<ComboBox ItemsSource="{Bind Root.$ItemRolesStock}" Value="{Bind ItemRole}" Width="7rem">
+							<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+						</ComboBox>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right" Width="6rem"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right" Width="6rem"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right" Width="6rem"/>
@@ -136,8 +142,7 @@
 					</TableRow>
 					<Table.Footer>
 						<TableRow>
-							<TableCell ColSpan="5"/>
-							<TableCell Content="Всього"/>
+							<TableCell ColSpan="7" Content="Всього" Align="Right"/>
 							<Static Value="{Bind Document.$StockSum, DataType=Currency}" Align="Right" Bold="True" Wrap="NoWrap"/>
 							<TableCell If="{Bind Document.Extra.IncludeServiceInCost}" Wrap="NoWrap">
 								<Static Value="{Bind Document.$StockESum, DataType=Currency}" Align="Right" Bold="True">
@@ -158,7 +163,7 @@
 					<CheckBox Label="Включити в собівартість запасів" Value="{Bind Document.Extra.IncludeServiceInCost}"/>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" Background="Paper" GridLines="Both" Width="100%"
-					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,7rem,7rem,7rem,7rem,12rem,Fit">
+					StickyHeaders="True" Height="100%" Columns="Fit,11rem,Auto,Fit,9rem,7rem,7rem,7rem,12rem,Fit">
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
@@ -178,11 +183,12 @@
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
 							<Selector.AddOns>
-								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browse'}"/>
+								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
+									Url='/catalog/item/browse', Data={Bind Root.$IsNoStockArg}}"/>
 							</Selector.AddOns>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
-						<ComboBox ItemsSource="{Bind Root.ItemRoles}" Value="{Bind ItemRole}">
+						<ComboBox ItemsSource="{Bind Root.$ItemRolesSvc}" Value="{Bind ItemRole}">
 							<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 						</ComboBox>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>

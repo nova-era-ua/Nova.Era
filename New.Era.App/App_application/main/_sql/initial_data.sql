@@ -136,7 +136,6 @@ begin
 	(N'waybillout', 3, N'All',     N'@[KindAllRows]'),
 	(N'waybillin',  1, N'Stock',   N'@[KindStock]'),
 	(N'waybillin',  2, N'Service', N'@[KindServices]'),
-	(N'waybillin',  3, N'All',     N'@[KindAllRows]'),
 	(N'payin',      1, N'', N'Немає рядків'),
 	(N'payout',     1, N'', N'Немає рядків'),
 	(N'cashin',     1, N'', N'Немає рядків'),

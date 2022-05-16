@@ -14,6 +14,9 @@
 			<Button Icon="Plus" Content="@[Create]" 
 				Command="{BindCmd Dialog, Action=Append, Argument={Bind Menu.Selected(Children)}, 
 				Data={Bind Root.$CreateData}, Url='/settings/operation/edit'}"/>
+			<Button Icon="Edit"
+				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Menu.Selected(Children)}, 
+				Data={Bind Root.$CreateData}, Url='/settings/operation/edit'}"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" Grid.Col="3" Grid.VAlign="Stretch"
 			GridLines="Horizontal" Striped="True"

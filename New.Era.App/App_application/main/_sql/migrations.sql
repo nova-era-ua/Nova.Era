@@ -7,6 +7,10 @@ begin
 end
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Documents' and COLUMN_NAME=N'Temp')
+	alter table doc.Documents add Temp bit not null constraint DF_Documents_Temp default(0) with values;
+go
+------------------------------------------------
 if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'DocDetails' and COLUMN_NAME=N'CostItem')
 begin
 	alter table doc.DocDetails add CostItem bigint;

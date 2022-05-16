@@ -19,6 +19,8 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	exec doc.[Document.DeleteTemp] @TenantId = @TenantId, @UserId = @UserId;
+
 	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
 	declare @end date;
 	set @end = dateadd(day, 1, @To);
@@ -35,7 +37,7 @@ begin
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and d.Operation = ml.Operation
-	where d.TenantId = @TenantId and ml.Menu = @Menu
+	where d.TenantId = @TenantId and d.Temp = 0 and ml.Menu = @Menu
 		and (d.[Date] >= @From and d.[Date] < @end)
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
@@ -237,6 +239,7 @@ begin
 	using @Document as s
 	on t.TenantId = @TenantId and t.Id = s.Id
 	when matched then update set
+		t.Temp = 0,
 		t.Operation = s.Operation,
 		t.[Date] = s.[Date],
 		t.[Sum] = s.[Sum],

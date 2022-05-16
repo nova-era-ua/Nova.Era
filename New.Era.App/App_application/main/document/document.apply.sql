@@ -83,15 +83,17 @@ begin
 	select TenantId = @TenantId, Document = @Id, Detail = iif(RowMode = N'R', Detail, null), TrNo, RowNo = iif(RowMode = N'R', RowNo, null),
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([ResultSum]), Qty = sum(iif(RowMode = N'R', Qty, 0)),
 		Item = iif(RowMode = N'R', Item, null),
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem = iif(RowMode = N'R', CostItem, null), RespCenter
 	from @trans
 	group by TrNo, 
 		iif(RowMode = N'R', RowNo, null),
 		[Date], DtCt, [Plan], Acc, CorrAcc, 
 		iif(RowMode = N'R', Item, null),
 		iif(RowMode = N'R', Detail, null),
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
-	having sum(ResultSum) <> 0 or sum(iif(RowMode = N'R', Qty, 0)) <> 0;
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, 
+		iif(RowMode = N'R', CostItem, null), RespCenter
+	having sum(ResultSum) <> 0 or sum(iif(RowMode = N'R', Qty, 0)) <> 0
+	order by TrNo, RowNo
 end
 go
 ------------------------------------------------

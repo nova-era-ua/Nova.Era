@@ -660,6 +660,8 @@ create table doc.Documents
 		constraint DF_Documents_Sum default(0),
 	Done bit not null
 		constraint DF_Documents_Done default(0),
+	Temp bit not null
+		constraint DF_Documents_Temp default(0),
 	[Parent] bigint,
 	[Base] bigint,
 	OpLink bigint,

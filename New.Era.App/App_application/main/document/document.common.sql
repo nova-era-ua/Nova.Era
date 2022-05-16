@@ -42,8 +42,8 @@ begin
 	select [LinkedDocs!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
 		[OpName] = o.[Name], [Form] = o.Form, [!TDocument.LinkedDocs!ParentId] = d.Parent
 	from doc.Documents d 
-	inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
-	where d.TenantId = @TenantId and d.Parent = @Id;
+		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
+	where d.TenantId = @TenantId and d.Temp = 0 and d.Parent = @Id;
 
 	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], d.[Done],
 		[OpName] = o.[Name], o.Form
@@ -52,3 +52,16 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId;
 end
 go
+------------------------------------------------
+create or alter procedure doc.[Document.DeleteTemp]
+@TenantId int =1,
+@UserId bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	delete from doc.Documents where TenantId = @TenantId and UserCreated = @UserId and Temp = 1
+	and [Date] < dateadd(day, 1, getdate());
+end
+go
+

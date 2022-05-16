@@ -11,8 +11,12 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
+		[Form!TForm!RefId] = Form,
 		[Journals!TOpJournal!Array] = null
 	from doc.Operations where TenantId = @TenantId;
+
+	select [Forms!TForm!Array] = null, [Id!!Id] = f.Id, [Name!!Name] = f.[Name]
+	from doc.Forms f;
 end
 go
 -------------------------------------------------
@@ -283,5 +287,27 @@ begin
 
 	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,
 		@Id = @Id;
+end
+go
+-------------------------------------------------
+create or alter procedure doc.[Operation.Plain.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	if exists(select * from doc.Documents where TenantId = @TenantId and Operation = @Id) or
+		exists(select * from doc.OperationLinks where TenantId = @TenantId and Operation = @Id)
+		throw 60000, N'UI:@[Error.Delete.Used]', 0;
+	begin tran;
+	delete from doc.OpTrans where TenantId = @TenantId and Operation = @Id;
+	delete from ui.OpMenuLinks where TenantId = @TenantId and Operation = @Id;
+	delete from doc.OperationLinks where TenantId = @TenantId and Parent = @Id;
+	delete from doc.Operations where TenantId = @TenantId and Id = @Id;
+	commit tran;
+
 end
 go

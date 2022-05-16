@@ -4,6 +4,16 @@ define(["require", "exports"], function (require, exports) {
     const utils = require("std:utils");
     const dateUtils = utils.date;
     const currencyUtils = utils.currency;
+    function docToBaseDoc(doc) {
+        return {
+            Id: doc.Id,
+            Date: doc.Date,
+            Sum: doc.Sum,
+            OpName: doc.Operation.Name,
+            Form: doc.Operation.Form,
+            Done: doc.Done
+        };
+    }
     const template = {
         properties: {
             'TDocBase.$Name': docBaseName,
@@ -61,11 +71,13 @@ define(["require", "exports"], function (require, exports) {
     function handleLinkSaved(elem) {
         let doc = elem.Document;
         let found = this.Document.LinkedDocs.find(e => e.Id === doc.Id);
-        if (!found)
-            return;
-        found.Sum = doc.Sum;
-        found.Date = doc.Date;
-        found.OpName = doc.Operation.Name;
+        if (found) {
+            found.Sum = doc.Sum;
+            found.Date = doc.Date;
+            found.OpName = doc.Operation.Name;
+        }
+        else
+            this.Document.LinkedDocs.$append(docToBaseDoc(doc));
     }
     function handleLinkApply(elem) {
         let found = this.Document.LinkedDocs.find(e => e.Id === elem.Id);
@@ -88,7 +100,6 @@ define(["require", "exports"], function (require, exports) {
         const ctrl = this.$ctrl;
         await ctrl.$save();
         let res = await ctrl.$invoke('createonbase', { Document: this.Document.Id, LinkId: link.Id }, '/document/commands');
-        this.Document.LinkedDocs.$append(res.Document);
         let url = `/document/${res.Document.Form}/edit`;
         await ctrl.$showDialog(url, { Id: res.Document.Id });
     }

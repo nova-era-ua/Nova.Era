@@ -6,15 +6,16 @@ select [Id!!Id] = i.Id,
 	[Name!!Name] = i.[Name], i.Article, i.Memo,
 	[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 	[Role!TItemRole!RefId] = i.[Role],
-	[!TenantId] = i.TenantId
+	[!TenantId] = i.TenantId, [!IsStock] = ir.IsStock
 from cat.Items i
+	left join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
 	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 where i.Void = 0;
 go
 -------------------------------------------------
 create or alter view cat.view_ItemRoles
 as
-select [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color,
+select [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock,
 	[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name],
 	[!TenantId] = ir.TenantId
 from cat.ItemRoles ir
@@ -67,7 +68,7 @@ begin
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where 0 <> 0;
 
-	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock
 	from cat.ItemRoles ir 
 	where 0 <> 0;
 
@@ -160,7 +161,7 @@ begin
 	order by t.rowno;
 
 	with R([role]) as (select [role] from @items group by [role])
-	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock
 	from cat.ItemRoles ir inner join R on ir.TenantId = @TenantId and ir.Id = R.[role];
 
 	-- system data
@@ -293,7 +294,7 @@ begin
 		[Elements!THieElem!Array] = null
 	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
 
-	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color,
+	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock,
 		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name]
 	from cat.ItemRoles ir 
 		left join cat.CostItems ci on ir.TenantId = ci.TenantId and ir.CostItem =ci.Id
@@ -475,23 +476,25 @@ go
 create or alter procedure cat.[Item.Browse.Index]
 @TenantId int = 1,
 @UserId bigint,
-@Id bigint = null
+@Id bigint = null,
+@IsStock nchar(1) = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	declare @stock bit;
+	set @stock = case @IsStock when N'T' then 1 when N'V' then 0 else null end;
+
 	select [Items!TItem!Array] = null, *
 	from cat.view_Items v
-	where v.[!TenantId] = @TenantId
+	where v.[!TenantId] = @TenantId and (@IsStock is null or v.[!IsStock] = @stock)
 	order by v.[Id!!Id];
 
 	-- all
 	select [!TItemRole!Map] = null, vir.* 
 	from cat.view_ItemRoles vir 
-	where vir.[!TenantId] = @TenantId and vir.[Id!!Id] in (
-		select vi.[Role!TItemRole!RefId] from cat.view_Items vi where vi.[!TenantId] = @TenantId
-	);
+	where vir.[!TenantId] = @TenantId;
 end
 go
 -------------------------------------------------
