@@ -27,7 +27,7 @@
   background-color: transparent;
 }
 .inner-table td {
-  border: none!important;
+  border: none !important;
 }
 table.sheet.red-borders tr.row-title td,
 table.sheet.red-borders tr.row-parameter td,
@@ -51,5 +51,8 @@ li.line-top:before {
 }
 .ml-3 {
   margin-left: 1rem;
+}
+.data-grid-fetch td {
+  padding: 2px 8px!important;
 }
 /*PLATFORM*/

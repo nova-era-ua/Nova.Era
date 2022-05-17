@@ -142,3 +142,22 @@ begin
 end
 go
 
+------------------------------------------------
+create or alter procedure cat.[Unit.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [Units!TUnit!Array] = null, [Id!!Id] = u.Id, [Name!!Name] = u.[Name], u.[Short]
+	from cat.Units u 
+	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or [Short] like @fr)
+	order by u.[Short];
+end
+go

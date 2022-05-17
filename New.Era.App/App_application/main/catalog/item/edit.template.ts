@@ -16,6 +16,9 @@ const template: Template = {
 	},
 	commands: {
 		addHierarchy
+	},
+	delegates: {
+		fetchUnit
 	}
 };
 
@@ -35,4 +38,9 @@ async function addHierarchy(elems) {
 	if (elems.find(h => h.Group === item.Id)) return; // already in list
 
 	elems.$append({ Group: item.Id, Path: makePath(item, ' > ') });
+}
+
+function fetchUnit(item, text) {
+	if (!text) return [];
+	return this.$ctrl.$invoke('fetch', {Text: text}, '/catalog/unit');
 }

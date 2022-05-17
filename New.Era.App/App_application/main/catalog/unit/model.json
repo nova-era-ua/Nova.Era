@@ -1,33 +1,37 @@
 ﻿{
-  "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "cat",
-  "model": "Unit",
-  "actions": {
-    "index": {
-      "index": true,
-      "template": "index.template",
-      "view": "index.view"
-    }
-  },
-  "dialogs": {
-    "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
-    },
-    "browse": {
-      "index": true,
-      "view": "browse.dialog"
-    },
-    "browsecatalog": {
-      "index": true,
-      "model": "Unit.Catalog",
-      "view": "browse.catalog.dialog"
-    }
-  },
-  "commands": {
-    "addFromCatalog": {
-      "type": "sql",
-      "procedure": "Unit.AddFromCatalog"
-    }
-  }
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "cat",
+	"model": "Unit",
+	"actions": {
+		"index": {
+			"index": true,
+			"template": "index.template",
+			"view": "index.view"
+		}
+	},
+	"dialogs": {
+		"edit": {
+			"template": "edit.template",
+			"view": "edit.dialog"
+		},
+		"browse": {
+			"index": true,
+			"view": "browse.dialog"
+		},
+		"browsecatalog": {
+			"index": true,
+			"model": "Unit.Catalog",
+			"view": "browse.catalog.dialog"
+		}
+	},
+	"commands": {
+		"addFromCatalog": {
+			"type": "sql",
+			"procedure": "Unit.AddFromCatalog"
+		},
+		"fetch": {
+			"type": "sql",
+			"procedure": "Unit.Fetch"
+		}
+	}
 }

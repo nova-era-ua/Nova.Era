@@ -16,6 +16,9 @@ define(["require", "exports"], function (require, exports) {
         },
         commands: {
             addHierarchy
+        },
+        delegates: {
+            fetchUnit
         }
     };
     exports.default = template;
@@ -31,5 +34,10 @@ define(["require", "exports"], function (require, exports) {
         if (elems.find(h => h.Group === item.Id))
             return;
         elems.$append({ Group: item.Id, Path: makePath(item, ' > ') });
+    }
+    function fetchUnit(item, text) {
+        if (!text)
+            return [];
+        return this.$ctrl.$invoke('fetch', { Text: text }, '/catalog/unit');
     }
 });
