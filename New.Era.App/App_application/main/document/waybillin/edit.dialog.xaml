@@ -27,7 +27,7 @@
 	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem" AutoFlow="Row">
 		<Grid AutoFlow="Column" AlignItems="Baseline" Margin="0,0,1rem,0" Gap="1rem"
 			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem">
-			<Header Content="Покупка товарів/послуг" Wrap="NoWrap"/>
+			<Header Content="Придбання товарів/послуг" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
 			<TextBox Disabled="True" Placeholder="Авто"/>
 			<Label Align="Right">від</Label>

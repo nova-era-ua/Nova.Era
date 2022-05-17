@@ -74,7 +74,7 @@ begin
 		(@TenantId, 21, N'Послуга №1', 51);
 
 	insert into doc.Operations (TenantId, Id, [Name], [Form]) values
-		(@TenantId, 100, N'Покупка товарів/послуг',			N'waybillin'),
+		(@TenantId, 100, N'Придбання товарів/послуг',		N'waybillin'),
 		(@TenantId, 101, N'Оплата постачальнику (банк)',	N'payout'),
 		(@TenantId, 102, N'Оплата постачальнику (готівка)',	N'cashout'),
 		(@TenantId, 103, N'Продаж товарів/послуг',			N'waybillout'),
