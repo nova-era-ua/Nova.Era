@@ -61,10 +61,10 @@
 					<SheetSection>
 						<SheetRow Style="Total" Align="Right" Wrap="NoWrap">
 							<SheetCell Align="Left" ColSpan="4">@[Total]</SheetCell>
-							<SheetCell Content="{Bind RepData.StartSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.StartSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell Content="{Bind RepData.DtSum, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind RepData.CtSum, DataType=Currency, HideZeros=True}"/>
-							<SheetCell Content="{Bind RepData.EndSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.EndSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 						</SheetRow>
 					</SheetSection>
 					<SheetTreeSection ItemsSource="{Bind RepData.Items}">
@@ -72,10 +72,10 @@
 							<SheetGroupCell />
 							<SheetCell ColSpan="2" GroupIndent="True" Align="Left" Content="{Bind $groupName}"/>
 							<SheetCell Align="Left" Content="{Bind Currency}"/>
-							<SheetCell Content="{Bind StartSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind StartSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell Content="{Bind DtSum, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind CtSum, DataType=Currency, HideZeros=True}"/>
-							<SheetCell Content="{Bind EndSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind EndSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 						</SheetRow>
 					</SheetTreeSection>
 				</Sheet>

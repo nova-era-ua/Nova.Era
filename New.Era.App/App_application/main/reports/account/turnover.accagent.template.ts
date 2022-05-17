@@ -6,10 +6,23 @@ const template: Template = {
 		'TRepDataArray.$CtColSpan'() { return this.$cross.CtCross.length + 1; },
 		'TRepDataArray.$DtTotals': dtTotals,
 		'TRepDataArray.$CtTotals': ctTotals
+	},
+	events: {
+		'Model.load': modelLoad
 	}
 };
 
 export default template;
+
+function modelLoad() {
+	var calcSaldo = (v) => {
+		this.RepData[v] = this.RepData.Items.reduce((p, c) => p + c[v], 0);
+	}
+	calcSaldo('DtStart');
+	calcSaldo('CtStart');
+	calcSaldo('DtEnd');
+	calcSaldo('CtEnd');
+}
 
 function dtTotals() {
 	return this.$cross.DtCross.map(x => {

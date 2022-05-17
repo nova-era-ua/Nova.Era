@@ -85,3 +85,17 @@ begin
 	return cast(@Id1 as nvarchar(31)) + N'_'+ cast(@Id2 as nvarchar(31));
 end
 go
+------------------------------------------------
+create or alter function rep.fn_FoldSaldo(@DtCt smallint, @Dt money, @Ct money)
+returns money
+as
+begin
+	declare @e money = @Dt - @Ct;
+	declare @r money;
+	if @DtCt = 1
+		set @r = iif(@e < 0, 0, @e);
+	else if @DtCt = -1
+		set @r = iif(@e < 0, -@e, 0);
+	return @r;
+end
+go

@@ -7,12 +7,7 @@
 56. BankAccount: Set BankId from AccountNo.
 57. BankAccount/Cash - неправильный placeholder при выборе
 (в списке документов показывается "все касы")
-58. Оборотка "Контрагент + контракт" - свернуть сальдо.
-59. 
-
-Small fixes
-===========
-3.
+61.
 
 
 Sample

@@ -30,5 +30,12 @@ define(["require", "exports"], function (require, exports) {
             this.RepData.CtCross.forEach((e, i) => e.Sum += item.CtCross[i].Sum);
             this.RepData.DtCross.forEach((e, i) => e.Sum += item.DtCross[i].Sum);
         });
+        var calcSaldo = (v) => {
+            this.RepData[v] = this.RepData.Items.reduce((p, c) => p + c[v], 0);
+        };
+        calcSaldo('DtStart');
+        calcSaldo('CtStart');
+        calcSaldo('DtEnd');
+        calcSaldo('CtEnd');
     }
 });

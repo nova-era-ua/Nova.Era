@@ -21,22 +21,24 @@ begin
 	declare @acc bigint;
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
 
-	
-	select [Agent] = j.[Agent], Acc = j.Account, CorrAcc = j.CorrAccount, j.DtCt,
-		DtStart = case when DtCt =  1 and j.[Date] < @From then [Sum] else 0 end,
-		CtStart = case when DtCt = -1 and j.[Date] < @From then [Sum] else 0 end,
-		DtSum = case when DtCt = 1 and j.[Date] >= @From then [Sum] else 0 end,
-		CtSum = case when DtCt = -1 and j.[Date] >= @From then [Sum] else 0 end
+	select IsRem = case when j.[Date] < @From then 1 else 0 end, 
+		[Agent] = j.[Agent], Acc = j.Account, CorrAcc = j.CorrAccount, j.DtCt,
+		DtStart = case when j.[Date] < @From then _SumDt else 0 end,
+		CtStart = case when j.[Date] < @From then _SumCt else 0 end,
+		DtSum = case when j.[Date] >= @From then _SumDt else 0 end,
+		CtSum = case when j.[Date] >= @From then _SumCt else 0 end
 	into #tmp
 	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
-		and [Date] >= @From and [Date] < @end;
+		and [Date] < @end;
 
 	with T as (
 		select [Agent],
-			DtStart = sum(DtStart), CtStart = sum(CtStart),
-			DtSum = sum(DtSum), CtSum = sum(CtSum), 
-			DtEnd = sum(DtStart) + sum(DtSum), 
-			CtEnd = sum(CtStart) + sum(CtSum),
+			DtStart = rep.fn_FoldSaldo(1, sum(DtStart), sum(CtStart)),
+			CtStart = rep.fn_FoldSaldo(-1, sum(DtStart), sum(CtStart)),
+			DtSum = sum(DtSum), 
+			CtSum = sum(CtSum), 
+			DtEnd = rep.fn_FoldSaldo(1, sum(DtStart) + sum(DtSum), sum(CtStart) + sum(CtSum)),
+			CtEnd = rep.fn_FoldSaldo(-1, sum(DtStart) + sum(DtSum), sum(CtStart) + sum(CtSum)),
 			GrpAgent = grouping([Agent])
 		from #tmp 
 		group by rollup([Agent])
@@ -60,17 +62,17 @@ begin
 	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[DtSum]), [!TRepData.DtCross!ParentId] = t.Agent
 	from #tmp t
 		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
-	where t.DtCt = 1
+	where t.DtCt = 1 and t.IsRem = 0
 	group by a.Code, t.Agent;
 
 	-- ct cross
 	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[CtSum]), [!TRepData.CtCross!ParentId] = t.Agent
 	from #tmp t
 		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
-	where t.DtCt = -1
+	where t.DtCt = -1 and t.IsRem = 0
 	group by a.Code, t.Agent;
 
-	select [Report!TReport!Object] = null, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
+	select [Report!TReport!Object] = null, [Id!!Id] = r.Id, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
 	from rep.Reports r
 	where r.TenantId = @TenantId and r.Id = @Id;
 
@@ -115,44 +117,56 @@ begin
 	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
 		and [Date] >= @From and [Date] < @end;
 
-	with T as (
-		select [Date] = cast([Date] as date), Id=cast([Date] as int),
-			DtSum = sum(DtSum), CtSum = sum(CtSum),
-			GrpDate = grouping([Date])
-		from #tmp 
-		group by rollup([Date])
-	) select [RepData!TRepData!Group] = null, [Id!!Id] = Id, [Date],
-		StartSum = @start + coalesce(sum(DtSum - CtSum) over (
-			partition by GrpDate order by [Date]
-			rows between unbounded preceding and 1 preceding), 0
-		),
-		DtSum, CtSum,
-		EndSum = @start + sum(DtSum - CtSum) over (
-			partition by GrpDate order by [Date]
-			rows between unbounded preceding and current row
-		),
-		[Date!!GroupMarker] = GrpDate,
-		[DtCross!TCross!CrossArray] = null,
-		[CtCross!TCross!CrossArray] = null,
-		[Items!TRepData!Items] = null
-	from T
-	order by GrpDate desc;
+	if @@rowcount = 0
+	begin
+		select [RepData!TRepData!Group] = null, [Id!!Id] = 0, [Date] = null, StartSum = @start,
+			DtSum = null, CtSum = null, EndSum = @start, 
+			[Date!!GroupMarker] = 1,
+			[DtCross!TCross!CrossArray] = null,
+			[CtCross!TCross!CrossArray] = null,
+			[Items!TRepData!Items] = null;
+	end
+	else 
+	begin
+		with T as (
+			select [Date] = cast([Date] as date), Id=cast([Date] as int),
+				DtSum = sum(DtSum), CtSum = sum(CtSum),
+				GrpDate = grouping([Date])
+			from #tmp 
+			group by rollup([Date])
+		) select [RepData!TRepData!Group] = null, [Id!!Id] = Id, [Date],
+			StartSum = @start + coalesce(sum(DtSum - CtSum) over (
+				partition by GrpDate order by [Date]
+				rows between unbounded preceding and 1 preceding), 0
+			),
+			DtSum, CtSum,
+			EndSum = @start + sum(DtSum - CtSum) over (
+				partition by GrpDate order by [Date]
+				rows between unbounded preceding and current row
+			),
+			[Date!!GroupMarker] = GrpDate,
+			[DtCross!TCross!CrossArray] = null,
+			[CtCross!TCross!CrossArray] = null,
+			[Items!TRepData!Items] = null
+		from T
+		order by GrpDate desc;
 
-	-- dt cross
-	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[DtSum]), [!TRepData.DtCross!ParentId] = t.Id
-	from #tmp t
-		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
-	where t.DtCt = 1
-	group by a.Code, t.Id;
+		-- dt cross
+		select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[DtSum]), [!TRepData.DtCross!ParentId] = t.Id
+		from #tmp t
+			inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
+		where t.DtCt = 1
+		group by a.Code, t.Id;
 
-	-- ct cross
-	select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[CtSum]), [!TRepData.CtCross!ParentId] = t.Id
-	from #tmp t
-		inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
-	where t.DtCt = -1
-	group by a.Code, t.Id;
+		-- ct cross
+		select [!TCross!CrossArray] = null, [Acc!!Key] = a.Code, [Sum] = sum(t.[CtSum]), [!TRepData.CtCross!ParentId] = t.Id
+		from #tmp t
+			inner join acc.Accounts a on a.TenantId = @TenantId and t.CorrAcc = a.Id
+		where t.DtCt = -1
+		group by a.Code, t.Id;
+	end
 
-	select [Report!TReport!Object] = null, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
+	select [Report!TReport!Object] = null, [Id!!Id] = r.Id, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
 	from rep.Reports r
 	where r.TenantId = @TenantId and r.Id = @Id;
 
@@ -197,10 +211,12 @@ begin
 
 	with T as (
 		select [Agent], [Contract],
-			DtStart = sum(DtStart), CtStart = sum(CtStart),
-			DtSum = sum(DtSum), CtSum = sum(CtSum), 
-			DtEnd = sum(DtStart) + sum(DtSum), 
-			CtEnd = sum(CtStart) + sum(CtSum),
+			DtStart = rep.fn_FoldSaldo(1, sum(DtStart), sum(CtStart)),
+			CtStart = rep.fn_FoldSaldo(-1, sum(DtStart), sum(CtStart)),
+			DtSum = sum(DtSum),
+			CtSum = sum(CtSum),
+			DtEnd =  rep.fn_FoldSaldo(1, sum(DtStart) + sum(DtSum), sum(CtStart) + sum(CtSum)),
+			CtEnd =  rep.fn_FoldSaldo(-1, sum(DtStart) + sum(DtSum), sum(CtStart) + sum(CtSum)),
 			GrpAgent = grouping([Agent]),
 			GrpContract = grouping([Contract])
 		from #tmp 

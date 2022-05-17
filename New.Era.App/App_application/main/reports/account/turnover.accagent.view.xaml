@@ -95,7 +95,7 @@
 					</SheetSection>
 					<SheetSection ItemsSource="{Bind RepData.Items}">
 						<SheetRow Align="Right" Wrap="NoWrap">
-							<SheetCell Align="Center" Content="{Bind Agent.Name}"/>
+							<SheetCell Align="Left" Content="{Bind Agent.Name}"/>
 							<SheetCell Content="{Bind DtStart, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind CtStart, DataType=Currency, HideZeros=True}"/>
 							<SheetCellGroup ItemsSource="{Bind DtCross}">
