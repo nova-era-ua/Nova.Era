@@ -1,5 +1,4 @@
 ﻿/* Accounting plan */
-
 ------------------------------------------------
 create or alter procedure acc.[Account.Index]
 @TenantId int = 1,

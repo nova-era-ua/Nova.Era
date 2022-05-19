@@ -10,12 +10,9 @@
 		<TextBox Grid.Row="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Item.Name}" Bold="True" TabIndex="1"/>
 		<Selector Grid.Row="1" Grid.Col="3" Label="@[UnitShort]" Value="{Bind Item.Unit}" DisplayProperty="Short" 
 				Width="10rem" Delegate="fetchUnit" ListSize="15rem,10rem">
-			<Selector.AddOns>
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>
-			</Selector.AddOns>
+			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>
 			<Selector.ItemsPanel>
-				<DataGrid GridLines="Horizontal" HeadersVisibility="None"
-						Style="Light" Striped="True" CssClass="data-grid-fetch">
+				<DataGrid XamlStyle="{StyleResource DataGridPanel}">
 					<DataGridColumn Content="{Bind Short}" Wrap="NoWrap" Fit="True"/>
 					<DataGridColumn Content="{Bind Name}"/>
 				</DataGrid>

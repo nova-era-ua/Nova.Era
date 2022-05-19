@@ -45,19 +45,15 @@
 		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
 			<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
 					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.Company.Id}"
-						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+				<Hyperlink If="{Bind Parent.Filter.Company.Id}"
+					Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
 			</Selector>
 			<Selector Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
 					  Value="{Bind Parent.Filter.Agent}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Agent}, Url='/catalog/agent/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.Agent.Id}"
-						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Agent}}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Agent}, Url='/catalog/agent/browse'}"/>
+				<Hyperlink If="{Bind Parent.Filter.Agent.Id}"
+					Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Agent}}"/>
 			</Selector>
 		</Taskpad>
 	</Page.Taskpad>

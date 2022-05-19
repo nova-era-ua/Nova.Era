@@ -9,7 +9,7 @@
 	<TreeView FolderSelect="False" Height="30rem"
 			ItemsSource="{Bind Accounts}"
 			DoubleClick="{BindCmd Select, Argument={Bind Accounts}}">
-		<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}"/>
+		<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}" InitialExpand="True"/>
 	</TreeView>
 </Dialog>
 

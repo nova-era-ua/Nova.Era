@@ -1,7 +1,7 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "acc",
-  "model": "Account",
+  "model": "Accounting.Account",
   "actions": {
     "index": {
       "index": true,

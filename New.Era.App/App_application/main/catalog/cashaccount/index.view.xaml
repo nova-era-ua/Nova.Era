@@ -21,7 +21,8 @@
 			<Button Icon="Reload" Command="{BindCmd Reload}" />
 		</Toolbar>
 		<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True"
-				  ItemsSource="{Bind Parent.ItemsSource}" Sort="True">
+				  ItemsSource="{Bind Parent.ItemsSource}" Sort="True"
+				  DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind CashAccounts}, Url='/catalog/cashaccount/edit'}">
 			<DataGridColumn Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>

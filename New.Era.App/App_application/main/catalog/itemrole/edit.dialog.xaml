@@ -54,9 +54,7 @@
 						</Table.Header>
 						<TableRow>
 							<Selector Value="{Bind Plan}" DisplayProperty="Code" Tip="{Bind Plan.Name}">
-								<Selector.AddOns>
-									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
-								</Selector.AddOns>
+								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
 							</Selector>
 							<ComboBox ItemsSource="{Bind Root.AccKinds}" Value="{Bind AccKind}">
 								<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>

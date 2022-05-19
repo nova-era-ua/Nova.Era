@@ -36,17 +36,13 @@
 		<Grid Columns="Auto,22rem,1px,Auto,22rem,1*" Gap="1rem">
 			<Label Content="@[Agent]" Grid.Row="1" Grid.Col="1"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
 			</Selector>
 			<Label Content="@[Contract]" Grid.Row="2" Grid.Col="1"/>
 			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, 
-						Data={Bind Document.$CompanyAgentArg},
-						Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, 
+					Data={Bind Document.$CompanyAgentArg},
+					Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
 			</Selector>
 			<Label Content="@[CashAccount]" Grid.Row="3" Grid.Col="1"/>
 			<Selector Grid.Row="3" Grid.Col="2"

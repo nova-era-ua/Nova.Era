@@ -4,6 +4,7 @@ define(["require", "exports"], function (require, exports) {
     const tu = require('std:utils').text;
     const template = {
         properties: {
+            'TRoot.$$Tab': String,
             'TRoot.$Search': String,
             'TAccount.$Title'() { return `${this.Code} ${this.Name}`; },
             'TAccount.$Icon'() { return this.IsFolder ? 'account-folder' : 'account'; },
@@ -12,7 +13,10 @@ define(["require", "exports"], function (require, exports) {
         events: {
             'Root.$Search.change': searchAccount,
         },
-        commands: {}
+        commands: {
+            editDocument,
+            editSelectedDocument
+        }
     };
     exports.default = template;
     function searchAccount(root, text) {
@@ -23,5 +27,22 @@ define(["require", "exports"], function (require, exports) {
             found.$select(root.Accounts);
         else
             root.$Search = '';
+    }
+    async function editSelectedDocument(docs) {
+        if (!docs)
+            return;
+        let doc = docs.$selected;
+        if (!doc)
+            return;
+        const ctrl = this.$ctrl;
+        let url = `/document/${doc.Operation.Form}/edit`;
+        await ctrl.$showDialog(url, { Id: doc.Id });
+    }
+    async function editDocument(doc) {
+        if (!doc)
+            return;
+        const ctrl = this.$ctrl;
+        let url = `/document/${doc.Operation.Form}/edit`;
+        await ctrl.$showDialog(url, { Id: doc.Id });
     }
 });

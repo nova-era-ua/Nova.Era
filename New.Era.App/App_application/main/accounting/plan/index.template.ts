@@ -5,6 +5,7 @@ const tu: UtilsText = require('std:utils').text;
 
 const template: Template = {
 	properties: {
+		'TRoot.$$Tab': String,
 		'TRoot.$Search': String,
 		'TAccount.$Title'(this: TAccount) { return `${this.Code} ${this.Name}`; },
 		'TAccount.$Icon'(this: TAccount) { return this.IsFolder ? 'account-folder' : 'account'; },
@@ -14,6 +15,8 @@ const template: Template = {
 		'Root.$Search.change': searchAccount,
 	},
 	commands: {
+		editDocument,
+		editSelectedDocument
 	}
 };
 
@@ -28,3 +31,17 @@ function searchAccount(root, text) {
 		root.$Search = '';
 }
 
+async function editSelectedDocument(docs) {
+	if (!docs) return;
+	let doc = docs.$selected;
+	if (!doc) return;
+	const ctrl = this.$ctrl;
+	let url = `/document/${doc.Operation.Form}/edit`
+	await ctrl.$showDialog(url, { Id: doc.Id });
+}
+async function editDocument(doc) {
+	if (!doc) return;
+	const ctrl = this.$ctrl;
+	let url = `/document/${doc.Operation.Form}/edit`
+	await ctrl.$showDialog(url, { Id: doc.Id });
+}

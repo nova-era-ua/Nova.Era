@@ -7,17 +7,13 @@
 	</Dialog.Buttons>
 	<Grid>
 		<Selector Label="@[Company]" Value="{Bind CashAccount.Company}" DisplayProperty="Name">
-			<Selector.AddOns>
-				<Hyperlink Icon="Search" 
-					Command="{BindCmd Browse, Argument={Bind CashAccount.Company}, Url='/catalog/company/browse'}"/>
-			</Selector.AddOns>
+			<Hyperlink Icon="Search" 
+				Command="{BindCmd Browse, Argument={Bind CashAccount.Company}, Url='/catalog/company/browse'}"/>
 		</Selector>
 		<Selector Label="@[Currency]" Width="10rem" DisplayProperty="Short"
 				  Value="{Bind CashAccount.Currency}" Disabled="True">
-			<Selector.AddOns>
-				<Hyperlink Icon="Search" 
-					Command="{BindCmd Browse, Argument={Bind CashAccount.Currency}, Url='/catalog/currency/browse'}"/>
-			</Selector.AddOns>
+			<Hyperlink Icon="Search" 
+				Command="{BindCmd Browse, Argument={Bind CashAccount.Currency}, Url='/catalog/currency/browse'}"/>
 		</Selector>
 		<TextBox Label="@[Name]" Value="{Bind CashAccount.Name}" Bold="True"/>
 		<TextBox Label="@[Memo]" Value="{Bind CashAccount.Memo}" Multiline="True"/>

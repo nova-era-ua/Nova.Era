@@ -1,4 +1,5 @@
-﻿31. Unit: Pager, Filter, Sort
+﻿
+31. Unit: Pager, Filter, Sort
 34. StockReports: turnover
 42. Document:Number
 48. Agent.BankAccounts
@@ -23,7 +24,6 @@ dt:281 (rows,material) ct:631 (sum)
 ==================
 4. useUnsafeHeaderParsing??? javascript fetch -> Accept header from params to WebRequest.
 5. export to csv
-
 
 Future: Common
 ==============

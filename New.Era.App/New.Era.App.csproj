@@ -50,11 +50,11 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="A2v10.Xaml, Version=10.0.7845.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7845\lib\net48\A2v10.Xaml.dll</HintPath>
+    <Reference Include="A2v10.Xaml, Version=10.0.7847.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7847\lib\net48\A2v10.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7845.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7845\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7847.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7847\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -754,11 +754,11 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="..\packages\A2v10.App.Runtime.10.0.7845\build\A2v10.App.Runtime.targets" Condition="Exists('..\packages\A2v10.App.Runtime.10.0.7845\build\A2v10.App.Runtime.targets')" />
+  <Import Project="..\packages\A2v10.App.Runtime.10.0.7847\build\A2v10.App.Runtime.targets" Condition="Exists('..\packages\A2v10.App.Runtime.10.0.7847\build\A2v10.App.Runtime.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\A2v10.App.Runtime.10.0.7845\build\A2v10.App.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.App.Runtime.10.0.7845\build\A2v10.App.Runtime.targets'))" />
+    <Error Condition="!Exists('..\packages\A2v10.App.Runtime.10.0.7847\build\A2v10.App.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.App.Runtime.10.0.7847\build\A2v10.App.Runtime.targets'))" />
   </Target>
 </Project>

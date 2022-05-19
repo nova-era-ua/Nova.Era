@@ -1,67 +1,68 @@
 ﻿[
-  {
-    "$schema": "@schemas/sql-json-schema.json#",
-    "version": "10.1.1014",
-    "outputFile": "SqlScripts/application.sql",
-    "inputFiles": [
-      "@sql/platform/a2v10platform.sql",
-      "main/_sql/common/security_common.sql",
-      "main/_sql/security.sql",
-      "main/_sql/struct.sql",
-      "main/_sql/migrations.sql",
-      "main/_sql/common.sql",
-      "main/_sql/ui.sql",
-      "main/profile/default/default.sql",
-      "main/catalog/company/company.sql",
-      "main/catalog/warehouse/warehouse.sql",
-      "main/catalog/item/item.sql",
-      "main/catalog/itemgroup/groupitem.sql",
-      "main/catalog/agent/agent.sql",
-      "main/catalog/contract/contract.sql",
-      "main/catalog/bank/bank.sql",
-      "main/catalog/bankaccount/bankaccount.sql",
-      "main/catalog/cashaccount/cashaccount.sql",
-      "main/catalog/acckind/acckind.sql",
-      "main/catalog/itemrole/itemrole.sql",
-      "main/catalog/unit/unit.sql",
-      "main/catalog/currency/currency.sql",
-      "main/catalog/pricekind/pricekind.sql",
-      "main/catalog/cashflowitem/cashflowitem.sql",
-      "main/catalog/costitem/costitem.sql",
-      "main/catalog/respcenter/respcenter.sql",
-      "main/settings/accountplan/plan.sql",
-      "main/settings/operation/operation.sql",
-      "main/document/document.stock.sql",
-      "main/document/document.pay.sql",
-      "main/document/document.apply.sql",
-      "main/document/document.dialogs.sql",
-      "main/document/document.commands.sql",
-      "main/document/document.common.sql",
-      "main/reports/report.sql",
-      "main/reports/stock/report.stock.sql",
-      "main/reports/agent/report.agent.sql",
-      "main/reports/account/report.account.sql",
-      "main/reports/plan/report.plan.sql",
-      "main/settings/develop/develop.sql",
-      "main/_sql/admin.sql",
-      "main/_sql/initial_data.sql",
-      "main/_sql/initial_catalog.sql"
-    ]
-  },
-  {
-    "version": "10.1.1014",
-    "outputFile": "SqlScripts/catalog.sql",
-    "inputFiles": [
-      "main/_sql/common/security_common.sql",
-      "main/_sql/catalog/catalog_security.sql",
-      "main/_sql/catalog/catalog_ui.sql"
-    ]
-  },
-  {
-    "version": "10.1.1014",
-    "outputFile": "SqlScripts/multitenant.sql",
-    "inputFiles": [
-      "main/_sql/startup_mt.sql"
-    ]
-  }
+	{
+		"$schema": "@schemas/sql-json-schema.json#",
+		"version": "10.1.1014",
+		"outputFile": "SqlScripts/application.sql",
+		"inputFiles": [
+			"@sql/platform/a2v10platform.sql",
+			"main/_sql/common/security_common.sql",
+			"main/_sql/security.sql",
+			"main/_sql/struct.sql",
+			"main/_sql/migrations.sql",
+			"main/_sql/common.sql",
+			"main/_sql/ui.sql",
+			"main/profile/default/default.sql",
+			"main/catalog/company/company.sql",
+			"main/catalog/warehouse/warehouse.sql",
+			"main/catalog/item/item.sql",
+			"main/catalog/itemgroup/groupitem.sql",
+			"main/catalog/agent/agent.sql",
+			"main/catalog/contract/contract.sql",
+			"main/catalog/bank/bank.sql",
+			"main/catalog/bankaccount/bankaccount.sql",
+			"main/catalog/cashaccount/cashaccount.sql",
+			"main/catalog/acckind/acckind.sql",
+			"main/catalog/itemrole/itemrole.sql",
+			"main/catalog/unit/unit.sql",
+			"main/catalog/currency/currency.sql",
+			"main/catalog/pricekind/pricekind.sql",
+			"main/catalog/cashflowitem/cashflowitem.sql",
+			"main/catalog/costitem/costitem.sql",
+			"main/catalog/respcenter/respcenter.sql",
+			"main/accounting/plan/plan.sql",
+			"main/settings/accountplan/plan.sql",
+			"main/settings/operation/operation.sql",
+			"main/document/document.stock.sql",
+			"main/document/document.pay.sql",
+			"main/document/document.apply.sql",
+			"main/document/document.dialogs.sql",
+			"main/document/document.commands.sql",
+			"main/document/document.common.sql",
+			"main/reports/report.sql",
+			"main/reports/stock/report.stock.sql",
+			"main/reports/agent/report.agent.sql",
+			"main/reports/account/report.account.sql",
+			"main/reports/plan/report.plan.sql",
+			"main/settings/develop/develop.sql",
+			"main/_sql/admin.sql",
+			"main/_sql/initial_data.sql",
+			"main/_sql/initial_catalog.sql"
+		]
+	},
+	{
+		"version": "10.1.1014",
+		"outputFile": "SqlScripts/catalog.sql",
+		"inputFiles": [
+			"main/_sql/common/security_common.sql",
+			"main/_sql/catalog/catalog_security.sql",
+			"main/_sql/catalog/catalog_ui.sql"
+		]
+	},
+	{
+		"version": "10.1.1014",
+		"outputFile": "SqlScripts/multitenant.sql",
+		"inputFiles": [
+			"main/_sql/startup_mt.sql"
+		]
+	}
 ]

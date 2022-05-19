@@ -56,3 +56,7 @@ li.line-top:before {
   padding: 2px 8px!important;
 }
 /*PLATFORM*/
+/* Collection View: overflow:hidden (Accounting/Plan)*/
+.inner-grid .cw {
+  overflow: hidden;
+}

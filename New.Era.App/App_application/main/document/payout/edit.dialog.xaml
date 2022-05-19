@@ -28,32 +28,24 @@
 			<Span />
 			<Label Content="@[Company]"></Label>
 			<Selector Label="" Value="{Bind Document.Company}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
 		<Grid Columns="Auto,22rem,1px,Auto,22rem,1*" Gap="1rem">
 			<Label Content="@[Agent]" Grid.Row="1" Grid.Col="1"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
 			</Selector>
 			<Label Content="@[Contract]" Grid.Row="2" Grid.Col="1"/>
 			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, 
-						Data={Bind Document.$CompanyAgentArg},
-						Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, 
+					Data={Bind Document.$CompanyAgentArg},
+					Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
 			</Selector>
 			<Label Content="@[BankAccount]" Grid.Row="3" Grid.Col="1"/>
 			<Selector Grid.Row="3" Grid.Col="2" Value="{Bind Document.CashAccFrom}" DisplayProperty="$Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccFrom}, 
-						Url='/catalog/bankaccount/browse', Data={Bind Document.$CompanyArg}}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccFrom}, 
+					Url='/catalog/bankaccount/browse', Data={Bind Document.$CompanyArg}}"/>
 			</Selector>
 			<Label Content="@[Sum]" Grid.Row="4" Grid.Col="1"/>
 			<TextBox Grid.Row="4" Grid.Col="2" Width="15rem"
@@ -64,20 +56,16 @@
 			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
 			<Selector Grid.Row="1" Grid.Col="5"
 					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
-						Url='/catalog/respcenter/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
+					Url='/catalog/respcenter/browse'}"/>
 			</Selector>
 
 
 			<Label Content="@[CashFlowItem]" Grid.Row="2" Grid.Col="4" Wrap="NoWrap"/>
 			<Selector Grid.Row="2" Grid.Col="5"
 					Value="{Bind Document.CashFlowItem}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashFlowItem}, 
-						Url='/catalog/cashflowitem/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashFlowItem}, 
+					Url='/catalog/cashflowitem/browse'}"/>
 			</Selector>
 		</Grid>
 		<TextBox Grid.Row="4" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>

@@ -14,19 +14,13 @@
 		</ComboBox>
 		<TextBox Grid.ColSpan="3" Label="@[Name]" Value="{Bind Contract.Name}"/>
 		<Selector Grid.ColSpan="3" Label="@[Company]" Value="{Bind Contract.Company}" DisplayProperty="Name">
-			<Selector.AddOns>
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Contract.Company}, Url='/catalog/company/browse'}"/>
-			</Selector.AddOns>
+			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Contract.Company}, Url='/catalog/company/browse'}"/>
 		</Selector>
 		<Selector Grid.ColSpan="3" Label="@[Agent]" Value="{Bind Contract.Agent}" DisplayProperty="Name">
-			<Selector.AddOns>
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Contract.Agent}, Url='/catalog/agent/browse'}"/>
-			</Selector.AddOns>
+			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Contract.Agent}, Url='/catalog/agent/browse'}"/>
 		</Selector>
 		<Selector Grid.ColSpan="2" Label="@[PriceKind]" Value="{Bind Contract.PriceKind}" DisplayProperty="Name">
-			<Selector.AddOns>
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Contract.PriceKind}, Url='/catalog/pricekind/browse'}"/>
-			</Selector.AddOns>
+			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Contract.PriceKind}, Url='/catalog/pricekind/browse'}"/>
 		</Selector>
 		<TextBox Grid.ColSpan="3" Label="@[Memo]" Value="{Bind Contract.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
