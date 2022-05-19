@@ -26,7 +26,9 @@ begin
 
 	-- declarations
 	select [!TDocument!LazyArray] = null, [Id!!Id] = Id, [Date], [Sum], Memo,
-		[Agent!TAgent!RefId] = Agent, [Company!TCompany!RefId] = Company, [!!RowCount] = 0
+		[Agent!TAgent!RefId] = Agent, [Company!TCompany!RefId] = Company,
+		[Operation!TOperation!RefId] = Operation,
+		[!!RowCount] = 0
 	from doc.Documents where 1 <> 1;
 
 	select [!TAgent!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
