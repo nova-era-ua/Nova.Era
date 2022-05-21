@@ -8,19 +8,23 @@
       "view": "partials/itemrems.partial"
     }
   },
-  "dialogs": {
-    "edit": {
-      "model": "Item",
-      "template": "edit.template",
-      "view": "edit.dialog"
+    "dialogs": {
+        "edit": {
+            "model": "Item",
+            "template": "edit.template",
+            "view": "edit.dialog"
+        },
+        "browse": {
+            "index": true,
+            "model": "Item.Browse",
+            "view": "browse.dialog"
+        },
+        "browseprice": {
+            "index": true,
+            "model": "Item.Browse.Price",
+            "view": "browseprice.dialog"
+        }
     },
-    "browse": {
-      "index": true,
-      "model": "Item.Browse",
-      "view": "browse.dialog"
-    }
-
-  },
   "commands": {
     "getPath": {
       "type": "sql",

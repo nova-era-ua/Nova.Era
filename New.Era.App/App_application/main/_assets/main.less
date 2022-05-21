@@ -83,3 +83,20 @@ li.line-top:before {
 		overflow:hidden;
 	}
 }
+
+// TODO: Platfrorm -> Page.TaskpadLeft
+.page.page-grid.taskpad-left {
+	grid-template-columns:25rem 1fr;
+	.taskpad {
+		grid-column:1;
+		border-left:none;
+		border-right:1px solid #ddd;
+	}
+	.page-content {
+		grid-column:2;
+	}
+}
+
+.sticky-top {
+	z-index:9; // above sticky header
+}

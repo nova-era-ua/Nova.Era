@@ -48,6 +48,9 @@ define(["require", "exports"], function (require, exports) {
             },
             createOnBase,
             openLinked
+        },
+        delegates: {
+            canClose
         }
     };
     exports.default = template;
@@ -107,5 +110,8 @@ define(["require", "exports"], function (require, exports) {
         const ctrl = this.$ctrl;
         let url = `/document/${doc.Form}/edit`;
         await ctrl.$showDialog(url, { Id: doc.Id });
+    }
+    function canClose() {
+        return this.$ctrl.$saveModified('@[Confirm.Document.SaveModified]');
     }
 });

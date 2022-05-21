@@ -18,7 +18,7 @@
 					<CollectionView ItemsSource="{Bind Accounts.Selected(Documents)}" RunAt="Server">
 						<CollectionView.Filter>
 							<FilterDescription>
-								<FilterItem Property="Period" DataType="Period"/>
+								<FilterItem Property="Period" DataType="Period" Persistent="True"/>
 							</FilterDescription>
 						</CollectionView.Filter>
 						<Grid Height="100%" Rows="Auto,1*,Auto" Padding="0">

@@ -8,8 +8,9 @@
 56. BankAccount: Set BankId from AccountNo.
 57. BankAccount/Cash - неправильный placeholder при выборе
 (в списке документов показывается "все касы")
-61.
-
+61. $Title для договора
+62. Prices
+64. 
 
 Sample
 ======

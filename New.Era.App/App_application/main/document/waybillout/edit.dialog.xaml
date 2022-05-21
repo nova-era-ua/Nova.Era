@@ -1,5 +1,6 @@
 ﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Size="Max"
-		ButtonOnTop="True" Title="Видаткова накладна" SaveEvent="app.document.saved">
+		ButtonOnTop="True" Title="@[Document.WaybillOut]" SaveEvent="app.document.saved"
+		CanCloseDelegate="canClose">
 	<Dialog.Buttons>
 		<Button Icon="SaveCloseOutline" Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
 		<Button If="{Bind !Document.Done}"
@@ -27,7 +28,7 @@
 	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem" AutoFlow="Row">
 		<Grid AutoFlow="Column" AlignItems="Baseline" Margin="0,0,1rem,0"
 			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem">
-			<Header Content="Продаж товарів/послуг" Wrap="NoWrap"/>
+			<Header Content="@[Document.WaybillOut]" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
 			<TextBox Disabled="True" Placeholder="Авто"/>
 			<Label Align="Right">від</Label>
@@ -100,9 +101,8 @@
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
-							<Selector.AddOns>
-								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browse'}"/>
-							</Selector.AddOns>
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browseprice', 
+								Data={Bind Root.$BrowseItemArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
@@ -150,9 +150,8 @@
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
-							<Selector.AddOns>
-								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browse'}"/>
-							</Selector.AddOns>
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
+								Url='/catalog/item/browse', Data={Bind Root.$IsNoStockArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>

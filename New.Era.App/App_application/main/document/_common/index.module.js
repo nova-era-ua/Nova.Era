@@ -6,6 +6,7 @@ define(["require", "exports"], function (require, exports) {
             persistSelect: ['Documents']
         },
         properties: {
+            'TDocument.$No'() { return this.SNo; },
             'TDocument.$Mark'() { return this.Done ? 'green' : undefined; },
         },
         events: {

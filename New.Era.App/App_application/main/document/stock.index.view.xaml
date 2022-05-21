@@ -35,13 +35,16 @@
 				DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"
 				  Mark="{Bind $Mark}" MarkerStyle="Marker">
 			<DataGridColumn Content="{Bind Id}" Role="Id" Sort="False"/>
-			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date" SortProperty="date"/>
-			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number" SortProperty="sum"/>
+			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
+			<DataGridColumn Header="@[Number]" Content="{Bind $No}" Fit="True" Wrap="NoWrap" SortProperty="no"/>
+			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>
 			<DataGridColumn Header="@[Operation]" Content="{Bind Operation.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Warehouse]" Content="{Bind $Warehouse}" Sort="False"/>
 			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
-			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Sort="False"/>
+			<DataGridColumn Header="@[Memo]" SortProperty="memo">
+				<Span Content="{Bind Memo}" MaxChars="60" Tip="{Bind Memo}"/>
+			</DataGridColumn>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
 					<Button Icon="Edit" Command="{BindCmd Execute, CommandName=edit, Argument={Bind}}"/>

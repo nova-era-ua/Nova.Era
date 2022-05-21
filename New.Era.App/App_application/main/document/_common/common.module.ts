@@ -51,15 +51,20 @@ const template: Template = {
 		},
 		createOnBase,
 		openLinked
+	},
+	delegates: {
+		canClose
 	}
 };
 
 export default template;
 
-// properties
+// #region properties
 function docBaseName() {
 	return `${this.OpName}\nвід ${dateUtils.formatDate(this.Date)} на суму ${currencyUtils.format(this.Sum)}`;
 }
+
+// #endregion
 
 // #region events
 function contractChange(doc, contract) {
@@ -98,7 +103,7 @@ function handleLinkApply(elem) {
 
 // #endregion
 
-// commands
+// #region commands
 async function apply() {
 	const ctrl: IController = this.$ctrl;
 	await ctrl.$invoke('apply', { Id: this.Document.Id });
@@ -130,3 +135,11 @@ async function openLinked(doc) {
 	let url = `/document/${doc.Form}/edit`;
 	await ctrl.$showDialog(url, { Id: doc.Id });
 }
+// #endregion
+
+// #region delegates
+function canClose() {
+	return this.$ctrl.$saveModified('@[Confirm.Document.SaveModified]');
+}
+// #endregion
+

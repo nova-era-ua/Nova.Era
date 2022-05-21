@@ -60,3 +60,17 @@ li.line-top:before {
 .inner-grid .cw {
   overflow: hidden;
 }
+.page.page-grid.taskpad-left {
+  grid-template-columns: 25rem 1fr;
+}
+.page.page-grid.taskpad-left .taskpad {
+  grid-column: 1;
+  border-left: none;
+  border-right: 1px solid #ddd;
+}
+.page.page-grid.taskpad-left .page-content {
+  grid-column: 2;
+}
+.sticky-top {
+  z-index: 9;
+}

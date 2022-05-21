@@ -47,6 +47,10 @@ begin
 end
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Documents' and COLUMN_NAME=N'SNo')
+	alter table doc.Documents add [SNo] nvarchar(64);
+go
+------------------------------------------------
 if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Documents' and COLUMN_NAME=N'OpLink')
 begin
 	alter table doc.Documents add OpLink bigint;

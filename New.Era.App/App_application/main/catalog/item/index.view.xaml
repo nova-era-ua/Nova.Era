@@ -32,7 +32,7 @@
 					ItemsSource="{Bind Groups.Selected(Elements)}">
 		<CollectionView.Filter>
 			<FilterDescription>
-				<FilterItem Property="Fragment" DataType="String"/>
+				<FilterItem Property="Fragment" DataType="String" Persistent="True"/>
 			</FilterDescription>
 		</CollectionView.Filter>
 		<Grid Rows="Auto,1*,Auto" AlignItems="Stretch" Height="100%">
@@ -42,10 +42,11 @@
 				<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editSelected, 
 					Argument={Bind Parent.ItemsSource}}"/>
 				<Button Icon="Delete" Command="{BindCmd DbRemoveSelected, Argument={Bind Parent.ItemsSource}, Confirm='@[Confirm.Delete.Element]'}"/>
+				<Separator />
+				<Button Icon="Reload" Command="{BindCmd Reload, Argument={Bind Parent.ItemsSource}}"/>
 				<ToolbarAligner />
 				<TextBox Placeholder="@[Search]" ShowClear="True" ShowFilter="True"
 					 Value="{Bind Parent.Filter.Fragment}" Width="20rem"/>
-				<Button Icon="Reload" Command="{BindCmd Reload, Argument={Bind Parent.ItemsSource}}"/>
 			</Toolbar>
 			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}"
 					ItemsSource="{Bind Parent.ItemsSource}" FixedHeader="True" Sort="True"

@@ -1,4 +1,21 @@
 ﻿/* Item */
+drop type if exists cat.[view_Items.TableType];
+go
+-------------------------------------------------
+create type cat.[view_Items.TableType]
+as table (
+	[Id!!Id] bigint,
+	[Name!!Name] nvarchar(255),
+	Article nvarchar(32),
+	Memo nvarchar(32),
+	[Unit.Id!TUnit!Id] bigint, 
+	[Unit.Short!TUnit] nvarchar(8),
+	[Role!TItemRole!RefId] bigint,
+	[!TenantId] int, 
+	[!IsStock] bit,
+	Price float
+);
+go
 -------------------------------------------------
 create or alter view cat.view_Items
 as
@@ -6,7 +23,7 @@ select [Id!!Id] = i.Id,
 	[Name!!Name] = i.[Name], i.Article, i.Memo,
 	[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 	[Role!TItemRole!RefId] = i.[Role],
-	[!TenantId] = i.TenantId, [!IsStock] = ir.IsStock
+	[!TenantId] = i.TenantId, [!IsStock] = ir.IsStock, Price = null
 from cat.Items i
 	left join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
 	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
@@ -556,5 +573,55 @@ begin
 	delete from cat.ItemTreeElems where TenantId = @Id and Item = @Id;
 	update cat.Items set Void = 1 where TenantId = @TenantId and Id=@Id;
 	commit tran;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Item.Browse.Price.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@IsStock nchar(1) = null,
+@PriceKind bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @stock bit;
+	set @stock = case @IsStock when N'T' then 1 when N'V' then 0 else null end;
+
+	declare @items cat.[view_Items.TableType];
+
+	insert into @items
+	select *
+	from cat.view_Items v
+	where v.[!TenantId] = @TenantId and (@IsStock is null or v.[!IsStock] = @stock);
+
+	-- update prices
+	with TP as (
+		select p.Item, [Date] = max(p.[Date])
+		from doc.Prices p inner join @items t on p.TenantId = @TenantId and p.Item = t.[Id!!Id] and 
+			p.[Date] <= getdate() and p.PriceKind = @PriceKind
+		group by p.Item, p.PriceKind
+	),
+	TX as (
+		select p.Price, p.Item
+		from doc.Prices p inner join TP on p.TenantId = @TenantId and p.Item = TP.Item 
+			and p.PriceKind = @PriceKind and TP.[Date] = p.[Date]
+	)
+	update @items set Price = TX.Price 
+	from @items t inner join TX on t.[Id!!Id] = TX.Item;
+
+	select [Items!TItem!Array] = null, v.*
+	from @items v
+	order by v.[Id!!Id];
+
+	-- all
+	select [!TItemRole!Map] = null, vir.* 
+	from cat.view_ItemRoles vir 
+	where vir.[!TenantId] = @TenantId;
+
+	select [PriceKind!TPriceKind!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
+	from cat.PriceKinds where TenantId = @TenantId and Id = @PriceKind;
 end
 go

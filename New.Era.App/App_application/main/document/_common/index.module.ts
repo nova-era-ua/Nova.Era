@@ -6,6 +6,7 @@ const template: Template = {
 		persistSelect:['Documents']
 	},
 	properties: {
+		'TDocument.$No'() { return this.SNo; },
 		'TDocument.$Mark'(this: TDocument) { return this.Done ? 'green' : undefined; },
 	},
 	events: {

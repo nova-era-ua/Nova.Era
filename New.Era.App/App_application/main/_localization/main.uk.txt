@@ -118,6 +118,8 @@
 @AddFromCatalog=Додати з каталогу
 @BanksDownloaded=Завантажено банків
 @PaymentPurpose=Призначення платежу
+; Documents
+@Document.WaybillOut=Продаж товарів/послуг
 ; Actions
 @Add=Додати
 ;
@@ -198,6 +200,7 @@
 @Confirm.Delete.Element=Ви дійсно бажаєте видалити елемент?
 @Confirm.Apply=Ви дійсно бажаєте провести документ?
 @Confirm.UnApply=Ви дійсно бажаєте скасувати проведення документу?
+@Confirm.Document.SaveModified=Документ було змінено. Зберегти зміни?
 ;
 @Default.Company.Changed=Підприємство за замовчуванням змінено
 @Default.Warehouse.Changed=Склад за замовчуванням змінено

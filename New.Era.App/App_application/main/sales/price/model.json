@@ -1,0 +1,18 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "doc",
+	"model": "Price",
+	"actions": {
+		"index": {
+			"index": true,
+			"template": "index.template",
+			"view": "index.view"
+		}
+	},
+	"commands": {
+		"setPrice": {
+			"type": "sql",
+			"procedure": "Price.Set"
+		}
+	}
+}

@@ -1,0 +1,32 @@
+﻿<!-- Browse Items -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="@[Browse.Item]" Overflow="True" Width="60rem">
+	<Dialog.Buttons>
+		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Items}}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid>
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<Button Icon="Plus" Content="@[Create]"
+				Command="{BindCmd Dialog, Action=Append, Argument={Bind Items}, Url='/catalog/item/edit'}"/>
+			<Button Icon="Edit"
+				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Items}, Url='/catalog/item/edit'}"/>
+			<ToolbarAligner />
+			<Static Value="{Bind PriceKind.Name}"/>
+		</Toolbar>
+		<DataGrid ItemsSource="{Bind Items}" XamlStyle="{StyleResource DataGridSimple}"
+				Height="30rem" FixedHeader="True"
+				DoubleClick="{BindCmd Select, Argument={Bind Items}}">
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+			<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap" Align="Center"/>
+			<DataGridColumn Header="@[Role]" Fit="True" Wrap="NoWrap">
+				<TagLabel Style="{Bind Role.Color}" Content="{Bind Role.Name}"/>
+			</DataGridColumn>
+			<DataGridColumn Header="@[Price]" Content="{Bind Price, DataType=Currency}" Wrap="NoWrap" Align="Right" Width="7rem"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
+		</DataGrid>
+	</Grid>
+</Dialog>
+

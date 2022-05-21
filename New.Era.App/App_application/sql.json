@@ -38,6 +38,7 @@
 			"main/document/document.dialogs.sql",
 			"main/document/document.commands.sql",
 			"main/document/document.common.sql",
+			"main/sales/price/price.sql",
 			"main/reports/report.sql",
 			"main/reports/stock/report.stock.sql",
 			"main/reports/agent/report.agent.sql",

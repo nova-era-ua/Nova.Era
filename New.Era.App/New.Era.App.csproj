@@ -398,9 +398,11 @@
     <Content Include="App_application\main\settings\contract\model.json" />
     <Content Include="App_application\main\sales\contract\model.json" />
     <Content Include="App_application\main\purchase\contract\model.json" />
-    <Content Include="App_application\main\purchase\pricedoc\model.json" />
     <Content Include="App_application\main\document\commands\model.json" />
     <Content Include="tsconfig.json" />
+    <Content Include="App_application\main\sales\price\price.sql" />
+    <TypeScriptCompile Include="App_application\main\sales\price\index.d.ts" />
+    <TypeScriptCompile Include="App_application\main\sales\price\index.template.ts" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
@@ -423,7 +425,7 @@
     <None Include="App_application\main\document\payout\model.json" />
     <None Include="App_application\main\document\payin\model.json" />
     <None Include="App_application\main\document\waybillin\model.json" />
-    <None Include="App_application\main\purchase\price\model.json" />
+    <None Include="App_application\main\sales\price\model.json" />
     <None Include="App_application\main\reports\plan\model.json" />
     <None Include="App_application\main\settings\develop\model.json" />
     <TypeScriptCompile Include="App_application\main\catalog\cashaccount\edit.template.ts" />
@@ -730,6 +732,17 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\document\_common\pay.taskpad.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\sales\price\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\item\browseprice.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

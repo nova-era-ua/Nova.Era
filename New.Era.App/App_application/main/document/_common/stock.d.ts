@@ -1,9 +1,20 @@
 ﻿
+export interface TUnit extends IElement {
+	readonly Id: number;
+	Short: string;
+}
+
+export interface TItemRole extends IElement {
+	readonly Id: number;
+}
+
 export interface TRow extends IArrayElement {
 	Qty: number;
 	Price: number;
 	Sum: number;
 	ESum: number;
+	Unit: TUnit;
+	ItemRole: TItemRole;
 }
 
 declare type TRows = IElementArray<TRow>

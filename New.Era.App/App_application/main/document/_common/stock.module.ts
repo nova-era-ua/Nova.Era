@@ -1,6 +1,7 @@
 ﻿// stock documents
 
-import { TRow } from 'stock.d';
+import { TRow, TDocument } from 'stock.d';
+
 const utils: Utils = require("std:utils");
 
 const base: Template = require('/document/_common/common.module');
@@ -23,7 +24,7 @@ const template: Template = {
 		'Document.ServiceRows[].Item': '@[Error.Required]',
 	},
 	events: {
-		'Document.StockRows[].add'(rows, row) { row.Qty = 1; },
+		'Document.StockRows[].add'(rows, row: TRow) { row.Qty = 1; },
 		'Document.StockRows[].Item.change': itemChange,
 		'Document.StockRows[].Item.Article.change': articleChange,
 		'Document.ServiceRows[].add'(rows, row) { row.Qty = 1; },
@@ -36,24 +37,24 @@ const template: Template = {
 
 export default utils.mergeTemplate(base, template);
 
-function docSum() {
+function docSum(this: TDocument) {
 	return this.$StockSum + this.$ServiceSum;
 }
 
-function stockSum() {
+function stockSum(this: TDocument) {
 	return this.StockRows.reduce((p:number, c:TRow) => p + c.Sum, 0);
 }
 
-function stockESum() {
+function stockESum(this: TDocument) {
 	return this.StockRows.reduce((p: number, c: TRow) => p + c.ESum, 0);
 }
 
-function serviceSum() {
+function serviceSum(this: TDocument) {
 	return this.ServiceRows.reduce((p:number, c:TRow) => p + c.Sum, 0);
 }
 
 // events
-function itemChange(row, val) {
+function itemChange(row: TRow, val) {
 	row.Unit = val.Unit;
 	row.ItemRole = val.Role;
 }

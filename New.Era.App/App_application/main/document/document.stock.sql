@@ -54,6 +54,13 @@ begin
 				when N'sum' then d.[Sum]
 			end
 		end asc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'no' then d.[SNo]
+				when N'memo' then d.[Memo]
+			end
+		end asc,
+		-- desc
 		case when @Dir = N'desc' then
 			case @Order
 				when N'date' then d.[Date]
@@ -63,11 +70,19 @@ begin
 			case @Order
 				when N'sum' then d.[Sum]
 			end
-		end desc
+		end desc,
+		case when @Dir = N'desc' then
+			case @Order 
+				when N'no' then d.[SNo]
+				when N'memo' then d.[Memo]
+			end
+		end desc,
+		Id desc
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.Notice, d.Done,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo,
+		d.Notice, d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
@@ -142,7 +157,7 @@ begin
 
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.Notice, d.[Sum], d.Done,
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.Notice, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
@@ -223,7 +238,7 @@ begin
 	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
 
 	with T as (select item from @rows group by item)
-	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article,
+	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article, Price = cast(null as float),
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short, 
 		[Role.Id!TItemRole!RefId] = i.[Role],
 		[CostItem.Id!TCostItem!Id] = ir.[CostItem], [CostItem.Name!TCostItem!Name] = ci.[Name]
@@ -253,6 +268,7 @@ go
 ------------------------------------------------
 drop procedure if exists doc.[Document.Stock.Metadata];
 drop procedure if exists doc.[Document.Stock.Update];
+drop procedure if exists doc.[Document.Rows.Merge];
 drop type if exists cat.[Document.Stock.TableType];
 drop type if exists cat.[Document.Stock.Row.TableType];
 drop type if exists cat.[Document.Extra.TableType];
@@ -263,6 +279,7 @@ as table(
 	Id bigint null,
 	[Date] datetime,
 	[Sum] money,
+	[SNo] nvarchar(64),
 	Operation bigint,
 	Agent bigint,
 	Company bigint,
@@ -319,6 +336,35 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure doc.[Document.Rows.Merge]
+@TenantId int = 1,
+@Id bigint,
+@Kind nvarchar(16),
+@Rows cat.[Document.Stock.Row.TableType] readonly
+as
+begin
+	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @Id and Kind=@Kind)
+	merge DD as t
+	using @Rows as s on t.Id = s.Id
+	when matched then update set
+		t.RowNo = s.RowNo,
+		t.Item = s.Item,
+		t.Unit = s.Unit,
+		t.ItemRole = nullif(s.ItemRole, 0),
+		t.Qty = s.Qty,
+		t.Price = s.Price,
+		t.[Sum] = s.[Sum],
+		t.ESum = s.ESum,
+		t.DSum = s.DSum,
+		t.TSum = s.TSum,
+		t.CostItem = s.CostItem
+	when not matched by target then insert
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], ESum, DSum, TSum, CostItem) values
+		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, s.CostItem)
+	when not matched by source and t.TenantId = @TenantId and t.Document = @Id and t.Kind=@Kind then delete;
+end
+go
+------------------------------------------------
 create or alter procedure doc.[Document.Stock.Update]
 @TenantId int = 1,
 @UserId bigint,
@@ -356,12 +402,13 @@ begin
 		t.PriceKind = s.PriceKind,
 		t.RespCenter = s.RespCenter,
 		t.CostItem = s.CostItem,
-		t.Memo = s.Memo
+		t.Memo = s.Memo,
+		t.SNo = s.SNo
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
-			PriceKind, RespCenter, CostItem, Memo, UserCreated) values
+			PriceKind, RespCenter, CostItem, Memo, SNo, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
-			s.PriceKind, s.RespCenter, s.CostItem, s.Memo, @UserId)
+			s.PriceKind, s.RespCenter, s.CostItem, s.Memo, s.SNo, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
@@ -375,45 +422,8 @@ begin
 		(TenantId, Id, WriteSupplierPrices, IncludeServiceInCost) values
 		(@TenantId, @id, s.WriteSupplierPrices, s.IncludeServiceInCost);
 
-	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id and Kind=N'Stock')
-	merge DD as t
-	using @StockRows as s on t.Id = s.Id
-	when matched then update set
-		t.RowNo = s.RowNo,
-		t.Item = s.Item,
-		t.Unit = s.Unit,
-		t.ItemRole = nullif(s.ItemRole, 0),
-		t.Qty = s.Qty,
-		t.Price = s.Price,
-		t.[Sum] = s.[Sum],
-		t.ESum = s.ESum,
-		t.DSum = s.DSum,
-		t.TSum = s.TSum,
-		t.CostItem = s.CostItem
-	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], ESum, DSum, TSum, CostItem) values
-		(@TenantId, @id, N'Stock', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, s.CostItem)
-	when not matched by source and t.TenantId = @TenantId and t.Document = @id and t.Kind=N'Stock' then delete;
-
-	with DD as (select * from doc.DocDetails where TenantId = @TenantId and Document = @id and Kind=N'Service')
-	merge DD as t
-	using @ServiceRows as s on t.Id = s.Id
-	when matched then update set
-		t.RowNo = s.RowNo,
-		t.Item = s.Item,
-		t.Unit = s.Unit,
-		t.ItemRole = nullif(s.ItemRole, 0),
-		t.Qty = s.Qty,
-		t.Price = s.Price,
-		t.[Sum] = s.[Sum],
-		t.ESum = s.ESum,
-		t.DSum = s.DSum,
-		t.TSum = s.TSum,
-		t.CostItem = s.CostItem
-	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], ESum, DSum, TSum, CostItem) values
-		(@TenantId, @id, N'Service', s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, s.CostItem)
-	when not matched by source and t.TenantId = @TenantId and t.Document = @id and t.Kind=N'Service' then delete;
+	exec doc.[Document.Rows.Merge] @TenantId = @TenantId, @Id = @id, @Kind = N'Stock', @Rows = @StockRows;
+	exec doc.[Document.Rows.Merge] @TenantId = @TenantId, @Id = @id, @Kind = N'Service', @Rows = @ServiceRows;
 
 	exec doc.[Document.Stock.Load] @TenantId = @TenantId, 
 	@UserId = @UserId, @Id = @id;

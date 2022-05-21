@@ -20,8 +20,9 @@
 			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}" />
 		</Toolbar>
-		<DataGrid ItemsSource="{Bind Parent.ItemsSource}"
-				  GridLines="Horizontal" Hover="True">
+		<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}"
+				  FixedHeader="True"
+				  DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Companies}, Url='/catalog/company/edit'}">
 			<DataGridColumn Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
