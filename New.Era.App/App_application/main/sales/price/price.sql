@@ -44,7 +44,7 @@ begin
 		[PriceKind3!TPriceKind!RefId] = [3] 
 	from (
 		select top(3) Id, RowNo = row_number() over(order by Id) from cat.PriceKinds
-		where TenantId = 1 and Void = 0
+		where TenantId = @TenantId and Void = 0
 	) t pivot (sum(Id) for RowNo in ([1], [2], [3])) pvt;
 
 	select [PriceKinds!TPriceKind!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
