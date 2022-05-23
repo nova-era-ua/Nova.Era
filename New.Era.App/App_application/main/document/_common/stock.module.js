@@ -53,7 +53,11 @@ define(["require", "exports"], function (require, exports) {
         }
         ;
         const ctrl = this.$ctrl;
-        let result = await ctrl.$invoke('findArticle', { Text: val }, '/catalog/item');
+        let result = await ctrl.$invoke('findArticle', {
+            Text: val,
+            PriceKind: this.Document.PriceKind.Id,
+            Date: this.Document.Date
+        }, '/catalog/item');
         (result === null || result === void 0 ? void 0 : result.Item) ? item.$merge(result.Item) : item.$empty();
     }
 });

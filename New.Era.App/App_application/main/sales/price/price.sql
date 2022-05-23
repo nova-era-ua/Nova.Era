@@ -176,3 +176,38 @@ begin
 		(@TenantId, Item, PriceKind, [Date], Price, 980);
 end
 go
+
+-------------------------------------------------
+create or alter procedure doc.[Price.Items.Get]
+@TenantId int = 1,
+@UserId bigint,
+@Items nvarchar(1024),
+@PriceKind bigint,
+@Date date
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	with TP as (
+		select p.Item, [Date] = max(p.[Date])
+		from doc.Prices p inner join string_split(@Items, N',') t on p.TenantId = @TenantId and p.Item = t.[value] 
+			and p.[Date] <= @Date and p.PriceKind = @PriceKind
+		group by p.Item
+	)
+	select [Prices!TPrice!Array] = null, p.Item, p.Price
+	from doc.Prices p inner join TP on p.TenantId = @TenantId and p.Item = TP.Item 
+		and p.PriceKind = @PriceKind and TP.[Date] = p.[Date];
+end
+go
+-------------------------------------------------
+create or alter function doc.fn_PriceGet(@TenantId int, @Item bigint, @PriceKind bigint, @Date date)
+returns float
+as
+begin
+	declare @val float;
+	select @val = p.Price 
+	from doc.Prices p where p.[Date] <= @Date and PriceKind = @PriceKind and p.Item = @Item
+	return @val;
+end
+go

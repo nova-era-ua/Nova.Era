@@ -65,6 +65,12 @@ async function articleChange(item, val) {
 		return;
 	};
 	const ctrl: IController = this.$ctrl;
-	let result = await ctrl.$invoke('findArticle', { Text: val }, '/catalog/item');
+	let result = await ctrl.$invoke('findArticle', {
+			Text: val,
+			PriceKind: this.Document.PriceKind.Id,
+			Date: this.Document.Date
+		},
+		'/catalog/item'
+	);
 	result?.Item ? item.$merge(result.Item) : item.$empty();
 }

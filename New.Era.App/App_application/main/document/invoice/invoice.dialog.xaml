@@ -85,6 +85,13 @@
 				<Toolbar Style="Light" Padding="0" Grid.Row="4">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
 					<Button Icon="Search" Content="Підібрати" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
+					<ToolbarAligner/>
+					<Label Content="@[PriceKind]" Margin="0,.5rem,0,0"/>
+					<Selector Value="{Bind Document.PriceKind}" DisplayProperty="Name">
+						<Selector.AddOns>
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
+						</Selector.AddOns>
+					</Selector>
 				</Toolbar>
 				<Table Grid.Row="5" ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" 
 					   Width="100%" Height="100%"

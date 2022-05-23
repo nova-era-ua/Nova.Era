@@ -518,25 +518,31 @@ go
 create or alter procedure cat.[Item.Find.Article]
 @TenantId int = 1,
 @UserId bigint,
-@Text nvarchar(255) = null
+@Text nvarchar(255) = null,
+@PriceKind bigint = null,
+@Date date = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	declare @id bigint, @role bigint;
+	set @Date = isnull(@Date, getdate());
 
-	select @id = Id, @role = [Role]
-	from cat.Items i
-	where i.TenantId = @TenantId and i.Article = @Text;
+	declare  @item cat.[view_Items.TableType];
+	insert into @item
+	select top(1) *
+	from cat.view_Items i
+	where i.[!TenantId] = @TenantId and i.Article = @Text;
 
-	select top(1) [Item!TItem!Object] = null, *
-	from cat.view_Items v
-	where v.[!TenantId] = @TenantId and v.[Id!!Id] = @id;
+	if @PriceKind is not null
+		update @item set Price = doc.fn_PriceGet(@TenantId, [Id!!Id], @PriceKind, @Date);
+
+	select [Item!TItem!Object] = null, *
+	from @item;
 
 	select [!TItemRole!Map] = null, * 
 	from cat.view_ItemRoles vir 
-	where vir.[!TenantId] = @TenantId and vir.[Id!!Id] = @role;
+	where vir.[!TenantId] = @TenantId and vir.[Id!!Id] in (select [Role!TItemRole!RefId] from @item);
 end
 go
 -------------------------------------------------

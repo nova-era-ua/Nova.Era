@@ -202,27 +202,6 @@ create table cat.PriceKinds (
 )
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Prices')
-	create sequence doc.SQ_Prices as bigint start with 100 increment by 1;
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Prices')
-create table doc.Prices (
-	TenantId int not null,
-	Id bigint not null
-		constraint DF_Prices_Id default(next value for doc.SQ_Prices),
-	[Date] date not null,
-	PriceKind bigint not null,
-	Item bigint not null,
-	Currency bigint not null,
-	Price float not null
-	constraint PK_Prices primary key (TenantId, Id),
-	constraint FK_Prices_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
-	constraint FK_Prices_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
-	constraint FK_Prices_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
-)
-go
-------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'acc' and SEQUENCE_NAME = N'SQ_Accounts')
 	create sequence acc.SQ_Accounts as bigint start with 10000 increment by 1;
 go
@@ -465,6 +444,27 @@ create table cat.CashAccounts
 		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
 );
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Prices')
+	create sequence doc.SQ_Prices as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Prices')
+create table doc.Prices (
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Prices_Id default(next value for doc.SQ_Prices),
+	[Date] date not null,
+	PriceKind bigint not null,
+	Item bigint not null,
+	Currency bigint not null,
+	Price float not null
+	constraint PK_Prices primary key (TenantId, Id),
+	constraint FK_Prices_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
+	constraint FK_Prices_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
+	constraint FK_Prices_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
+)
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'ContractKinds')

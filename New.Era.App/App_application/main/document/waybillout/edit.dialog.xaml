@@ -102,7 +102,7 @@
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browseprice', 
-								Data={Bind Root.$BrowseItemArg}}"/>
+								Data={Bind Root.$BrowseStockArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
@@ -151,7 +151,7 @@
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
-								Url='/catalog/item/browse', Data={Bind Root.$IsNoStockArg}}"/>
+								Url='/catalog/item/browseprice', Data={Bind Root.$BrowseServiceArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
