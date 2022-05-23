@@ -5,8 +5,8 @@ define(["require", "exports"], function (require, exports) {
     const utils = require("std:utils");
     const template = {
         properties: {
-            'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id }; },
-            'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id }; }
+            'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
+            'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
         },
         defaults: {
             'Document.WhFrom'() { return this.Default.Warehouse; }

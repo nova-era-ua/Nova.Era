@@ -5,8 +5,8 @@ const utils: Utils = require("std:utils");
 // waybill out
 const template: Template = {
 	properties: {
-		'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id }; },
-		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id }; }
+		'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
+		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
 	},
 	defaults: {
 		'Document.WhFrom'(this: any) { return this.Default.Warehouse; }

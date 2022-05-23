@@ -12,7 +12,8 @@
 			<Button Icon="Edit"
 				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Items}, Url='/catalog/item/edit'}"/>
 			<ToolbarAligner />
-			<Static Value="{Bind PriceKind.Name}"/>
+			<Static Label="@[Price]" Value="{Bind PriceKind.Name}"/>
+			<Static Label="на" Value="{Bind PriceKind.Date, DataType=Date}" />
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Items}" XamlStyle="{StyleResource DataGridSimple}"
 				Height="30rem" FixedHeader="True"

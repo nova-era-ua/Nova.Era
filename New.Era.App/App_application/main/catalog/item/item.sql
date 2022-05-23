@@ -587,11 +587,14 @@ create or alter procedure cat.[Item.Browse.Price.Index]
 @UserId bigint,
 @Id bigint = null,
 @IsStock nchar(1) = null,
-@PriceKind bigint = null
+@PriceKind bigint = null,
+@Date datetime = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
+	set @Date = isnull(@Date, getdate());
 
 	declare @stock bit;
 	set @stock = case @IsStock when N'T' then 1 when N'V' then 0 else null end;
@@ -607,7 +610,7 @@ begin
 	with TP as (
 		select p.Item, [Date] = max(p.[Date])
 		from doc.Prices p inner join @items t on p.TenantId = @TenantId and p.Item = t.[Id!!Id] and 
-			p.[Date] <= getdate() and p.PriceKind = @PriceKind
+			p.[Date] <= @Date and p.PriceKind = @PriceKind
 		group by p.Item, p.PriceKind
 	),
 	TX as (
@@ -627,7 +630,7 @@ begin
 	from cat.view_ItemRoles vir 
 	where vir.[!TenantId] = @TenantId;
 
-	select [PriceKind!TPriceKind!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
+	select [PriceKind!TPriceKind!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Date] = @Date
 	from cat.PriceKinds where TenantId = @TenantId and Id = @PriceKind;
 end
 go
