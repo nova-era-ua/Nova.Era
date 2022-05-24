@@ -1,15 +1,22 @@
 ﻿<Taskpad xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
 		 Collapsible="False" Margin="0,0,0,1rem" Background="WhiteSmoke">
 	<Block Width="20rem">
-	<Block If="{Bind Document.Done}" Margin="1rem,0">
-		<Hyperlink Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
-	</Block>
-	<Panel Header="Зв'язані документи" Collapsible="True" Padding=".5rem">
-		<StackPanel ItemsSource="{Bind Document.LinkedDocs}" Gap=".5rem">
-			<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"
+		<Block If="{Bind Document.Done}" Margin="1rem,0">
+			<Hyperlink Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
+		</Block>
+		<Panel Header="Підстава" Collapsible="True" If="{Bind Document.ParentDoc.Id}" Padding=".5rem">
+			<Slot Scope="{Bind Document.ParentDoc}">
+				<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"
 						Block="True" Wrap="PreWrap"
 						Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
-		</StackPanel>
-	</Panel>
+			</Slot>
+		</Panel>
+		<Panel Header="Зв'язані документи" Collapsible="True" Padding=".5rem" If="{Bind Document.LinkedDocs.length}">
+			<StackPanel ItemsSource="{Bind Document.LinkedDocs}" Gap=".5rem">
+				<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"
+						Block="True" Wrap="PreWrap"
+						Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
+			</StackPanel>
+		</Panel>
 	</Block>
 </Taskpad>

@@ -67,8 +67,8 @@
 			</Selector>
 		</Grid>
 		<TabBar Grid.Row="3" Value="{Bind Root.$$TabNo}" Margin="0">
-			<TabButton Content="Запаси" ActiveValue=""/>
-			<TabButton Content="Послуги" ActiveValue="service"/>
+			<TabButton Content="@[KindStock]" ActiveValue=""/>
+			<TabButton Content="@[KindServices]" ActiveValue="service"/>
 		</TabBar>
 		<Switch Expression="{Bind Root.$$TabNo}">
 			<Case Value="">

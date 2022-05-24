@@ -59,9 +59,13 @@ create or alter procedure doc.[Document.DeleteTemp]
 as
 begin
 	set nocount on;
-	set transaction isolation level read uncommitted;
+	set transaction isolation level read committed;
+
+	delete from doc.DocDetails from
+		doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and  dd.Document = d.Id
+			where d.TenantId = @TenantId and d.UserCreated = @UserId and d.Temp = 1 and [Date] < dateadd(day, 1, getdate());
 	delete from doc.Documents where TenantId = @TenantId and UserCreated = @UserId and Temp = 1
-	and [Date] < dateadd(day, 1, getdate());
+		and [Date] < dateadd(day, 1, getdate());
 end
 go
 

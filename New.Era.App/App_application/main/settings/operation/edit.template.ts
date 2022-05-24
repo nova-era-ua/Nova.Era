@@ -32,6 +32,7 @@ function formChange() {
 
 function opLinkTypes() {
 	return [
-		{ Name: 'По сумі', Value: 'BySum' }
+		{ Name: 'По сумі', Value: 'BySum' },
+		{ Name: 'По рядках', Value: 'ByRows' }
 	];
 }

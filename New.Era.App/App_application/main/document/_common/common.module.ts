@@ -85,6 +85,7 @@ function companyChange(doc, company) {
 }
 
 function handleLinkSaved(elem) {
+	let wasDirty = this.$dirty;
 	let doc = elem.Document;
 	let found = this.Document.LinkedDocs.find(e => e.Id === doc.Id);
 	if (found) {
@@ -93,12 +94,17 @@ function handleLinkSaved(elem) {
 		found.OpName = doc.Operation.Name;
 	} else
 		this.Document.LinkedDocs.$append(docToBaseDoc(doc));
+	if (!wasDirty)
+		this.$defer(() => this.$dirty = false);
 }
 
 function handleLinkApply(elem) {
+	let wasDirty = this.$dirty;
 	let found = this.Document.LinkedDocs.find(e => e.Id === elem.Id);
 	if (found)
 		found.Done = elem.Done;
+	if (!wasDirty)
+		this.$defer(() => this.$dirty = false);
 }
 
 // #endregion
