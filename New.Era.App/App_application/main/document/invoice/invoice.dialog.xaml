@@ -25,6 +25,9 @@
 	<Dialog.Taskpad>
 		<Taskpad Width="20rem" Collapsible="False" Margin="0,0,0,1rem" Background="WhiteSmoke">
 			<TextBox Label="Швидке сканування" Width="100%" Value="{Bind Root.$$Scan}"/>
+			<Block If="{Bind Document.Done}" Margin="1rem,0">
+				<Hyperlink Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
+			</Block>
 			<Panel Padding=".5rem" Header="Інформація про покупця" Collapsible="True" Compact="True">
 				<Include Source="/catalog/agent/customerinfo" Argument="{Bind Document.Agent.Id}"/>
 			</Panel>
