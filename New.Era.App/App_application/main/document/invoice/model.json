@@ -12,6 +12,14 @@
         "getPrices": {
             "type": "sql",
             "procedure": "Price.Items.Get"
+        },
+        "apply": {
+            "type": "sql",
+            "procedure": "Document.Apply"
+        },
+        "unapply": {
+            "type": "sql",
+            "procedure": "Document.UnApply"
         }
     }
 }
