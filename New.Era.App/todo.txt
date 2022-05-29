@@ -4,13 +4,14 @@
 42. Document:Number
 48. Agent.BankAccounts
 
-53. Operations. Form in list
 56. BankAccount: Set BankId from AccountNo.
 57. BankAccount/Cash - неправильный placeholder при выборе
 (в списке документов показывается "все касы")
 61. $Title для договора
-62. Prices
-64. 
+
+64. Контроль остатков
+66. Основной план счетов ???
+67. 
 
 Sample
 ======

@@ -12,7 +12,7 @@
 		<DataGrid ItemsSource="{Bind CashFlowItems}" XamlStyle="{StyleResource DataGridSimple}"
 			Height="20rem" FixedHeader="True"
 				DoubleClick="{BindCmd Select, Argument={Bind CashFlowItems}}">
-			<DataGridColumn Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 		</DataGrid>

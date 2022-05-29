@@ -15,9 +15,9 @@
 			<Button Icon="Edit"
 				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Agents}, Url='/catalog/agent/edit'}"/>
 		</Toolbar>
-		<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}"
+		<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True"
 				  DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Agents}, Url='/catalog/agent/edit'}">
-			<DataGridColumn Header="@[Id]" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 			<DataGridColumn Fit="True" Wrap="NoWrap">

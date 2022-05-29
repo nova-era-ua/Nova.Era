@@ -21,8 +21,8 @@
 			<Button Icon="Reload" Command="{BindCmd Reload}" />
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Parent.ItemsSource}"
-				  GridLines="Horizontal" Hover="True">
-			<DataGridColumn Content="{Bind Id}" Role="Id"/>
+				  XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True">
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 			<DataGridColumn Fit="True" Wrap="NoWrap">

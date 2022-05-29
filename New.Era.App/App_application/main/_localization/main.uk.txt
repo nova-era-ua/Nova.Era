@@ -25,6 +25,7 @@
 @Companies=Підприємства
 @Company=Підприємство
 @Other=Інше
+@AccPolicy=Налаштування обліку
 @Extra=Додатково
 @Period=Період
 @Warehouse=Склад
@@ -38,6 +39,7 @@
 @Operation=Операція
 @Payment=Розрахунки
 @CatalogOther=Інші довідники
+@Report=Звіт
 @Reports=Звіти
 @Service=Сервіс
 @Planning=Планування

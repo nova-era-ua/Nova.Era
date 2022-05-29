@@ -1,0 +1,26 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Block Width="30rem">
+		<Grid AutoFlow="Row">
+			<Header>Залишки</Header>
+			<ComboBox Label="Контроль залишків" Value="{Bind Policy.CheckRems}"
+					  Disabled="{Bind !Root.$changing}">
+				<ComboBoxItem Content="Не контролювати" Value=""/>
+				<ComboBoxItem Content="По плану рахунків" Value="A"/>
+				<ComboBoxItem Content="По журналу руху об'єктів облуку" Value="W"/>
+			</ComboBox>
+			<ComboBox Label="@[AccountPlan]" ItemsSource="{Bind Accounts}"
+				If="{Bind Policy.$AccPlanRemsVisible}" Value="{Bind Policy.AccPlanRems}" DisplayProperty="$Title"
+				Disabled="{Bind !Root.$changing}">
+			</ComboBox>
+			<Line />
+			<StackPanel Orientation="Horizontal" Gap=".5rem">
+				<Button Content="@[Edit]" If="{Bind !Root.$changing}"
+						Command="{BindCmd Execute, CommandName=startChanging}"/>
+				<Button Content="@[Save]" Style="Primary" If="{Bind Root.$changing}"
+						Command="{BindCmd Save, ValidRequired=True}"/>
+				<Button Content="@[Cancel]" If="{Bind Root.$changing}"
+						Command="{BindCmd Execute, CommandName=cancelChanging}"/>
+			</StackPanel>
+		</Grid>
+	</Block>
+</Page>

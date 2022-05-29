@@ -54,7 +54,8 @@ begin
 		(N'acc.agentcntr', N'by.account',  2, N'/reports/account/rto_accagentcontract', N'Обороти рахунку (контрагент+договір)'),
 		(N'acc.item',      N'by.account',  3, N'/reports/stock/rto_items', N'Оборотно сальдова відомість (об''єкт обліку)'),
 		(N'plan.turnover', N'by.plan', 1, N'/reports/plan/turnover',  N'Оборотно сальдова відомість'),
-		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',  N'Відомість по грошових коштах');
+		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',  N'Відомість по грошових коштах'),
+		(N'plan.rems',     N'by.plan', 2, N'/reports/plan/itemrems',  N'Залишики на складах');
 
 	merge rep.RepFiles as t
 	using @rf as s on t.Id = s.Id and t.TenantId = @TenantId

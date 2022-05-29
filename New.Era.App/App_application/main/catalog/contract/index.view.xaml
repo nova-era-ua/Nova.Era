@@ -22,9 +22,9 @@
 					 ShowClear="True" ShowFilter="True"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True"
-				Style="Light" GridLines="Horizontal" Hover="True" FixedHeader="True" Striped="True"
+				XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True" Striped="True"
 				DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Contracts}, Url='/catalog/contract/edit'}">
-			<DataGridColumn Content="{Bind Id}" Role="Id" Sort="False"/>
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
 			<DataGridColumn Header="@[Number]" Content="{Bind SNo}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>

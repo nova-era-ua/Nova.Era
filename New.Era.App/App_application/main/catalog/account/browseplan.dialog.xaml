@@ -6,9 +6,9 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<DataGrid ItemsSource="{Bind Accounts}"
-			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
+			Height="30rem" XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True"
 			DoubleClick="{BindCmd Select, Argument={Bind Accounts}}">
-		<DataGridColumn Content="{Bind Id}" Role="Id"/>
+		<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 		<DataGridColumn Header="@[Code]" Content="{Bind Code}" Fit="True" Wrap="NoWrap"/>
 		<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 	</DataGrid>

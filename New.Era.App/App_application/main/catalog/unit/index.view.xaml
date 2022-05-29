@@ -25,7 +25,7 @@
 					FixedHeader="True"
 					DoubleClick="{BindCmd Dialog, Action=EditSelected, 
 						Argument={Bind Units}, Url='/catalog/unit/edit'}">
-				<DataGridColumn Header="Id" Content="{Bind Id}" Role="Id"/>
+				<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 				<DataGridColumn Header="@[Short]" Content="{Bind Short}" Fit="True" Wrap="NoWrap"/>
 				<DataGridColumn Header="@[Label.Unit.CodeUA]" Content="{Bind CodeUA}" Fit="True" Wrap="NoWrap"/>

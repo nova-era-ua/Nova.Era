@@ -26,6 +26,9 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'ui')
 	exec sp_executesql N'create schema ui';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'app')
+	exec sp_executesql N'create schema app';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -35,6 +38,7 @@ grant execute on schema::usr to public;
 grant execute on schema::rep to public;
 grant execute on schema::ini to public;
 grant execute on schema::ui to public;
+grant execute on schema::app to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
@@ -944,4 +948,17 @@ create table usr.Defaults
 	constraint FK_Defaults_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id)
 );
 go
-
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Settings')
+create table app.Settings
+(
+	TenantId int not null,
+	CheckRems nchar(1),
+	CheckPayments nchar(1),
+	AccPlanRems bigint,
+	AccPlanPayments bigint,
+	constraint PK_Settings primary key (TenantId),
+	constraint FK_Settings_AccPlanRems_Accounts foreign key (TenantId, AccPlanRems) references acc.Accounts(TenantId, Id),
+	constraint FK_Settings_AccPlanPayments_Accounts foreign key (TenantId, AccPlanPayments) references acc.Accounts(TenantId, Id)
+);
+go

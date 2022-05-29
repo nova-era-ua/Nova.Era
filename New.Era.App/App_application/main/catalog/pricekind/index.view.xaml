@@ -16,11 +16,12 @@
 						 ShowClear="True" ShowFilter="True"/>
 				-->
 			</Toolbar>
-			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" ItemsSource="{Bind Parent.ItemsSource}"
+			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" 
+					ItemsSource="{Bind Parent.ItemsSource}"
 					FixedHeader="True"
 					DoubleClick="{BindCmd Dialog, Action=EditSelected, 
 						Argument={Bind PriceKinds}, Url='/catalog/pricekind/edit'}">
-				<DataGridColumn Header="Id" Content="{Bind Id}" Role="Id"/>
+				<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 				<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 				<DataGridColumn Fit="True">

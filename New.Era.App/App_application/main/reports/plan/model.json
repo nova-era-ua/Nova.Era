@@ -9,8 +9,12 @@
       "view": "turnover.view"
     },
     "cashflow": {
-      "model": "Report.Plan.Cashflow",
-      "view": "cashflow.view"
+        "model": "Report.Plan.Cashflow",
+        "view": "cashflow.view"
+    },
+    "itemrems": {
+        "model": "Report.Plan.ItemRems",
+        "view": "itemrems.view"
     }
   }
 }

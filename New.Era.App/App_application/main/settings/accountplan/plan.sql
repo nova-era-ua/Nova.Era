@@ -41,7 +41,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	select [Account!TAccount!Object] = null, [Id!!Id] = Id, Code, [Name], [Memo], [Plan]
+	select [Account!TAccount!Object] = null, [Id!!Id] = Id, Code, [Name], [Memo], [Plan], IsFolder
 	from acc.Accounts where TenantId = @TenantId and Id=@Id and [Plan] is null and [Parent] is null;
 end
 go

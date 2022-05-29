@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../@schemas/model-json-schema.json#",
+  "schema": "app",
+  "model": "Policy",
+  "actions": {
+    "index": {
+        "template": "page.template",
+        "view": "page.view"
+    }
+  }
+}

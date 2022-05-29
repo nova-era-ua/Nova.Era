@@ -31,10 +31,10 @@
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True"
-				Style="Light" GridLines="Horizontal" Hover="True" FixedHeader="True" Striped="True"
+				XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True" Striped="True"
 				DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"
 				  Mark="{Bind $Mark}" MarkerStyle="Marker">
-			<DataGridColumn Content="{Bind Id}" Role="Id" Sort="False"/>
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
 			<DataGridColumn Header="@[Number]" Content="{Bind $No}" Fit="True" Wrap="NoWrap" SortProperty="no"/>
 			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>

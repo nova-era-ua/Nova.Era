@@ -51,7 +51,7 @@
 			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}"
 					ItemsSource="{Bind Parent.ItemsSource}" FixedHeader="True" Sort="True"
 					DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Parent.ItemsSource}}">
-				<DataGridColumn Content="{Bind Id}" Role="Id"/>
+				<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 				<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" 
 					Sort="False" Fit="True" Wrap="NoWrap" Align="Center"/>
