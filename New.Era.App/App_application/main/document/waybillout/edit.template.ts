@@ -5,7 +5,9 @@ const utils: Utils = require("std:utils");
 // waybill out
 const template: Template = {
 	properties: {
-		'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
+		'TRoot.$CheckRems'() { return !this.Document.Done && this.Params.CheckRems; },
+		'TRoot.$StockSpan'() {return  this.$CheckRems ? 5 : 4},
+		'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date, CheckRems: this.$CheckRems, Wh: this.Document.WhFrom.Id }; },
 		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
 	},
 	defaults: {
@@ -14,7 +16,11 @@ const template: Template = {
 	validators: {
 		'Document.WhFrom': '@[Error.Required]',
 		'Document.StockRows[].Price': '@[Error.Required]',
-		'Document.ServiceRows[].Price': '@[Error.Required]'
+		'Document.ServiceRows[].Price': '@[Error.Required]',
+		'Document.StockRows[].Qty': [
+			'@[Error.Required]',
+			{ valid: checkRems, applyIf: checkRemsApply, msg: '@[Error.InsufficientAmount]' }
+		]
 	},
 	events: {
 		'Document.Date.change': dateChange,
@@ -28,6 +34,18 @@ const template: Template = {
 
 export default utils.mergeTemplate(base, template);
 
+
+// #region validators
+function checkRems(elem, val): boolean {
+	return elem.Qty <= elem.Rem;
+}
+
+function checkRemsApply(elem, val): boolean {
+	return elem.$root.$CheckRems;
+}
+
+// #endregion
+
 // #region events
 
 function contractChange(doc, contract) {
@@ -37,6 +55,9 @@ function contractChange(doc, contract) {
 function itemChange(row, val) {
 	base.events['Document.StockRows[].Item.change'].call(this, row, val);
 	row.Price = val.Price;
+	if (utils.isDefined(val.Rem)) {
+		row.Rem = val.Rem;
+	}
 }
 
 
@@ -61,7 +82,7 @@ async function priceKindChange(doc) {
 }
 
 async function whFromChange(doc) {
-	if (!this.Params.CheckRems) return;
+	if (!this.$CheckRems) return;
 	const ctrl: IController = this.$ctrl;
 	if (!await ctrl.$confirm('Склад змінився. Оновити залишки в документі?'))
 		return;
@@ -75,6 +96,7 @@ async function priceOrRemChange(doc) {
 	let items = stocks.concat(services).join(',');
 	let result = await ctrl.$invoke('getPricesAndRems', { Items: items, PriceKind: doc.PriceKind.Id, Date: doc.Date, Wh: doc.WhFrom.Id });
 
+	// prices
 	doc.StockRows.concat(doc.ServiceRows).forEach(row => {
 		let price = result.Prices.find(p => p.Item === row.Item.Id);
 		row.Price = price?.Price || 0;

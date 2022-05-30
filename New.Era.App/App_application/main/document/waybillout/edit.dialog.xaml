@@ -83,15 +83,25 @@
 					</Selector>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.StockRows}" 
-				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%"
-				   Columns="Fit,11rem,Auto,Fit,7rem,7rem,7rem,7rem,Fit">
+				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%">
+					<Table.Columns>
+						<TableColumn Fit="True"/>
+						<TableColumn Width="11rem"/>
+						<TableColumn Width="Auto"/>
+						<TableColumn Fit="True"/>
+						<TableColumn Width="7rem" If="{Bind Root.$CheckRems}"/>
+						<TableColumn Width="7rem"/>
+						<TableColumn Width="7rem"/>
+						<TableColumn Width="7rem"/>
+						<TableColumn Fit="True"/>
+					</Table.Columns>
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
-							<TableCell />
+							<TableCell Content="@[Item]"/>
 							<TableCell Content="@[UnitShort]"/>
-							<TableCell Content="@[Rem]"/>
+							<TableCell Content="@[Rem]" If="{Bind Root.$CheckRems}"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
@@ -106,7 +116,9 @@
 								Data={Bind Root.$BrowseStockArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
-						<Static Value="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}" Align="Right"/>
+						<TableCell If="{Bind Root.$CheckRems}">
+							<Static Value="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}" Align="Right"/>
+						</TableCell>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
@@ -114,7 +126,7 @@
 					</TableRow>
 					<Table.Footer>
 						<TableRow>
-							<TableCell ColSpan="5"/>
+							<TableCell ColSpan="{Bind Root.$StockSpan}"/>
 							<TableCell ColSpan="2" Content="Всього"/>
 							<Static Value="{Bind Document.$StockSum, DataType=Currency}" Align="Right" Bold="True"/>
 							<TableCell />

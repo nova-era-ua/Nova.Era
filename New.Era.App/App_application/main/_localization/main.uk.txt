@@ -196,6 +196,7 @@
 @Error.UnitCodeUA=Код має складатися з цифр та мати довжину 4 символа.
 @Error.Document.AlreadyApplied=Документ вже проведено в обліку.
 @Error.Delete.Used=Неможливо видалити елемент, він використовується в обліку.
+@Error.InsufficientAmount=Недостатня кількість
 ;
 @SearchItemsPlaceholder=Пощук за назвою, артикулом, приміткою
 ;

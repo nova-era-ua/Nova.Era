@@ -155,3 +155,14 @@ begin
 	return;
 end
 go
+------------------------------------------------
+create or alter function app.fn_IsCheckRems(@TenantId int, @CheckRems bit)
+returns bit
+as
+begin
+	declare @retval bit = @CheckRems;
+	if @CheckRems = 1 and N'' = isnull((select CheckRems from app.Settings where TenantId = @TenantId), N'')
+		set @retval = 0;
+	return @retval;
+end
+go

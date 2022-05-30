@@ -5,7 +5,9 @@ define(["require", "exports"], function (require, exports) {
     const utils = require("std:utils");
     const template = {
         properties: {
-            'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
+            'TRoot.$CheckRems'() { return !this.Document.Done && this.Params.CheckRems; },
+            'TRoot.$StockSpan'() { return this.$CheckRems ? 5 : 4; },
+            'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date, CheckRems: this.$CheckRems, Wh: this.Document.WhFrom.Id }; },
             'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
         },
         defaults: {
@@ -14,7 +16,11 @@ define(["require", "exports"], function (require, exports) {
         validators: {
             'Document.WhFrom': '@[Error.Required]',
             'Document.StockRows[].Price': '@[Error.Required]',
-            'Document.ServiceRows[].Price': '@[Error.Required]'
+            'Document.ServiceRows[].Price': '@[Error.Required]',
+            'Document.StockRows[].Qty': [
+                '@[Error.Required]',
+                { valid: checkRems, applyIf: checkRemsApply, msg: '@[Error.InsufficientAmount]' }
+            ]
         },
         events: {
             'Document.Date.change': dateChange,
@@ -26,12 +32,21 @@ define(["require", "exports"], function (require, exports) {
         }
     };
     exports.default = utils.mergeTemplate(base, template);
+    function checkRems(elem, val) {
+        return elem.Qty <= elem.Rem;
+    }
+    function checkRemsApply(elem, val) {
+        return elem.$root.$CheckRems;
+    }
     function contractChange(doc, contract) {
         doc.PriceKind.$set(contract.PriceKind);
     }
     function itemChange(row, val) {
         base.events['Document.StockRows[].Item.change'].call(this, row, val);
         row.Price = val.Price;
+        if (utils.isDefined(val.Rem)) {
+            row.Rem = val.Rem;
+        }
     }
     async function dateChange(doc) {
         if (!doc.PriceKind.Id)
@@ -54,7 +69,7 @@ define(["require", "exports"], function (require, exports) {
         priceOrRemChange.call(this, doc);
     }
     async function whFromChange(doc) {
-        if (!this.Params.CheckRems)
+        if (!this.$CheckRems)
             return;
         const ctrl = this.$ctrl;
         if (!await ctrl.$confirm('Склад змінився. Оновити залишки в документі?'))

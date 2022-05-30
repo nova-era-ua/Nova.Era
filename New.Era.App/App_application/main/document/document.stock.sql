@@ -156,6 +156,10 @@ begin
 	if @Operation is null
 		select @Operation = d.Operation from doc.Documents d where d.TenantId = @TenantId and d.Id = @Id;
 
+	if @Id <> 0 and 1 = (select Done from doc.Documents where TenantId =@TenantId and Id = @Id)
+		set @CheckRems = 0;
+	set @CheckRems = app.fn_IsCheckRems(@TenantId, @CheckRems);
+
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
 	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.Notice, d.[Sum], d.Done,
@@ -241,7 +245,8 @@ begin
 	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
 
 	with T as (select item from @rows group by item)
-	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article, Price = cast(null as float),
+	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article, 
+		Price = cast(null as float), Rem = cast(null as float),
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short, 
 		[Role.Id!TItemRole!RefId] = i.[Role],
 		[CostItem.Id!TCostItem!Id] = ir.[CostItem], [CostItem.Name!TCostItem!Name] = ci.[Name]

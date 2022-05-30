@@ -13,7 +13,8 @@ as table (
 	[Role!TItemRole!RefId] bigint,
 	[!TenantId] int, 
 	[!IsStock] bit,
-	Price float
+	Price float,
+	Rem float
 );
 go
 -------------------------------------------------
@@ -23,7 +24,7 @@ select [Id!!Id] = i.Id,
 	[Name!!Name] = i.[Name], i.Article, i.Memo,
 	[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 	[Role!TItemRole!RefId] = i.[Role],
-	[!TenantId] = i.TenantId, [!IsStock] = ir.IsStock, Price = null
+	[!TenantId] = i.TenantId, [!IsStock] = ir.IsStock, Price = null, Rem = null
 from cat.Items i
 	left join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
 	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
@@ -588,7 +589,9 @@ create or alter procedure cat.[Item.Browse.Price.Index]
 @Id bigint = null,
 @IsStock nchar(1) = null,
 @PriceKind bigint = null,
-@Date datetime = null
+@Date datetime = null,
+@CheckRems bit = 0,
+@Wh bigint = null
 as
 begin
 	set nocount on;
@@ -621,6 +624,16 @@ begin
 	update @items set Price = TX.Price 
 	from @items t inner join TX on t.[Id!!Id] = TX.Item;
 
+	if @CheckRems = 1
+	begin
+		declare @itemstable a2sys.[Id.TableType];
+		insert into @itemstable(Id) 
+		select [Id!!Id] from @items;
+		update @items set Rem = t.Rem
+		from doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) t
+		inner join @items i on t.Item = i.[Id!!Id];
+	end
+
 	select [Items!TItem!Array] = null, v.*
 	from @items v
 	order by v.[Id!!Id];
@@ -632,5 +645,8 @@ begin
 
 	select [PriceKind!TPriceKind!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Date] = @Date
 	from cat.PriceKinds where TenantId = @TenantId and Id = @PriceKind;
+
+	select [Params!TParam!Object] = null, CheckRems = @CheckRems,
+		[Warehouse.Id!TWarehouse!Id] = @Wh, [Warehouse.Name!TWarehouse!Name] = cat.fn_GetWarehouseName(@TenantId, @Wh);
 end
 go

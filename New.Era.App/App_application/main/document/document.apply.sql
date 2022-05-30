@@ -233,6 +233,26 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure doc.[Document.Apply.CheckRems]
+@TenantId int = 1,
+@Id bigint,
+@CheckRems bit
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set @CheckRems = app.fn_IsCheckRems(@TenantId, @CheckRems);
+	if @CheckRems = 1
+	begin
+		if exists(select * from doc.DocDetails dd
+			left join doc.fn_getDocumentRems(@CheckRems, @TenantId, @Id) t on dd.Item = t.Item
+		where dd.TenantId = @TenantId and dd.Document = @Id and dd.Kind = N'Stock'
+			and dd.Qty > isnull(t.Rem, 0))
+		throw 60000, N'UI:@[Error.InsufficientAmount]', 0;
+	end
+end
+go
+------------------------------------------------
 create or alter procedure doc.[Document.UnApply]
 @TenantId int = 1,
 @UserId bigint,
@@ -255,7 +275,8 @@ go
 create or alter procedure doc.[Document.Apply]
 @TenantId int = 1,
 @UserId bigint,
-@Id bigint
+@Id bigint,
+@CheckRems bit = 0
 as
 begin
 	set nocount on;
@@ -288,6 +309,7 @@ begin
 		set @acc = 1;
 
 	begin tran;
+		exec doc.[Document.Apply.CheckRems] @TenantId= @TenantId, @Id=@Id, @CheckRems = @CheckRems;
 		/*
 		if @stock = 1
 			exec doc.[Document.Apply.Stock] @TenantId = @TenantId, @UserId=@UserId,
