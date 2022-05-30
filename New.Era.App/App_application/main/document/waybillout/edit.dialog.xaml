@@ -84,13 +84,14 @@
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.StockRows}" 
 				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%"
-				   Columns="Fit,11rem,Auto,Fit,10rem,10rem,10rem,Fit">
+				   Columns="Fit,11rem,Auto,Fit,7rem,7rem,7rem,7rem,Fit">
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
 							<TableCell />
 							<TableCell Content="@[UnitShort]"/>
+							<TableCell Content="@[Rem]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
@@ -105,6 +106,7 @@
 								Data={Bind Root.$BrowseStockArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
+						<Static Value="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}" Align="Right"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
@@ -113,7 +115,7 @@
 					<Table.Footer>
 						<TableRow>
 							<TableCell ColSpan="5"/>
-							<TableCell Content="Всього"/>
+							<TableCell ColSpan="2" Content="Всього"/>
 							<Static Value="{Bind Document.$StockSum, DataType=Currency}" Align="Right" Bold="True"/>
 							<TableCell />
 						</TableRow>

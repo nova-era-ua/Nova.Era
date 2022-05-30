@@ -5,21 +5,30 @@
   "dialogs": {
     "edit": {
       "template": "edit.template",
-      "view": "edit.dialog"
+        "view": "edit.dialog",
+        "parameters": {
+            "CheckRems": true
+        }
     }
   },
   "commands": {
     "apply": {
-      "type": "sql",
-      "procedure": "Document.Apply"
+        "type": "sql",
+        "procedure": "Document.Apply",
+        "parameters": {
+            "CheckRems": true
+        }
     },
     "unapply": {
         "type": "sql",
         "procedure": "Document.UnApply"
     },
-    "getPrices": {
+    "getPricesAndRems": {
         "type": "sql",
-        "procedure": "Price.Items.Get"
+        "procedure": "Price.Items.Get",
+        "parameters": {
+            "CheckRems": true
+        }
     }
   }
 }

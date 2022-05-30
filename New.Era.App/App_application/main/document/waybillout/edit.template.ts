@@ -21,7 +21,8 @@ const template: Template = {
 		'Document.Contract.change': contractChange,
 		'Document.StockRows[].Item.change': itemChange,
 		'Document.ServiceRows[].Item.change': itemChange,
-		'Document.PriceKind.change': priceKindChange
+		'Document.PriceKind.change': priceKindChange,
+		'Document.WhFrom.change': whFromChange
 	}
 };
 
@@ -44,9 +45,9 @@ async function dateChange(doc) {
 	if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty) return;
 
 	const ctrl: IController = this.$ctrl;
-	if (!await ctrl.$confirm('Дата документу змінилася. Оновити ціни в документі?'))
+	if (!await ctrl.$confirm('Дата документу змінилася.\nОновити ціни та залишки в документі?'))
 		return;
-	priceChange.call(this, doc);
+	priceOrRemChange.call(this, doc);
 }
 
 async function priceKindChange(doc) {
@@ -56,20 +57,34 @@ async function priceKindChange(doc) {
 	const ctrl: IController = this.$ctrl;
 	if (!await ctrl.$confirm('Тип ціни змінився. Оновити ціни в документі?'))
 		return;
-	priceChange.call(this, doc);
+	priceOrRemChange.call(this, doc);
 }
 
-async function priceChange(doc) { 
+async function whFromChange(doc) {
+	if (!this.Params.CheckRems) return;
+	const ctrl: IController = this.$ctrl;
+	if (!await ctrl.$confirm('Склад змінився. Оновити залишки в документі?'))
+		return;
+	priceOrRemChange.call(this, doc);
+}
+
+async function priceOrRemChange(doc) { 
 	const ctrl: IController = this.$ctrl;
 	let stocks = doc.StockRows.map(r => r.Item.Id);
 	let services = doc.ServiceRows.map(r => r.Item.Id);
 	let items = stocks.concat(services).join(',');
-	let result = await ctrl.$invoke('getPrices', { Items: items, PriceKind: doc.PriceKind.Id, Date: doc.Date });
+	let result = await ctrl.$invoke('getPricesAndRems', { Items: items, PriceKind: doc.PriceKind.Id, Date: doc.Date, Wh: doc.WhFrom.Id });
 
 	doc.StockRows.concat(doc.ServiceRows).forEach(row => {
 		let price = result.Prices.find(p => p.Item === row.Item.Id);
 		row.Price = price?.Price || 0;
-	})
+	});
+
+	// rems
+	doc.StockRows.forEach(row => {
+		let rem = result.Rems.find(p => p.Item === row.Item.Id);
+		row.Rem = rem?.Rem || 0;
+	});
 }
 
 // #endregion

@@ -403,6 +403,7 @@
     <Content Include="App_application\main\document\commands\model.json" />
     <Content Include="tsconfig.json" />
     <Content Include="App_application\main\sales\price\price.sql" />
+    <TypeScriptCompile Include="App_application\main\reports\plan\itemrems.template.ts" />
     <TypeScriptCompile Include="App_application\main\sales\price\index.d.ts" />
     <TypeScriptCompile Include="App_application\main\sales\price\index.template.ts" />
     <Content Include="App_application\main\settings\dashboard\model.json" />
@@ -759,6 +760,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\settings\policy\page.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\reports\plan\itemrems.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

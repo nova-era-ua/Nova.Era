@@ -1,0 +1,88 @@
+﻿<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<CollectionView RunAt="Server" ItemsSource="{Bind RepData}">
+		<CollectionView.Filter>
+			<FilterDescription>
+				<FilterItem Property="Company" DataType="Object" />
+				<FilterItem Property="Date" DataType="Date"/>
+			</FilterDescription>
+		</CollectionView.Filter>
+		<Grid Rows="Auto,1*" Columns="1*" Height="100%" Padding="0" Gap="6" AlignItems="Top">
+			<Toolbar Grid.Row="1" Style="Light" Padding="0">
+				<Selector Value="{Bind Parent.Filter.Company}" DisplayProperty="Name" Width="15rem">
+					<Hyperlink Icon="Search" 
+							Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+					<Hyperlink Icon="Clear" If="{Bind Parent.Filter.Company.Id}"
+								   Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter}}"/>
+				</Selector>
+				<DatePicker Value="{Bind Parent.Filter.Date}" />
+				<Button Icon="Reload" Command="{BindCmd Reload}" />
+				<Separator />
+				<Button Icon="Print" Command="{BindCmd Print}" />
+				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel, FileName={Bind Report.Name}}" />
+			</Toolbar>
+			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
+				<Sheet GridLines="Both" Wrap="NoWrap" Hover="True">
+					<Sheet.Columns>
+						<SheetColumn Width="Fit"/>
+						<SheetColumn Width="15rem" />
+						<SheetColumn />
+						<SheetColumn />
+						<SheetColumnGroup ItemsSource="{Bind RepData.$cross.WhCross}">
+							<SheetColumn Width="5rem" Background="Gray"/>
+						</SheetColumnGroup>
+						<SheetColumn Background="Yellow"/>
+					</Sheet.Columns>
+					<Sheet.Header>
+						<SheetRow Style="Title">
+							<SheetCell ColSpan="7" Content="{Bind Report.Name}"/>
+						</SheetRow>
+						<SheetRow Style="Parameter">
+							<SheetCell Content="@[Date]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="4" Content="{Bind Parent.Filter.Date, DataType=Date}"></SheetCell>
+						</SheetRow>
+						<SheetRow Style="Parameter">
+							<SheetCell Content="@[AccountPlan]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="4" Content="{Bind Report.Account.Name}"/>
+						</SheetRow>
+						<SheetRow Style="LastParameter">
+							<SheetCell Content="@[Company]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="4" Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
+						</SheetRow>
+					</Sheet.Header>
+					<SheetSection>
+						<SheetRow Style="Header" Wrap="NoWrap">
+							<SheetCell ColSpan="4">@[Item]</SheetCell>
+							<SheetCellGroup ItemsSource="{Bind RepData.$CrossNames}">
+								<SheetCell RowSpan="2"
+										   Content="{Bind}" Align="Center" Wrap="PreWrap"/>
+							</SheetCellGroup>
+							<SheetCell RowSpan="2" Bold="True">@[Total]</SheetCell>
+						</SheetRow>
+						<SheetRow Style="Header">
+							<SheetCell ColSpan="2" Content="@[Name]"/>
+							<SheetCell Content="@[Article]"/>
+							<SheetCell Content="@[UnitShort]"/>
+						</SheetRow>
+					</SheetSection>
+					<SheetSection ItemsSource="{Bind RepData}">
+						<SheetRow Align="Right" Wrap="NoWrap">
+							<SheetCell ColSpan="2" Align="Left" Content="{Bind Item.Name}"/>
+							<SheetCell Align="Center" Content="{Bind Item.Article}"/>
+							<SheetCell Align="Center" Content="{Bind Item.Unit.Short}"/>
+							<SheetCellGroup ItemsSource="{Bind WhCross}">
+								<SheetCell Content="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}"/>
+							</SheetCellGroup>
+							<SheetCell Content="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}" Bold="True"/>
+							<!--
+							<SheetCell Content="{Bind StartSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
+							<SheetCell Content="{Bind DtSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind CtSum, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind EndSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
+							-->
+						</SheetRow>
+					</SheetSection>
+				</Sheet>
+			</Block>
+		</Grid>
+	</CollectionView>
+</Partial>

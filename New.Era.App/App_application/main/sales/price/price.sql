@@ -176,28 +176,35 @@ begin
 		(@TenantId, Item, PriceKind, [Date], Price, 980);
 end
 go
-
 -------------------------------------------------
 create or alter procedure doc.[Price.Items.Get]
 @TenantId int = 1,
 @UserId bigint,
 @Items nvarchar(1024),
 @PriceKind bigint,
-@Date date
+@Date date,
+@CheckRems bit = 0,
+@Wh bigint = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	declare @items a2sys.[Id.TableType];
+	insert into @items (Id) 
+		select [value] from string_split(@Items, N',');
 	with TP as (
 		select p.Item, [Date] = max(p.[Date])
-		from doc.Prices p inner join string_split(@Items, N',') t on p.TenantId = @TenantId and p.Item = t.[value] 
+		from doc.Prices p inner join @items t on p.TenantId = @TenantId and p.Item = t.Id 
 			and p.[Date] <= @Date and p.PriceKind = @PriceKind
 		group by p.Item
 	)
 	select [Prices!TPrice!Array] = null, p.Item, p.Price
 	from doc.Prices p inner join TP on p.TenantId = @TenantId and p.Item = TP.Item 
 		and p.PriceKind = @PriceKind and TP.[Date] = p.[Date];
+
+	select [Rems!TRem!Array] = null, r.Item, r.Rem
+	from doc.fn_getItemsRems(@CheckRems, @TenantId, @items, @Date, @Wh) r;
 end
 go
 -------------------------------------------------

@@ -99,3 +99,59 @@ begin
 	return @r;
 end
 go
+------------------------------------------------
+create or alter function doc.fn_getDocumentRems(@CheckRems bit, @TenantId int, @Document bigint)
+returns @rems table (Item bigint, Rem float)
+as
+begin
+	if @CheckRems = 0
+		return;
+	declare @date date;
+	declare @wh bigint;
+	declare @check nchar(1);
+	declare @plan bigint;
+	select @check = CheckRems, @plan = AccPlanRems from app.Settings where TenantId = @TenantId;
+	select @date = [Date], @wh = WhFrom from doc.Documents where TenantId = @TenantId and Id=@Document;
+	if @check = N'A' and @plan is not null
+	begin
+		declare @accounts table(Id bigint);
+		insert into @accounts(Id) 
+		select Id from acc.Accounts where TenantId = @TenantId and Void = 0 and IsItem = 1 and IsWarehouse = 1 and [Plan] = @plan;
+
+		insert into @rems(Item, Rem)
+		select j.Item, Rem = sum(j.Qty * DtCt)
+		from jrn.Journal j inner join doc.DocDetails dd on j.TenantId = dd.TenantId and j.Item = dd.Item
+		where j.TenantId = @TenantId and dd.Document = @Document and j.[Date] <= @date and
+			j.Account in (select Id from @accounts) and j.Warehouse = @wh
+		group by j.Item;
+	end
+	return;
+end
+go
+------------------------------------------------
+create or alter function doc.fn_getItemsRems(@CheckRems bit, @TenantId int, @Items a2sys.[Id.TableType] readonly, @Date date, @Wh bigint)
+returns @rems table (Item bigint, Rem float)
+as
+begin
+	if @CheckRems = 0
+		return;
+	declare @check nchar(1);
+	declare @plan bigint;
+	select @check = CheckRems, @plan = AccPlanRems from app.Settings where TenantId = @TenantId;
+	if @check = N'A' and @plan is not null
+	begin
+		declare @accounts table(Id bigint);
+
+		insert into @accounts(Id) 
+		select Id from acc.Accounts where TenantId = @TenantId and Void = 0 and IsItem = 1 and IsWarehouse = 1 and [Plan] = @plan;
+
+		insert into @rems(Item, Rem)
+		select j.Item, Rem = sum(j.Qty * DtCt)
+		from jrn.Journal j inner join @Items dd on j.TenantId = @TenantId and j.Item = dd.Id
+		where j.TenantId = @TenantId and j.[Date] <= @Date and
+			j.Account in (select Id from @accounts) and j.Warehouse = @Wh
+		group by j.Item;
+	end
+	return;
+end
+go

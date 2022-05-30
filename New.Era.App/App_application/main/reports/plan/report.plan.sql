@@ -144,7 +144,74 @@ begin
 		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
 end
 go
+-------------------------------------------------
+create or alter procedure rep.[Report.Plan.ItemRems.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint, /* report id */
+@Date date = null,
+@Company bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 
---exec rep.[Report.Turnover.Plan.Load] 1, 99, 1045
---exec rep.[Report.Plan.Cashflow.Load] 1, 99, 1050;
+	set @Date = isnull(@Date, getdate());
+
+	select @Company = isnull(@Company, Company)
+		from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
+
+	declare @plan bigint;
+	select @plan = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
+
+	declare @accounts table(Id bigint);
+	insert into @accounts(Id) 
+		select Id from acc.Accounts where TenantId = @TenantId and [Plan] = @plan and Void = 0 and IsWarehouse = 1 and IsItem = 1;
+
+	select Warehouse, Item,
+		Qty = sum(Qty * DtCt)
+	into #tmp
+	from jrn.Journal 
+	where  Account in (select Id from @accounts) and [Plan] = @plan and TenantId = @TenantId
+		and [Date] <= @Date and (@comp is null or Company = @comp)
+	group by Warehouse, Item
+
+	select [RepData!TRepData!Array] = null, [Id!!Id] = Item,
+		[Item!TItem!RefId] = t.Item, Rem = sum(t.Qty),
+		[WhCross!TCross!CrossArray] = null
+	from #tmp t
+	group by Item
+	order by Item;
+
+	-- cross part
+	select [!TCross!CrossArray] = null, [Wh!!Key] = t.Warehouse, Rem = sum(t.Qty),
+		[!TRepData.WhCross!ParentId] = t.Item
+	from #tmp t
+	group by Item, Warehouse;
+
+	-- report
+	select [Report!TReport!Object] = null,  [Id!!Id] = r.Id, [Name!!Name] = r.[Name], [Account!TAccount!RefId] = r.Account
+	from rep.Reports r
+	where r.TenantId = @TenantId and r.Id = @Id;
+
+	-- maps
+	with T as (select Item from #tmp group by Item)
+	select [!TItem!Map] = null, i.*
+	from cat.view_Items i inner join T on i.[!TenantId] = @TenantId and T.Item = i.[Id!!Id];
+
+	with T as (select Warehouse from #tmp group by Warehouse)
+		select [Warehouses!TWarehouse!Array] = null, [Id!!Id] = w.Id,
+		[Key!!Key] = cast(w.Id as nvarchar(32)), [Name!!Name] = w.[Name],
+		[!TReport.Warehouses!ParentId] = @Id
+	from cat.Warehouses w inner join T on w.TenantId = @TenantId and T.Warehouse = w.Id;
+
+	select [!TAccount!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Code]
+	from acc.Accounts where TenantId = @TenantId and Id = @plan;
+
+	-- system
+	select [!$System!] = null, 
+		[!RepData.Date!Filter] = @Date,
+		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
+end
 go

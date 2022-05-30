@@ -13,9 +13,9 @@
 				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Companies}, Url='/catalog/company/edit'}"/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Companies}"
-			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
-			DoubleClick="{BindCmd Select, Argument={Bind Companies}}">
-			<DataGridColumn Content="{Bind Id}" Role="Id"/>
+				Height="30rem" XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True" Striped="True"
+				DoubleClick="{BindCmd Select, Argument={Bind Companies}}">
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 		</DataGrid>

@@ -144,7 +144,8 @@ create or alter procedure doc.[Document.Stock.Load]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint = null,
-@Operation bigint = null
+@Operation bigint = null,
+@CheckRems bit = 0
 as
 begin
 	set nocount on;
@@ -177,10 +178,12 @@ begin
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum,
-		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
+		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
-		[!TDocument.StockRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
+		[!TDocument.StockRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo,
+		Rem = r.[Rem]
 	from doc.DocDetails dd
+		left join doc.fn_getDocumentRems(@CheckRems, @TenantId, @Id) r on dd.Item = r.Item
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock';
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum, 
@@ -259,7 +262,7 @@ begin
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 
-	select [Params!TParam!Object] = null, [Operation] = @Operation;
+	select [Params!TParam!Object] = null, [Operation] = @Operation, CheckRems = @CheckRems;
 
 	select [!$System!] = null, [!!ReadOnly] = d.Done
 	from doc.Documents d where TenantId = @TenantId and Id = @Id;

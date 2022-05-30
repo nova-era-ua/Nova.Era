@@ -6,7 +6,9 @@
 					  Disabled="{Bind !Root.$changing}">
 				<ComboBoxItem Content="Не контролювати" Value=""/>
 				<ComboBoxItem Content="По плану рахунків" Value="A"/>
-				<ComboBoxItem Content="По журналу руху об'єктів облуку" Value="W"/>
+				<!--
+				<ComboBoxItem Content="По журналу руху об'єктів обліку" Value="W"/>
+				-->
 			</ComboBox>
 			<ComboBox Label="@[AccountPlan]" ItemsSource="{Bind Accounts}"
 				If="{Bind Policy.$AccPlanRemsVisible}" Value="{Bind Policy.AccPlanRems}" DisplayProperty="$Title"
