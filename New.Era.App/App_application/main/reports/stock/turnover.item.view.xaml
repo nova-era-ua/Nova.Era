@@ -27,7 +27,7 @@
 				</Selector>
 				<PeriodPicker ShowAllData="False"
 							  Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
-				<Button Icon="Reload" Command="{BindCmd Reload}" />
+				<Button Icon="Reload" Command="{BindCmd Reload}"/>
 				<Separator />
 				<Button Icon="Print" Command="{BindCmd Print}" />
 				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel}" />
@@ -98,7 +98,7 @@
 						<SheetRow Align="Right" Wrap="NoWrap">
 							<SheetCell Content="{Bind Item.Article}" Align="Left"/>
 							<SheetCell Content="{Bind Item.Name}" Align="Left"/>
-							<SheetCell />
+							<SheetCell Content="{Bind Item.Unit.Short}" Align="Center"/>
 							<SheetCell Content="{Bind StartQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell Content="{Bind StartSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell Content="{Bind InQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
