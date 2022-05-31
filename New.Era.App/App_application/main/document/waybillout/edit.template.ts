@@ -29,6 +29,9 @@ const template: Template = {
 		'Document.ServiceRows[].Item.change': itemChange,
 		'Document.PriceKind.change': priceKindChange,
 		'Document.WhFrom.change': whFromChange
+	},
+	commands: {
+		reloadRems
 	}
 };
 
@@ -83,10 +86,15 @@ async function priceKindChange(doc) {
 
 async function whFromChange(doc) {
 	if (!this.$CheckRems) return;
+	if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty) return;
 	const ctrl: IController = this.$ctrl;
 	if (!await ctrl.$confirm('Склад змінився. Оновити залишки в документі?'))
 		return;
 	priceOrRemChange.call(this, doc);
+}
+
+function reloadRems() {
+	priceOrRemChange.call(this, this.Document);
 }
 
 async function priceOrRemChange(doc) { 

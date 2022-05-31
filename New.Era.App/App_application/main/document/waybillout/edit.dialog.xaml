@@ -72,14 +72,14 @@
 		</TabBar>
 		<Switch Expression="{Bind Root.$$TabNo}">
 			<Case Value="">
-				<Toolbar Style="Light" Padding="0">
+				<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
 					<ToolbarAligner/>
+					<Hyperlink Content="Оновити залишки" Margin="0,1rem" If="{Bind Root.$CheckRems}"
+							   Command="{BindCmd Execute, CommandName=reloadRems}"/>
 					<Label Content="@[PriceKind]" Margin="0,.5rem,0,0"/>
 					<Selector Value="{Bind Document.PriceKind}" DisplayProperty="Name">
-						<Selector.AddOns>
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
-						</Selector.AddOns>
+						<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
 					</Selector>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.StockRows}" 
