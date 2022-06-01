@@ -38,7 +38,7 @@
 					</CommandBar>
 				</DataGridColumn>
 			</DataGrid>
-			<Pager Source="{Bind Parent.Pager}" CssClass="pager-grid"/>
+			<Pager Source="{Bind Parent.Pager}" XamlStyle="{StyleResource PagePager}"/>
 		</Grid>
 	</CollectionView>
 </Partial>

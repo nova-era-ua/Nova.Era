@@ -32,7 +32,7 @@
 			</FilterDescription>
 		</CollectionView.Filter>
 		<Grid Rows="Auto,1*,Auto" AlignItems="Stretch" Height="100%">
-			<Toolbar XamlStyle="{StyleResource ToolbarLight}" CssClass="sticky-top">
+			<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 				<DatePicker Value="{Bind Parent.Filter.Date}" Label="Ціни на"/>
 				<Separator />
 				<Button Icon="EllipsisVertical">

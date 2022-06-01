@@ -36,17 +36,13 @@
 			<Span />
 			<Label Content="@[Company]"/>
 			<Selector Value="{Bind Document.Company}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
 		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,1px,Auto,22rem,1*" AlignItems="Baseline" Gap="1rem">
 			<Label Grid.Row="1" Grid.Col="1" Content="@[Agent]"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
 			</Selector>
 			<Label Grid.Row="2" Grid.Col="1" Content="@[Contract]"/>
 			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
@@ -68,9 +64,7 @@
 
 			<Label Grid.Row="2" Grid.Col="4" Content="@[Warehouse]"/>
 			<Selector Grid.Row="2" Grid.Col="5" Value="{Bind Document.WhTo}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
 			</Selector>
 		</Grid>
 		<TabBar Value="{Bind Root.$$TabNo}" Margin="0">
@@ -85,7 +79,7 @@
 					<ToolbarAligner />
 					<Button If="{Bind Document.Extra.IncludeServiceInCost}" Content="Розподілити послуги">
 						<Button.DropDown>
-							<DropDownMenu Direction="UpLeft">
+							<DropDownMenu>
 								<MenuItem Content="За сумою" Command="{BindCmd Execute, CommandName=distributeBySum}"/>
 							</DropDownMenu>
 						</Button.DropDown>
@@ -124,10 +118,8 @@
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap" Width="11rem"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
-							<Selector.AddOns>
-								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
-									Url='/catalog/item/browse', Data={Bind Root.$IsStockArg}}"/>
-							</Selector.AddOns>
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
+								Url='/catalog/item/browse', Data={Bind Root.$IsStockArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<ComboBox ItemsSource="{Bind Root.$ItemRolesStock}" Value="{Bind ItemRole}" Width="7rem">
