@@ -123,6 +123,7 @@
 @PaymentPurpose=Призначення платежу
 ; Documents
 @Document.WaybillOut=Продаж товарів/послуг
+@Document.MoveBill=Внутрішнє переміщення
 ; Actions
 @Add=Додати
 ;
