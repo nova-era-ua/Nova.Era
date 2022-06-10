@@ -61,7 +61,7 @@ export default template;
 
 // #region properties
 function docBaseName() {
-	return `${this.OpName}\nвід ${dateUtils.formatDate(this.Date)} на суму ${currencyUtils.format(this.Sum)}`;
+	return this.Id ? `${this.OpName}\nвід ${dateUtils.formatDate(this.Date)} на суму ${currencyUtils.format(this.Sum)}` : '';
 }
 
 // #endregion

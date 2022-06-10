@@ -111,12 +111,14 @@ begin
 		(N'waybillin',  null, 3, N'Покупка товарів/послуг'),
 		(N'waybillout', null, 4, N'Продаж товарів/послуг'),
 		--
-		(N'payout',    -1, 5, N'Витрата безготівкових коштів'),
-		(N'payin',      1, 6, N'Надходження безготівкових коштів'),
-		(N'cashout',   -1, 7, N'Витрата готівки'),
-		(N'cashin',     1, 8, N'Надходження готівки'),
+		(N'movebill',   null, 5, N'Внутрішнє переміщення'),
+		--
+		(N'payout',    -1, 6, N'Витрата безготівкових коштів'),
+		(N'payin',      1, 7, N'Надходження безготівкових коштів'),
+		(N'cashout',   -1, 8, N'Витрата готівки'),
+		(N'cashin',     1, 9, N'Надходження готівки'),
 		-- 
-		(N'manufact',  null, 9, N'Виробничий акт-звіт');
+		(N'manufact',  null, 10, N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
@@ -137,6 +139,7 @@ begin
 	(N'waybillout', 3, N'All',     N'@[KindAllRows]'),
 	(N'waybillin',  1, N'Stock',   N'@[KindStock]'),
 	(N'waybillin',  2, N'Service', N'@[KindServices]'),
+	(N'movebill',   1, N'Stock',   N'@[KindStock]'),
 	(N'payin',      1, N'', N'Немає рядків'),
 	(N'payout',     1, N'', N'Немає рядків'),
 	(N'cashin',     1, N'', N'Немає рядків'),
@@ -144,7 +147,7 @@ begin
 	(N'invoice',    1, N'Stock',   N'@[KindStock]'),
 	(N'invoice',    2, N'Service', N'@[KindServices]'),
 	(N'manufact',   1, N'Stock',   N'@[KindStock]'),
-	(N'manufact',   2, N'Product', N'Продукція');
+	(N'manufact',   2, N'Product', N'@[KindProd]');
 
 	merge doc.FormRowKinds as t
 	using @rk as s on t.Id = s.Id and t.Form = s.Form and t.TenantId = @TenantId

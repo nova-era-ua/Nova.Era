@@ -5,8 +5,8 @@
   "actions": {
     "index": {
       "index": true,
-      "template": "../../document/stock.index.template",
-      "view": "../../document/stock.index.view",
+      "template": "../../document/invent.index.template",
+      "view": "../../document/invent.index.view",
       "parameters": {
         "Menu": "Purchase.Stock"
       }

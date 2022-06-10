@@ -55,7 +55,7 @@ define(["require", "exports"], function (require, exports) {
     };
     exports.default = template;
     function docBaseName() {
-        return `${this.OpName}\nвід ${dateUtils.formatDate(this.Date)} на суму ${currencyUtils.format(this.Sum)}`;
+        return this.Id ? `${this.OpName}\nвід ${dateUtils.formatDate(this.Date)} на суму ${currencyUtils.format(this.Sum)}` : '';
     }
     function contractChange(doc, contract) {
         if (contract.Agent.Id)

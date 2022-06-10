@@ -68,4 +68,25 @@ begin
 		and [Date] < dateadd(day, 1, getdate());
 end
 go
+-------------------------------------------------
+create or alter procedure doc.[Document.Rems.Get]
+@TenantId int = 1,
+@UserId bigint,
+@Items nvarchar(max),
+@Date date,
+@CheckRems bit = 1,
+@Wh bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @items a2sys.[Id.TableType];
+	insert into @items (Id) 
+		select [value] from string_split(@Items, N',');
+
+	select [Rems!TRem!Array] = null, r.Item, r.Rem
+	from doc.fn_getItemsRems(@CheckRems, @TenantId, @items, @Date, @Wh) r;
+end
+go
 

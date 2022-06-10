@@ -23,6 +23,11 @@
             "index": true,
             "model": "Item.Browse.Price",
             "view": "browseprice.dialog"
+        },
+        "browserems": {
+            "index": true,
+            "model": "Item.Browse.Rems",
+            "view": "browserems.dialog"
         }
     },
   "commands": {

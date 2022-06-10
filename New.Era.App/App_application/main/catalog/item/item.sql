@@ -650,3 +650,52 @@ begin
 		[Warehouse.Id!TWarehouse!Id] = @Wh, [Warehouse.Name!TWarehouse!Name] = cat.fn_GetWarehouseName(@TenantId, @Wh);
 end
 go
+-------------------------------------------------
+create or alter procedure cat.[Item.Browse.Rems.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@IsStock nchar(1) = null,
+@Date datetime = null,
+@CheckRems bit = 0,
+@Wh bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	set @Date = isnull(@Date, getdate());
+
+	declare @stock bit;
+	set @stock = case @IsStock when N'T' then 1 when N'V' then 0 else null end;
+
+	declare @items cat.[view_Items.TableType];
+
+	insert into @items
+	select *
+	from cat.view_Items v
+	where v.[!TenantId] = @TenantId and (@IsStock is null or v.[!IsStock] = @stock);
+
+	if @CheckRems = 1
+	begin
+		declare @itemstable a2sys.[Id.TableType];
+		insert into @itemstable(Id) 
+		select [Id!!Id] from @items;
+		update @items set Rem = t.Rem
+		from doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) t
+		inner join @items i on t.Item = i.[Id!!Id];
+	end
+
+	select [Items!TItem!Array] = null, v.*
+	from @items v
+	order by v.[Id!!Id];
+
+	-- all
+	select [!TItemRole!Map] = null, vir.* 
+	from cat.view_ItemRoles vir 
+	where vir.[!TenantId] = @TenantId;
+
+	select [Params!TParam!Object] = null, CheckRems = @CheckRems,
+		[Warehouse.Id!TWarehouse!Id] = @Wh, [Warehouse.Name!TWarehouse!Name] = cat.fn_GetWarehouseName(@TenantId, @Wh);
+end
+go
