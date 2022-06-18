@@ -24,7 +24,7 @@ steps:
 - task: CmdLine@2
   inputs:
     script: |
-      copy $(Build.SourcesDirectory)\New.Era.Web\Web.config.deploy $(Build.SourcesDirectory)\New.Era.Web\Web.config
+      copy $(Build.SourcesDirectory)\Nova.Era.Web\Web.config.deploy $(Build.SourcesDirectory)\Nova.Era.Web\Web.config
 
 - task: VSBuild@1
   inputs:
@@ -35,21 +35,21 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\New.Era.App\App_application\main'
+    SourceFolder: '$(Build.SourcesDirectory)\Nova.Era.App\App_application\main'
     Contents: '**'
-    TargetFolder: '$(Build.SourcesDirectory)\New.Era.Web\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main'
+    TargetFolder: '$(Build.SourcesDirectory)\Nova.Era.Web\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main'
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: $(Build.SourcesDirectory)\New.Era.Web\obj\Release\Package\PackageTmp
+    targetPath: $(Build.SourcesDirectory)\Nova.Era.Web\obj\Release\Package\PackageTmp
     artifactName: 'WebApp'
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Build.SourcesDirectory)\New.Era.App\App_application\@sql\platform'
+    targetPath: '$(Build.SourcesDirectory)\Nova.Era.App\App_application\@sql\platform'
     artifactName: 'SqlPlatform'
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Build.SourcesDirectory)\New.Era.App\App_application\SqlScripts'
+    targetPath: '$(Build.SourcesDirectory)\Nova.Era.App\App_application\SqlScripts'
     artifactName: 'SqlScripts'

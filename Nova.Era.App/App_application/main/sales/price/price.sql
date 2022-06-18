@@ -190,12 +190,12 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	declare @items a2sys.[Id.TableType];
-	insert into @items (Id) 
+	declare @elems a2sys.[Id.TableType];
+	insert into @elems (Id) 
 		select [value] from string_split(@Items, N',');
 	with TP as (
 		select p.Item, [Date] = max(p.[Date])
-		from doc.Prices p inner join @items t on p.TenantId = @TenantId and p.Item = t.Id 
+		from doc.Prices p inner join @elems t on p.TenantId = @TenantId and p.Item = t.Id 
 			and p.[Date] <= @Date and p.PriceKind = @PriceKind
 		group by p.Item
 	)
@@ -204,7 +204,7 @@ begin
 		and p.PriceKind = @PriceKind and TP.[Date] = p.[Date];
 
 	select [Rems!TRem!Array] = null, r.Item, r.Rem
-	from doc.fn_getItemsRems(@CheckRems, @TenantId, @items, @Date, @Wh) r;
+	from doc.fn_getItemsRems(@CheckRems, @TenantId, @elems, @Date, @Wh) r;
 end
 go
 -------------------------------------------------

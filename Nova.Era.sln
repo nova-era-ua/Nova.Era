@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "New.Era.Web", "New.Era.Web\New.Era.Web.csproj", "{D7610E9B-F3DA-4117-BD92-46FB9A64BF06}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nova.Era.Web", "Nova.Era.Web\Nova.Era.Web.csproj", "{D7610E9B-F3DA-4117-BD92-46FB9A64BF06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "New.Era.App", "New.Era.App\New.Era.App.csproj", "{0ED742F9-7279-4CA3-8248-B32E4D14441E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nova.Era.App", "Nova.Era.App\Nova.Era.App.csproj", "{0ED742F9-7279-4CA3-8248-B32E4D14441E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EFED7646-9D14-4EDA-A94C-540B87E997F6}"
 	ProjectSection(SolutionItems) = preProject
