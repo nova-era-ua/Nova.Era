@@ -1,10 +1,13 @@
 ﻿<!-- Browse Items -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="@[Browse.Item]" Overflow="True" Width="65rem">
+		Title="@[Browse.Item]" Overflow="True" Width="85rem">
 	<Dialog.Buttons>
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Items}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
+	<Dialog.CollectionView>
+		<CollectionView ItemsSource="{Bind Items}" RunAt="Server" Filter="Fragment"/>
+	</Dialog.CollectionView>
 	<Grid>
 		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Plus" Content="@[Create]"
@@ -12,24 +15,35 @@
 			<Button Icon="Edit"
 				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Items}, Url='/catalog/item/edit'}"/>
 			<ToolbarAligner />
-			<Static Label="@[Warehouse]" If="{Bind Params.CheckRems}" Value="{Bind Params.Warehouse.Name}"/>
-			<Static Label="@[Price]" Value="{Bind PriceKind.Name}" Width="Auto" Wrap="NoWrap"/>
-			<Static Label="на" Value="{Bind PriceKind.Date, DataType=Date}" />
+			<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" 
+					 ShowClear="True" ShowFilter="True" Width="20rem"/>
 		</Toolbar>
-		<DataGrid ItemsSource="{Bind Items}" XamlStyle="{StyleResource DataGridSimple}"
-				Height="30rem" FixedHeader="True"
+		<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}"
+				Height="35rem" FixedHeader="True" Sort="True"
 				DoubleClick="{BindCmd Select, Argument={Bind Items}}">
-			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
-			<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap" Align="Center"/>
-			<DataGridColumn Header="@[Role]" Fit="True" Wrap="NoWrap">
+			<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" 
+							Fit="True" Wrap="NoWrap" Align="Center" Sort="False"/>
+			<DataGridColumn Header="@[Role]" Fit="True" Wrap="NoWrap" SortProperty="Role" Width="7rem">
 				<TagLabel Style="{Bind Role.Color}" Content="{Bind Role.Name}"/>
 			</DataGridColumn>
-			<DataGridColumn Header="@[Price]" Content="{Bind Price, DataType=Currency, HideZeros=True}" Wrap="NoWrap" Align="Right" Width="7rem"/>
-			<DataGridColumn If="{Bind Root.Params.CheckRems}" Header="@[Rem]" Content="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}" Wrap="NoWrap" Align="Right" Width="7rem"/>
+			<DataGridColumn Header="@[Price]" Content="{Bind Price, DataType=Currency, HideZeros=True}" Wrap="NoWrap" Align="Right" Width="7rem" Sort="False"/>
+			<DataGridColumn If="{Bind Root.Params.CheckRems}" Header="@[Rem]" Content="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}" 
+							Wrap="NoWrap" Align="Right" Width="7rem" Sort="False"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 		</DataGrid>
+		<Pager Source="{Bind Parent.Pager}" XamlStyle="{StyleResource PagePager}"/>
 	</Grid>
+	<Dialog.Taskpad>
+		<Taskpad Width="20rem" Collapsible="False">
+			<Panel Header="Фільтри" Style="Transparent" Collapsible="True">
+				<Static Label="@[Warehouse]" If="{Bind Params.CheckRems}" Value="{Bind Params.Warehouse.Name}" Wrap="NoWrap"/>
+				<Static Label="@[Price]" Value="{Bind PriceKind.Name}" Wrap="NoWrap" />
+				<Static Label="@[Date]" Value="{Bind PriceKind.Date, DataType=Date}" Align="Center"/>
+			</Panel>
+		</Taskpad>
+	</Dialog.Taskpad>
 </Dialog>
 

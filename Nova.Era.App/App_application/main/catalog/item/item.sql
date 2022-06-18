@@ -14,7 +14,9 @@ as table (
 	[!TenantId] int, 
 	[!IsStock] bit,
 	Price float,
-	Rem float
+	Rem float,
+	[!RowNo] int,
+	[!!RowCount] int
 );
 go
 -------------------------------------------------
@@ -24,7 +26,7 @@ select [Id!!Id] = i.Id,
 	[Name!!Name] = i.[Name], i.Article, i.Memo,
 	[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 	[Role!TItemRole!RefId] = i.[Role],
-	[!TenantId] = i.TenantId, [!IsStock] = ir.IsStock, Price = null, Rem = null
+	[!TenantId] = i.TenantId, [!IsStock] = ir.IsStock, Price = null, Rem = null, [!RowNo] = 0, [!!RowCount] = 0
 from cat.Items i
 	left join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
 	left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
@@ -490,32 +492,6 @@ begin
 	commit tran;
 end
 go
--------------------------------------------------
-create or alter procedure cat.[Item.Browse.Index]
-@TenantId int = 1,
-@UserId bigint,
-@Id bigint = null,
-@IsStock nchar(1) = null
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-
-	declare @stock bit;
-	set @stock = case @IsStock when N'T' then 1 when N'V' then 0 else null end;
-
-	select [Items!TItem!Array] = null, *
-	from cat.view_Items v
-	where v.[!TenantId] = @TenantId and (@IsStock is null or v.[!IsStock] = @stock)
-	order by v.[Id!!Id];
-
-	-- all
-	select [!TItemRole!Map] = null, vir.* 
-	from cat.view_ItemRoles vir 
-	where vir.[!TenantId] = @TenantId;
-end
-go
--------------------------------------------------
 create or alter procedure cat.[Item.Find.Article]
 @TenantId int = 1,
 @UserId bigint,
@@ -583,6 +559,112 @@ begin
 end
 go
 -------------------------------------------------
+create or alter procedure cat.[Item.FillList]
+@TenantId int = 1,
+@GroupId bigint = -1, -- GroupId
+@IsStock nchar(1) = N'A',
+@Offset int = 0, 
+@PageSize int = 20,
+@Order nvarchar(255) = N'name',
+@Dir nvarchar(20) = N'asc',
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	declare @stock bit;
+
+	set @stock = case @IsStock when N'T' then 1 when N'V' then 0 else null end;
+	set @Dir = lower(@Dir);
+	set @Order = lower(@Order);
+
+	set @fr = N'%' + @Fragment + N'%';
+
+	declare @items table(rowno int identity(1, 1), id bigint, unit bigint, [role] bigint, rowcnt int);
+	--@Id = ite.Parent or 
+	insert into @items(id, unit, [role], rowcnt)
+	select i.Id, i.Unit, i.[Role],
+		count(*) over()
+	from cat.Items i
+		left join cat.ItemTreeElems ite on i.TenantId = ite.TenantId and i.Id = ite.Item
+		left join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
+	where i.TenantId = @TenantId and i.Void = 0
+		and (@GroupId = -1 or @GroupId = ite.Parent or (@GroupId < 0 and i.Id not in (
+			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@GroupId /*hack:negative*/
+		)))
+		and (@stock is null or ir.IsStock = @stock)
+		and (@fr is null or i.[Name] like @fr or i.Memo like @fr or Article like @fr or ir.[Name] like @fr)
+	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role], ir.[Name]
+	order by 
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'name' then i.[Name]
+				when N'article' then i.[Article]
+				when N'memo' then i.[Memo]
+				when N'role' then ir.[Name]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'name' then i.[Name]
+				when N'article' then i.[Article]
+				when N'memo' then i.[Memo]
+				when N'role' then ir.[Name]
+			end
+		end desc,
+		i.Id
+	offset @Offset rows fetch next @PageSize rows only
+	option (recompile);
+
+	select id, rowno, unit, [role], rowcnt from @items;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Item.Browse.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@IsStock nchar(1) = null,
+@Wh bigint = null,
+@Offset int = 0, 
+@PageSize int = 20,
+@Order nvarchar(255) = N'name',
+@Dir nvarchar(20) = N'asc',
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @source table(rowno int, id bigint, unit bigint, [role] bigint, rowcnt int);
+
+	insert into @source(id, rowno, unit, [role], rowcnt)
+		exec cat.[Item.FillList] @TenantId = @TenantId, @PageSize = @PageSize, @Dir = @Dir, @Order = @Order, @Offset=@Offset,
+			@IsStock = @IsStock, @Fragment = @Fragment;
+
+	select [Items!TItem!Array] = null, 
+			[Id!!Id], [Name!!Name], Article, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+			[Role!TItemRole!RefId], [!TenantId], [!IsStock], [!!RowCount] = s.rowcnt
+	from cat.view_Items v
+	inner join @source s on v.[Id!!Id] = s.id
+	where v.[!TenantId] = @TenantId
+	order by v.[!RowNo], v.[Id!!Id];
+
+	-- all
+	select [!TItemRole!Map] = null, vir.* 
+	from cat.view_ItemRoles vir 
+	where vir.[!TenantId] = @TenantId;
+
+	-- system data
+	select [!$System!] = null,
+		[!Items!Offset] = @Offset, [!Items!PageSize] = @PageSize, 
+		[!Items!SortOrder] = @Order, [!Items!SortDir] = @Dir,
+		[!Items.Fragment!Filter] = @Fragment;
+end
+go
+-------------------------------------------------
 create or alter procedure cat.[Item.Browse.Price.Index]
 @TenantId int = 1,
 @UserId bigint,
@@ -591,7 +673,12 @@ create or alter procedure cat.[Item.Browse.Price.Index]
 @PriceKind bigint = null,
 @Date datetime = null,
 @CheckRems bit = 0,
-@Wh bigint = null
+@Wh bigint = null,
+@Offset int = 0, 
+@PageSize int = 20,
+@Order nvarchar(255) = N'name',
+@Dir nvarchar(20) = N'asc',
+@Fragment nvarchar(255) = null
 as
 begin
 	set nocount on;
@@ -599,46 +686,64 @@ begin
 
 	set @Date = isnull(@Date, getdate());
 
-	declare @stock bit;
-	set @stock = case @IsStock when N'T' then 1 when N'V' then 0 else null end;
+	declare @source table(rowno int, id bigint, unit bigint, [role] bigint, rowcnt int);
+
+	insert into @source(id, rowno, unit, [role], rowcnt)
+		exec cat.[Item.FillList] @TenantId = @TenantId, @PageSize = @PageSize, @Dir = @Dir, @Order = @Order, @Offset=@Offset,
+			@IsStock = @IsStock, @Fragment = @Fragment;
 
 	declare @items cat.[view_Items.TableType];
-
-	insert into @items
-	select *
-	from cat.view_Items v
-	where v.[!TenantId] = @TenantId and (@IsStock is null or v.[!IsStock] = @stock);
-
-	-- update prices
-	with TP as (
-		select p.Item, [Date] = max(p.[Date])
-		from doc.Prices p inner join @items t on p.TenantId = @TenantId and p.Item = t.[Id!!Id] and 
-			p.[Date] <= @Date and p.PriceKind = @PriceKind
-		group by p.Item, p.PriceKind
-	),
-	TX as (
-		select p.Price, p.Item
-		from doc.Prices p inner join TP on p.TenantId = @TenantId and p.Item = TP.Item 
-			and p.PriceKind = @PriceKind and TP.[Date] = p.[Date]
-	)
-	update @items set Price = TX.Price 
-	from @items t inner join TX on t.[Id!!Id] = TX.Item;
 
 	if @CheckRems = 1
 	begin
 		declare @itemstable a2sys.[Id.TableType];
-		insert into @itemstable(Id) 
-		select [Id!!Id] from @items;
-		update @items set Rem = t.Rem
-		from doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) t
-		inner join @items i on t.Item = i.[Id!!Id];
+		insert into @itemstable(Id) select id from @source;
+
+		insert into @items([Id!!Id], [Name!!Name], Article, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+			[Role!TItemRole!RefId], [!TenantId], [!IsStock], Price, Rem, [!RowNo], [!!RowCount])
+		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
+			isnull(t.[Role], v.[Role!TItemRole!RefId]), @TenantId, v.[!IsStock], v.Price, t.Rem, s.rowno, s.rowcnt
+		from cat.view_Items v
+			inner join @source s on v.[!TenantId] = @TenantId and s.id = v.[Id!!Id]
+			left join doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) t
+			on t.Item = v.[Id!!Id]
+		where 
+			v.[!TenantId] = @TenantId
+	end
+	else
+	begin
+		insert into @items ([Id!!Id], [Name!!Name], Article, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+			[Role!TItemRole!RefId], [!TenantId], [!IsStock], Price, Rem, [!RowNo], [!!RowCount])
+		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
+			v.[Role!TItemRole!RefId], @TenantId, v.[!IsStock], 0, 0, [!RowNo] = s.rowno, [!!RowCount] = s.rowcnt
+		from cat.view_Items v
+			inner join @source s on v.[Id!!Id] = s.id
+		where v.[!TenantId] = @TenantId
+	end;
+
+	-- update prices
+	if @PriceKind is not null
+	begin
+		with TP as (
+			select p.Item, [Date] = max(p.[Date])
+			from doc.Prices p inner join @items t on p.TenantId = @TenantId and p.Item = t.[Id!!Id] and 
+				p.[Date] <= @Date and p.PriceKind = @PriceKind
+			group by p.Item, p.PriceKind
+		),
+		TX as (
+			select p.Price, p.Item
+			from doc.Prices p inner join TP on p.TenantId = @TenantId and p.Item = TP.Item 
+				and p.PriceKind = @PriceKind and TP.[Date] = p.[Date]
+		)
+		update @items set Price = TX.Price 
+		from @items t inner join TX on t.[Id!!Id] = TX.Item;
 	end
 
 	select [Items!TItem!Array] = null, v.*
 	from @items v
-	order by v.[Id!!Id];
+	order by v.[!RowNo], v.[Id!!Id];
 
-	-- all
+	-- all roles
 	select [!TItemRole!Map] = null, vir.* 
 	from cat.view_ItemRoles vir 
 	where vir.[!TenantId] = @TenantId;
@@ -646,56 +751,13 @@ begin
 	select [PriceKind!TPriceKind!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Date] = @Date
 	from cat.PriceKinds where TenantId = @TenantId and Id = @PriceKind;
 
-	select [Params!TParam!Object] = null, CheckRems = @CheckRems,
+	select [Params!TParam!Object] = null, CheckRems = @CheckRems, [Date] = @Date,
 		[Warehouse.Id!TWarehouse!Id] = @Wh, [Warehouse.Name!TWarehouse!Name] = cat.fn_GetWarehouseName(@TenantId, @Wh);
-end
-go
--------------------------------------------------
-create or alter procedure cat.[Item.Browse.Rems.Index]
-@TenantId int = 1,
-@UserId bigint,
-@Id bigint = null,
-@IsStock nchar(1) = null,
-@Date datetime = null,
-@CheckRems bit = 0,
-@Wh bigint = null
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
 
-	set @Date = isnull(@Date, getdate());
-
-	declare @stock bit;
-	set @stock = case @IsStock when N'T' then 1 when N'V' then 0 else null end;
-
-	declare @items cat.[view_Items.TableType];
-
-	insert into @items
-	select *
-	from cat.view_Items v
-	where v.[!TenantId] = @TenantId and (@IsStock is null or v.[!IsStock] = @stock);
-
-	if @CheckRems = 1
-	begin
-		declare @itemstable a2sys.[Id.TableType];
-		insert into @itemstable(Id) 
-		select [Id!!Id] from @items;
-		update @items set Rem = t.Rem
-		from doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) t
-		inner join @items i on t.Item = i.[Id!!Id];
-	end
-
-	select [Items!TItem!Array] = null, v.*
-	from @items v
-	order by v.[Id!!Id];
-
-	-- all
-	select [!TItemRole!Map] = null, vir.* 
-	from cat.view_ItemRoles vir 
-	where vir.[!TenantId] = @TenantId;
-
-	select [Params!TParam!Object] = null, CheckRems = @CheckRems,
-		[Warehouse.Id!TWarehouse!Id] = @Wh, [Warehouse.Name!TWarehouse!Name] = cat.fn_GetWarehouseName(@TenantId, @Wh);
+	-- system data
+	select [!$System!] = null,
+		[!Items!Offset] = @Offset, [!Items!PageSize] = @PageSize, 
+		[!Items!SortOrder] = @Order, [!Items!SortDir] = @Dir,
+		[!Items.Fragment!Filter] = @Fragment;
 end
 go

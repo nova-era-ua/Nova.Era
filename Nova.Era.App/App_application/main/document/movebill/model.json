@@ -23,6 +23,10 @@
 		"getRems": {
 			"type": "sql",
 			"procedure": "Document.Rems.Get"
+		},
+		"getItemRoleRem": {
+			"type": "sql",
+			"procedure": "ItemRole.Rem.Get"
 		}
 	}
 }

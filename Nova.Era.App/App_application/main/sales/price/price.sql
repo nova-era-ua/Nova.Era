@@ -203,7 +203,7 @@ begin
 	from doc.Prices p inner join TP on p.TenantId = @TenantId and p.Item = TP.Item 
 		and p.PriceKind = @PriceKind and TP.[Date] = p.[Date];
 
-	select [Rems!TRem!Array] = null, r.Item, r.Rem
+	select [Rems!TRem!Array] = null, r.Item, r.Rem, r.[Role]
 	from doc.fn_getItemsRems(@CheckRems, @TenantId, @elems, @Date, @Wh) r;
 end
 go

@@ -29,6 +29,10 @@
         "parameters": {
             "CheckRems": true
         }
+    },
+    "getItemRoleRem": {
+        "type": "sql",
+        "procedure": "ItemRole.Rem.Get"
     }
   }
 }

@@ -101,6 +101,7 @@
 @ItemRole=Роль в обліку
 @Roles=Ролі
 @Role=Роль
+@RoleTo=Нова роль
 @AccKinds=Види рахунків в обліку
 @AccKind=Вид рахунку в обліку
 @CreateFolder=Створити папку
@@ -197,7 +198,7 @@
 @Error.UnitCodeUA=Код має складатися з цифр та мати довжину 4 символа.
 @Error.Document.AlreadyApplied=Документ вже проведено в обліку.
 @Error.Delete.Used=Неможливо видалити елемент, він використовується в обліку.
-@Error.InsufficientAmount=Недостатня кількість
+@Error.InsufficientAmount=Недостатня кількість на залишку
 ;
 @SearchItemsPlaceholder=Пощук за назвою, артикулом, приміткою
 ;

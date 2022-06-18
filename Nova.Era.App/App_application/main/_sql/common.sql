@@ -101,7 +101,7 @@ end
 go
 ------------------------------------------------
 create or alter function doc.fn_getDocumentRems(@CheckRems bit, @TenantId int, @Document bigint)
-returns @rems table (Item bigint, Rem float)
+returns @rems table (Item bigint, Rem float, [Role] bigint)
 as
 begin
 	if @CheckRems = 0
@@ -114,23 +114,24 @@ begin
 	select @date = [Date], @wh = WhFrom from doc.Documents where TenantId = @TenantId and Id=@Document;
 	if @check = N'A' and @plan is not null
 	begin
-		declare @accounts table(Id bigint);
-		insert into @accounts(Id) 
-		select Id from acc.Accounts where TenantId = @TenantId and Void = 0 and IsItem = 1 and IsWarehouse = 1 and [Plan] = @plan;
-
-		insert into @rems(Item, Rem)
-		select j.Item, Rem = sum(j.Qty * DtCt)
-		from jrn.Journal j inner join doc.DocDetails dd on j.TenantId = dd.TenantId and j.Item = dd.Item
-		where j.TenantId = @TenantId and dd.Document = @Document and j.[Date] <= @date and
-			j.Account in (select Id from @accounts) and j.Warehouse = @wh
-		group by j.Item;
+		with A as (
+			select a.Id, ra.[Role] from acc.Accounts a
+			left join cat.ItemRoleAccounts ra on a.Id = ra.Account and a.TenantId = ra.TenantId and a.[Plan] = ra.[Plan]
+			where a.TenantId = @TenantId and Void = 0 and IsItem = 1 and IsWarehouse = 1 and a.[Plan] = @plan
+		)
+		insert into @rems(Item, Rem, [Role])
+		select j.Item, Rem = sum(j.Qty * j.DtCt), A.[Role]
+		from jrn.Journal j inner join A on j.Account = A.Id and j.TenantId = @TenantId
+		where j.Item in (select Item from doc.DocDetails dd where dd.TenantId = @TenantId and dd.Document = @Document)
+			and j.Warehouse = @wh
+		group by j.Item, A.[Role];
 	end
 	return;
 end
 go
 ------------------------------------------------
 create or alter function doc.fn_getItemsRems(@CheckRems bit, @TenantId int, @Items a2sys.[Id.TableType] readonly, @Date date, @Wh bigint)
-returns @rems table (Item bigint, Rem float)
+returns @rems table (Item bigint, Rem float, [Role] bigint)
 as
 begin
 	if @CheckRems = 0
@@ -140,17 +141,18 @@ begin
 	select @check = CheckRems, @plan = AccPlanRems from app.Settings where TenantId = @TenantId;
 	if @check = N'A' and @plan is not null
 	begin
-		declare @accounts table(Id bigint);
-
-		insert into @accounts(Id) 
-		select Id from acc.Accounts where TenantId = @TenantId and Void = 0 and IsItem = 1 and IsWarehouse = 1 and [Plan] = @plan;
-
-		insert into @rems(Item, Rem)
-		select j.Item, Rem = sum(j.Qty * DtCt)
-		from jrn.Journal j inner join @Items dd on j.TenantId = @TenantId and j.Item = dd.Id
-		where j.TenantId = @TenantId and j.[Date] <= @Date and
-			j.Account in (select Id from @accounts) and j.Warehouse = @Wh
-		group by j.Item;
+		with TA as (
+			select a.Id, ra.[Role] from acc.Accounts a
+				left join cat.ItemRoleAccounts ra on a.Id = ra.Account and a.TenantId = ra.TenantId and a.[Plan] = ra.[Plan]
+			where a.TenantId = @TenantId and Void = 0 and IsItem = 1 and IsWarehouse = 1 and a.[Plan] = @plan
+		)
+		insert into @rems(Item, Rem, [Role])
+		select j.Item, Rem = sum(j.Qty * DtCt), TA.[Role]
+		from jrn.Journal j 
+			inner join TA on j.Account = TA.Id
+		where j.TenantId = @TenantId and j.[Date] <= @Date and j.Warehouse = @Wh
+			and j.Item in (select Id from @Items)
+		group by j.Item, TA.[Role];
 	end
 	return;
 end

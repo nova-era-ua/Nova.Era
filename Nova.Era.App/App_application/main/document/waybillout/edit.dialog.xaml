@@ -75,7 +75,7 @@
 				<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
 					<ToolbarAligner/>
-					<Hyperlink Content="Оновити залишки" Margin="0,1rem" If="{Bind Root.$CheckRems}"
+					<Hyperlink Content="Оновити залишки та ціни" Margin="0,1rem" If="{Bind Root.$CheckRems}"
 							   Command="{BindCmd Execute, CommandName=reloadRems}"/>
 					<Label Content="@[PriceKind]" Margin="0,.5rem,0,0"/>
 					<Selector Value="{Bind Document.PriceKind}" DisplayProperty="Name">
@@ -89,6 +89,7 @@
 						<TableColumn Width="11rem"/>
 						<TableColumn Width="Auto"/>
 						<TableColumn Fit="True"/>
+						<TableColumn Width="9rem" />
 						<TableColumn Width="7rem" If="{Bind Root.$CheckRems}"/>
 						<TableColumn Width="7rem"/>
 						<TableColumn Width="7rem"/>
@@ -101,6 +102,7 @@
 							<TableCell Content="@[Article]"/>
 							<TableCell Content="@[Item]"/>
 							<TableCell Content="@[UnitShort]"/>
+							<TableCell Content="@[Role]"/>
 							<TableCell Content="@[Rem]" If="{Bind Root.$CheckRems}"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
@@ -116,6 +118,7 @@
 								Data={Bind Root.$BrowseStockArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
+						<ComboBox ItemsSource="{Bind Root.$StockItemRoles}" Value="{Bind ItemRole}" />
 						<TableCell If="{Bind Root.$CheckRems}">
 							<Static Value="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}" Align="Right"/>
 						</TableCell>

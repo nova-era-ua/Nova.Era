@@ -65,3 +65,10 @@ li.line-top:before {
 .page.page-grid.taskpad-left .page-content {
   grid-column: 2;
 }
+.control-group .input-group.static > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline;
+  line-height: inherit;
+  white-space: nowrap;
+}

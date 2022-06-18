@@ -100,4 +100,23 @@ begin
 	end
 end
 go
+-------------------------------------------------
+create or alter procedure doc.[ItemRole.Rem.Get]
+@TenantId int = 1,
+@UserId bigint,
+@Item bigint = null,
+@Role bigint = null,
+@Date datetime = null,
+@CheckRems bit = 1,
+@Wh bigint = null
+as
+begin
+	set nocount on;
+	declare @elems a2sys.[Id.TableType];
+	insert into @elems (Id) values (@Item);
 
+	select [Result!TRem!Object] = null, r.Item, r.Rem, r.[Role]
+	from doc.fn_getItemsRems(@CheckRems, @TenantId, @elems, @Date, @Wh) r
+	where r.[Role] = @Role;
+end
+go

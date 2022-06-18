@@ -33,7 +33,7 @@ begin
 		from doc.DocDetails dd
 			inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 			inner join doc.OpTrans ot on dd.TenantId = ot.TenantId and (dd.Kind = ot.RowKind or ot.RowKind = N'All')
-			left join cat.ItemRoleAccounts ird on ird.TenantId = dd.TenantId and ird.[Role] = dd.ItemRole and ird.AccKind = ot.DtAccKind
+			left join cat.ItemRoleAccounts ird on ird.TenantId = dd.TenantId and ird.[Role] = isnull(dd.ItemRoleTo, dd.ItemRole) and ird.AccKind = ot.DtAccKind
 			left join cat.ItemRoleAccounts irc on irc.TenantId = dd.TenantId and irc.[Role] = dd.ItemRole and irc.AccKind = ot.CtAccKind
 		where dd.TenantId = @TenantId and dd.Document = @Id and ot.Operation = @Operation 
 			and (@exclude = 0 or Kind <> N'Service')
@@ -244,10 +244,20 @@ begin
 	set @CheckRems = app.fn_IsCheckRems(@TenantId, @CheckRems);
 	if @CheckRems = 1
 	begin
-		if exists(select * from doc.DocDetails dd
-			left join doc.fn_getDocumentRems(@CheckRems, @TenantId, @Id) t on dd.Item = t.Item
-		where dd.TenantId = @TenantId and dd.Document = @Id and dd.Kind = N'Stock'
-			and dd.Qty > isnull(t.Rem, 0))
+		declare @res table(Item bigint, [Role] bigint, Qty float);
+		with TD as
+		(
+			select Item, [Role] = dd.ItemRole, Qty = sum(Qty) from doc.DocDetails dd
+			where dd.TenantId = @TenantId and dd.Document = @Id and dd.Kind = N'Stock'
+			group by Item, dd.ItemRole
+		)
+		insert into @res(Item, [Role], Qty) select Item, [Role], Qty from TD;
+
+		if exists(
+			select * 
+			from @res dd left join doc.fn_getDocumentRems(@CheckRems, @TenantId, @Id) t on dd.Item = t.Item and dd.[Role] = t.[Role]
+			where dd.Qty > isnull(t.Rem, 0)
+		)
 		throw 60000, N'UI:@[Error.InsufficientAmount]', 0;
 	end
 end

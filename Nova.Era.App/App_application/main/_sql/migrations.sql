@@ -18,6 +18,13 @@ begin
 end
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'DocDetails' and COLUMN_NAME=N'ItemRoleTo')
+begin
+	alter table doc.DocDetails add ItemRoleTo bigint null;
+	alter table doc.DocDetails add constraint FK_DocDetails_ItemRoleTo_ItemRoles foreign key (TenantId, ItemRoleTo) references cat.ItemRoles(TenantId, Id);
+end
+go
+------------------------------------------------
 if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'DocDetails' and COLUMN_NAME=N'ESum')
 begin
 	alter table doc.DocDetails add [ESum] money not null -- extra sum
@@ -73,4 +80,5 @@ go
 drop table if exists doc.DocumentApply
 drop procedure if exists doc.[Document.Stock.Update];
 drop type if exists doc.[Document.Apply.TableType];
+drop procedure if exists cat.[Item.Browse.Rems.Index];
 go

@@ -182,12 +182,13 @@ begin
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum,
-		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
+		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = Unit, 
+		[ItemRole!TItemRole!RefId] = dd.ItemRole, [ItemRoleTo!TItemRole!RefId] = dd.ItemRoleTo,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.StockRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo,
 		Rem = r.[Rem]
 	from doc.DocDetails dd
-		left join doc.fn_getDocumentRems(@CheckRems, @TenantId, @Id) r on dd.Item = r.Item
+		left join doc.fn_getDocumentRems(@CheckRems, @TenantId, @Id) r on dd.Item = r.Item and dd.ItemRole = r.[Role]
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock';
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum, 
@@ -309,6 +310,7 @@ as table(
 	Item bigint,
 	Unit bigint,
 	ItemRole bigint,
+	ItemRoleTo bigint,
 	[Qty] float,
 	[Price] money,
 	[Sum] money,
@@ -359,6 +361,7 @@ begin
 		t.Item = s.Item,
 		t.Unit = s.Unit,
 		t.ItemRole = nullif(s.ItemRole, 0),
+		t.ItemRoleTo = nullif(s.ItemRoleTo, 0),
 		t.Qty = s.Qty,
 		t.Price = s.Price,
 		t.[Sum] = s.[Sum],
@@ -367,8 +370,8 @@ begin
 		t.TSum = s.TSum,
 		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, Qty, Price, [Sum], ESum, DSum, TSum, CostItem) values
-		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, s.CostItem)
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, ItemRoleTo, Qty, Price, [Sum], ESum, DSum, TSum, CostItem) values
+		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), nullif(s.ItemRoleTo, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, s.CostItem)
 	when not matched by source and t.TenantId = @TenantId and t.Document = @Id and t.Kind=@Kind then delete;
 end
 go

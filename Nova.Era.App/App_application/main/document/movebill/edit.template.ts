@@ -24,7 +24,8 @@ const template: Template = {
 	events: {
 		'Document.Date.change': dateChange,
 		'Document.StockRows[].Item.change': itemChange,
-		'Document.WhFrom.change': whFromChange
+		'Document.WhFrom.change': whFromChange,
+		'Document.StockRows[].ItemRole.change': itemRoleChange
 	},
 	commands:{
 		reloadRems
@@ -48,6 +49,7 @@ function checkRemsApply(elem, val): boolean {
 function itemChange(row, val) {
 	base.events['Document.StockRows[].Item.change'].call(this, row, val);
 	row.Price = val.Price;
+	row.ItemRoleTo = val.Role;
 	if (utils.isDefined(val.Rem)) {
 		row.Rem = val.Rem;
 	}
@@ -58,8 +60,10 @@ async function dateChange(doc) {
 	if (doc.StockRows.$isEmpty) return;
 
 	const ctrl: IController = this.$ctrl;
+	/*
 	if (!await ctrl.$confirm('Дата документу змінилася.\nОновити залишки в документі?'))
 		return;
+	*/
 	remChange.call(this, doc);
 }
 
@@ -67,10 +71,21 @@ async function whFromChange(doc) {
 	if (!this.$CheckRems) return;
 	if (doc.StockRows.$isEmpty) return;
 	const ctrl: IController = this.$ctrl;
+	/*
 	if (!await ctrl.$confirm('Склад змінився. Оновити залишки в документі?'))
 		return;
+	*/
 	remChange.call(this, doc);
 }
+
+async function itemRoleChange(row, role) {
+	if (!this.$CheckRems) return;
+	const ctrl: IController = this.$ctrl;
+	let doc = this.Document;
+	let result = await ctrl.$invoke('getItemRoleRem', { Item: row.Item.Id, Role: role.Id, Date: doc.Date, Wh: doc.WhFrom.Id })
+	row.Rem = result?.Result?.Rem || 0;
+}
+
 
 // #endregion
 
@@ -89,10 +104,9 @@ async function remChange(doc) {
 
 	// rems
 	doc.StockRows.forEach(row => {
-		let rem = result.Rems.find(p => p.Item === row.Item.Id);
+		let rem = result.Rems.find(p => p.Item === row.Item.Id && p.Role == row.ItemRole.Id);
 		row.Rem = rem?.Rem || 0;
 	});
 }
-
 
 

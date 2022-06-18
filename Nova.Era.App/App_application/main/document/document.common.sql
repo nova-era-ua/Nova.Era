@@ -85,7 +85,7 @@ begin
 	insert into @items (Id) 
 		select [value] from string_split(@Items, N',');
 
-	select [Rems!TRem!Array] = null, r.Item, r.Rem
+	select [Rems!TRem!Array] = null, r.Item, r.Rem, r.[Role]
 	from doc.fn_getItemsRems(@CheckRems, @TenantId, @items, @Date, @Wh) r;
 end
 go

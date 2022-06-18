@@ -757,6 +757,7 @@ create table doc.DocDetails
 	Kind nvarchar(16),
 	Item bigint null,
 	ItemRole bigint null,
+	ItemRoleTo bigint null,
 	Unit bigint null,
 	Qty float null
 		constraint DF_DocDetails_Qty default(0),
@@ -775,6 +776,7 @@ create table doc.DocDetails
 	constraint FK_DocDetails_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 	constraint FK_DocDetails_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
 	constraint FK_DocDetails_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id),
+	constraint FK_DocDetails_ItemRoleTo_ItemRoles foreign key (TenantId, ItemRoleTo) references cat.ItemRoles(TenantId, Id),
 	constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
 	constraint FK_DocDetails_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id)
 );

@@ -6,7 +6,7 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         properties: {
             'TRoot.$CheckRems'() { return !this.Document.Done && this.Params.CheckRems; },
-            'TRoot.$StockSpan'() { return this.$CheckRems ? 5 : 4; },
+            'TRoot.$StockSpan'() { return this.$CheckRems ? 6 : 5; },
             'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date, CheckRems: this.$CheckRems, Wh: this.Document.WhFrom.Id }; },
             'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
         },
@@ -26,6 +26,7 @@ define(["require", "exports"], function (require, exports) {
             'Document.Date.change': dateChange,
             'Document.Contract.change': contractChange,
             'Document.StockRows[].Item.change': itemChange,
+            'Document.StockRows[].ItemRole.change': itemRoleChange,
             'Document.ServiceRows[].Item.change': itemChange,
             'Document.PriceKind.change': priceKindChange,
             'Document.WhFrom.change': whFromChange
@@ -57,8 +58,6 @@ define(["require", "exports"], function (require, exports) {
         if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty)
             return;
         const ctrl = this.$ctrl;
-        if (!await ctrl.$confirm('Дата документу змінилася.\nОновити ціни та залишки в документі?'))
-            return;
         priceOrRemChange.call(this, doc);
     }
     async function priceKindChange(doc) {
@@ -67,9 +66,16 @@ define(["require", "exports"], function (require, exports) {
         if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty)
             return;
         const ctrl = this.$ctrl;
-        if (!await ctrl.$confirm('Тип ціни змінився. Оновити ціни в документі?'))
-            return;
         priceOrRemChange.call(this, doc);
+    }
+    async function itemRoleChange(row, role) {
+        var _a;
+        if (!this.$CheckRems)
+            return;
+        const ctrl = this.$ctrl;
+        let doc = this.Document;
+        let result = await ctrl.$invoke('getItemRoleRem', { Item: row.Item.Id, Role: role.Id, Date: doc.Date, Wh: doc.WhFrom.Id });
+        row.Rem = ((_a = result === null || result === void 0 ? void 0 : result.Result) === null || _a === void 0 ? void 0 : _a.Rem) || 0;
     }
     async function whFromChange(doc) {
         if (!this.$CheckRems)
@@ -77,8 +83,6 @@ define(["require", "exports"], function (require, exports) {
         if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty)
             return;
         const ctrl = this.$ctrl;
-        if (!await ctrl.$confirm('Склад змінився. Оновити залишки в документі?'))
-            return;
         priceOrRemChange.call(this, doc);
     }
     function reloadRems() {
@@ -95,7 +99,7 @@ define(["require", "exports"], function (require, exports) {
             row.Price = (price === null || price === void 0 ? void 0 : price.Price) || 0;
         });
         doc.StockRows.forEach(row => {
-            let rem = result.Rems.find(p => p.Item === row.Item.Id);
+            let rem = result.Rems.find(p => p.Item === row.Item.Id && p.Role === row.ItemRole.Id);
             row.Rem = (rem === null || rem === void 0 ? void 0 : rem.Rem) || 0;
         });
     }

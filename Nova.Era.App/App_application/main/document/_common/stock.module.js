@@ -10,6 +10,7 @@ define(["require", "exports"], function (require, exports) {
                 get() { return this.Price * this.Qty; },
                 set(val) { this.Qty = val / this.Price; }
             },
+            'TRoot.$StockItemRoles'() { return this.ItemRoles.filter(r => r.IsStock); },
             'TDocument.Sum': docSum,
             'TDocument.$StockSum': stockSum,
             'TDocument.$ServiceSum': serviceSum,

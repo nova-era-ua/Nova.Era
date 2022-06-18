@@ -26,7 +26,7 @@
         },
         "browserems": {
             "index": true,
-            "model": "Item.Browse.Rems",
+            "model": "Item.Browse.Price",
             "view": "browserems.dialog"
         }
     },

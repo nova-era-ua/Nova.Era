@@ -6,7 +6,7 @@ const utils: Utils = require("std:utils");
 const template: Template = {
 	properties: {
 		'TRoot.$CheckRems'() { return !this.Document.Done && this.Params.CheckRems; },
-		'TRoot.$StockSpan'() {return  this.$CheckRems ? 5 : 4},
+		'TRoot.$StockSpan'() {return  this.$CheckRems ? 6 : 5},
 		'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date, CheckRems: this.$CheckRems, Wh: this.Document.WhFrom.Id }; },
 		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
 	},
@@ -26,6 +26,7 @@ const template: Template = {
 		'Document.Date.change': dateChange,
 		'Document.Contract.change': contractChange,
 		'Document.StockRows[].Item.change': itemChange,
+		'Document.StockRows[].ItemRole.change': itemRoleChange,
 		'Document.ServiceRows[].Item.change': itemChange,
 		'Document.PriceKind.change': priceKindChange,
 		'Document.WhFrom.change': whFromChange
@@ -69,8 +70,10 @@ async function dateChange(doc) {
 	if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty) return;
 
 	const ctrl: IController = this.$ctrl;
+	/*
 	if (!await ctrl.$confirm('Дата документу змінилася.\nОновити ціни та залишки в документі?'))
 		return;
+	*/
 	priceOrRemChange.call(this, doc);
 }
 
@@ -79,17 +82,29 @@ async function priceKindChange(doc) {
 	if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty) return;
 
 	const ctrl: IController = this.$ctrl;
+	/*
 	if (!await ctrl.$confirm('Тип ціни змінився. Оновити ціни в документі?'))
 		return;
+	*/
 	priceOrRemChange.call(this, doc);
+}
+
+async function itemRoleChange(row, role) {
+	if (!this.$CheckRems) return;
+	const ctrl: IController = this.$ctrl;
+	let doc = this.Document;
+	let result = await ctrl.$invoke('getItemRoleRem', { Item: row.Item.Id, Role: role.Id, Date: doc.Date, Wh: doc.WhFrom.Id })
+	row.Rem = result?.Result?.Rem || 0;
 }
 
 async function whFromChange(doc) {
 	if (!this.$CheckRems) return;
 	if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty) return;
 	const ctrl: IController = this.$ctrl;
+	/*
 	if (!await ctrl.$confirm('Склад змінився. Оновити залишки в документі?'))
 		return;
+	*/
 	priceOrRemChange.call(this, doc);
 }
 
@@ -112,7 +127,7 @@ async function priceOrRemChange(doc) {
 
 	// rems
 	doc.StockRows.forEach(row => {
-		let rem = result.Rems.find(p => p.Item === row.Item.Id);
+		let rem = result.Rems.find(p => p.Item === row.Item.Id && p.Role === row.ItemRole.Id);
 		row.Rem = rem?.Rem || 0;
 	});
 }

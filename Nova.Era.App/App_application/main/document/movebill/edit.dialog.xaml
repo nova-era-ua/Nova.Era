@@ -79,6 +79,7 @@
 						<TableColumn Width="Fit"/>
 						<TableColumn Width="10rem" If="{Bind Root.$CheckRems}"/>
 						<TableColumn Width="Auto"/>
+						<TableColumn Width="Fit"/>
 						<TableColumn Width="Auto"/>
 						<TableColumn Width="25px"/>
 					</Table.Columns>
@@ -90,6 +91,7 @@
 							<TableCell Content="@[UnitShort]"/>
 							<TableCell Content="@[Role]"/>
 							<TableCell Content="@[Rem]" If="{Bind Root.$CheckRems}"/>
+							<TableCell Content="@[RoleTo]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell />
 						</TableRow>
@@ -102,10 +104,11 @@
 								Url='/catalog/item/browserems', Data={Bind Root.$BrowseStockArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
-						<Static Value="{Bind ItemRole.Name}" Wrap="NoWrap" Width="10rem"/>
+						<ComboBox Value="{Bind ItemRole}" ItemsSource="{Bind Root.$StockItemRoles}" Width="10rem"/>
 						<TableCell If="{Bind Root.$CheckRems}">
 							<Static Value="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}" Align="Right" Width="7rem"/>
 						</TableCell>
+						<ComboBox Value="{Bind ItemRoleTo}" ItemsSource="{Bind Root.$StockItemRoles}" Width="10rem"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right" Width="7rem">
 							<TextBox.Validator>
 								<Validator Placement="BottomRight"/>
