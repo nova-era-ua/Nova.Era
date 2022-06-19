@@ -318,6 +318,7 @@ create table cat.Items
 	Void bit not null 
 		constraint DF_Items_Void default(0),
 	Article nvarchar(32),
+	Barcode nvarchar(32),
 	Unit bigint, /* base, references cat.Units */
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),

@@ -10,7 +10,6 @@ const template: Template = {
 		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
 	},
 	events: {
-		'Root.$$Scan.change': scanChange,
 		'Document.Date.change': dateChange,
 		'Document.Contract.change': contractChange,
 		'Document.PriceKind.change': priceKindChange,
@@ -27,11 +26,9 @@ const template: Template = {
 
 export default utils.mergeTemplate(base, template);
 
-function scanChange() {
-	alert('scan');
-}
 
 function contractChange(doc, contract) {
+	base.events['Document.Contract.change'].call(this, doc, contract);
 	doc.PriceKind.$set(contract.PriceKind);
 }
 

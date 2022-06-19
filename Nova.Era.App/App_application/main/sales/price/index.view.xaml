@@ -48,10 +48,11 @@
 					 Value="{Bind Parent.Filter.Fragment}" Width="20rem"/>
 			</Toolbar>
 			<Table GridLines="Both" StickyHeaders="True" ItemsSource="{Bind Parent.ItemsSource}"
-				   Width="100%" Columns="5rem,700px,5rem,8rem,8rem,8rem" Background="WhiteSmoke" Striped="True">
+				   Width="100%" Columns="5rem,5rem,700px,5rem,8rem,8rem,8rem" Background="WhiteSmoke" Striped="True">
 				<Table.Header>
 					<TableRow>
 						<TableCell Content="@[Article]" RowSpan="2"/>
+						<TableCell Content="@[Barcode]" RowSpan="2"/>
 						<TableCell Content="@[Name]" RowSpan="2"/>
 						<TableCell Content="@[UnitShort]" RowSpan="2"/>
 						<TableCell Content="@[PriceKinds]" ColSpan="3" Align="Center"/>
@@ -70,6 +71,7 @@
 				</Table.Header>
 				<TableRow>
 					<TableCell Content="{Bind Article}"/>
+					<TableCell Content="{Bind Barcode}"/>
 					<TableCell Content="{Bind Name}"/>
 					<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 					<TextBox Value="{Bind $Price1, DataType=Currency, HideZeros=True}" Align="Right" Disabled="{Bind Root.$Disabled1}"/>

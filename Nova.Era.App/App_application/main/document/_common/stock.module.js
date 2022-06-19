@@ -6,6 +6,7 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         properties: {
             'TRoot.$$TabNo': String,
+            'TRoot.$$Barcode': String,
             'TRow.Sum': {
                 get() { return this.Price * this.Qty; },
                 set(val) { this.Qty = val / this.Price; }
@@ -21,12 +22,15 @@ define(["require", "exports"], function (require, exports) {
             'Document.ServiceRows[].Item': '@[Error.Required]',
         },
         events: {
+            'Root.$$Barcode.change': scanBarcode,
             'Document.StockRows[].add'(rows, row) { row.Qty = 1; },
             'Document.StockRows[].Item.change': itemChange,
             'Document.StockRows[].Item.Article.change': articleChange,
+            'Document.StockRows[].Item.Barcode.change': barcodeChange,
             'Document.ServiceRows[].add'(rows, row) { row.Qty = 1; },
             'Document.ServiceRows[].Item.change': itemChange,
-            'Document.ServiceRows[].Item.Article.change': articleChange
+            'Document.ServiceRows[].Item.Article.change': articleChange,
+            'Document.ServiceRows[].Item.Barcode.change': barcodeChange
         },
         commands: {}
     };
@@ -57,8 +61,53 @@ define(["require", "exports"], function (require, exports) {
         let result = await ctrl.$invoke('findArticle', {
             Text: val,
             PriceKind: this.Document.PriceKind.Id,
-            Date: this.Document.Date
+            Date: this.Document.Date,
+            Wh: this.Document.WhFrom.Id,
+            Stock: !this.$$TabNo
         }, '/catalog/item');
         (result === null || result === void 0 ? void 0 : result.Item) ? item.$merge(result.Item) : item.$empty();
+    }
+    async function barcodeChange(item, val) {
+        if (!val) {
+            item.$empty();
+            return;
+        }
+        ;
+        const ctrl = this.$ctrl;
+        let result = await ctrl.$invoke('findBarcode', {
+            Text: val,
+            PriceKind: this.Document.PriceKind.Id,
+            Date: this.Document.Date,
+            Wh: this.Document.WhFrom.Id,
+            Stock: !this.$$TabNo
+        }, '/catalog/item');
+        (result === null || result === void 0 ? void 0 : result.Item) ? item.$merge(result.Item) : item.$empty();
+    }
+    async function scanBarcode(root, val) {
+        if (!val)
+            return;
+        const ctrl = this.$ctrl;
+        let result = await ctrl.$invoke('findBarcode', {
+            Text: val,
+            PriceKind: this.Document.PriceKind.Id,
+            Date: this.Document.Date,
+            Wh: this.Document.WhFrom.Id
+        }, '/catalog/item');
+        root.$$Barcode = '';
+        if (!(result === null || result === void 0 ? void 0 : result.Item)) {
+            ctrl.$alert('@[Error.Barcode.NotFound]');
+            return;
+        }
+        let itm = result.Item;
+        let rows = itm.Role.IsStock ? root.Document.StockRows : root.Document.ServiceRows;
+        root.$$TabNo = itm.Role.IsStock ? '' : 'service';
+        var found = rows.find(row => row.Item.Id == itm.Id);
+        if (found)
+            found.Qty += 1;
+        else {
+            var newrow = rows.$append();
+            newrow.Item.$merge(itm);
+            newrow.Qty = 1;
+        }
     }
 });

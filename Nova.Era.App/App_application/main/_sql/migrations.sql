@@ -73,6 +73,12 @@ begin
 end
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'Items' and COLUMN_NAME=N'Barcode')
+begin
+	alter table cat.Items add Barcode nvarchar(32);
+end
+go
+------------------------------------------------
 if exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Operations' and COLUMN_NAME=N'WriteSupplierPrices')
 	alter table doc.Operations drop column [WriteSupplierPrices];
 go
@@ -81,4 +87,5 @@ drop table if exists doc.DocumentApply
 drop procedure if exists doc.[Document.Stock.Update];
 drop type if exists doc.[Document.Apply.TableType];
 drop procedure if exists cat.[Item.Browse.Rems.Index];
+drop procedure if exists cat.[Item.Find.Article];
 go

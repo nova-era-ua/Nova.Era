@@ -52,7 +52,7 @@ begin
 	order by Id;
 
 	-- Prices definition
-	select [!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article,
+	select [!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[Values!TPriceValue!Array] = null
 	from cat.Items i
@@ -120,13 +120,13 @@ begin
 		and (@Id = -1 or @Id = ite.Parent or (@Id < 0 and i.Id not in (
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
 		)))
-		and (@fr is null or i.[Name] like @fr or i.Memo like @fr or Article like @fr)
+		and (@fr is null or i.[Name] like @fr or i.Memo like @fr or Article like @fr or Barcode like @fr)
 	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role]
 	order by i.Id
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Prices!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article,
+	select [Prices!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[Values!TPriceValue!Array] = null,
 		[!!RowCount]  = t.rowcnt

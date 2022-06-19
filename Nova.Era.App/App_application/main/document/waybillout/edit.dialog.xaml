@@ -86,20 +86,22 @@
 				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%">
 					<Table.Columns>
 						<TableColumn Fit="True"/>
-						<TableColumn Width="11rem"/>
+						<TableColumn Width="8rem"/>
+						<TableColumn Width="8rem"/>
 						<TableColumn Width="Auto"/>
 						<TableColumn Fit="True"/>
 						<TableColumn Width="9rem" />
-						<TableColumn Width="7rem" If="{Bind Root.$CheckRems}"/>
-						<TableColumn Width="7rem"/>
-						<TableColumn Width="7rem"/>
-						<TableColumn Width="7rem"/>
+						<TableColumn Width="6rem" If="{Bind Root.$CheckRems}"/>
+						<TableColumn Width="6rem"/>
+						<TableColumn Width="6rem"/>
+						<TableColumn Width="6rem"/>
 						<TableColumn Fit="True"/>
 					</Table.Columns>
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
+							<TableCell Content="@[Barcode]"/>
 							<TableCell Content="@[Item]"/>
 							<TableCell Content="@[UnitShort]"/>
 							<TableCell Content="@[Role]"/>
@@ -113,6 +115,7 @@
 					<TableRow>
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
+						<TextBox Value="{Bind Item.Barcode}" Align="Center" Wrap="NoWrap"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browseprice', 
 								Data={Bind Root.$BrowseStockArg}}"/>
@@ -150,12 +153,13 @@
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" 
 				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%"
-				   Columns="Fit,11rem,Auto,Fit,10rem,10rem,10rem,Fit">
+				   Columns="Fit,8rem,8rem,Auto,Fit,10rem,10rem,10rem,Fit">
 					<Table.Header>
 						<TableRow>
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
-							<TableCell />
+							<TableCell Content="@[Barcode]"/>
+							<TableCell Content="@[Item]"/>
 							<TableCell Content="@[UnitShort]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell Content="@[Price]"/>
@@ -166,6 +170,7 @@
 					<TableRow>
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
+						<TextBox Value="{Bind Item.Barcode}" Align="Center" Wrap="NoWrap"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
 								Url='/catalog/item/browseprice', Data={Bind Root.$BrowseServiceArg}}"/>
@@ -178,7 +183,7 @@
 					</TableRow>
 					<Table.Footer>
 						<TableRow>
-							<TableCell ColSpan="5"/>
+							<TableCell ColSpan="6"/>
 							<TableCell Content="Всього"/>
 							<Static Value="{Bind Document.$ServiceSum, DataType=Currency}" Align="Right" Bold="True"/>
 							<TableCell />

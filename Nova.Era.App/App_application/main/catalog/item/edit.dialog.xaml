@@ -22,6 +22,7 @@
 			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 		</ComboBox>
 		<TextBox Grid.Row="3" Grid.Col="1" Label="@[Article]" Value="{Bind Item.Article}" UpdateTrigger="Input"/>
+		<TextBox Grid.Row="3" Grid.Col="2" Label="@[Barcode]" Value="{Bind Item.Barcode}" UpdateTrigger="Input"/>
 	</Grid>
 	<TabBar Grid.Row="4" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0,1rem">
 		<TabButton Content="Групування" ActiveValue=""/>

@@ -30,22 +30,32 @@
             "view": "browserems.dialog"
         }
     },
-  "commands": {
-    "getPath": {
-      "type": "sql",
-      "procedure": "Item.Folder.GetPath"
-    },
-    "findIndex": {
-      "type": "sql",
-      "procedure": "Item.Item.FindIndex"
-    },
-    "deleteItem": {
-      "type": "sql",
-      "procedure": "Item.Item.Delete"
-    },
-    "findArticle": {
-      "type": "sql",
-      "procedure": "Item.Find.Article"
+    "commands": {
+        "getPath": {
+            "type": "sql",
+            "procedure": "Item.Folder.GetPath"
+        },
+        "findIndex": {
+            "type": "sql",
+            "procedure": "Item.Item.FindIndex"
+        },
+        "deleteItem": {
+            "type": "sql",
+            "procedure": "Item.Item.Delete"
+        },
+        "findArticle": {
+            "type": "sql",
+            "procedure": "Item.Find.ArticleOrBarcode",
+            "parameters": {
+                "Mode": "A"
+            }
+        },
+        "findBarcode": {
+            "type": "sql",
+            "procedure": "Item.Find.ArticleOrBarcode",
+            "parameters": {
+                "Mode": "B"
+            }
+        }
     }
-  }
 }

@@ -139,6 +139,7 @@
 @Object=Об'єкт
 @Analytics=Аналітика
 @Article=Артикул
+@Barcode=Штрихкод
 @CodeUA=ЄДПРПОУ
 @CodeBankUA=МФО
 @Code.Number=Числовий код
@@ -199,6 +200,8 @@
 @Error.Document.AlreadyApplied=Документ вже проведено в обліку.
 @Error.Delete.Used=Неможливо видалити елемент, він використовується в обліку.
 @Error.InsufficientAmount=Недостатня кількість на залишку
+@Error.Barcode.NotFound=Штрихкод не знайдено
+@Description.QuickScan=Cканер має буте налаштовано<br>з префіксом <kbd>F7</kbd><br>та суффіксом <kbd>Enter</kbd>
 ;
 @SearchItemsPlaceholder=Пощук за назвою, артикулом, приміткою
 ;

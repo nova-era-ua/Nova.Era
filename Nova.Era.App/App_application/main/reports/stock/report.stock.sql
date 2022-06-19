@@ -58,7 +58,7 @@ begin
 	from rep.Reports r
 	where r.TenantId = @TenantId and r.Id = @Id;
 
-	select [!TItem!Map] = null, i.* --[Id!!Id] = Id, [Name!!Name] = i.[Name], i.Article
+	select [!TItem!Map] = null, i.* --[Id!!Id] = Id, [Name!!Name] = i.[Name], i.Article, i.Barcode
 	from #tmp t inner join cat.view_Items i on i.[!TenantId] = @TenantId and t.Item = i.[Id!!Id]
 
 

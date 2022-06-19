@@ -6,7 +6,7 @@ const utils: Utils = require("std:utils");
 const template: Template = {
 	properties: {
 		'TRoot.$CheckRems'() { return !this.Document.Done && this.Params.CheckRems; },
-		'TRoot.$StockSpan'() {return  this.$CheckRems ? 6 : 5},
+		'TRoot.$StockSpan'() { return this.$CheckRems ? 7 : 6; },
 		'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date, CheckRems: this.$CheckRems, Wh: this.Document.WhFrom.Id }; },
 		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
 	},
@@ -53,6 +53,7 @@ function checkRemsApply(elem, val): boolean {
 // #region events
 
 function contractChange(doc, contract) {
+	base.events['Document.Contract.change'].call(this, doc, contract);
 	doc.PriceKind.$set(contract.PriceKind);
 }
 

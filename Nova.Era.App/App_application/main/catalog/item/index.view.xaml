@@ -59,6 +59,7 @@
 					<TagLabel Style="{Bind Role.Color}" Content="{Bind Role.Name}"/>
 				</DataGridColumn>
 				<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+				<DataGridColumn Header="@[Barcode]" Content="{Bind Barcode}" Fit="True" Wrap="NoWrap"/>
 				<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 				<DataGridColumn Fit="True" Wrap="NoWrap">
 					<CommandBar Visibility="Hover">

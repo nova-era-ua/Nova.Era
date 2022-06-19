@@ -23,6 +23,7 @@
 				DoubleClick="{BindCmd Select, Argument={Bind Items}}">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+			<DataGridColumn Header="@[Barcode]" Content="{Bind Barcode}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 			<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" 
 							Fit="True" Wrap="NoWrap" Align="Center" Sort="False"/>

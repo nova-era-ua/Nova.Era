@@ -7,6 +7,7 @@ as table (
 	[Id!!Id] bigint,
 	[Name!!Name] nvarchar(255),
 	Article nvarchar(32),
+	Barcode nvarchar(32),
 	Memo nvarchar(32),
 	[Unit.Id!TUnit!Id] bigint, 
 	[Unit.Short!TUnit] nvarchar(8),
@@ -23,7 +24,7 @@ go
 create or alter view cat.view_Items
 as
 select [Id!!Id] = i.Id, 
-	[Name!!Name] = i.[Name], i.Article, i.Memo,
+	[Name!!Name] = i.[Name], i.Article, i.Barcode, i.Memo,
 	[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 	[Role!TItemRole!RefId] = i.[Role],
 	[!TenantId] = i.TenantId, [!IsStock] = ir.IsStock, Price = null, Rem = null, [!RowNo] = 0, [!!RowCount] = 0
@@ -82,7 +83,7 @@ begin
 
 	-- Elements definition
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role],
+		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
@@ -151,13 +152,14 @@ begin
 		and (@Id = -1 or @Id = ite.Parent or (@Id < 0 and i.Id not in (
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
 		)))
-		and (@fr is null or [Name] like @fr or Memo like @fr or Article like @fr)
-	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role]
+		and (@fr is null or [Name] like @fr or Memo like @fr or Article like @fr or Barcode like @fr)
+	group by i.Id, i.Unit, i.[Name], i.Article, i.Barcode, i.Memo, i.[Role]
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
 				when N'name' then i.[Name]
 				when N'article' then i.[Article]
+				when N'barcode' then i.Barcode
 				when N'memo' then i.[Memo]
 			end
 		end asc,
@@ -165,6 +167,7 @@ begin
 			case @Order
 				when N'name' then i.[Name]
 				when N'article' then i.[Article]
+				when N'barcode' then i.Barcode
 				when N'memo' then i.[Memo]
 			end
 		end desc,
@@ -173,7 +176,7 @@ begin
 	option (recompile);
 
 	select [Elements!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Memo, [Role!TItemRole!RefId] = i.[Role],
+		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id
@@ -219,7 +222,7 @@ begin
 		count(*) over()
 	from cat.Items i
 	where i.TenantId = @TenantId and i.Void = 0
-		and (@fr is null or i.Name like @fr or i.FullName like @fr or i.Memo like @fr or i.Article like @fr)
+		and (@fr is null or i.Name like @fr or i.FullName like @fr or i.Memo like @fr or i.Article like @fr or i.Barcode like @fr)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -231,6 +234,7 @@ begin
 				when N'name' then i.[Name]
 				when N'fullname' then i.[FullName]
 				when N'article' then i.[Article]
+				when N'barcode' then i.Barcode
 				when N'memo' then i.[Memo]
 			end
 		end asc,
@@ -244,13 +248,14 @@ begin
 				when N'name' then i.[Name]
 				when N'fullname' then i.[FullName]
 				when N'article' then i.[Article]
+				when N'barcode' then i.Barcode
 				when N'memo' then i.[Memo]
 			end
 		end desc
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Memo,
+	select [Items!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode, i.Memo,
 		[Role!TItemRole!RefId] = i.[Role], [Unit!TUnit!RefId] = i.Unit,
 		[!!RowCount] = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and t.id = i.Id
@@ -280,6 +285,7 @@ as table(
 	Id bigint null,
 	[Name] nvarchar(255),
 	Article nvarchar(32),
+	Barcode nvarchar(32),
 	FullName nvarchar(255),
 	[Memo] nvarchar(255),
 	[Role] bigint,
@@ -303,7 +309,7 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Memo,
+	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Barcode, i.Memo,
 		[Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i 
@@ -368,12 +374,13 @@ begin
 			t.[Name] = s.[Name],
 			t.FullName = s.FullName,
 			t.[Article] = s.[Article],
+			t.Barcode = s.Barcode,
 			t.Memo = s.Memo,
 			t.[Role] = s.[Role],
 			t.Unit = s.Unit
 	when not matched by target then 
-		insert (TenantId, [Name], FullName, [Article], Memo, [Role], Unit)
-		values (@TenantId, s.[Name], s.FullName, s.Article, s.Memo, s.[Role], s.Unit)
+		insert (TenantId, [Name], FullName, [Article], Barcode, Memo, [Role], Unit)
+		values (@TenantId, s.[Name], s.FullName, s.Article, s.Barcode, s.Memo, s.[Role], s.Unit)
 	output 
 		$action op, inserted.Id id
 	into @output(op, id);
@@ -415,6 +422,7 @@ begin
 end
 go
 ------------------------------------------------
+/*
 create or alter procedure cat.[Item.Item.FindIndex]
 @TenantId int = 1,
 @UserId bigint,
@@ -450,10 +458,11 @@ begin
 			i.TenantId = iti.TenantId and i.Id = iti.Item
 			where iti.Parent = @Parent and iti.TenantId = @TenantId
 	)
-	select [Result!TResult!Object] = null, T.Id, RowNo = T.RowNumber - 1 /*row_number is 1-based*/
+	select [Result!TResult!Object] = null, T.Id, RowNo = T.RowNumber - 1 / *row_number is 1-based* /
 	from T
 	where T.Id = @Id;
 end
+*/
 go
 ------------------------------------------------
 create or alter procedure cat.[Item.Folder.Delete]
@@ -492,12 +501,16 @@ begin
 	commit tran;
 end
 go
-create or alter procedure cat.[Item.Find.Article]
+------------------------------------------------
+create or alter procedure cat.[Item.Find.ArticleOrBarcode]
 @TenantId int = 1,
 @UserId bigint,
 @Text nvarchar(255) = null,
 @PriceKind bigint = null,
-@Date date = null
+@Date date = null,
+@Wh bigint = null,
+@Mode nchar(1) = N'A',
+@Stock bit = null
 as
 begin
 	set nocount on;
@@ -509,10 +522,37 @@ begin
 	insert into @item
 	select top(1) *
 	from cat.view_Items i
-	where i.[!TenantId] = @TenantId and i.Article = @Text;
+	where i.[!TenantId] = @TenantId and (@Stock is null or i.[!IsStock] = @Stock) and
+		((@Mode = N'A' and i.Article = @Text) or (@Mode = 'B' and i.Barcode = @Text));
 
 	if @PriceKind is not null
 		update @item set Price = doc.fn_PriceGet(@TenantId, [Id!!Id], @PriceKind, @Date);
+	if @Wh is not null
+		update @item set Rem = doc.fn_getOneItemRem(@TenantId, [Id!!Id], [Role!TItemRole!RefId], @Date, @Wh);
+
+	select [Item!TItem!Object] = null, *
+	from @item;
+
+	select [!TItemRole!Map] = null, * 
+	from cat.view_ItemRoles vir 
+	where vir.[!TenantId] = @TenantId and vir.[Id!!Id] in (select [Role!TItemRole!RefId] from @item);
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Find.Barcode]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare  @item cat.[view_Items.TableType];
+	insert into @item
+	select top(1) *
+	from cat.view_Items i
+	where i.[!TenantId] = @TenantId and i.Barcode = @Text;
 
 	select [Item!TItem!Object] = null, *
 	from @item;
@@ -531,6 +571,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
 	select [Item!TItem!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Items where TenantId = @TenantId and Id = @Id;
 
@@ -595,13 +636,14 @@ begin
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@GroupId /*hack:negative*/
 		)))
 		and (@stock is null or ir.IsStock = @stock)
-		and (@fr is null or i.[Name] like @fr or i.Memo like @fr or Article like @fr or ir.[Name] like @fr)
-	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role], ir.[Name]
+		and (@fr is null or i.[Name] like @fr or i.Memo like @fr or Article like @fr or ir.[Name] like @fr or Barcode like @fr)
+	group by i.Id, i.Unit, i.[Name], i.Article, i.Barcode, i.Memo, i.[Role], ir.[Name]
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
 				when N'name' then i.[Name]
 				when N'article' then i.[Article]
+				when N'barcode' then i.Barcode
 				when N'memo' then i.[Memo]
 				when N'role' then ir.[Name]
 			end
@@ -610,6 +652,7 @@ begin
 			case @Order
 				when N'name' then i.[Name]
 				when N'article' then i.[Article]
+				when N'barcode' then i.Barcode
 				when N'memo' then i.[Memo]
 				when N'role' then ir.[Name]
 			end
@@ -645,7 +688,7 @@ begin
 			@IsStock = @IsStock, @Fragment = @Fragment;
 
 	select [Items!TItem!Array] = null, 
-			[Id!!Id], [Name!!Name], Article, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+			[Id!!Id], [Name!!Name], Article, Barcode, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
 			[Role!TItemRole!RefId], [!TenantId], [!IsStock], [!!RowCount] = s.rowcnt
 	from cat.view_Items v
 	inner join @source s on v.[Id!!Id] = s.id
@@ -699,9 +742,9 @@ begin
 		declare @itemstable a2sys.[Id.TableType];
 		insert into @itemstable(Id) select id from @source;
 
-		insert into @items([Id!!Id], [Name!!Name], Article, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+		insert into @items([Id!!Id], [Name!!Name], Article, Barcode, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
 			[Role!TItemRole!RefId], [!TenantId], [!IsStock], Price, Rem, [!RowNo], [!!RowCount])
-		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
+		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Barcode, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
 			isnull(t.[Role], v.[Role!TItemRole!RefId]), @TenantId, v.[!IsStock], v.Price, t.Rem, s.rowno, s.rowcnt
 		from cat.view_Items v
 			inner join @source s on v.[!TenantId] = @TenantId and s.id = v.[Id!!Id]
@@ -712,9 +755,9 @@ begin
 	end
 	else
 	begin
-		insert into @items ([Id!!Id], [Name!!Name], Article, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+		insert into @items ([Id!!Id], [Name!!Name], Article, Barcode, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
 			[Role!TItemRole!RefId], [!TenantId], [!IsStock], Price, Rem, [!RowNo], [!!RowCount])
-		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
+		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Barcode, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
 			v.[Role!TItemRole!RefId], @TenantId, v.[!IsStock], 0, 0, [!RowNo] = s.rowno, [!!RowCount] = s.rowcnt
 		from cat.view_Items v
 			inner join @source s on v.[Id!!Id] = s.id

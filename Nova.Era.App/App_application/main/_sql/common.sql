@@ -158,6 +158,31 @@ begin
 end
 go
 ------------------------------------------------
+create or alter function doc.fn_getOneItemRem(@TenantId int, @Item bigint, @Role bigint, @Date date, @Wh bigint)
+returns float
+as
+begin
+	declare @check nchar(1);
+	declare @plan bigint;
+	select @check = CheckRems, @plan = AccPlanRems from app.Settings where TenantId = @TenantId;
+	declare @rem float = 0;
+	if @check = N'A' and @plan is not null
+	begin
+		with TA as (
+			select a.Id from acc.Accounts a
+				left join cat.ItemRoleAccounts ra on a.Id = ra.Account and a.TenantId = ra.TenantId and a.[Plan] = ra.[Plan] and ra.[Role] = @Role
+			where a.TenantId = @TenantId and Void = 0 and IsItem = 1 and IsWarehouse = 1 and a.[Plan] = @plan
+		)
+		select @rem = sum(j.Qty * DtCt)
+		from jrn.Journal j 
+			inner join TA on j.Account = TA.Id
+		where j.TenantId = @TenantId and j.[Date] <= @Date and j.Warehouse = @Wh
+			and j.Item = @Item
+	end
+	return @rem;
+end
+go
+------------------------------------------------
 create or alter function app.fn_IsCheckRems(@TenantId int, @CheckRems bit)
 returns bit
 as
