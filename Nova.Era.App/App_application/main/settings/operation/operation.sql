@@ -55,18 +55,21 @@ begin
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
 		[Form!TForm!RefId] = o.Form,
-		[JournalStore!TOpJournalStore!Array] = null,
+		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
 		[Trans!TOpTrans!Array] = null
 	from doc.Operations o
 	where o.TenantId = @TenantId and o.Id=@Id;
 
-	select [!TOpJournalStore!Array] = null, [Id!!Id] = Id, RowKind, IsIn, IsOut, 
-		IsStorno = case when ojs.Factor = -1 then 1 else 0 end,
-		[!TOperation.JournalStore!ParentId] = ojs.Operation
-	from doc.OpJournalStore ojs 
-	where ojs.TenantId = @TenantId and ojs.Operation = @Id;
+	/*
+	-- SIMPLE TRANSACTIONS
+	select [!TSTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
+		[!TOperation.STrans!ParentId] = os.Operation
+	from doc.OpSimple os 
+	where os.TenantId = @TenantId and os.Operation = @Id;
+	*/
 
+	-- ACCOUNT TRANSACTIONS
 	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
 		[Plan!TAccount!RefId] = [Plan], [Dt!TAccount!RefId] = Dt, [Ct!TAccount!RefId] = Ct, 
 		DtAccMode, DtSum, DtRow, CtAccMode, CtSum, CtRow,

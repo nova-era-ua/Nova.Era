@@ -1,5 +1,5 @@
 ﻿<Taskpad xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		 Collapsible="False" Margin="0,0,0,1rem" Background="WhiteSmoke">
+		 Collapsible="False" Padding="1rem" Background="WhiteSmoke">
 	<Block Width="20rem">
 		<Block If="{Bind Document.Done}" Margin="1rem,0">
 			<Hyperlink Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>

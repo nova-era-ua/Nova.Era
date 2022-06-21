@@ -1,5 +1,5 @@
 ﻿<Taskpad xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		 Collapsible="False" Margin="0,0,0,1rem" Background="WhiteSmoke">
+		 Collapsible="False" Padding="1rem" Background="WhiteSmoke">
 	<Block Width="20rem">
 		<Panel If="{Bind !Document.Done}" Header="Сканування" Padding=".5rem">
 			<TextBox Placeholder="Швидке сканування" Label="@[Barcode]" 

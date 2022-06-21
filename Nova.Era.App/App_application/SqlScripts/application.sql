@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 21.06.2022 15:42:35
+generated: 21.06.2022 22:14:02
 */
 
 
@@ -4041,7 +4041,7 @@ create table doc.OpTrans
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_SQ_OpTrans_Id default(next value for doc.SQ_OpTrans),
+		constraint DF_OpTrans_Id default(next value for doc.SQ_OpTrans),
 	Operation bigint not null,
 	RowNo int,
 	RowKind nvarchar(16) not null,
@@ -4069,6 +4069,28 @@ create table doc.OpTrans
 	constraint FK_OpTrans_CtAccKind_ItemRoles foreign key (TenantId, CtAccKind) references acc.AccKinds(TenantId, Id),
 );
 go
+/*
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpSimple')
+	create sequence doc.SQ_OpSimple as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpSimple')
+create table doc.OpSimple
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_OpSimple_Id default(next value for doc.SQ_OpSimple),
+	Operation bigint not null,
+	RowNo int,
+	RowKind nvarchar(16) not null,
+	[Uid] uniqueidentifier not null
+		constraint DF_OpSimple_Uid default(newid()),
+	constraint PK_OpSimple primary key (TenantId, Id, Operation),
+	constraint FK_OpSimple_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+go
+*/
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'ui' and TABLE_NAME=N'OpMenuLinks')
 create table ui.OpMenuLinks
@@ -8727,18 +8749,21 @@ begin
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
 		[Form!TForm!RefId] = o.Form,
-		[JournalStore!TOpJournalStore!Array] = null,
+		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
 		[Trans!TOpTrans!Array] = null
 	from doc.Operations o
 	where o.TenantId = @TenantId and o.Id=@Id;
 
-	select [!TOpJournalStore!Array] = null, [Id!!Id] = Id, RowKind, IsIn, IsOut, 
-		IsStorno = case when ojs.Factor = -1 then 1 else 0 end,
-		[!TOperation.JournalStore!ParentId] = ojs.Operation
-	from doc.OpJournalStore ojs 
-	where ojs.TenantId = @TenantId and ojs.Operation = @Id;
+	/*
+	-- SIMPLE TRANSACTIONS
+	select [!TSTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
+		[!TOperation.STrans!ParentId] = os.Operation
+	from doc.OpSimple os 
+	where os.TenantId = @TenantId and os.Operation = @Id;
+	*/
 
+	-- ACCOUNT TRANSACTIONS
 	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
 		[Plan!TAccount!RefId] = [Plan], [Dt!TAccount!RefId] = Dt, [Ct!TAccount!RefId] = Ct, 
 		DtAccMode, DtSum, DtRow, CtAccMode, CtSum, CtRow,
