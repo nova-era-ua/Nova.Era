@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 19.06.2022 09:25:36
+generated: 21.06.2022 15:42:35
 */
 
 
@@ -8,7 +8,7 @@ generated: 19.06.2022 09:25:36
 
 /*
 version: 10.0.7779
-generated: 01.06.2022 15:54:12
+generated: 21.06.2022 12:31:17
 */
 
 set nocount on;
@@ -4467,6 +4467,7 @@ drop table if exists doc.DocumentApply
 drop procedure if exists doc.[Document.Stock.Update];
 drop type if exists doc.[Document.Apply.TableType];
 drop procedure if exists cat.[Item.Browse.Rems.Index];
+drop procedure if exists cat.[Item.Find.Article];
 go
 
 /*
@@ -4626,6 +4627,31 @@ begin
 		group by j.Item, TA.[Role];
 	end
 	return;
+end
+go
+------------------------------------------------
+create or alter function doc.fn_getOneItemRem(@TenantId int, @Item bigint, @Role bigint, @Date date, @Wh bigint)
+returns float
+as
+begin
+	declare @check nchar(1);
+	declare @plan bigint;
+	select @check = CheckRems, @plan = AccPlanRems from app.Settings where TenantId = @TenantId;
+	declare @rem float = 0;
+	if @check = N'A' and @plan is not null
+	begin
+		with TA as (
+			select a.Id from acc.Accounts a
+				left join cat.ItemRoleAccounts ra on a.Id = ra.Account and a.TenantId = ra.TenantId and a.[Plan] = ra.[Plan] and ra.[Role] = @Role
+			where a.TenantId = @TenantId and Void = 0 and IsItem = 1 and IsWarehouse = 1 and a.[Plan] = @plan
+		)
+		select @rem = sum(j.Qty * DtCt)
+		from jrn.Journal j 
+			inner join TA on j.Account = TA.Id
+		where j.TenantId = @TenantId and j.[Date] <= @Date and j.Warehouse = @Wh
+			and j.Item = @Item
+	end
+	return @rem;
 end
 go
 ------------------------------------------------
@@ -5718,12 +5744,15 @@ begin
 end
 go
 ------------------------------------------------
-create or alter procedure cat.[Item.Find.Article]
+create or alter procedure cat.[Item.Find.ArticleOrBarcode]
 @TenantId int = 1,
 @UserId bigint,
 @Text nvarchar(255) = null,
 @PriceKind bigint = null,
-@Date date = null
+@Date date = null,
+@Wh bigint = null,
+@Mode nchar(1) = N'A',
+@Stock bit = null
 as
 begin
 	set nocount on;
@@ -5735,10 +5764,13 @@ begin
 	insert into @item
 	select top(1) *
 	from cat.view_Items i
-	where i.[!TenantId] = @TenantId and i.Article = @Text;
+	where i.[!TenantId] = @TenantId and (@Stock is null or i.[!IsStock] = @Stock) and
+		((@Mode = N'A' and i.Article = @Text) or (@Mode = 'B' and i.Barcode = @Text));
 
 	if @PriceKind is not null
 		update @item set Price = doc.fn_PriceGet(@TenantId, [Id!!Id], @PriceKind, @Date);
+	if @Wh is not null
+		update @item set Rem = doc.fn_getOneItemRem(@TenantId, [Id!!Id], [Role!TItemRole!RefId], @Date, @Wh);
 
 	select [Item!TItem!Object] = null, *
 	from @item;

@@ -12,7 +12,7 @@
 			</CollectionView.Filter>
 		</CollectionView>
 	</Page.CollectionView>
-	<Grid Rows="Auto,1*,Auto" Height="100%" Gap=".5rem" Padding="1rem">
+	<Grid Rows="Auto,1*,Auto" Height="100%" Gap=".5rem">
 		<Toolbar Grid.Row="1" XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Plus" Content="@[Create]">
 				<Button.DropDown>
