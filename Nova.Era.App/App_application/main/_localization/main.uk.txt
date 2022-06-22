@@ -104,6 +104,7 @@
 @RoleTo=Нова роль
 @AccKinds=Види рахунків в обліку
 @AccKind=Вид рахунку в обліку
+@AccKindShort=Вид рахунку
 @CreateFolder=Створити папку
 @CreateSection=Створити розділ
 @CreateAccountPlan=Створити план рахунків

@@ -36,7 +36,7 @@
 		<Pager Source="{Bind Parent.Pager}" XamlStyle="{StyleResource PagePager}"/>
 	</Grid>
 	<Dialog.Taskpad>
-		<Taskpad Width="20rem" Collapsible="False">
+		<Taskpad Width="20rem" Collapsible="False" Padding="1rem">
 			<Panel Header="Фільтри" Style="Transparent" Collapsible="True">
 				<Static Label="@[Warehouse]" Value="{Bind Params.Warehouse.Name}"/>
 				<Static Label="@[Date]" Value="{Bind Params.Date, DataType=Date}" Align="Center"/>

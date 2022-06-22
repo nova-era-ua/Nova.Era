@@ -1,7 +1,7 @@
 ﻿<!-- Edit ItemRole -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
 		Title="{Bind ItemRole.$Id, Format='@[ItemRole] [{0}]'}" Overflow="True"
-		Width="35rem">
+		Width="40rem">
 	<Dialog.Buttons>
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
@@ -24,6 +24,8 @@
 			<ComboBoxItem Content="Tan" Value="tan"/>
 			<ComboBoxItem Content="Magenta" Value="magenta"/>
 			<ComboBoxItem Content="LightGray" Value="lightgray"/>
+			<ComboBoxItem Content="Olive" Value="olive"/>
+			<ComboBoxItem Content="Teal" Value="teal"/>
 		</ComboBox>
 		<TagLabel Grid.Row="2" Grid.Col="2" Style="{Bind ItemRole.Color}" Content="{Bind ItemRole.Name}" 
 				  Padding=".475rem"/>
@@ -35,15 +37,15 @@
 			<TabButton ActiveValue="">@[Accounts]</TabButton>
 			<TabButton ActiveValue="costitem">Витрати</TabButton>
 		</TabBar>
-		<Block Grid.Row="5" Grid.ColSpan="2" Height="15rem" Scroll="True">
+		<Block Grid.Row="5" Grid.ColSpan="2" Height="20rem" Scroll="True">
 			<Switch Expression="{Bind Root.$$Tab}">
 				<Case Value="">
 					<!--TODO: Toolbar LightStyle -->
 					<Toolbar Style="Light" Padding="0">
 						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind ItemRole.Accounts}}"/>
 					</Toolbar>
-					<Table CellSpacing="Medium" Columns="10rem,15rem,10rem,Fit"
-				   ItemsSource="{Bind ItemRole.Accounts}" Width="100%" Margin="0, -6px">
+					<Table CellSpacing="Medium" Columns="12rem,15rem,10rem,Fit"
+				   ItemsSource="{Bind ItemRole.Accounts}" Width="100%" Margin="0, -5px">
 						<Table.Header>
 							<TableRow>
 								<TableCell Wrap="NoWrap">@[AccountPlan]</TableCell>
@@ -55,16 +57,23 @@
 						<TableRow>
 							<Selector Value="{Bind Plan}" DisplayProperty="Code" Tip="{Bind Plan.Name}">
 								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
+								<Selector.Validator>
+									<Validator Placement="TopLeft" />
+								</Selector.Validator>
 							</Selector>
 							<ComboBox ItemsSource="{Bind Root.AccKinds}" Value="{Bind AccKind}">
 								<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+								<ComboBox.Validator>
+									<Validator Placement="TopLeft" />
+								</ComboBox.Validator>
 							</ComboBox>
 							<Selector Value="{Bind Account}" DisplayProperty="Code" Tip="{Bind Account.Name}"
 						Disabled="{Bind !Plan.Id}">
-								<Selector.AddOns>
 									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Account}, 
 								Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
-								</Selector.AddOns>
+								<Selector.Validator>
+									<Validator Placement="TopLeft" />
+								</Selector.Validator>
 							</Selector>
 							<Hyperlink Size="Small" Icon="Delete" Command="{BindCmd Remove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
 						</TableRow>

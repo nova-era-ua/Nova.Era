@@ -38,7 +38,7 @@
 		<Pager Source="{Bind Parent.Pager}" XamlStyle="{StyleResource PagePager}"/>
 	</Grid>
 	<Dialog.Taskpad>
-		<Taskpad Width="20rem" Collapsible="False">
+		<Taskpad Width="20rem" Collapsible="False" Padding="1rem">
 			<Panel Header="Фільтри" Style="Transparent" Collapsible="True">
 				<Static Label="@[Warehouse]" If="{Bind Params.CheckRems}" Value="{Bind Params.Warehouse.Name}" Wrap="NoWrap"/>
 				<Static Label="@[Price]" Value="{Bind PriceKind.Name}" Wrap="NoWrap" />
