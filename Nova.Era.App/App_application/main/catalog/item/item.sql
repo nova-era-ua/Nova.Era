@@ -289,7 +289,9 @@ as table(
 	FullName nvarchar(255),
 	[Memo] nvarchar(255),
 	[Role] bigint,
-	Unit bigint
+	Unit bigint,
+	Vendor bigint,
+	Brand bigint
 );
 go
 -------------------------------------------------
@@ -311,7 +313,8 @@ begin
 
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Barcode, i.Memo,
 		[Role!TItemRole!RefId] = i.[Role],
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Brand!TBrand!RefId] = i.Brand, [Vendor!TVendor!RefId] = i.Vendor
 	from cat.Items i 
 		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId and i.Id=@Id and i.Void = 0;
@@ -319,6 +322,16 @@ begin
 	select [Hierarchies!THie!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
 		[Elements!THieElem!Array] = null
 	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
+
+	select [!TBrand!Map] = null, [Id!!Id] = b.Id, [Name!!Name] = b.[Name]
+	from cat.Brands b
+		inner join cat.Items i on b.TenantId = i.TenantId and b.Id = i.Brand
+	where i.TenantId = @TenantId and i.Id = @Id;
+
+	select [!TVendor!Map] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name]
+	from cat.Vendors v
+		inner join cat.Items i on v.TenantId = i.TenantId and v.Id = i.Vendor
+	where i.TenantId = @TenantId and i.Id = @Id;
 
 	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock,
 		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name]
@@ -377,10 +390,12 @@ begin
 			t.Barcode = s.Barcode,
 			t.Memo = s.Memo,
 			t.[Role] = s.[Role],
-			t.Unit = s.Unit
+			t.Unit = s.Unit,
+			t.Brand = s.Brand,
+			t.Vendor = s.Vendor
 	when not matched by target then 
-		insert (TenantId, [Name], FullName, [Article], Barcode, Memo, [Role], Unit)
-		values (@TenantId, s.[Name], s.FullName, s.Article, s.Barcode, s.Memo, s.[Role], s.Unit)
+		insert (TenantId, [Name], FullName, [Article], Barcode, Memo, [Role], Unit, Brand, Vendor)
+		values (@TenantId, s.[Name], s.FullName, s.Article, s.Barcode, s.Memo, s.[Role], s.Unit, s.Brand, s.Vendor)
 	output 
 		$action op, inserted.Id id
 	into @output(op, id);

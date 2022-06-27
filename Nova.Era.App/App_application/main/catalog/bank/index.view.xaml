@@ -8,18 +8,20 @@
 					Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Banks}, Url=/catalog/bank/edit}"/>
 				<Button Icon="Delete"
 					Command="{BindCmd DbRemoveSelected, Argument={Bind Banks}, Confirm='@[Confirm.Delete.Element]'}"/>
-				<TextBox Value="{Bind Parent.Filter.Fragment}" Toolbar.Align="Right"
-						 Placeholder="@[Search]"
-						 Width="25rem" ShowClear="True" ShowFilter="True"/>
-				<Button Icon="Reload" Command="{BindCmd Reload}" Toolbar.Align="Right"/>
-				<Separator Toolbar.Align="Right"/>
-				<Button Icon="Menu" Toolbar.Align="Right">
+				<Separator />
+				<Button Icon="EllipsisVertical">
 					<Button.DropDown>
-						<DropDownMenu Direction="DownLeft">
+						<DropDownMenu>
 							<MenuItem Content="@[DownloadFromNBU]" Command="{BindCmd Execute, CommandName=download}"/>
 						</DropDownMenu>
 					</Button.DropDown>
 				</Button>
+				<Separator />
+				<Button Icon="Reload" Command="{BindCmd Reload}"/>
+				<ToolbarAligner />
+				<TextBox Value="{Bind Parent.Filter.Fragment}"
+						 Placeholder="@[Search]"
+						 Width="25rem" ShowClear="True" ShowFilter="True"/>
 			</Toolbar>
 			<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True"
 					Sort="True"

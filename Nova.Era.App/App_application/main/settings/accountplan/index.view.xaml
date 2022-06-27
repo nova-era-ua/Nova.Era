@@ -49,12 +49,22 @@
 		<Block Grid.Row="1" Grid.Col="3" Grid.RowSpan="2" Grid.VAlign="Top">
 			<!--
 			<Header Bold="False" Margin="0,0,1rem,0">Налаштування рахунків</Header>
-			<Selector Label="Рахунок для залишків" Disabled="True" 
+			<Selector Label="Рахунок для залишків" Disabled="True"
 					  DisplayProperty="$Title" Value="{Bind Settings.RemAccount}">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Render="Show" Command="{BindCmd Execute, CommandName=setRemAccount}"/>
 				</Selector.AddOns>
 			</Selector>
+			<Sheet GridLines="Both">
+				<SheetTreeSection ItemsSource="{Bind Accounts}">
+					<SheetRow>
+						<SheetGroupCell GroupIndent="True"/>
+						<SheetCell Content="{Bind Id}" GroupIndent="True"/>
+						<SheetCell Content="{Bind Code}"/>
+						<SheetCell Content="{Bind Name}"/>
+					</SheetRow>
+				</SheetTreeSection>
+			</Sheet>
 			-->
 			<EmptyPanel Icon="Smile">
 				Треба поміркувати, що тут потрібно

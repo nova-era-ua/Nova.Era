@@ -25,6 +25,8 @@
 			"main/catalog/acckind/acckind.sql",
 			"main/catalog/itemrole/itemrole.sql",
 			"main/catalog/unit/unit.sql",
+			"main/catalog/vendor/vendor.sql",
+			"main/catalog/brand/brand.sql",
 			"main/catalog/currency/currency.sql",
 			"main/catalog/pricekind/pricekind.sql",
 			"main/catalog/cashflowitem/cashflowitem.sql",

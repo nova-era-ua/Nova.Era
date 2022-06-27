@@ -70,7 +70,7 @@
 					<SheetTreeSection ItemsSource="{Bind RepData.Items}">
 						<SheetRow Align="Right" Wrap="NoWrap">
 							<SheetGroupCell />
-							<SheetCell ColSpan="2" GroupIndent="True" Align="Left" Content="{Bind $groupName}"/>
+							<SheetCell ColSpan="2" Align="Left" Content="{Bind $groupName}"/>
 							<SheetCell Align="Left" Content="{Bind Currency}"/>
 							<SheetCell Content="{Bind StartSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell Content="{Bind DtSum, DataType=Currency, HideZeros=True}"/>

@@ -1,0 +1,30 @@
+﻿<!-- Browse Brand-->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="@[Browse.Brand]" Overflow="True" Width="45rem">
+	<Dialog.Buttons>
+		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Brands}}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Dialog.CollectionView>
+		<CollectionView ItemsSource="{Bind Brands}" RunAt="Server" Filter="Fragment"/>
+	</Dialog.CollectionView>
+	<Grid AutoFlow="Row">
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Dialog, 
+				Action=Append, Argument={Bind Brands}, Url='/catalog/brand/edit'}"/>
+			<Button Icon="Edit"
+					Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Brands}, Url=/catalog/brand/edit}"/>
+			<ToolbarAligner />
+			<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" ShowClear="True" ShowFilter="True"/>
+		</Toolbar>
+		<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}"
+			Height="25rem" FixedHeader="True"
+				DoubleClick="{BindCmd Select, Argument={Bind Brands}}">
+			<DataGridColumn Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
+		</DataGrid>
+		<Pager Source="{Bind Parent.Pager}" XamlStyle="{StyleResource PagePager}"/>
+	</Grid>
+</Dialog>
+

@@ -10,12 +10,15 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
-		[Form!TForm!RefId] = Form,
+	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
+		[Form!TForm!RefId] = o.Form,
 		[Journals!TOpJournal!Array] = null
-	from doc.Operations where TenantId = @TenantId;
+	from doc.Operations o
+		inner join doc.Forms df on o.TenantId = df.TenantId and o.Form = df.Id
+	where o.TenantId = @TenantId
+	order by df.[Order], o.Id;
 
-	select [Forms!TForm!Array] = null, [Id!!Id] = f.Id, [Name!!Name] = f.[Name]
+	select [Forms!TForm!Array] = null, [Id!!Id] = f.Id, [Name!!Name] = f.[Name], f.Category
 	from doc.Forms f;
 end
 go
@@ -93,7 +96,7 @@ begin
 	where ot.TenantId = @TenantId and ot.Operation = @Id
 	group by a.Id, a.Code, a.[Name], a.IsItem, a.IsAgent, a.IsWarehouse, a.IsBankAccount, a.IsCash;
 
-	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], 
+	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], [Category], InOut,
 		[RowKinds!TRowKind!Array] = null
 	from doc.Forms df
 	where df.TenantId = @TenantId

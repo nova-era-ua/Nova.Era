@@ -49,7 +49,7 @@
 						<Table.Header>
 							<TableRow>
 								<TableCell Wrap="NoWrap">@[AccountPlan]</TableCell>
-								<TableCell>@[ItemRole]</TableCell>
+								<TableCell>@[AccKindShort]</TableCell>
 								<TableCell>@[Account]</TableCell>
 								<TableCell />
 							</TableRow>

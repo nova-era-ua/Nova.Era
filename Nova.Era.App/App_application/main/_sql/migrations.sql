@@ -83,9 +83,32 @@ if exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' 
 	alter table doc.Operations drop column [WriteSupplierPrices];
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLE_CONSTRAINTS where TABLE_SCHEMA=N'cat' and TABLE_NAME = N'Items' and CONSTRAINT_NAME = N'FK_Items_Brand_Brands')
+	alter table cat.Items add constraint FK_Items_Brand_Brands foreign key (TenantId, Brand) references cat.Brands(TenantId, Id);
+go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Forms' and COLUMN_NAME=N'Category')
+	alter table doc.Forms add Category nvarchar(255);
+go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'Agents' and COLUMN_NAME=N'Partner')
+begin
+	alter table cat.Agents add [Partner] bit;
+	alter table cat.Agents add [Person] bit;
+	-- roles
+	alter table cat.Agents add IsSupplier bit;
+	alter table cat.Agents add IsCustomer bit;
+end
+go
+------------------------------------------------
+if not exists(select * from cat.Agents where [Partner] is not null)
+	update cat.Agents set [Partner] = 1 where [Partner] is null;
+go
+------------------------------------------------
 drop table if exists doc.DocumentApply
 drop procedure if exists doc.[Document.Stock.Update];
 drop type if exists doc.[Document.Apply.TableType];
 drop procedure if exists cat.[Item.Browse.Rems.Index];
 drop procedure if exists cat.[Item.Find.Article];
 go
+

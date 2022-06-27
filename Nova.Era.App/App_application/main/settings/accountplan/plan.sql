@@ -25,10 +25,6 @@ begin
 
 	select [Settings!TSettings!Object] = null,
 		[RemAccount!TAccount!RefId] = cast(10001 as bigint);
-
-	select [!TAccount!Map] = null, [Id!!Id] = a.Id, a.Code, a.[Name]
-	from acc.Accounts a
-	where a.TenantId = @TenantId and a.Id = 10001;
 end
 go
 ------------------------------------------------

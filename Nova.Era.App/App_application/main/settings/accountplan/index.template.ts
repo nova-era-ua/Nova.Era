@@ -12,7 +12,8 @@ const template: Template = {
 		'TAccount.$Title'(this: TAccount) { return `${this.Code} ${this.Name}`; },
 		'TAccount.$Icon'() { return this.IsFolder ? 'account-folder' : 'account'; },
 		'TAccount.$IsPlan'() { return this.Plan === 0; },
-		'TRoot.$Search': String
+		'TRoot.$Search': String,
+		'TRoot.$Tree'() { return { Items: this.Accounts }; }
 	},
 	events: {
 		'Root.$Search.change': searchAccount,

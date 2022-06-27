@@ -39,19 +39,19 @@
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
-		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,1px,1*, Auto,22rem" AlignItems="Baseline" Gap="1rem">
-			<Label Grid.Row="1" Grid.Col="1" Content="@[WarehouseFrom]"/>
+		<Grid Grid.Row="2" Padding="0" Columns="Auto,20rem,Auto,20rem,1*, Auto,20rem" AlignItems="Baseline" Gap="1rem">
+			<Label Grid.Row="1" Grid.Col="1" Content="@[WarehouseFrom]" Wrap="NoWrap"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.WhFrom}" DisplayProperty="Name">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
 			</Selector>
 
-			<Label Grid.Row="2" Grid.Col="1" Content="@[WarehouseTo]"/>
-			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.WhTo}" DisplayProperty="Name">
+			<Label Grid.Row="1" Grid.Col="3" Content="@[WarehouseTo]" Wrap="NoWrap"/>
+			<Selector Grid.Row="1" Grid.Col="4" Value="{Bind Document.WhTo}" DisplayProperty="Name">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
 			</Selector>
 
-			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="5" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="6"
+			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="6" Wrap="NoWrap"/>
+			<Selector Grid.Row="1" Grid.Col="7"
 					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 

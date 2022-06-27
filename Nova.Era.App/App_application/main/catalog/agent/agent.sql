@@ -12,7 +12,7 @@ begin
 	select [Agents!TAgent!Array] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
 		FullName, [Memo]
 	from cat.Agents a
-	where TenantId = @TenantId;
+	where TenantId = @TenantId and [Partner] = 1
 end
 go
 -------------------------------------------------
@@ -26,9 +26,9 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Agent!TAgent!Object] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
-		FullName, [Memo]
+		FullName, [Memo], IsSupplier, IsCustomer
 	from cat.Agents a
-	where TenantId = @TenantId and Id = @Id;
+	where TenantId = @TenantId and Id = @Id and [Partner] = 1;
 end
 go
 -------------------------------------------------
@@ -42,7 +42,9 @@ as table(
 	Id bigint null,
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
-	[Memo] nvarchar(255)
+	[Memo] nvarchar(255),
+	IsCustomer bit,
+	IsSupplier bit
 )
 go
 ------------------------------------------------
@@ -74,10 +76,13 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.[FullName] = s.[FullName]
+		t.[FullName] = s.[FullName],
+		t.IsCustomer = s.IsCustomer,
+		t.IsSupplier = s.IsSupplier,
+		t.[Partner] = 1
 	when not matched by target then insert
-		(TenantId, [Name], FullName, Memo) values
-		(@TenantId, s.[Name], s.FullName, s.Memo)
+		(TenantId, [Name], FullName, Memo, IsCustomer, IsSupplier, [Partner]) values
+		(@TenantId, s.[Name], s.FullName, s.Memo, s.IsCustomer, s.IsSupplier, 1)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 	exec cat.[Agent.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;

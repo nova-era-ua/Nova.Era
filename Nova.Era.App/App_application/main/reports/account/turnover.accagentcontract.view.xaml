@@ -111,7 +111,7 @@
 						<SheetRow Align="Right" Wrap="NoWrap">
 							<SheetGroupCell />
 							<SheetCell ColSpan="2" Align="Left" Content="{Bind $Name}" 
-									   GroupIndent="True" Wrap="Wrap"/>
+									   Wrap="Wrap"/>
 							<SheetCell Content="{Bind DtStart, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind CtStart, DataType=Currency, HideZeros=True}"/>
 							<SheetCellGroup ItemsSource="{Bind DtCross}">

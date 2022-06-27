@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 22.06.2022 12:09:16
+generated: 27.06.2022 12:45:30
 */
 
 
@@ -8,7 +8,7 @@ generated: 22.06.2022 12:09:16
 
 /*
 version: 10.0.7779
-generated: 22.06.2022 07:46:57
+generated: 27.06.2022 12:02:46
 */
 
 set nocount on;
@@ -3491,6 +3491,24 @@ create table cat.Vendors
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Brands')
+	create sequence cat.SQ_Brands as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Brands')
+create table cat.Brands
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Brands_Id default(next value for cat.SQ_Brands),
+	Void bit not null 
+		constraint DF_Brands_Void default(0),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Brands primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'cat' and SEQUENCE_NAME=N'SQ_Banks')
 	create sequence cat.SQ_Banks as int start with 100 increment by 1;
 go
@@ -3528,6 +3546,22 @@ create table cat.Currencies
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,
 		constraint PK_Currencies primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Countries')
+create table cat.Countries
+(
+	TenantId int not null,
+	Code nchar(3) not null,
+	Void bit not null 
+		constraint DF_Countries_Void default(0),
+	[Alpha2] nchar(2),
+	[Aplha3] nchar(3),
+
+	[Name] nvarchar(255) null,
+	[Memo] nvarchar(255) null,
+		constraint PK_Countries primary key (TenantId, Code)
 );
 go
 ------------------------------------------------
@@ -3741,6 +3775,7 @@ create table cat.Items
 	constraint PK_Items primary key (TenantId, Id),
 	constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
 	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id),
+	constraint FK_Items_Brand_Brands foreign key (TenantId, Brand) references cat.Brands(TenantId, Id),
 	constraint FK_Items_Role_ItemRoles foreign key (TenantId, Role) references cat.ItemRoles(TenantId, Id)
 );
 go
@@ -3947,6 +3982,7 @@ create table doc.Forms
 	[Order] int,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
+	Category nvarchar(255),
 	InOut smallint,
 		constraint PK_Forms primary key (TenantId, Id)
 );
@@ -4485,12 +4521,21 @@ if exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' 
 	alter table doc.Operations drop column [WriteSupplierPrices];
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLE_CONSTRAINTS where TABLE_SCHEMA=N'cat' and TABLE_NAME = N'Items' and CONSTRAINT_NAME = N'FK_Items_Brand_Brands')
+	alter table cat.Items add constraint FK_Items_Brand_Brands foreign key (TenantId, Brand) references cat.Brands(TenantId, Id);
+go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Forms' and COLUMN_NAME=N'Category')
+	alter table doc.Forms add Category nvarchar(255);
+go
+------------------------------------------------
 drop table if exists doc.DocumentApply
 drop procedure if exists doc.[Document.Stock.Update];
 drop type if exists doc.[Document.Apply.TableType];
 drop procedure if exists cat.[Item.Browse.Rems.Index];
 drop procedure if exists cat.[Item.Find.Article];
 go
+
 
 /*
 common
@@ -4837,9 +4882,10 @@ begin
 		(8823, 882, 13, N'@[BankAccounts]', N'bankacc',   N'bank', null),
 		(8824, 882, 14, N'@[CashAccounts]', N'cashacc',   N'currency-uah', null),
 		(8825, 882, 15, N'@[Agents]',       N'agent',     N'users', N'line-top'),
-		(8826, 882, 16, N'@[Contracts]',    N'contract',  N'user-image', null),
-		(8827, 882, 17, N'@[Items]',        N'item',      N'package-outline', N'line-top'),
-		(8828, 882, 18, N'@[CatalogOther]', N'catalog',   N'list', null),
+		(8826, 882, 16, N'@[Persons]',      N'person',    N'user-role', null),
+		(8827, 882, 17, N'@[Contracts]',    N'contract',  N'user-image', null),
+		(8828, 882, 18, N'@[Items]',        N'item',      N'package-outline', N'line-top'),
+		(8829, 882, 19, N'@[CatalogOther]', N'catalog',   N'list', null),
 		(883,   88, 13, N'@[Administration]', null, null, null),
 		(8830, 883, 16, N'@[Users]',        N'user',    N'user',  null),
 		(8850,  88, 20, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
@@ -4857,7 +4903,6 @@ begin
 		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
 	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
 	(100, N'Sales', 10, N'@[Items]', N'@[Units]',    N'/catalog/unit/index', N'list',  N''),
-	(101, N'Sales', 11, N'@[Items]', N'@[ItemCategory]', N'/catalog/itemcategory/index', N'list',  N''),
 	(102, N'Sales', 11, N'@[Items]', N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
 	--(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
 	(105, N'Sales', 11, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N''),
@@ -4873,16 +4918,20 @@ begin
 	(306, N'Accounting',  13, N'@[Prices]',    N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N''),
 
 	-- settings
-	(900, N'Settings',  10, N'@[General]', N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
-	(901, N'Settings',  11, N'@[Accounts]', N'@[AccKinds]',   N'/catalog/acckind/index', N'list',  N''),
-	(902, N'Settings',  12, N'@[Accounting]', N'@[Banks]',    N'/catalog/bank/index', N'list',  N''),
-	(903, N'Settings',  13, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
-	(904, N'Settings',  14, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
-	(905, N'Settings',  15, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
-	(906, N'Settings',  16, N'@[Items]',  N'@[ItemRoles]',         N'/catalog/itemrole/index', N'list',  N''),
-	(907, N'Settings',  17, N'@[Items]',  N'@[Grouping.Item]',     N'/catalog/itemgroup/index', N'list',  N''),
-	(908, N'Settings',  18, N'@[Items]',  N'@[Units]',             N'/catalog/unit/index', N'list',  N''),
-	(909, N'Settings',  19, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N'');
+	(900, N'Settings',  10, N'@[General]', N'@[Countries]',   N'/catalog/country/index', N'list',  N''),
+	(901, N'Settings',  11, N'@[General]', N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
+	(910, N'Settings',  20, N'@[Accounts]', N'@[AccKinds]',   N'/catalog/acckind/index', N'list',  N''),
+	(911, N'Settings',  21, N'@[Accounting]', N'@[Banks]',    N'/catalog/bank/index', N'list',  N''),
+	(912, N'Settings',  22, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
+	(913, N'Settings',  23, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
+	(914, N'Settings',  24, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
+	(920, N'Settings',  30, N'@[Items]',  N'@[ItemRoles]',         N'/catalog/itemrole/index', N'list',  N''),
+	(921, N'Settings',  31, N'@[Items]',  N'@[Grouping.Item]',     N'/catalog/itemgroup/index', N'list',  N''),
+	(922, N'Settings',  32, N'@[Items]',  N'@[Categories]',        N'/catalog/itemcategory/index', N'list',  N''),
+	(923, N'Settings',  33, N'@[Items]',  N'@[Units]',             N'/catalog/unit/index', N'list',  N''),
+	(924, N'Settings',  34, N'@[Items]',  N'@[Brands]',            N'/catalog/brand/index', N'list',  N''),
+	(925, N'Settings',  35, N'@[Items]',  N'@[Vendors]',           N'/catalog/vendor/index', N'list',  N''),
+	(930, N'Settings',  40, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N'');
 
 	merge a2ui.[Catalog] as t
 	using @cat as s on t.Id = s.Id
@@ -5553,7 +5602,9 @@ as table(
 	FullName nvarchar(255),
 	[Memo] nvarchar(255),
 	[Role] bigint,
-	Unit bigint
+	Unit bigint,
+	Vendor bigint,
+	Brand bigint
 );
 go
 -------------------------------------------------
@@ -5575,7 +5626,8 @@ begin
 
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Barcode, i.Memo,
 		[Role!TItemRole!RefId] = i.[Role],
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Brand!TBrand!RefId] = i.Brand, [Vendor!TVendor!RefId] = i.Vendor
 	from cat.Items i 
 		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId and i.Id=@Id and i.Void = 0;
@@ -5583,6 +5635,16 @@ begin
 	select [Hierarchies!THie!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
 		[Elements!THieElem!Array] = null
 	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
+
+	select [!TBrand!Map] = null, [Id!!Id] = b.Id, [Name!!Name] = b.[Name]
+	from cat.Brands b
+		inner join cat.Items i on b.TenantId = i.TenantId and b.Id = i.Brand
+	where i.TenantId = @TenantId and i.Id = @Id;
+
+	select [!TVendor!Map] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name]
+	from cat.Vendors v
+		inner join cat.Items i on v.TenantId = i.TenantId and v.Id = i.Vendor
+	where i.TenantId = @TenantId and i.Id = @Id;
 
 	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock,
 		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name]
@@ -5641,10 +5703,12 @@ begin
 			t.Barcode = s.Barcode,
 			t.Memo = s.Memo,
 			t.[Role] = s.[Role],
-			t.Unit = s.Unit
+			t.Unit = s.Unit,
+			t.Brand = s.Brand,
+			t.Vendor = s.Vendor
 	when not matched by target then 
-		insert (TenantId, [Name], FullName, [Article], Barcode, Memo, [Role], Unit)
-		values (@TenantId, s.[Name], s.FullName, s.Article, s.Barcode, s.Memo, s.[Role], s.Unit)
+		insert (TenantId, [Name], FullName, [Article], Barcode, Memo, [Role], Unit, Brand, Vendor)
+		values (@TenantId, s.[Name], s.FullName, s.Article, s.Barcode, s.Memo, s.[Role], s.Unit, s.Brand, s.Vendor)
 	output 
 		$action op, inserted.Id id
 	into @output(op, id);
@@ -6698,7 +6762,7 @@ begin
 		b.Id
 		)
 	from cat.Banks b
-	where TenantId = @TenantId and (@fr is null or b.BankCode like @fr or b.Code like @fr 
+	where TenantId = @TenantId and b.Void = 0 and (@fr is null or b.BankCode like @fr or b.Code like @fr 
 		or b.[Name] like @fr or b.FullName like @fr or b.Memo like @fr)
 	)
 	select [Banks!TBank!Array] = null,
@@ -7676,6 +7740,340 @@ begin
 end
 go
 
+/* Vendor */
+drop procedure if exists cat.[Vendor.Metadata];
+drop procedure if exists cat.[Vendor.Update];
+drop type if exists cat.[Vendor.TableType];
+go
+------------------------------------------------
+create type cat.[Vendor.TableType] as table
+(
+	Id bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure cat.[Vendor.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Offset int = 0,
+@PageSize int = 20,
+@Order nvarchar(32) = N'name',
+@Dir nvarchar(5) = N'asc',
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Fragment + N'%';
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
+	with T(Id, [RowCount], RowNo) as (
+	select v.Id, count(*) over (),
+		RowNo = row_number() over (order by 
+		case when @Dir = N'asc' then
+			case @Order
+				when N'name' then v.[Name]
+				when N'memo' then v.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'name' then v.[Name]
+				when N'memo' then v.[Memo]
+			end
+		end desc,
+		case when @Dir = N'asc' then
+			case @Order
+				when N'id' then v.[Id]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'id' then v.[Id]
+			end
+		end desc,
+		v.Id
+		)
+	from cat.Vendors v
+	where TenantId = @TenantId and Void = 0 and (@fr is null or v.[Name] like @fr or v.Memo like @fr))
+	select [Vendors!TVendor!Array] = null,
+		[Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Memo,
+		[!!RowCount] = t.[RowCount]
+	from cat.Vendors v
+		inner join T t on t.Id = v.Id
+	order by t.RowNo
+	offset @Offset rows fetch next @PageSize rows only 
+	option(recompile);
+
+	select [!$System!] = null, [!Vendors!Offset] = @Offset, [!Vendors!PageSize] = @PageSize, 
+		[!Vendors!SortOrder] = @Order, [!Vendors!SortDir] = @Dir,
+		[!Vendors.Fragment!Filter] = @Fragment
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Vendor.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Vendor!TVendor!Object] = null,
+		[Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Memo
+	from cat.Vendors v
+	where v.TenantId = @TenantId and v.Id = @Id;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Vendor.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @Vendor cat.[Vendor.TableType];
+	select [Vendor!Vendor!Metadata] = null, * from @Vendor;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Vendor.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Vendor cat.[Vendor.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	
+	declare @output  table (op sysname, id bigint);
+	declare @id bigint;
+
+	merge cat.Vendors as t
+	using @Vendor as s on (t.TenantId = @TenantId and t.Id = s.Id)
+	when matched then update set
+		t.[Name] = s.[Name], 
+		t.[Memo] = s.[Memo]
+	when not matched by target then insert
+		(TenantId, [Name], Memo) values
+		(@TenantId, [Name], Memo)
+	output $action, inserted.Id into @output (op, id);
+
+	select top(1) @id = id from @output;
+	exec cat.[Vendor.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Vendor.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	if exists(select 1 from cat.Items where TenantId = @TenantId and Vendor = @Id)
+		throw 60000, N'UI:@[Error.Delete.Used]', 0;
+	update cat.Vendors set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+
+------------------------------------------------
+create or alter procedure cat.[Vendor.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [Vendors!TVendor!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Memo
+	from cat.Vendors v 
+	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or Memo like @fr)
+	order by v.[Name];
+end
+go
+
+/* Brand */
+drop procedure if exists cat.[Brand.Metadata];
+drop procedure if exists cat.[Brand.Update];
+drop type if exists cat.[Brand.TableType];
+go
+------------------------------------------------
+create type cat.[Brand.TableType] as table
+(
+	Id bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure cat.[Brand.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Offset int = 0,
+@PageSize int = 20,
+@Order nvarchar(32) = N'name',
+@Dir nvarchar(5) = N'asc',
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Fragment + N'%';
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
+	with T(Id, [RowCount], RowNo) as (
+	select b.Id, count(*) over (),
+		RowNo = row_number() over (order by 
+		case when @Dir = N'asc' then
+			case @Order
+				when N'name' then b.[Name]
+				when N'memo' then b.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'name' then b.[Name]
+				when N'memo' then b.[Memo]
+			end
+		end desc,
+		case when @Dir = N'asc' then
+			case @Order
+				when N'id' then b.[Id]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'id' then b.[Id]
+			end
+		end desc,
+		b.Id
+		)
+	from cat.Brands b
+	where TenantId = @TenantId and Void = 0 and (@fr is null or b.[Name] like @fr or b.Memo like @fr))
+	select [Brands!TBrand!Array] = null,
+		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo,
+		[!!RowCount] = t.[RowCount]
+	from cat.Brands b
+		inner join T t on t.Id = b.Id
+	order by t.RowNo
+	offset @Offset rows fetch next @PageSize rows only 
+	option(recompile);
+
+	select [!$System!] = null, [!Brands!Offset] = @Offset, [!Brands!PageSize] = @PageSize, 
+		[!Brands!SortOrder] = @Order, [!Brands!SortDir] = @Dir,
+		[!Brands.Fragment!Filter] = @Fragment
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Brand.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Brand!TBrand!Object] = null,
+		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo
+	from cat.Brands b
+	where b.TenantId = @TenantId and b.Id = @Id;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Brand.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @Brand cat.[Brand.TableType];
+	select [Brand!Brand!Metadata] = null, * from @Brand;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Brand.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Brand cat.[Brand.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	
+	declare @output  table (op sysname, id bigint);
+	declare @id bigint;
+
+	merge cat.Brands as t
+	using @Brand as s on (t.TenantId = @TenantId and t.Id = s.Id)
+	when matched then update set
+		t.[Name] = s.[Name], 
+		t.[Memo] = s.[Memo]
+	when not matched by target then insert
+		(TenantId, [Name], Memo) values
+		(@TenantId, [Name], Memo)
+	output $action, inserted.Id into @output (op, id);
+
+	select top(1) @id = id from @output;
+	exec cat.[Brand.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Brand.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	if exists(select 1 from cat.Items where TenantId = @TenantId and Brand = @Id)
+		throw 60000, N'UI:@[Error.Delete.Used]', 0;
+	update cat.Brands set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+
+------------------------------------------------
+create or alter procedure cat.[Brand.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [Brands!TBrand!Array] = null, [Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo
+	from cat.Brands b 
+	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or Memo like @fr)
+	order by b.[Name];
+end
+go
+
 /* CURRENCY */
 ------------------------------------------------
 create or alter procedure cat.[Currency.Index]
@@ -8440,10 +8838,6 @@ begin
 
 	select [Settings!TSettings!Object] = null,
 		[RemAccount!TAccount!RefId] = cast(10001 as bigint);
-
-	select [!TAccount!Map] = null, [Id!!Id] = a.Id, a.Code, a.[Name]
-	from acc.Accounts a
-	where a.TenantId = @TenantId and a.Id = 10001;
 end
 go
 ------------------------------------------------
@@ -8704,12 +9098,15 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
-		[Form!TForm!RefId] = Form,
+	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
+		[Form!TForm!RefId] = o.Form,
 		[Journals!TOpJournal!Array] = null
-	from doc.Operations where TenantId = @TenantId;
+	from doc.Operations o
+		inner join doc.Forms df on o.TenantId = df.TenantId and o.Form = df.Id
+	where o.TenantId = @TenantId
+	order by df.[Order], o.Id;
 
-	select [Forms!TForm!Array] = null, [Id!!Id] = f.Id, [Name!!Name] = f.[Name]
+	select [Forms!TForm!Array] = null, [Id!!Id] = f.Id, [Name!!Name] = f.[Name], f.Category
 	from doc.Forms f;
 end
 go
@@ -8787,7 +9184,7 @@ begin
 	where ot.TenantId = @TenantId and ot.Operation = @Id
 	group by a.Id, a.Code, a.[Name], a.IsItem, a.IsAgent, a.IsWarehouse, a.IsBankAccount, a.IsCash;
 
-	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], 
+	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], [Category], InOut,
 		[RowKinds!TRowKind!Array] = null
 	from doc.Forms df
 	where df.TenantId = @TenantId
@@ -11587,33 +11984,34 @@ begin
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- forms
-	declare @df table(id nvarchar(16), [order] int, inout smallint, [name] nvarchar(255));
-	insert into @df (id, [order], inout, [name]) values
+	declare @df table(id nvarchar(16), [order] int, inout smallint, category nvarchar(255), [name] nvarchar(255));
+	insert into @df (id, inout, [order], category, [name]) values
 		-- Sales
-		(N'invoice',    null, 1, N'Замовлення клієнта'),
-		(N'complcert',  null, 2, N'Акт виконаних робіт'),
+		(N'invoice',    null, 1, N'@[Sales]', N'Замовлення клієнта'),
+		(N'complcert',  null, 2, N'@[Sales]', N'Акт виконаних робіт'),
+		(N'waybillout', null, 3, N'@[Sales]', N'Продаж товарів/послуг'),
 		-- 
-		(N'waybillin',  null, 3, N'Покупка товарів/послуг'),
-		(N'waybillout', null, 4, N'Продаж товарів/послуг'),
+		(N'waybillin',  null, 4, N'@[Purchases]', N'Покупка товарів/послуг'),
 		--
-		(N'movebill',   null, 5, N'Внутрішнє переміщення'),
+		(N'movebill',   null, 5, N'@[KindStock]', N'Внутрішнє переміщення'),
 		--
-		(N'payout',    -1, 6, N'Витрата безготівкових коштів'),
-		(N'payin',      1, 7, N'Надходження безготівкових коштів'),
-		(N'cashout',   -1, 8, N'Витрата готівки'),
-		(N'cashin',     1, 9, N'Надходження готівки'),
+		(N'payout',    -1, 6, N'@[Money]', N'Витрата безготівкових коштів'),
+		(N'cashout',   -1, 7, N'@[Money]', N'Витрата готівки'),
+		(N'payin',      1, 8, N'@[Money]', N'Надходження безготівкових коштів'),
+		(N'cashin',     1, 9, N'@[Money]', N'Надходження готівки'),
 		-- 
-		(N'manufact',  null, 10, N'Виробничий акт-звіт');
+		(N'manufact',  null, 10, N'@[Manufacturing]', N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
 	when matched then update set
 		t.[Name] = s.[name],
 		t.[Order] = s.[order],
-		t.InOut = s.inout
+		t.InOut = s.inout,
+		t.Category = s.category
 	when not matched by target then insert
-		(TenantId, Id, [Order], [Name], InOut) values
-		(@TenantId, s.id, s.[order], s.[name], inout)
+		(TenantId, Id, [Order], [Name], InOut, Category) values
+		(@TenantId, s.id, s.[order], s.[name], inout, category)
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- form row kinds

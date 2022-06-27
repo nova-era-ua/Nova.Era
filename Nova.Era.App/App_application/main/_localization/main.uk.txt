@@ -49,6 +49,8 @@
 @Customer=Покупець
 @Leads=Ліди
 @Lead=Лід
+@Categories=Категорії
+@Category=Категорія
 @Defaults=Замовчування
 @Grouping=Групування
 @Grouping.Item=Групування об'єктів обліку
@@ -63,11 +65,15 @@
 @UnitShort=Од.вим.
 @Unit=Одиниця виміру
 @Units=Одиниці виміру
+@Countries=Країни світу
+@Country=Країна
 @Folder=Папка
 @Group=Група
 @Form=Форма
 @Agents=Контрагенти
 @Agent=Контрагент
+@Persons=Фізичні особи
+@Person=Фізична особа
 @Items=Об'єкти обліку
 @Item=Об'єкт обліку
 @BankAccounts=Рахунки в банках
@@ -80,7 +86,9 @@
 @Banks=Банки
 @Bank=Банк
 @Vendors=Виробники
+@Vendor=Виробник
 @Brands=Бренди
+@Brand=Бренд
 @Currency=Валюта
 @Currencies=Валюти
 @PriceLists=Прайс листи
@@ -179,6 +187,8 @@
 @Browse.RespCenter=Вибір центру відповідальності
 @Browse.CostItem=Вибір статті витрат
 @Browse.Operation=Вибір операції
+@Browse.Vendor=Вибір виробника
+@Browse.Brand=Вибір бренду
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків

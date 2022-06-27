@@ -129,8 +129,9 @@ begin
 		(1504,   15, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
 		(153,    15, 13, N'@[Catalogs]',  null, null, null),
 		(1505,  153, 10, N'@[Agents]',         N'agent',     N'users',  null),
-		(1506,  153, 11, N'@[Contracts]',      N'contract',  N'user-image', null),
-		(1507,  153, 12, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1506,  153, 11, N'@[Persons]',        N'person',    N'user-role', null),
+		(1507,  153, 12, N'@[Contracts]',      N'contract',  N'user-image', null),
+		(1508,  153, 13, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		(1510,   15, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
 		(1530,   15, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
@@ -147,9 +148,10 @@ begin
 		(8823, 882, 13, N'@[BankAccounts]', N'bankacc',   N'bank', null),
 		(8824, 882, 14, N'@[CashAccounts]', N'cashacc',   N'currency-uah', null),
 		(8825, 882, 15, N'@[Agents]',       N'agent',     N'users', N'line-top'),
-		(8826, 882, 16, N'@[Contracts]',    N'contract',  N'user-image', null),
-		(8827, 882, 17, N'@[Items]',        N'item',      N'package-outline', N'line-top'),
-		(8828, 882, 18, N'@[CatalogOther]', N'catalog',   N'list', null),
+		(8826, 882, 16, N'@[Persons]',      N'person',    N'user-role', null),
+		(8827, 882, 17, N'@[Contracts]',    N'contract',  N'user-image', null),
+		(8828, 882, 18, N'@[Items]',        N'item',      N'package-outline', N'line-top'),
+		(8829, 882, 19, N'@[CatalogOther]', N'catalog',   N'list', null),
 		(883,   88, 13, N'@[Administration]', null, null, null),
 		(8830, 883, 16, N'@[Users]',        N'user',    N'user',  null),
 		(8850,  88, 20, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
@@ -167,7 +169,6 @@ begin
 		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
 	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
 	(100, N'Sales', 10, N'@[Items]', N'@[Units]',    N'/catalog/unit/index', N'list',  N''),
-	(101, N'Sales', 11, N'@[Items]', N'@[ItemCategory]', N'/catalog/itemcategory/index', N'list',  N''),
 	(102, N'Sales', 11, N'@[Items]', N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
 	--(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
 	(105, N'Sales', 11, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N''),
@@ -183,16 +184,20 @@ begin
 	(306, N'Accounting',  13, N'@[Prices]',    N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N''),
 
 	-- settings
-	(900, N'Settings',  10, N'@[General]', N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
-	(901, N'Settings',  11, N'@[Accounts]', N'@[AccKinds]',   N'/catalog/acckind/index', N'list',  N''),
-	(902, N'Settings',  12, N'@[Accounting]', N'@[Banks]',    N'/catalog/bank/index', N'list',  N''),
-	(903, N'Settings',  13, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
-	(904, N'Settings',  14, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
-	(905, N'Settings',  15, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
-	(906, N'Settings',  16, N'@[Items]',  N'@[ItemRoles]',         N'/catalog/itemrole/index', N'list',  N''),
-	(907, N'Settings',  17, N'@[Items]',  N'@[Grouping.Item]',     N'/catalog/itemgroup/index', N'list',  N''),
-	(908, N'Settings',  18, N'@[Items]',  N'@[Units]',             N'/catalog/unit/index', N'list',  N''),
-	(909, N'Settings',  19, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N'');
+	(900, N'Settings',  10, N'@[General]', N'@[Countries]',   N'/catalog/country/index', N'list',  N''),
+	(901, N'Settings',  11, N'@[General]', N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
+	(910, N'Settings',  20, N'@[Accounts]', N'@[AccKinds]',   N'/catalog/acckind/index', N'list',  N''),
+	(911, N'Settings',  21, N'@[Accounting]', N'@[Banks]',    N'/catalog/bank/index', N'list',  N''),
+	(912, N'Settings',  22, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
+	(913, N'Settings',  23, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
+	(914, N'Settings',  24, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
+	(920, N'Settings',  30, N'@[Items]',  N'@[ItemRoles]',         N'/catalog/itemrole/index', N'list',  N''),
+	(921, N'Settings',  31, N'@[Items]',  N'@[Grouping.Item]',     N'/catalog/itemgroup/index', N'list',  N''),
+	(922, N'Settings',  32, N'@[Items]',  N'@[Categories]',        N'/catalog/itemcategory/index', N'list',  N''),
+	(923, N'Settings',  33, N'@[Items]',  N'@[Units]',             N'/catalog/unit/index', N'list',  N''),
+	(924, N'Settings',  34, N'@[Items]',  N'@[Brands]',            N'/catalog/brand/index', N'list',  N''),
+	(925, N'Settings',  35, N'@[Items]',  N'@[Vendors]',           N'/catalog/vendor/index', N'list',  N''),
+	(930, N'Settings',  40, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N'');
 
 	merge a2ui.[Catalog] as t
 	using @cat as s on t.Id = s.Id

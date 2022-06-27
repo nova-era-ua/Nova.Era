@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "Person",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "../../catalog/person/index.template",
+      "view": "../../catalog/person/index.view"
+    }
+  }
+}

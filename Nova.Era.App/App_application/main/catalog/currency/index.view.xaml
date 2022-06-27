@@ -9,17 +9,18 @@
 				<Button Icon="Delete"
 					Command="{BindCmd DbRemoveSelected, Argument={Bind Currencies}, Confirm='@[Confirm.Delete.Element]'}"/>
 				<Separator />
-				<Button Icon="Reload" Command="{BindCmd Reload}"/>
-				<ToolbarAligner />
-				<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"
-						 ShowClear="True" ShowFilter="True" />
-				<Button Icon="Menu">
+				<Button Icon="EllipsisVertical">
 					<Button.DropDown>
-						<DropDownMenu Direction="DownLeft">
+						<DropDownMenu>
 							<MenuItem Content="@[AddFromCatalog]" Command="{BindCmd Execute, CommandName=addFromCatalog}"/>
 						</DropDownMenu>
 					</Button.DropDown>
 				</Button>
+				<Separator />
+				<Button Icon="Reload" Command="{BindCmd Reload}"/>
+				<ToolbarAligner />
+				<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"
+						 ShowClear="True" ShowFilter="True" />
 			</Toolbar>
 			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" 
 					ItemsSource="{Bind Parent.ItemsSource}"

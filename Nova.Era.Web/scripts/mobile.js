@@ -983,9 +983,9 @@ app.modules['std:utils'] = function () {
 	}
 };
 
-// Copyright © 2015-2021 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2022 Alex Kukhtin. All rights reserved.
 
-/*20211027-7807*/
+/*20220626-7852*/
 /* services/url.js */
 
 app.modules['std:url'] = function () {
@@ -1009,7 +1009,8 @@ app.modules['std:url'] = function () {
 		helpHref,
 		replaceSegment,
 		removeFirstSlash,
-		isNewPath
+		isNewPath,
+		splitCommand
 	};
 
 	function normalize(elem) {
@@ -1214,6 +1215,15 @@ app.modules['std:url'] = function () {
 		if (isDialogPath(url) && url.endsWith('/0'))
 			return true;
 		return false;
+	}
+
+	function splitCommand(url) {
+		let seg = url.split('/');
+		let action = seg.pop();
+		return {
+			action,
+			url: seg.join('/')
+		};
 	}
 };
 
@@ -5361,7 +5371,7 @@ Vue.component('validator-control', {
 })();
 // Copyright © 2015-2022 Alex Kukhtin. All rights reserved.
 
-/*20220404-7834*/
+/*20220627-7853*/
 /*components/combobox.js */
 
 (function () {
@@ -5378,7 +5388,12 @@ Vue.component('validator-control', {
 		</div>
 		<select v-focus v-model="cmbValue" :disabled="disabled" :tabindex="tabIndex" ref="sel" :title="getWrapText()">
 			<slot>
-				<option v-for="(cmb, cmbIndex) in itemsSource" :key="cmbIndex" 
+				<optgroup v-for="(grp, grpIndex) in itemsSourceGroup" :key="grpIndex" v-if="groupby"
+					:label="grp.name">
+					<option v-for="(cmb, cmbIndex) in grp.items" :key="grpIndex + '_' + cmbIndex"
+						v-text="getName(cmb, true)" :value="getValue(cmb)"></option>
+				</optgroup>
+				<option v-for="(cmb, cmbIndex) in itemsSource" :key="cmbIndex" v-if="!groupby"
 					v-text="getName(cmb, true)" :value="getValue(cmb)"></option>
 			</slot>
 		</select>
@@ -5413,7 +5428,8 @@ Vue.component('validator-control', {
 			nameProp: String,
 			valueProp: String,
 			showvalue: Boolean,
-			align: String
+			align: String,
+			groupby : String
 		},
 		computed: {
 			cmbValue: {
@@ -5428,6 +5444,13 @@ Vue.component('validator-control', {
 				set(value) {
 					if (this.item) this.item[this.prop] = value;
 				}
+			},
+			itemsSourceGroup() {
+				if (!this.groupby) return this.itemsSource;
+				let prop = this.groupby;
+				let items = this.itemsSource;
+				let set = new Set(items.map(x => utils.eval(x, prop)));
+				return Array.from(set).map(key => { return { name: key, items: items.filter(val => key == utils.eval(val, prop)) }; });
 			},
 			wrapClass() {
 				let cls = '';
@@ -6267,9 +6290,9 @@ Vue.component('validator-control', {
 })();
 
 
-// Copyright © 2015-2021 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2022 Alex Kukhtin. All rights reserved.
 
-/*20210127-7744*/
+/*20220626-7852*/
 // components/selector.js
 
 /*TODO*/
@@ -6338,7 +6361,8 @@ Vue.component('validator-control', {
 			placement: String,
 			caret: Boolean,
 			hasClear: Boolean,
-			mode: String
+			mode: String,
+			fetchCommand: String
 		},
 		data() {
 			return {
@@ -6631,13 +6655,18 @@ Vue.component('validator-control', {
 				}
 			},
 			fetchData(text, all) {
-				if (!this.fetch)
-					console.error('Selector. Fetch not defined');
 				all = all || false;
 				let elem = this.item[this.prop];
 				if (elem && !('$vm' in elem))
 					elem.$vm = this.$root; // plain object hack
-				return this.fetch.call(this.item.$root, elem, text, all);
+				if (this.fetch) {
+					return this.fetch.call(this.item.$root, elem, text, all);
+				} else if (this.fetchCommand) {
+					let fc = this.fetchCommand.split('/');
+					let action = fc.pop();
+					return elem.$vm.$invoke(action, {Text: text}, fc.join('/'));
+				}
+				console.error('Selector. Fetch or Delegate not defined');
 			},
 			doNew() {
 				this.isOpen = false;
@@ -7773,7 +7802,7 @@ Vue.component('popover', {
 
 // Copyright © 2015-2022 Alex Kukhtin. All rights reserved.
 
-/*20220601-7848*/
+/*20220627-7853*/
 // components/treeview.js
 
 (function () {
@@ -7816,6 +7845,11 @@ Vue.component('popover', {
 			getHref: Function,
 			doubleclick: Function
 		},
+		data() { 
+			return {
+				_toggling: false
+			};
+		},
 		methods: {
 			isFolderSelect(item) {
 				let fs = this.options.folderSelect;
@@ -7847,10 +7881,14 @@ Vue.component('popover', {
 				eventBus.$emit('closeAllPopups');
 				if (!this.isFolder)
 					return;
+				this._toggling = true;
 				this.expandItem(!this.item.$expanded);
 				if (this.expand) {
 					this.expand(this.item, this.options.subitems);
 				}
+				this.$nextTick(() => {
+					this._toggling = false;
+				})
 			},
 			expandItem(val) {
 				platform.set(this.item, '$expanded', val);
@@ -7926,8 +7964,8 @@ Vue.component('popover', {
 			}
 		},
 		updated(x) {
-			// close expanded when reloaded
-			if (this.options.initialExpand)
+			// open expanded when reloaded
+			if (!this._toggling && this.options.initialExpand)
 				this.item.$expanded = true;
 			if (this.item.$expanded) {
 				if (this.item.$hasChildren) {
@@ -10264,9 +10302,9 @@ Vue.component('a2-panel', {
 	});
 
 })();
-/*! Copyright © 2015-2021 Alex Kukhtin. All rights reserved.*/
+/*! Copyright © 2015-2022 Alex Kukhtin. All rights reserved.*/
 
-// 20210831-7801
+// 20220627-7853
 // components/sheet.js
 
 (function () {
@@ -10298,8 +10336,10 @@ Vue.component('a2-panel', {
 				let elem = arr[i];
 				elem.$level = lev;
 				yield elem;
-				if (!elem.$collapsed)
-					yield* traverse(elem, prop, lev + 1);
+				if (!elem.$collapsed) {
+					let newprop = elem._meta_.$items || prop;
+					yield* traverse(elem, newprop, lev + 1);
+				}
 			}
 		}
 	}
@@ -10354,7 +10394,8 @@ Vue.component('a2-panel', {
 			}
 
 			function hasChildren() {
-				let chElems = this.item[prop];
+				let np = this.item._meta_.$items || prop;
+				let chElems = this.item[np];
 				return chElems && chElems.length > 0;
 			}
 
@@ -11580,7 +11621,7 @@ Vue.directive('resize', {
 
 // Copyright © 2015-2022 Alex Kukhtin. All rights reserved.
 
-/*20220420-7840*/
+/*20220626-7852*/
 // controllers/base.js
 
 (function () {
@@ -11721,6 +11762,27 @@ Vue.directive('resize', {
 				}
 				const root = this.$data;
 				return root._exec_(cmd, arg, confirm, opts);
+			},
+
+			async $invokeServer(url, arg, confirm, opts) {
+				if (this.$isReadOnly(opts)) return;
+				if (this.$isLoading) return;
+				const root = this.$data;
+				if (confirm)
+					await this.$confirm(confirm);
+				if (opts && opts.saveRequired && this.$isDirty)
+					await this.$save();
+				if (opts && opts.validRequired && root.$invalid) { 
+					this.$alert(locale.$MakeValidFirst);
+					return;
+				}
+				let data = { Id: arg.$id };
+				let cmd = urltools.splitCommand(url);
+				await this.$invoke(cmd.action, data, cmd.url);
+				if (opts && opts.requeryAfter)
+					await this.$requery();
+				else if (opts && opts.reloadAfter)
+					await this.$reload();
 			},
 
 			$toJson(data) {

@@ -79,6 +79,24 @@ create table cat.Vendors
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Brands')
+	create sequence cat.SQ_Brands as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Brands')
+create table cat.Brands
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Brands_Id default(next value for cat.SQ_Brands),
+	Void bit not null 
+		constraint DF_Brands_Void default(0),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Brands primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'cat' and SEQUENCE_NAME=N'SQ_Banks')
 	create sequence cat.SQ_Banks as int start with 100 increment by 1;
 go
@@ -116,6 +134,22 @@ create table cat.Currencies
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,
 		constraint PK_Currencies primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Countries')
+create table cat.Countries
+(
+	TenantId int not null,
+	Code nchar(3) not null,
+	Void bit not null 
+		constraint DF_Countries_Void default(0),
+	[Alpha2] nchar(2),
+	[Aplha3] nchar(3),
+
+	[Name] nvarchar(255) null,
+	[Memo] nvarchar(255) null,
+		constraint PK_Countries primary key (TenantId, Code)
 );
 go
 ------------------------------------------------
@@ -329,6 +363,7 @@ create table cat.Items
 	constraint PK_Items primary key (TenantId, Id),
 	constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
 	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id),
+	constraint FK_Items_Brand_Brands foreign key (TenantId, Brand) references cat.Brands(TenantId, Id),
 	constraint FK_Items_Role_ItemRoles foreign key (TenantId, Role) references cat.ItemRoles(TenantId, Id)
 );
 go
@@ -421,7 +456,12 @@ create table cat.Agents
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
-		constraint PK_Agents primary key (TenantId, Id)
+		constraint PK_Agents primary key (TenantId, Id),
+	[Partner] bit,
+	[Person] bit,
+	-- roles
+	IsSupplier bit,
+	IsCustomer bit
 );
 go
 ------------------------------------------------
@@ -535,6 +575,7 @@ create table doc.Forms
 	[Order] int,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
+	Category nvarchar(255),
 	InOut smallint,
 		constraint PK_Forms primary key (TenantId, Id)
 );

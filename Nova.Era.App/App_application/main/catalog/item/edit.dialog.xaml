@@ -6,31 +6,32 @@
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid Columns="1*,1*,Auto" Gap="1rem">
-		<TextBox Grid.Row="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Item.Name}" Bold="True" TabIndex="1"/>
-		<Selector Grid.Row="1" Grid.Col="3" Label="@[UnitShort]" Value="{Bind Item.Unit}" DisplayProperty="Short" 
-				Width="10rem" Delegate="fetchUnit" ListSize="15rem,10rem">
-			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>
-			<Selector.ItemsPanel>
-				<DataGrid XamlStyle="{StyleResource DataGridPanel}">
-					<DataGridColumn Content="{Bind Short}" Wrap="NoWrap" Fit="True"/>
-					<DataGridColumn Content="{Bind Name}"/>
-				</DataGrid>
-			</Selector.ItemsPanel>
-		</Selector>
-		<ComboBox Grid.Row="2" Label="@[ItemRole]" Value="{Bind Item.Role}" ItemsSource="{Bind ItemRoles}">
-			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-		</ComboBox>
-		<TextBox Grid.Row="3" Grid.Col="1" Label="@[Article]" Value="{Bind Item.Article}" UpdateTrigger="Input"/>
-		<TextBox Grid.Row="3" Grid.Col="2" Label="@[Barcode]" Value="{Bind Item.Barcode}" UpdateTrigger="Input"/>
-	</Grid>
-	<TabBar Grid.Row="4" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0,1rem">
-		<TabButton Content="Групування" ActiveValue=""/>
-	</TabBar>
-	<Block Height="15rem" Scroll="True" Margin="1rem">
-		<Switch Expression="{Bind Root.$$Tab}">
+	<Grid Rows="Auto,Auto,1*,Auto" Height="40rem" AlignItems="Top">
+		<Grid Grid.Row="1" Columns="1*,1*,Auto" Gap="1rem" Padding="0">
+			<TextBox Grid.Row="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Item.Name}" Bold="True" TabIndex="1"/>
+			<Selector Grid.Row="1" Grid.Col="3" Label="@[UnitShort]" Value="{Bind Item.Unit}" DisplayProperty="Short" 
+					Width="10rem" Delegate="fetchUnit" ListSize="15rem,10rem">
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>
+				<Selector.ItemsPanel>
+					<DataGrid XamlStyle="{StyleResource DataGridPanel}">
+						<DataGridColumn Content="{Bind Short}" Wrap="NoWrap" Fit="True"/>
+						<DataGridColumn Content="{Bind Name}"/>
+					</DataGrid>
+				</Selector.ItemsPanel>
+			</Selector>
+			<ComboBox Grid.Row="2" Label="@[ItemRole]" Value="{Bind Item.Role}" ItemsSource="{Bind ItemRoles}">
+				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+			</ComboBox>
+			<TextBox Grid.Row="3" Grid.Col="1" Label="@[Article]" Value="{Bind Item.Article}" UpdateTrigger="Input"/>
+			<TextBox Grid.Row="3" Grid.Col="2" Label="@[Barcode]" Value="{Bind Item.Barcode}" UpdateTrigger="Input"/>
+		</Grid>
+		<TabBar Grid.Row="2" Value="{Bind Root.$$Tab}">
+			<TabButton Content="Групування" ActiveValue=""/>
+			<TabButton Content="Додатково" ActiveValue="other"/>
+		</TabBar>
+		<Switch Expression="{Bind Root.$$Tab}" Grid.Row="3">
 			<Case Value="">
-				<Block Width="30rem">
+				<Block Width="30rem" Scroll="True" Height="14rem">
 					<Table ItemsSource="{Bind Hierarchies}" GridLines="Horizontal" Width="100%"
 					   Columns="Fit,100%">
 						<Table.Header>
@@ -62,10 +63,20 @@
 					</Table>
 				</Block>
 			</Case>
+			<Case Value="other">
+				<Grid Columns="25rem,1*" Padding="0">
+					<Selector Grid.Row="1"
+						Label="@[Vendor]" Value="{Bind Item.Vendor}" DisplayProperty="Name" Fetch="/catalog/vendor/fetch">
+						<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Vendor}, Url='/catalog/vendor/browse'}"/>
+					</Selector>
+					<Selector Grid.Row="2"
+						Label="@[Brand]" Value="{Bind Item.Brand}" DisplayProperty="Name" Fetch="/catalog/brand/fetch">
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Brand}, Url='/catalog/brand/browse'}"/>
+					</Selector>
+				</Grid>
+			</Case>
 		</Switch>
-	</Block>
-	<Block Padding="1rem">
-		<TextBox Label="@[Memo]" Value="{Bind Item.Memo}" Multiline="True"/>
-	</Block>
+		<TextBox Grid.Row="4" Label="@[Memo]" Value="{Bind Item.Memo}" Multiline="True"/>
+	</Grid>
 </Dialog>
 

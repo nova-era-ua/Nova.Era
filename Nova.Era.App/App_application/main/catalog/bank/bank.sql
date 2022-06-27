@@ -50,7 +50,7 @@ begin
 		b.Id
 		)
 	from cat.Banks b
-	where TenantId = @TenantId and (@fr is null or b.BankCode like @fr or b.Code like @fr 
+	where TenantId = @TenantId and b.Void = 0 and (@fr is null or b.BankCode like @fr or b.Code like @fr 
 		or b.[Name] like @fr or b.FullName like @fr or b.Memo like @fr)
 	)
 	select [Banks!TBank!Array] = null,
