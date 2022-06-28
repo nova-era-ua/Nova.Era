@@ -21,9 +21,11 @@
 			<Button Icon="Reload" Command="{BindCmd Reload}" />
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Parent.ItemsSource}"
-				  XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True">
+				  XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True"
+				  DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Warehouses}, Url='/catalog/warehouse/edit'}">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+			<DataGridColumn Header="@[RespPerson]" Content="{Bind RespPerson.Name}" />
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">

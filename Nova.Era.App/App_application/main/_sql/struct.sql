@@ -422,25 +422,6 @@ create table cat.Companies
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Warehouses')
-	create sequence cat.SQ_Warehouses as bigint start with 100 increment by 1;
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Warehouses')
-create table cat.Warehouses
-(
-	TenantId int not null,
-	Id bigint not null
-		constraint DF_Warehouses_Id default(next value for cat.SQ_Warehouses),
-	Void bit not null 
-		constraint DF_Warehouses_Void default(0),
-	[Name] nvarchar(255),
-	[FullName] nvarchar(255),
-	[Memo] nvarchar(255),
-		constraint PK_Warehouses primary key (TenantId, Id)
-);
-go
-------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Agents')
 	create sequence cat.SQ_Agents as bigint start with 100 increment by 1;
 go
@@ -462,6 +443,27 @@ create table cat.Agents
 	-- roles
 	IsSupplier bit,
 	IsCustomer bit
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Warehouses')
+	create sequence cat.SQ_Warehouses as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Warehouses')
+create table cat.Warehouses
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Warehouses_Id default(next value for cat.SQ_Warehouses),
+	Void bit not null 
+		constraint DF_Warehouses_Void default(0),
+	[Name] nvarchar(255),
+	[FullName] nvarchar(255),
+	[Memo] nvarchar(255),
+	RespPerson bigint,
+		constraint PK_Warehouses primary key (TenantId, Id),
+		constraint FK_Warehouses_RespPerson_Agents foreign key (TenantId, RespPerson) references cat.Agents(TenantId, Id)
 );
 go
 ------------------------------------------------

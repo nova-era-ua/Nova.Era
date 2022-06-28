@@ -7,6 +7,11 @@
 	</Dialog.Buttons>
 	<Grid>
 		<TextBox Label="@[Name]" Value="{Bind Warehouse.Name}" Bold="True" TabIndex="1"/>
+		<Selector Label="@[RespPerson]" Value="{Bind Warehouse.RespPerson}" DisplayProperty="Name"
+				  Fetch="/catalog/person/fetch">
+			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Warehouse.RespPerson}, 
+				Url='/catalog/person/browse'}"/>
+		</Selector>
 		<TextBox Label="@[Memo]" Value="{Bind Warehouse.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>

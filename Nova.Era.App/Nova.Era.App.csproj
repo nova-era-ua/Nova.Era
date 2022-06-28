@@ -86,6 +86,7 @@
     <Content Include="App_application\main\catalog\bankaccount\bankaccount.sql" />
     <Content Include="App_application\main\catalog\bank\bank.sql" />
     <Content Include="App_application\main\catalog\country\pricelist.sql" />
+    <Content Include="App_application\main\catalog\person\person.sql" />
     <Content Include="App_application\main\catalog\respcenter\respcenter.sql" />
     <Content Include="App_application\main\catalog\costitem\costitem.sql" />
     <Content Include="App_application\main\catalog\itemgroup\groupitem.sql" />
@@ -393,6 +394,7 @@
     <Content Include="App_application\main\catalog\acckind\model.json" />
     <Content Include="App_application\main\catalog\cashflowitem\model.json" />
     <Content Include="App_application\main\catalog\country\model.json" />
+    <Content Include="App_application\main\catalog\person\model.json" />
     <None Include="App_application\main\catalog\pricekind\model.json" />
     <None Include="App_application\main\catalog\warehouse\model.json" />
     <None Include="App_application\main\catalog\company\model.json" />
@@ -411,6 +413,8 @@
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\person\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\person\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\vendor\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\movebill\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\invent.index.template.ts" />
@@ -835,6 +839,24 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\catalog\brand\browse.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\person\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\person\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\person\browse.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

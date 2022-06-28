@@ -105,6 +105,11 @@ if not exists(select * from cat.Agents where [Partner] is not null)
 	update cat.Agents set [Partner] = 1 where [Partner] is null;
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'Warehouses' and COLUMN_NAME=N'RespPerson')
+	alter table  cat.Warehouses add RespPerson bigint,
+		constraint FK_Warehouses_RespPerson_Agents foreign key (TenantId, RespPerson) references cat.Agents(TenantId, Id);
+go
+------------------------------------------------
 drop table if exists doc.DocumentApply
 drop procedure if exists doc.[Document.Stock.Update];
 drop type if exists doc.[Document.Apply.TableType];

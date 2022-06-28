@@ -1,6 +1,6 @@
 ﻿<!-- Browse Warehouse-->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="@[Browse.Warehouse]" Overflow="True">
+		Title="@[Browse.Warehouse]" Overflow="True" Width="50rem">
 	<Dialog.Buttons>
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Warehouses}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
@@ -17,6 +17,7 @@
 			DoubleClick="{BindCmd Select, Argument={Bind Warehouses}}">
 			<DataGridColumn Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+			<DataGridColumn Header="@[RespPerson]" Content="{Bind RespPerson.Name}" />
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 		</DataGrid>
 	</Grid>
