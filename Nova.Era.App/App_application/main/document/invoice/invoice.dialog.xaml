@@ -64,7 +64,9 @@
 		</Grid>
 		<Grid Grid.Row="2" Columns="Auto,1*,1rem,Auto,1*,1rem,Auto,1*">
 			<Label Grid.Row="1" Grid.Col="1">@[Customer]</Label>
-			<Selector Grid.Row="1" Grid.Col="2" Label="" Value="{Bind Document.Agent}" DisplayProperty="Name">
+			<Selector Grid.Row="1" Grid.Col="2"
+					  Value="{Bind Document.Agent}" DisplayProperty="Name"
+					  Fetch="/catalog/agent/fetch">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
 			</Selector>
 			<Label Grid.Row="1" Grid.Col="4">@[Contract]</Label>

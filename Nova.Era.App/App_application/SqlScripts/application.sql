@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 02.07.2022 15:51:54
+generated: 02.07.2022 16:23:21
 */
 
 
@@ -6532,6 +6532,26 @@ begin
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 	exec cat.[Agent.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Agent.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [Person!TPerson!Array] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name], a.Memo, a.FullName
+	from cat.Agents a
+	where TenantId = @TenantId and Void = 0 and a.Person = 0 and
+		([Name] like @fr or Memo like @fr or FullName like @fr)
+	order by a.[Name];
 end
 go
 
