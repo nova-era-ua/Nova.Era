@@ -8,6 +8,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
 	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date] = d.[Date], d.SNo, d.Memo,
 		d.[Sum],
 		[StockRows!TRow!Array] = null

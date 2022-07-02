@@ -17,7 +17,9 @@
 		<Button Content="@[Print]">
 			<Button.DropDown>
 				<DropDownMenu>
-					<MenuItem Content="Замовлення" Command="{BindCmd Report, Report=invoice, Argument={Bind Document}, Url='/document/print'}"/>
+					<MenuItem Content="Замовлення" 
+						Command="{BindCmd Report, Report=invoice, Argument={Bind Document}, 
+							Url='/document/print', SaveRequired=True}"/>
 				</DropDownMenu>
 			</Button.DropDown>
 		</Button>
