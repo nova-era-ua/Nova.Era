@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 02.07.2022 15:45:52
+generated: 02.07.2022 15:51:54
 */
 
 
@@ -10896,6 +10896,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
 	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date] = d.[Date], d.SNo, d.Memo,
 		d.[Sum],
 		[StockRows!TRow!Array] = null

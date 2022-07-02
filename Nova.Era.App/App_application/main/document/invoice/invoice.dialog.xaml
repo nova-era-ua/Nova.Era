@@ -7,14 +7,14 @@
 			Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
 		<Button If="{Bind Document.Done}"
 			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
-		<Button Content="Створити на підставі" Render="Show">
+		<Button Content="Створити на підставі" Render="Show" Disabled="{Bind Document.$isNew}">
 			<Button.DropDown>
 				<DropDownMegaMenu ItemsSource="{Bind Document.Operation.Links}" GroupBy="Category">
 					<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=createOnBase, Argument={Bind}}"/>
 				</DropDownMegaMenu>
 			</Button.DropDown>
 		</Button>
-		<Button Content="@[Print]">
+		<Button Content="@[Print]" Disabled="{Bind Document.$isNew}" Render="Show">
 			<Button.DropDown>
 				<DropDownMenu>
 					<MenuItem Content="Замовлення" 
