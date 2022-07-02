@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 02.07.2022 15:11:28
+generated: 02.07.2022 15:24:00
 */
 
 
@@ -9823,14 +9823,16 @@ begin
 		Rem = r.[Rem]
 	from doc.DocDetails dd
 		left join doc.fn_getDocumentRems(@CheckRems, @TenantId, @Id) r on dd.Item = r.Item and dd.ItemRole = r.[Role]
-	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock';
+	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock'
+	order by RowNo;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum, 
 		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.ServiceRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
 	from doc.DocDetails dd
-	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Service';
+	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Service'
+	order by RowNo;
 
 	select [!TDocExtra!Object] = null, [Id!!Id] = da.Id, da.[WriteSupplierPrices], da.[IncludeServiceInCost],
 		[!TDocument.Extra!ParentId] = da.Id
@@ -10864,8 +10866,7 @@ end
 go
 
 
-
-
+------------------------------------------------
 create or alter procedure doc.[Document.Stock.Report]
 @TenantId int = 1,
 @UserId bigint,
@@ -10875,9 +10876,29 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date] = d.[Date], d.SNo, d.Memo,
-		d.[Sum]
+		d.[Sum],
+		[StockRows!TRow!Array] = null
 	from doc.Documents d
 	where TenantId = @TenantId and Id = @Id;
+
+	declare @rows table(id bigint, item bigint, unit bigint, [role] bigint, costitem bigint);
+	insert into @rows (id, item, unit, [role], costitem)
+	select Id, Item, Unit, ItemRole, CostItem from doc.DocDetails dd
+	where dd.TenantId = @TenantId and dd.Document = @Id;
+
+	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum,
+		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = Unit, 
+		[!TDocument.StockRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
+	from doc.DocDetails dd
+	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock'
+	order by RowNo;
+
+	with T as (select item from @rows group by item)
+	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article, Barcode,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit!] = u.Short
+	from cat.Items i inner join T on i.Id = T.item and i.TenantId = @TenantId
+		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
+	where i.TenantId = @TenantId;
 end
 go
 -- SALES.PRICE

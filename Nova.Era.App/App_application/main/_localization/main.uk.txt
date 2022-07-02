@@ -190,6 +190,7 @@
 @Browse.Operation=Вибір операції
 @Browse.Vendor=Вибір виробника
 @Browse.Brand=Вибір бренду
+@Browse.Person=Вибір фізичної особи
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків
