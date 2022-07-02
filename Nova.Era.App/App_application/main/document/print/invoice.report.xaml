@@ -1,0 +1,34 @@
+﻿<Report xmlns="clr-namespace:A2v10.Xaml.Report;assembly=A2v10.Xaml.Report"
+		Title="Замовлення клієнта">
+	<Column>
+		<Table>
+			<Table.Columns>
+				<TableColumn />
+			</Table.Columns>
+			<TableRow>
+				<TableCell>
+					<Text>
+						Замовлення клієнта №
+						<Span Content="{Bind Document.Id}"/>
+						від
+						<Span Content="{Bind Document.Date, Format='D'}"/>
+					</Text>
+				</TableCell>
+			</TableRow>
+		</Table>
+		<Table ItemsSource="{Bind Document.StockRows}">
+			<Table.Columns>
+				<TableColumn/>
+				<TableColumn/>
+				<TableColumn/>
+				<TableColumn/>
+			</Table.Columns>
+			<TableRow>
+				<TableCell Content="{Bind Item.Name}"/>
+				<TableCell Content="{Bind Qty}"/>
+				<TableCell Content="{Bind Price}"/>
+				<TableCell Content="{Bind Sum}"/>
+			</TableRow>
+		</Table>
+	</Column>
+</Report>

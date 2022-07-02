@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 28.06.2022 14:18:49
+generated: 02.07.2022 15:11:28
 */
 
 
@@ -8,7 +8,7 @@ generated: 28.06.2022 14:18:49
 
 /*
 version: 10.0.7779
-generated: 27.06.2022 12:02:46
+generated: 02.07.2022 14:56:40
 */
 
 set nocount on;
@@ -10863,6 +10863,23 @@ begin
 end
 go
 
+
+
+
+create or alter procedure doc.[Document.Stock.Report]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date] = d.[Date], d.SNo, d.Memo,
+		d.[Sum]
+	from doc.Documents d
+	where TenantId = @TenantId and Id = @Id;
+end
+go
 -- SALES.PRICE
 -------------------------------------------------
 create or alter procedure doc.[Price.Index]

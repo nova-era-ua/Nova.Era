@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "doc",
+    "reports": {
+        "invoice": {
+            "type": "pdf",
+            "model": "Document.Stock",
+            "report": "invoice.report"
+        }
+    }
+}

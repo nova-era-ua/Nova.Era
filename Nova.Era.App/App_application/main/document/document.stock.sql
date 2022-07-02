@@ -189,14 +189,16 @@ begin
 		Rem = r.[Rem]
 	from doc.DocDetails dd
 		left join doc.fn_getDocumentRems(@CheckRems, @TenantId, @Id) r on dd.Item = r.Item and dd.ItemRole = r.[Role]
-	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock';
+	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock'
+	order by RowNo;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum, 
 		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.ServiceRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
 	from doc.DocDetails dd
-	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Service';
+	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Service'
+	order by RowNo;
 
 	select [!TDocExtra!Object] = null, [Id!!Id] = da.Id, da.[WriteSupplierPrices], da.[IncludeServiceInCost],
 		[!TDocument.Extra!ParentId] = da.Id
