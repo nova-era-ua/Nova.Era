@@ -45,38 +45,63 @@
     <Reference Include="A2v10.Data.Interfaces, Version=10.0.7272.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Web.Runtime.10.0.7859\lib\net48\A2v10.Data.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Infrastructure, Version=10.0.7857.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="A2v10.Infrastructure, Version=10.0.7859.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Web.Runtime.10.0.7859\lib\net48\A2v10.Infrastructure.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Messaging, Version=10.0.7857.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="A2v10.Messaging, Version=10.0.7859.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Web.Runtime.10.0.7859\lib\net48\A2v10.Messaging.dll</HintPath>
     </Reference>
     <Reference Include="A2v10.Pdf.Report, Version=10.0.7859.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Pdf.Report.10.0.7859\lib\net48\A2v10.Pdf.Report.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Reports, Version=10.0.7857.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="A2v10.Reports, Version=10.0.7859.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Web.Runtime.10.0.7859\lib\net48\A2v10.Reports.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Web.Mvc, Version=10.0.7857.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="A2v10.Web.Mvc, Version=10.0.7859.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Web.Runtime.10.0.7859\lib\net48\A2v10.Web.Mvc.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Workflow, Version=10.0.7857.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="A2v10.Workflow, Version=10.0.7859.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Web.Runtime.10.0.7859\lib\net48\A2v10.Workflow.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml, Version=10.0.7857.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="A2v10.Xaml, Version=10.0.7859.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Web.Runtime.10.0.7859\lib\net48\A2v10.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7857.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7859.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Web.Runtime.10.0.7859\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
     </Reference>
     <Reference Include="A2v10.Xaml.Report, Version=10.0.7859.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Pdf.Report.10.0.7859\lib\net48\A2v10.Xaml.Report.dll</HintPath>
     </Reference>
+    <Reference Include="HarfBuzzSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\HarfBuzzSharp.2.6.1.9\lib\net462\HarfBuzzSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\A2v10.Web.Runtime.10.0.7859\lib\net48\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
+    <Reference Include="QuestPDF, Version=2022.6.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuestPDF.2022.6.2\lib\net462\QuestPDF.dll</HintPath>
+    </Reference>
+    <Reference Include="SkiaSharp, Version=2.80.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\SkiaSharp.2.80.4\lib\net462\SkiaSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SkiaSharp.HarfBuzz, Version=2.80.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\SkiaSharp.HarfBuzz.2.80.4\lib\net462\SkiaSharp.HarfBuzz.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Activities" />
+    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +154,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="tsconfig.json" />
     <Content Include="css\fonts\A2v10.woff" />
     <Content Include="css\fonts\A2v10.ttf" />
     <Content Include="css\fonts\A2v10.eot" />
@@ -137,7 +163,6 @@
     <Content Include="App_application\%40schemas\app-json-schema.json" />
     <Content Include="App_application\%40schemas\api-model-json-schema.json" />
     <None Include="packages.config" />
-    <Content Include="tsconfig.json" />
     <None Include="Web.config.newera" />
     <None Include="Web.config.deploy" />
     <Content Include="Web.config.sample" />
@@ -179,17 +204,17 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="..\packages\A2v10.Web.Runtime.10.0.7859\build\A2v10.Web.Runtime.targets" Condition="Exists('..\packages\A2v10.Web.Runtime.10.0.7859\build\A2v10.Web.Runtime.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
+    <Error Condition="!Exists('..\packages\A2v10.Web.Runtime.10.0.7859\build\A2v10.Web.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.Web.Runtime.10.0.7859\build\A2v10.Web.Runtime.targets'))" />
     <Error Condition="!Exists('..\packages\HarfBuzzSharp.2.6.1.9\build\net462\HarfBuzzSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\HarfBuzzSharp.2.6.1.9\build\net462\HarfBuzzSharp.targets'))" />
     <Error Condition="!Exists('..\packages\SkiaSharp.2.80.4\build\net462\SkiaSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.2.80.4\build\net462\SkiaSharp.targets'))" />
-    <Error Condition="!Exists('..\packages\A2v10.Web.Runtime.10.0.7859\build\A2v10.Web.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.Web.Runtime.10.0.7859\build\A2v10.Web.Runtime.targets'))" />
   </Target>
   <Import Project="..\packages\HarfBuzzSharp.2.6.1.9\build\net462\HarfBuzzSharp.targets" Condition="Exists('..\packages\HarfBuzzSharp.2.6.1.9\build\net462\HarfBuzzSharp.targets')" />
   <Import Project="..\packages\SkiaSharp.2.80.4\build\net462\SkiaSharp.targets" Condition="Exists('..\packages\SkiaSharp.2.80.4\build\net462\SkiaSharp.targets')" />
-  <Import Project="..\packages\A2v10.Web.Runtime.10.0.7859\build\A2v10.Web.Runtime.targets" Condition="Exists('..\packages\A2v10.Web.Runtime.10.0.7859\build\A2v10.Web.Runtime.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
