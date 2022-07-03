@@ -45,6 +45,7 @@
 @Planning=Планування
 @Prices=Ціни
 @Suppliers=Постачальники
+@Supplier=Постачальник
 @Customers=Покупці
 @Customer=Покупець
 @Leads=Ліди

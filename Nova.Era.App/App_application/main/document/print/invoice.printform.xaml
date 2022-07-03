@@ -28,10 +28,16 @@
 			<TableRow>
 				<TableCell Content="{Bind RowNo}"/>
 				<TableCell Content="{Bind Item.Name}"/>
-				<TableCell Content="{Bind Qty}"/>
-				<TableCell Content="{Bind Price}"/>
-				<TableCell Content="{Bind Sum}"/>
+				<TableCell Content="{Bind Qty}" Align="Right"/>
+				<TableCell Content="{Bind Price}" Align="Right"/>
+				<TableCell Content="{Bind Sum}" Align="Right"/>
 			</TableRow>
+			<Table.Footer>
+				<TableRow>
+					<TableCell Content="@[Total]" ColSpan="4" Align="Right"/>
+					<TableCell Content="{Bind Document.Sum}" Align="Right"/>
+				</TableRow>
+			</Table.Footer>
 		</Table>
 	</Column>
 </Page>
