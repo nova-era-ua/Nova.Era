@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 02.07.2022 16:23:21
+generated: 03.07.2022 19:11:25
 */
 
 
@@ -8,7 +8,7 @@ generated: 02.07.2022 16:23:21
 
 /*
 version: 10.0.7779
-generated: 02.07.2022 14:56:40
+generated: 03.07.2022 18:56:55
 */
 
 set nocount on;
@@ -6547,9 +6547,9 @@ begin
 	declare @fr nvarchar(255);
 	set @fr = N'%' + @Text + N'%';
 
-	select top(100) [Person!TPerson!Array] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name], a.Memo, a.FullName
+	select top(100) [Agents!TAgent!Array] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name], a.Memo, a.FullName
 	from cat.Agents a
-	where TenantId = @TenantId and Void = 0 and a.Person = 0 and
+	where TenantId = @TenantId and Void = 0 and a.[Partner] = 1 and
 		([Name] like @fr or Memo like @fr or FullName like @fr)
 	order by a.[Name];
 end
