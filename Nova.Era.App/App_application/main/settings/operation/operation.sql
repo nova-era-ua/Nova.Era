@@ -109,6 +109,13 @@ begin
 	where fm.TenantId = @TenantId
 	order by fm.[Order];
 
+	select [PrintForms!TPrintForm!Array] = null, [Id!!Id] = pf.Id, [Name], pf.[Category], 
+		Checked = case when pfl.PrintForm is not null then 1 else 0 end
+	from doc.PrintForms pf
+		left join doc.OpPrintForms pfl on pf.TenantId = pfl.TenantId and pfl.Operation = @Id and pf.Id = pfl.PrintForm
+	where pf.TenantId = @TenantId
+	order by pf.[Order];
+
 	select [!TRowKind!Array] = null, [Id!!Id] = rk.Id, [Name!!Name] = rk.[Name], [!TForm.RowKinds!ParentId] = rk.Form
 	from doc.FormRowKinds rk where rk.TenantId = @TenantId
 	order by rk.[Order];
@@ -126,6 +133,7 @@ drop type if exists doc.[Operation.TableType];
 drop type if exists doc.[OpJournalStore.TableType];
 drop type if exists doc.[OpTrans.TableType];
 drop type if exists doc.[OpMenu.TableType]
+drop type if exists doc.[OpPrintForm.TableType]
 drop type if exists doc.[OpLink.TableType];
 go
 -------------------------------------------------
@@ -142,6 +150,13 @@ go
 create type doc.[OpMenu.TableType]
 as table(
 	Id nvarchar(32),
+	Checked bit
+)
+go
+-------------------------------------------------
+create type doc.[OpPrintForm.TableType]
+as table(
+	Id nvarchar(16),
 	Checked bit
 )
 go
@@ -193,11 +208,13 @@ begin
 	declare @JournalStore doc.[OpJournalStore.TableType];
 	declare @OpTrans doc.[OpTrans.TableType];
 	declare @OpMenu doc.[OpMenu.TableType];
+	declare @OpPrintForm doc.[OpPrintForm.TableType];
 	declare @OpLinks doc.[OpLink.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
 	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
 	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 	select [Menu!Menu!Metadata] = null, * from @OpMenu;
+	select [PrintForms!PrintForms!Metadata] = null, * from @OpPrintForm;
 	select [Links!Operation.OpLinks!Metadata] = null, * from @OpLinks;
 end
 go
@@ -210,7 +227,8 @@ create or alter procedure doc.[Operation.Update]
 @JournalStore doc.[OpJournalStore.TableType] readonly,
 @Trans doc.[OpTrans.TableType] readonly,
 @Menu doc.[OpMenu.TableType] readonly,
-@Links doc.[OpLink.TableType] readonly
+@Links doc.[OpLink.TableType] readonly,
+@PrintForms doc.[OpPrintForm.TableType] readonly
 as
 begin
 	set nocount on;
@@ -276,6 +294,15 @@ begin
 	on t.TenantId = @TenantId and t.Operation = @Id and t.Menu = s.Id
 	when not matched by target then insert
 		(TenantId, Operation, Menu) values
+		(@TenantId, @Id, s.Id)
+	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
+
+	with OPF as (select Id from @PrintForms where Checked = 1)
+	merge doc.OpPrintForms as t
+	using OPF as s
+	on t.TenantId = @TenantId and t.Operation = @Id and t.PrintForm = s.Id
+	when not matched by target then insert
+		(TenantId, Operation, PrintForm) values
 		(@TenantId, @Id, s.Id)
 	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
 

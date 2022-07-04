@@ -1,8 +1,8 @@
 ﻿<Page xmlns="clr-namespace:A2v10.Xaml.Report;assembly=A2v10.Xaml.Report"
-		Title="Замовлення клієнта">
+		Title="Видаткова накладна">
 	<Column>
 		<Text Style="Title">
-			Замовлення клієнта №
+			Видаткова накладна №
 			<Span Content="{Bind Document.Id}"/>
 			від
 			<Span Content="{Bind Document.Date, Format='D'}"/>
@@ -21,6 +21,11 @@
 			<TableRow>
 				<TableCell Content="@[Contract]"/>
 				<TableCell Content="{Bind Document.Contract.Name}" />
+				<TableCell />
+			</TableRow>
+			<TableRow>
+				<TableCell Content="@[Warehouse]"/>
+				<TableCell Content="{Bind Document.WhFrom.Name}" />
 				<TableCell />
 			</TableRow>
 		</Table>

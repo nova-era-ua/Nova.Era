@@ -14,15 +14,9 @@
 				</DropDownMegaMenu>
 			</Button.DropDown>
 		</Button>
-		<Button Content="@[Print]" Disabled="{Bind Document.$isNew}" Render="Show">
-			<Button.DropDown>
-				<DropDownMenu>
-					<MenuItem Content="Замовлення" 
-						Command="{BindCmd Report, Report=invoice, Argument={Bind Document}, 
-							Url='/document/print', SaveRequired=True}"/>
-				</DropDownMenu>
-			</Button.DropDown>
-		</Button>
+		<Button Content="@[Print]" Disabled="{Bind Document.$isNew}" Render="Show"
+				Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, 
+					Url='/document/print/browse', SaveRequired=True}"/>
 		<Button Content="@[Close]" Command="{BindCmd Close}" />
 		<Separator />
 		<Label Content="@[Operation]"/>

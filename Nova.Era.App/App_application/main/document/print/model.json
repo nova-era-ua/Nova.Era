@@ -1,11 +1,25 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "doc",
+    "schema": "doc",
+    "dialogs": {
+        "browse": {
+            "model": "Document.Print",
+            "template": "browse.template",
+            "view": "browse.dialog"
+        }
+    },
     "reports": {
         "invoice": {
             "type": "pdf",
             "model": "Document.Stock",
+            "name": "Замовлення № {{Document.Id}}",
             "report": "invoice.printform"
+        },
+        "waybillout": {
+            "type": "pdf",
+            "model": "Document.Stock",
+            "name": "Видаткова накладна № {{Document.Id}}",
+            "report": "waybillout.printform"
         }
     }
 }

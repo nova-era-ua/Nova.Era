@@ -22,6 +22,7 @@
 			<TabButton Content="Прості журнали" ActiveValue="Journal" />
 			-->
 			<TabButton Content="Меню" ActiveValue="Menu" />
+			<TabButton Content="Друковані форми" ActiveValue="Print" />
 			<TabButton Content="Зв'язані операції" ActiveValue="Links" />
 			<!--
 			<TabButton Content="Додатково" ActiveValue="Other" />
@@ -29,7 +30,7 @@
 			<TabButton Content="Управліньский облік" ActiveValue="Management" />
 			-->
 		</TabBar>
-		<Block Margin="6,-6" Height="30rem" Scroll="True">
+		<Block Margin="6,-6" Height="31rem" Scroll="True">
 			<Switch Expression="{Bind Root.$$Tab}">
 				<Case Value="Document">
 					<Grid Padding="0">
@@ -211,6 +212,18 @@
 						  Select="False">
 						<FlexList Orientation="Horizontal" AlignItems="Center">
 							<SpanIcon Icon="Menu"/>
+							<Span Content="{Bind Name}" Space="Before"/>
+							<Separator />
+							<CheckBox Value="{Bind Checked}"/>
+						</FlexList>
+					</List>
+				</Case>
+				<Case Value="Print">
+					<List ItemsSource="{Bind PrintForms}" GroupBy="Category" Width="20rem" Margin="1rem"
+						  Border="True"
+						  Select="False">
+						<FlexList Orientation="Horizontal" AlignItems="Center">
+							<SpanIcon Icon="FilePreview"/>
 							<Span Content="{Bind Name}" Space="Before"/>
 							<Separator />
 							<CheckBox Value="{Bind Checked}"/>

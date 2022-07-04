@@ -160,6 +160,28 @@ begin
 		(@TenantId, s.Id, s.[Form], s.[Name], s.[Order])
 	when not matched by source and t.TenantId = @TenantId then delete;
 
+	-- print forms
+	declare @pf table(id nvarchar(16), [order] int, category nvarchar(255), [name] nvarchar(255), 
+		[url] nvarchar(255), report nvarchar(255));
+	insert into @pf (id, [order], category, [name], [url], [report]) values
+		-- Sales
+		(N'invoice',    1, N'@[Sales]', N'Замовлення клієнта', N'/document/print', N'invoice'),
+		(N'waybillout', 2, N'@[Sales]', N'Видаткова накладна', N'/document/print', N'waybillout');
+
+	merge doc.PrintForms as t
+	using @pf as s on t.Id = s.id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[name],
+		t.[Order] = s.[order],
+		t.Category = s.category,
+		t.[Url] = s.[url],
+		t.[Report] = s.[report]
+	when not matched by target then insert
+		(TenantId, Id, [Order], [Name], Category, [Url], [Report]) values
+		(@TenantId, s.id, s.[order], s.[name], category, [url], [report])
+	when not matched by source and t.TenantId = @TenantId then delete;
+
+
 
 	-- contract kinds
 	declare @ck table(Id nvarchar(16), [Order] int, [Name] nvarchar(255));

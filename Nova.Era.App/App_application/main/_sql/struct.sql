@@ -583,6 +583,21 @@ create table doc.Forms
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'PrintForms')
+create table doc.PrintForms
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Order] int,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[Url] nvarchar(255),
+	[Report] nvarchar(255),
+	Category nvarchar(255),
+		constraint PK_PrintForms primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'FormRowKinds')
 create table doc.FormRowKinds
 (
@@ -733,6 +748,17 @@ create table ui.OpMenuLinks
 		constraint DF_OpMenuLinks_Uid default(newid()),
 	constraint PK_OpMenuLinks primary key (TenantId, Operation, Menu),
 	constraint FK_OpMenuLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpPrintForms')
+create table doc.OpPrintForms
+(
+	TenantId int not null,
+	Operation bigint not null,
+	PrintForm nvarchar(16) not null,
+	constraint PK_OpPrintForms primary key (TenantId, Operation, PrintForm),
+	constraint FK_OpPrintForms_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
+	constraint FK_OpPrintForms_PrintForm_PrintForms foreign key (TenantId, PrintForm) references doc.PrintForms(TenantId, Id)
 );
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')

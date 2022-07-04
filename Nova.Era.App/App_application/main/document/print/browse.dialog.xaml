@@ -1,0 +1,28 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Size="Max"
+		Title="Друковані форми">
+	<Dialog.Buttons>
+		<Slot Scope="{Bind PrintForms.$selected}">
+			<Button Content="Відкрити"
+					Command="{BindCmd Report, Report={Bind Report}, Argument={Bind DocumentId}, Url={Bind Url}}"/>
+			<Button Content="@[Print]"
+					Command="{BindCmd Report, Report={Bind Report}, Argument={Bind DocumentId}, Url={Bind Url}, Print=True}"/>
+			<Button Content="Зберегти як файл"
+					Command="{BindCmd Report, Report={Bind Report}, Argument={Bind DocumentId}, Url={Bind Url}, Export=True}"/>
+		</Slot>
+		<ToolbarAligner />
+		<Button Content="@[Close]" Command="{BindCmd Close}" />
+	</Dialog.Buttons>
+	<Grid Height="100%" Columns="20rem,1px,1*" AlignItems="Stretch">
+		<List Grid.Col="1" ItemsSource="{Bind PrintForms}" AutoSelect="FirstItem"
+			  GroupBy="Category">
+			<ListItemSimple Icon="FilePreview" Content="{Bind Name}"/>
+		</List>
+		<GridDivider Grid.Col="2"/>
+		<Slot Grid.Col="3" Scope="{Bind PrintForms.$selected}">
+			<IFrame Source="{Bind $ReportUrl}" />
+			<Slot.Fallback>
+				<EmptyPanel Content="Для цієї операції немає друкованих форм" />
+			</Slot.Fallback>
+		</Slot>
+	</Grid>
+</Dialog>
