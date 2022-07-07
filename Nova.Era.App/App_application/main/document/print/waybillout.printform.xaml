@@ -7,41 +7,44 @@
 			від
 			<Span Content="{Bind Document.Date, Format='D'}"/>
 		</Text>
+		<Line Margin="2mm, 0, 5mm, 0"/>
 		<Table Columns="30mm,60mm,1fr">
 			<TableRow>
-				<TableCell Content="@[Supplier]"/>
-				<TableCell Content="{Bind Document.Company.Name}"/>
+				<TableCell Content="Постачальник"/>
+				<TableCell Content="{Bind Document.Company.Name}" Bold="True"/>
 				<TableCell />
 			</TableRow>
 			<TableRow>
-				<TableCell Content="@[Customer]"/>
-				<TableCell Content="{Bind Document.Agent.Name}" />
+				<TableCell Content="Покупець"/>
+				<TableCell Content="{Bind Document.Agent.Name}" Bold="True"/>
 				<TableCell />
 			</TableRow>
 			<TableRow>
-				<TableCell Content="@[Contract]"/>
-				<TableCell Content="{Bind Document.Contract.Name}" />
+				<TableCell Content="Договір"/>
+				<TableCell Content="{Bind Document.Contract.Name}" Bold="True"/>
 				<TableCell />
 			</TableRow>
 			<TableRow>
-				<TableCell Content="@[Warehouse]"/>
-				<TableCell Content="{Bind Document.WhFrom.Name}" />
+				<TableCell Content="Склад"/>
+				<TableCell Content="{Bind Document.WhFrom.Name}" Bold="True"/>
 				<TableCell />
 			</TableRow>
 		</Table>
-		<Table ItemsSource="{Bind Document.Rows}" Columns="10mm,1fr,14mm,10mm,22mm,30mm"
+		<Table ItemsSource="{Bind Document.Rows}" Columns="8mm,25mm,1fr,14mm,10mm,22mm,30mm"
 			   Style="Details">
 			<Table.Header>
 				<TableRow>
 					<TableCell Content="#"/>
-					<TableCell Content="@[Item]"/>
-					<TableCell Content="@[Qty]" ColSpan="2"/>
-					<TableCell Content="@[Price]"/>
-					<TableCell Content="@[Sum]"/>
+					<TableCell Content="Артикул"/>
+					<TableCell Content="Товар/послуга"/>
+					<TableCell Content="Кількість" ColSpan="2"/>
+					<TableCell Content="Ціна"/>
+					<TableCell Content="Сума"/>
 				</TableRow>
 			</Table.Header>
 			<TableRow>
 				<TableCell Content="{Bind RowNo}" Align="Right"/>
+				<TableCell Content="{Bind Item.Article}"/>
 				<TableCell Content="{Bind Item.Name}"/>
 				<TableCell Content="{Bind Qty, DataType=Number}" Align="Right"/>
 				<TableCell Content="{Bind Unit.Short}"/>
@@ -50,10 +53,23 @@
 			</TableRow>
 			<Table.Footer>
 				<TableRow>
-					<TableCell Content="@[Total]" ColSpan="5" Align="Right"/>
+					<TableCell Content="Всього" ColSpan="6" Align="Right"/>
 					<TableCell Content="{Bind Document.Sum, DataType=Currency}" Align="Right"/>
 				</TableRow>
 			</Table.Footer>
+		</Table>
+		<Text Bold="True">
+			<Span Content="{Bind spellMoney(Document.Sum)}"/>
+		</Text>
+		<Line Margin="5pt,0,5mm, 0"/>
+		<Table Columns="30mm,60mm,1fr,30mm,60mm">
+			<TableRow>
+				<TableCell Content="Від виконавця"/>
+				<TableCell Border="0,0, .5, 0"/>
+				<TableCell />
+				<TableCell Content="Отримав"/>
+				<TableCell Border="0,0, .5, 0"/>
+			</TableRow>
 		</Table>
 	</Column>
 </Page>

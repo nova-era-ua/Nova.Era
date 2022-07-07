@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 04.07.2022 12:28:35
+generated: 07.07.2022 17:46:18
 */
 
 
@@ -8,7 +8,7 @@ generated: 04.07.2022 12:28:35
 
 /*
 version: 10.0.7779
-generated: 04.07.2022 10:38:20
+generated: 07.07.2022 17:02:16
 */
 
 set nocount on;
@@ -3995,6 +3995,21 @@ create table doc.Forms
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'PrintForms')
+create table doc.PrintForms
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Order] int,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[Url] nvarchar(255),
+	[Report] nvarchar(255),
+	Category nvarchar(255),
+		constraint PK_PrintForms primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'FormRowKinds')
 create table doc.FormRowKinds
 (
@@ -4145,6 +4160,17 @@ create table ui.OpMenuLinks
 		constraint DF_OpMenuLinks_Uid default(newid()),
 	constraint PK_OpMenuLinks primary key (TenantId, Operation, Menu),
 	constraint FK_OpMenuLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpPrintForms')
+create table doc.OpPrintForms
+(
+	TenantId int not null,
+	Operation bigint not null,
+	PrintForm nvarchar(16) not null,
+	constraint PK_OpPrintForms primary key (TenantId, Operation, PrintForm),
+	constraint FK_OpPrintForms_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
+	constraint FK_OpPrintForms_PrintForm_PrintForms foreign key (TenantId, PrintForm) references doc.PrintForms(TenantId, Id)
 );
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Documents')
@@ -9371,6 +9397,13 @@ begin
 	where fm.TenantId = @TenantId
 	order by fm.[Order];
 
+	select [PrintForms!TPrintForm!Array] = null, [Id!!Id] = pf.Id, [Name], pf.[Category], 
+		Checked = case when pfl.PrintForm is not null then 1 else 0 end
+	from doc.PrintForms pf
+		left join doc.OpPrintForms pfl on pf.TenantId = pfl.TenantId and pfl.Operation = @Id and pf.Id = pfl.PrintForm
+	where pf.TenantId = @TenantId
+	order by pf.[Order];
+
 	select [!TRowKind!Array] = null, [Id!!Id] = rk.Id, [Name!!Name] = rk.[Name], [!TForm.RowKinds!ParentId] = rk.Form
 	from doc.FormRowKinds rk where rk.TenantId = @TenantId
 	order by rk.[Order];
@@ -9388,6 +9421,7 @@ drop type if exists doc.[Operation.TableType];
 drop type if exists doc.[OpJournalStore.TableType];
 drop type if exists doc.[OpTrans.TableType];
 drop type if exists doc.[OpMenu.TableType]
+drop type if exists doc.[OpPrintForm.TableType]
 drop type if exists doc.[OpLink.TableType];
 go
 -------------------------------------------------
@@ -9404,6 +9438,13 @@ go
 create type doc.[OpMenu.TableType]
 as table(
 	Id nvarchar(32),
+	Checked bit
+)
+go
+-------------------------------------------------
+create type doc.[OpPrintForm.TableType]
+as table(
+	Id nvarchar(16),
 	Checked bit
 )
 go
@@ -9455,11 +9496,13 @@ begin
 	declare @JournalStore doc.[OpJournalStore.TableType];
 	declare @OpTrans doc.[OpTrans.TableType];
 	declare @OpMenu doc.[OpMenu.TableType];
+	declare @OpPrintForm doc.[OpPrintForm.TableType];
 	declare @OpLinks doc.[OpLink.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
 	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
 	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 	select [Menu!Menu!Metadata] = null, * from @OpMenu;
+	select [PrintForms!PrintForms!Metadata] = null, * from @OpPrintForm;
 	select [Links!Operation.OpLinks!Metadata] = null, * from @OpLinks;
 end
 go
@@ -9472,7 +9515,8 @@ create or alter procedure doc.[Operation.Update]
 @JournalStore doc.[OpJournalStore.TableType] readonly,
 @Trans doc.[OpTrans.TableType] readonly,
 @Menu doc.[OpMenu.TableType] readonly,
-@Links doc.[OpLink.TableType] readonly
+@Links doc.[OpLink.TableType] readonly,
+@PrintForms doc.[OpPrintForm.TableType] readonly
 as
 begin
 	set nocount on;
@@ -9538,6 +9582,15 @@ begin
 	on t.TenantId = @TenantId and t.Operation = @Id and t.Menu = s.Id
 	when not matched by target then insert
 		(TenantId, Operation, Menu) values
+		(@TenantId, @Id, s.Id)
+	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
+
+	with OPF as (select Id from @PrintForms where Checked = 1)
+	merge doc.OpPrintForms as t
+	using OPF as s
+	on t.TenantId = @TenantId and t.Operation = @Id and t.PrintForm = s.Id
+	when not matched by target then insert
+		(TenantId, Operation, PrintForm) values
 		(@TenantId, @Id, s.Id)
 	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
 
@@ -10916,11 +10969,14 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = Id
-	from doc.Documents where TenantId = @TenantId and Id = @Id;
-
-	select [PrintForms!TPrintForm!Array] = null, [Id!!Id] = 0, DocumentId = @Id,
-		[Name!!Name] = N'���������� �볺���', [Url] = '/document/print', Report = N'invoice';
+	select [PrintForms!TPrintForm!Array] = null, [Id!!Id] = 0, DocumentId = @Id,		
+		[Name!!Name] = pf.[Name], pf.Category, pf.[Url], pf.Report
+	from.doc.Documents d
+		inner join doc.Operations op on d.TenantId = op.TenantId and d.Operation = op.Id
+		inner join doc.OpPrintForms lnk on op.TenantId = lnk.TenantId and lnk.Operation = op.Id
+		inner join doc.PrintForms pf on lnk.TenantId = pf.TenantId and lnk.PrintForm = pf.Id
+	where d.TenantId = @TenantId and d.Id = @Id
+	order by pf.[Order];
 end
 go
 ------------------------------------------------
@@ -10956,6 +11012,12 @@ begin
 		inner join @rows r on dd.Id = r.id
 	where dd.TenantId=@TenantId and dd.Document = @Id
 	order by r.rowno;
+
+	-- maps
+	select [!TWarehouse!Map] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name]
+	from cat.Warehouses w inner join doc.Documents d on d.TenantId = w.TenantId and w.Id in (d.WhFrom, d.WhTo)
+	where d.Id = @Id and d.TenantId = @TenantId
+	group by w.Id, w.[Name];
 
 	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
 
@@ -12281,6 +12343,28 @@ begin
 		(TenantId, Id, [Form], [Name], [Order]) values
 		(@TenantId, s.Id, s.[Form], s.[Name], s.[Order])
 	when not matched by source and t.TenantId = @TenantId then delete;
+
+	-- print forms
+	declare @pf table(id nvarchar(16), [order] int, category nvarchar(255), [name] nvarchar(255), 
+		[url] nvarchar(255), report nvarchar(255));
+	insert into @pf (id, [order], category, [name], [url], [report]) values
+		-- Sales
+		(N'invoice',    1, N'@[Sales]', N'Замовлення клієнта', N'/document/print', N'invoice'),
+		(N'waybillout', 2, N'@[Sales]', N'Видаткова накладна', N'/document/print', N'waybillout');
+
+	merge doc.PrintForms as t
+	using @pf as s on t.Id = s.id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[name],
+		t.[Order] = s.[order],
+		t.Category = s.category,
+		t.[Url] = s.[url],
+		t.[Report] = s.[report]
+	when not matched by target then insert
+		(TenantId, Id, [Order], [Name], Category, [Url], [Report]) values
+		(@TenantId, s.id, s.[order], s.[name], category, [url], [report])
+	when not matched by source and t.TenantId = @TenantId then delete;
+
 
 
 	-- contract kinds
