@@ -4,8 +4,11 @@
   "model": "Document.Stock",
   "dialogs": {
     "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
+        "template": "edit.template",
+        "view": "edit.dialog",
+        "parameters": {
+            "CheckRems": true
+        }
     }
   },
   "commands": {

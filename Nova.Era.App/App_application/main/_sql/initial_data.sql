@@ -112,13 +112,15 @@ begin
 		(N'waybillin',  null, 4, N'@[Purchases]', N'Покупка товарів/послуг'),
 		--
 		(N'movebill',   null, 5, N'@[KindStock]', N'Внутрішнє переміщення'),
+		(N'writeoff',   null, 6, N'@[KindStock]', N'Акт списання'),
+		(N'writeon',    null, 7, N'@[KindStock]', N'Акт оприбуткування'),
 		--
-		(N'payout',    -1, 6, N'@[Money]', N'Витрата безготівкових коштів'),
-		(N'cashout',   -1, 7, N'@[Money]', N'Витрата готівки'),
-		(N'payin',      1, 8, N'@[Money]', N'Надходження безготівкових коштів'),
-		(N'cashin',     1, 9, N'@[Money]', N'Надходження готівки'),
+		(N'payout',    -1, 10, N'@[Money]', N'Витрата безготівкових коштів'),
+		(N'cashout',   -1, 11, N'@[Money]', N'Витрата готівки'),
+		(N'payin',      1, 12, N'@[Money]', N'Надходження безготівкових коштів'),
+		(N'cashin',     1, 13, N'@[Money]', N'Надходження готівки'),
 		-- 
-		(N'manufact',  null, 10, N'@[Manufacturing]', N'Виробничий акт-звіт');
+		(N'manufact',  null, 20, N'@[Manufacturing]', N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
@@ -141,6 +143,8 @@ begin
 	(N'waybillin',  1, N'Stock',   N'@[KindStock]'),
 	(N'waybillin',  2, N'Service', N'@[KindServices]'),
 	(N'movebill',   1, N'Stock',   N'@[KindStock]'),
+	(N'writeoff',   1, N'Stock',   N'@[KindStock]'),
+	(N'writeon',    1, N'Stock',   N'@[KindStock]'),
 	(N'payin',      1, N'', N'Немає рядків'),
 	(N'payout',     1, N'', N'Немає рядків'),
 	(N'cashin',     1, N'', N'Немає рядків'),

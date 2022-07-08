@@ -301,6 +301,7 @@ create table cat.ItemRoles (
 	TenantId int not null,
 	Id bigint not null
 		constraint DF_ItemRoles_Id default(next value for cat.SQ_ItemRoles),
+	[Kind] nvarchar(16) not null,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 	Void bit not null 
@@ -792,6 +793,7 @@ create table doc.Documents
 	CashAccFrom bigint null,
 	CashAccTo bigint null,
 	RespCenter bigint null,
+	ItemRole bigint null,
 	CostItem bigint null,
 	CashFlowItem bigint null,
 	PriceKind bigint null,
@@ -818,7 +820,8 @@ create table doc.Documents
 	constraint FK_Documents_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
 	constraint FK_Documents_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
 	constraint FK_Documents_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
-	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id)
+	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
+	constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
 );
 go
 ------------------------------------------------

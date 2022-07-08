@@ -42,12 +42,18 @@
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
-		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,1px,Auto,22rem,1*" AlignItems="Baseline" Gap="1rem">
+		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,Auto,22rem, 1*, Auto,22rem" AlignItems="Baseline" Gap="1rem">
 			<Label Grid.Row="1" Grid.Col="1" Content="@[Agent]"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name"
 					  Fetch="/catalog/agent/fetch">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
 			</Selector>
+
+			<Label Grid.Row="1" Grid.Col="3" Content="@[Warehouse]"/>
+			<Selector Grid.Row="1" Grid.Col="4" Value="{Bind Document.WhTo}" DisplayProperty="Name">
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
+			</Selector>
+
 			<Label Grid.Row="2" Grid.Col="1" Content="@[Contract]"/>
 			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
 				<Selector.AddOns>
@@ -57,18 +63,13 @@
 				</Selector.AddOns>
 			</Selector>
 
-			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="5"
+			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="6" Wrap="NoWrap"/>
+			<Selector Grid.Row="1" Grid.Col="7"
 					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
 						Url='/catalog/respcenter/browse'}"/>
 				</Selector.AddOns>
-			</Selector>
-
-			<Label Grid.Row="2" Grid.Col="4" Content="@[Warehouse]"/>
-			<Selector Grid.Row="2" Grid.Col="5" Value="{Bind Document.WhTo}" DisplayProperty="Name">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
 			</Selector>
 		</Grid>
 		<TabBar Value="{Bind Root.$$TabNo}" Margin="0">
@@ -165,7 +166,7 @@
 						<TableRow>
 							<TableCell Content="#"/>
 							<TableCell Content="@[Article]"/>
-							<TableCell Content="@[Service]"/>
+							<TableCell Content="@[KindService]"/>
 							<TableCell Content="@[UnitShort]"/>
 							<TableCell Content="@[Role]"/>
 							<TableCell Content="@[Qty]"/>

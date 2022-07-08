@@ -14,7 +14,7 @@ const template: Template = {
 			get(this: TRow) { return this.Price * this.Qty; },
 			set(this: TRow, val: number) { this.Qty = val / this.Price; }
 		},
-		'TRoot.$StockItemRoles'() { return this.ItemRoles.filter(r => r.IsStock); },
+		'TRoot.$StockItemRoles'() { return this.ItemRoles.filter(r => r.Kind == "Item" && r.IsStock); },
 		'TDocument.Sum': docSum,
 		'TDocument.$StockSum': stockSum,
 		'TDocument.$ServiceSum': serviceSum,

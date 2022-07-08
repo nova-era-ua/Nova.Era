@@ -36,7 +36,7 @@ go
 -------------------------------------------------
 create or alter view cat.view_ItemRoles
 as
-select [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock,
+select [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock, ir.Kind,
 	[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name],
 	[!TenantId] = ir.TenantId
 from cat.ItemRoles ir
@@ -337,7 +337,7 @@ begin
 		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name]
 	from cat.ItemRoles ir 
 		left join cat.CostItems ci on ir.TenantId = ci.TenantId and ir.CostItem =ci.Id
-	where ir.TenantId = @TenantId and ir.Void = 0;
+	where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Item';
 	
 	select [!THieElem!Array] = null, [!THie.Elements!ParentId] = iti.[Root],
 		[Group] = iti.Parent,

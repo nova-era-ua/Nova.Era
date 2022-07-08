@@ -11,6 +11,13 @@ if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'd
 	alter table doc.Documents add Temp bit not null constraint DF_Documents_Temp default(0) with values;
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Documents' and COLUMN_NAME=N'ItemRole')
+begin
+	alter table doc.Documents add ItemRole bigint null;
+	alter table doc.Documents add constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id);
+end
+go
+------------------------------------------------
 if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'DocDetails' and COLUMN_NAME=N'CostItem')
 begin
 	alter table doc.DocDetails add CostItem bigint;
@@ -40,6 +47,12 @@ if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'c
 begin
 	alter table cat.ItemRoles add CostItem bigint;
 	alter table cat.ItemRoles add constraint FK_ItemRoles_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id);
+end
+go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'ItemRoles' and COLUMN_NAME=N'Kind')
+begin
+	alter table cat.ItemRoles add [Kind] nvarchar(16); -- may be null for migrations
 end
 go
 ------------------------------------------------
@@ -116,4 +129,5 @@ drop type if exists doc.[Document.Apply.TableType];
 drop procedure if exists cat.[Item.Browse.Rems.Index];
 drop procedure if exists cat.[Item.Find.Article];
 go
-
+update cat.ItemRoles set Kind = N'Item' where Kind is null;
+go

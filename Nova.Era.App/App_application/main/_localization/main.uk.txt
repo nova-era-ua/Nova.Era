@@ -8,6 +8,7 @@
 @KindStock=Запаси
 @Stock=Запас
 @KindServices=Послуги
+@KindService=Послуга
 @KindAllRows=Всі рядки
 @KindPayment=Оплата
 @Money=Грошові кошти
@@ -112,6 +113,7 @@
 @Roles=Ролі
 @Role=Роль
 @RoleTo=Нова роль
+@Purpose=Призначення
 @AccKinds=Види рахунків в обліку
 @AccKind=Вид рахунку в обліку
 @AccKindShort=Вид рахунку
@@ -136,6 +138,8 @@
 ; Documents
 @Document.WaybillOut=Продаж товарів/послуг
 @Document.MoveBill=Внутрішнє переміщення
+@Document.WriteOff=Акт списання ТМЦ
+@Document.WriteOn=Акт оприбуткування ТМЦ
 ; Actions
 @Add=Додати
 ;
@@ -147,6 +151,8 @@
 @Income=Надходження
 @On=На
 @Expense=Витрати
+@InExp=Дохід/витрата
+@Revenue=Дохід
 @Object=Об'єкт
 @Analytics=Аналітика
 @Article=Артикул

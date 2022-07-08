@@ -79,7 +79,7 @@
 						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Trans}}"/>
 					</Toolbar>
 					<Table ItemsSource="{Bind Operation.Trans}"
-						   Columns="1rem,9rem,  8rem,10rem,10rem,10rem,  8rem,10rem,10rem,10rem, Fit" CellSpacing="Medium">
+						   Columns="1rem,9rem,  7rem,11rem,10rem,10rem,  7rem,11rem,10rem,10rem, Fit" CellSpacing="Medium">
 						<Table.Header>
 							<TableRow>
 								<TableCell Content="@[AccountPlan]" Wrap="NoWrap" RowSpan="2"/>
@@ -100,12 +100,10 @@
 						</Table.Header>
 						<TableRow>
 							<Selector Value="{Bind Plan}" DisplayProperty="Code">
-								<Selector.AddOns>
-									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
-								</Selector.AddOns>
+								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
 							</Selector>
 							<ComboBox Value="{Bind RowKind}"
-								ItemsSource="{Bind Root.Operation.Form.RowKinds}">
+									ItemsSource="{Bind Root.Operation.Form.RowKinds}">
 								<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
 							</ComboBox>
 							<ComboBox Value="{Bind DtRow}">
@@ -114,7 +112,8 @@
 							</ComboBox>
 							<ComboBox Value="{Bind DtAccMode}">
 								<ComboBoxItem Content="Фіксований" Value=""/>
-								<ComboBoxItem Content="З ролі в обліку" Value="R"/>
+								<ComboBoxItem Content="Роль з рядка" Value="R"/>
+								<ComboBoxItem Content="Роль з документа" Value="D"/>
 							</ComboBox>
 							<TableCell>
 								<Group>
@@ -144,7 +143,8 @@
 							</ComboBox>
 							<ComboBox Value="{Bind CtAccMode}">
 								<ComboBoxItem Content="Фіксований" Value=""/>
-								<ComboBoxItem Content="З ролі в обліку" Value="R"/>
+								<ComboBoxItem Content="Роль з рядка" Value="R"/>
+								<ComboBoxItem Content="Роль з документа" Value="D"/>
 							</ComboBox>
 							<TableCell>
 								<Group>

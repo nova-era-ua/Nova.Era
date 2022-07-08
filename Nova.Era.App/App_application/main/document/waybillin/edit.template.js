@@ -5,8 +5,8 @@ define(["require", "exports"], function (require, exports) {
     const utils = require("std:utils");
     const template = {
         properties: {
-            'TRoot.$ItemRolesSvc'() { return this.ItemRoles.filter(r => !r.IsStock); },
-            'TRoot.$ItemRolesStock'() { return this.ItemRoles.filter(r => r.IsStock); },
+            'TRoot.$ItemRolesSvc'() { return this.ItemRoles.filter(r => r.Kind === 'Item' && !r.IsStock); },
+            'TRoot.$ItemRolesStock'() { return this.ItemRoles.filter(r => r.Kind === 'Item' && r.IsStock); },
             'TRoot.$IsStockArg'() { return { IsStock: 'T' }; },
             'TRoot.$IsNoStockArg'() { return { IsStock: 'V' }; }
         },

@@ -417,9 +417,12 @@
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\itemrole\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\person\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\person\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\vendor\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\writeon\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\writeoff\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\movebill\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\invent.index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\print\browse.template.ts" />
@@ -431,6 +434,8 @@
     <Content Include="App_application\main\document\movebill\model.json" />
     <Content Include="App_application\main\settings\person\model.json" />
     <Content Include="App_application\main\document\print\model.json" />
+    <Content Include="App_application\main\document\writeoff\model.json" />
+    <Content Include="App_application\main\document\writeon\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
@@ -881,6 +886,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\document\print\waybillout.printform.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\document\writeoff\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\document\writeon\edit.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

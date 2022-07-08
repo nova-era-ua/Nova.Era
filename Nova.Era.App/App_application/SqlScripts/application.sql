@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 07.07.2022 17:46:18
+generated: 08.07.2022 09:38:45
 */
 
 
@@ -3713,6 +3713,7 @@ create table cat.ItemRoles (
 	TenantId int not null,
 	Id bigint not null
 		constraint DF_ItemRoles_Id default(next value for cat.SQ_ItemRoles),
+	[Kind] nvarchar(16) not null,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 	Void bit not null 
@@ -4204,6 +4205,7 @@ create table doc.Documents
 	CashAccFrom bigint null,
 	CashAccTo bigint null,
 	RespCenter bigint null,
+	ItemRole bigint null,
 	CostItem bigint null,
 	CashFlowItem bigint null,
 	PriceKind bigint null,
@@ -4230,7 +4232,8 @@ create table doc.Documents
 	constraint FK_Documents_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
 	constraint FK_Documents_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
 	constraint FK_Documents_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
-	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id)
+	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
+	constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4482,6 +4485,13 @@ if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'd
 	alter table doc.Documents add Temp bit not null constraint DF_Documents_Temp default(0) with values;
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Documents' and COLUMN_NAME=N'ItemRole')
+begin
+	alter table doc.Documents add ItemRole bigint null;
+	alter table doc.Documents add constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id);
+end
+go
+------------------------------------------------
 if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'DocDetails' and COLUMN_NAME=N'CostItem')
 begin
 	alter table doc.DocDetails add CostItem bigint;
@@ -4511,6 +4521,12 @@ if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'c
 begin
 	alter table cat.ItemRoles add CostItem bigint;
 	alter table cat.ItemRoles add constraint FK_ItemRoles_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id);
+end
+go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'ItemRoles' and COLUMN_NAME=N'Kind')
+begin
+	alter table cat.ItemRoles add [Kind] nvarchar(16); -- may be null for migrations
 end
 go
 ------------------------------------------------
@@ -4587,7 +4603,8 @@ drop type if exists doc.[Document.Apply.TableType];
 drop procedure if exists cat.[Item.Browse.Rems.Index];
 drop procedure if exists cat.[Item.Find.Article];
 go
-
+update cat.ItemRoles set Kind = N'Item' where Kind is null;
+go
 
 /*
 common
@@ -4971,20 +4988,20 @@ begin
 	(306, N'Accounting',  13, N'@[Prices]',    N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N''),
 
 	-- settings
-	(900, N'Settings',  10, N'@[General]', N'@[Countries]',   N'/catalog/country/index', N'list',  N''),
-	(901, N'Settings',  11, N'@[General]', N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
-	(910, N'Settings',  20, N'@[Accounts]', N'@[AccKinds]',   N'/catalog/acckind/index', N'list',  N''),
-	(911, N'Settings',  21, N'@[Accounting]', N'@[Banks]',    N'/catalog/bank/index', N'list',  N''),
-	(912, N'Settings',  22, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
-	(913, N'Settings',  23, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
-	(914, N'Settings',  24, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
-	(920, N'Settings',  30, N'@[Items]',  N'@[ItemRoles]',         N'/catalog/itemrole/index', N'list',  N''),
-	(921, N'Settings',  31, N'@[Items]',  N'@[Grouping.Item]',     N'/catalog/itemgroup/index', N'list',  N''),
-	(922, N'Settings',  32, N'@[Items]',  N'@[Categories]',        N'/catalog/itemcategory/index', N'list',  N''),
-	(923, N'Settings',  33, N'@[Items]',  N'@[Units]',             N'/catalog/unit/index', N'list',  N''),
-	(924, N'Settings',  34, N'@[Items]',  N'@[Brands]',            N'/catalog/brand/index', N'list',  N''),
-	(925, N'Settings',  35, N'@[Items]',  N'@[Vendors]',           N'/catalog/vendor/index', N'list',  N''),
-	(930, N'Settings',  40, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N'');
+	(900, N'Settings',  01, N'@[General]',   N'@[Countries]',   N'/catalog/country/index', N'list',  N''),
+	(901, N'Settings',  02, N'@[General]',   N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
+	(910, N'Settings',  10, N'@[Accounts]',  N'@[ItemRoles]',   N'/catalog/itemrole/index', N'list',  N''),
+	(911, N'Settings',  11, N'@[Accounts]',  N'@[AccKinds]',    N'/catalog/acckind/index', N'list',  N''),
+	(920, N'Settings',  21, N'@[Accounting]', N'@[Banks]',         N'/catalog/bank/index', N'list',  N''),
+	(921, N'Settings',  22, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
+	(922, N'Settings',  23, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
+	(923, N'Settings',  24, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
+	(931, N'Settings',  31, N'@[Items]',  N'@[Grouping.Item]',     N'/catalog/itemgroup/index', N'list',  N''),
+	(932, N'Settings',  32, N'@[Items]',  N'@[Categories]',        N'/catalog/itemcategory/index', N'list',  N''),
+	(933, N'Settings',  33, N'@[Items]',  N'@[Units]',             N'/catalog/unit/index', N'list',  N''),
+	(934, N'Settings',  34, N'@[Items]',  N'@[Brands]',            N'/catalog/brand/index', N'list',  N''),
+	(945, N'Settings',  35, N'@[Items]',  N'@[Vendors]',           N'/catalog/vendor/index', N'list',  N''),
+	(940, N'Settings',  40, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N'');
 
 	merge a2ui.[Catalog] as t
 	using @cat as s on t.Id = s.Id
@@ -5416,7 +5433,7 @@ go
 -------------------------------------------------
 create or alter view cat.view_ItemRoles
 as
-select [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock,
+select [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock, ir.Kind,
 	[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name],
 	[!TenantId] = ir.TenantId
 from cat.ItemRoles ir
@@ -5717,7 +5734,7 @@ begin
 		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name]
 	from cat.ItemRoles ir 
 		left join cat.CostItems ci on ir.TenantId = ci.TenantId and ir.CostItem =ci.Id
-	where ir.TenantId = @TenantId and ir.Void = 0;
+	where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Item';
 	
 	select [!THieElem!Array] = null, [!THie.Elements!ParentId] = iti.[Root],
 		[Group] = iti.Parent,
@@ -7630,6 +7647,7 @@ go
 create type cat.[ItemRole.TableType] as table
 (
 	Id bigint,
+	[Kind] nvarchar(16),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 	[Color] nvarchar(32),
@@ -7658,7 +7676,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [ItemRoles!TItemRole!Array] = null,
-		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Color, ir.HasPrice, ir.IsStock
+		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Kind, ir.Memo, ir.Color, ir.HasPrice, ir.IsStock
 	from cat.ItemRoles ir
 	where ir.TenantId = @TenantId and ir.Void = 0
 	order by ir.Id;
@@ -7675,7 +7693,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [ItemRole!TItemRole!Object] = null,
-		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Color, ir.HasPrice, ir.IsStock,
+		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Kind, ir.Color, ir.HasPrice, ir.IsStock,
 		[CostItem!TCostItem!RefId] = ir.CostItem,
 		[Accounts!TRoleAccount!Array] = null
 	from cat.ItemRoles ir
@@ -7734,6 +7752,7 @@ begin
 	merge cat.ItemRoles as t
 	using @ItemRole as s on (t.TenantId = @TenantId and t.Id = s.Id)
 	when matched then update set
+		t.[Kind] = s.[Kind],
 		t.[Name] = s.[Name], 
 		t.[Memo] = s.[Memo],
 		t.Color = s.Color,
@@ -7741,8 +7760,8 @@ begin
 		t.IsStock = s.IsStock,
 		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, [Name], Memo, Color, HasPrice, IsStock, CostItem) values
-		(@TenantId, [Name], Memo, Color, HasPrice, IsStock, CostItem)
+		(TenantId, Kind, [Name], Memo, Color, HasPrice, IsStock, CostItem) values
+		(@TenantId, Kind, [Name], Memo, Color, HasPrice, IsStock, CostItem)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -9847,7 +9866,7 @@ begin
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
 	where o.TenantId = @TenantId and ml.Menu = @Menu
-	order by f.[Order] desc;
+	order by f.[Order];
 
 	-- filters
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, [!Order] = -1
@@ -9895,7 +9914,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
 		[PriceKind!TPriceKind!RefId] = d.PriceKind, [RespCenter!TRespCenter!RefId] = d.RespCenter,
-		[CostItem!TCostItem!RefId] = d.CostItem,
+		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
@@ -9948,7 +9967,7 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId
 	group by w.Id, w.[Name];
 
-	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock,
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind,
 		[CostItem!TCostItem!RefId] = ir.CostItem
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0;
 
@@ -10028,6 +10047,7 @@ as table(
 	PriceKind bigint,
 	RespCenter bigint,
 	CostItem bigint,
+	ItemRole bigint,
 	Memo nvarchar(255)
 )
 go
@@ -10100,8 +10120,10 @@ begin
 		t.TSum = s.TSum,
 		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, ItemRoleTo, Qty, Price, [Sum], ESum, DSum, TSum, CostItem) values
-		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), nullif(s.ItemRoleTo, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, s.CostItem)
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, ItemRoleTo, Qty, Price, [Sum], ESum, DSum, TSum, 
+			CostItem) values
+		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), nullif(s.ItemRoleTo, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, 
+			s.CostItem)
 	when not matched by source and t.TenantId = @TenantId and t.Document = @Id and t.Kind=@Kind then delete;
 end
 go
@@ -10143,13 +10165,14 @@ begin
 		t.PriceKind = s.PriceKind,
 		t.RespCenter = s.RespCenter,
 		t.CostItem = s.CostItem,
+		t.ItemRole = s.ItemRole,
 		t.Memo = s.Memo,
 		t.SNo = s.SNo
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
-			PriceKind, RespCenter, CostItem, Memo, SNo, UserCreated) values
+			PriceKind, RespCenter, CostItem, ItemRole, Memo, SNo, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
-			s.PriceKind, s.RespCenter, s.CostItem, s.Memo, s.SNo, @UserId)
+			s.PriceKind, s.RespCenter, s.CostItem, s.ItemRole, s.Memo, s.SNo, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
@@ -10464,8 +10487,17 @@ begin
 
 	-- DOCUMENT with ROWS
 	with TR as (
-		select Dt = case ot.DtAccMode when N'R' then ird.Account else ot.Dt end,
-			Ct = case ot.CtAccMode when N'R' then irc.Account else ot.Ct end,
+		select 
+			Dt = case ot.DtAccMode 
+				when N'R' then ird.Account 
+				when N'D' then irdocdt.Account
+				else ot.Dt 
+			end,
+			Ct = case ot.CtAccMode 
+				when N'R' then irc.Account
+				when N'D' then irdocct.Account
+				else ot.Ct 
+			end,
 			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty, dd.[Sum], dd.ESum,
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
 			DtSum = isnull(ot.DtSum, N''), CtSum = isnull(ot.CtSum, N''),
@@ -10476,6 +10508,8 @@ begin
 			inner join doc.OpTrans ot on dd.TenantId = ot.TenantId and (dd.Kind = ot.RowKind or ot.RowKind = N'All')
 			left join cat.ItemRoleAccounts ird on ird.TenantId = dd.TenantId and ird.[Role] = isnull(dd.ItemRoleTo, dd.ItemRole) and ird.AccKind = ot.DtAccKind
 			left join cat.ItemRoleAccounts irc on irc.TenantId = dd.TenantId and irc.[Role] = dd.ItemRole and irc.AccKind = ot.CtAccKind
+			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind
+			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind
 		where dd.TenantId = @TenantId and dd.Document = @Id and ot.Operation = @Operation 
 			and (@exclude = 0 or Kind <> N'Service')
 			--and (ot.DtRow = N'R' or ot.CtRow = N'R')
@@ -10524,7 +10558,7 @@ begin
 	select TenantId = @TenantId, Document = @Id, Detail = iif(RowMode = N'R', Detail, null), TrNo, RowNo = iif(RowMode = N'R', RowNo, null),
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([ResultSum]), Qty = sum(iif(RowMode = N'R', Qty, 0)),
 		Item = iif(RowMode = N'R', Item, null),
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem = iif(RowMode = N'R', CostItem, null), RespCenter
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
 	from @trans
 	group by TrNo, 
 		iif(RowMode = N'R', RowNo, null),
@@ -10532,9 +10566,9 @@ begin
 		iif(RowMode = N'R', Item, null),
 		iif(RowMode = N'R', Detail, null),
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, 
-		iif(RowMode = N'R', CostItem, null), RespCenter
+		CostItem, RespCenter
 	having sum(ResultSum) <> 0 or sum(iif(RowMode = N'R', Qty, 0)) <> 0
-	order by TrNo, RowNo
+	order by TrNo, RowNo;
 end
 go
 ------------------------------------------------
@@ -12050,10 +12084,10 @@ begin
 	delete from acc.Accounts where TenantId = @TenantId;
 	commit tran;
 
-	insert into cat.ItemRoles (TenantId, Id, [Name], Color, IsStock, HasPrice)
+	insert into cat.ItemRoles (TenantId, Id, Kind, [Name], Color, IsStock, HasPrice)
 	values 
-		(@TenantId, 50, N'Товар', N'green', 1, 1),
-		(@TenantId, 51, N'Послуга', N'cyan', 0, 0);
+		(@TenantId, 50, N'Item', N'Товар', N'green', 1, 1),
+		(@TenantId, 51, N'Item', N'Послуга', N'cyan', 0, 0);
 
 	insert into acc.Accounts(TenantId, Id, [Plan], Parent, IsFolder, Code, [Name], 
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem)
@@ -12072,7 +12106,9 @@ begin
 	values 
 		(@TenantId, 70, N'Облік'),
 		(@TenantId, 71, N'Дохід'),
-		(@TenantId, 72, N'Собівартість');
+		(@TenantId, 72, N'Собівартість'),
+		(@TenantId, 73, N'Витрати'),
+		(@TenantId, 74, N'Фінансовий результат');
 
 	insert into cat.ItemRoleAccounts (TenantId, Id, [Plan], [Role], Account, AccKind)
 	values
@@ -12296,13 +12332,14 @@ begin
 		(N'waybillin',  null, 4, N'@[Purchases]', N'Покупка товарів/послуг'),
 		--
 		(N'movebill',   null, 5, N'@[KindStock]', N'Внутрішнє переміщення'),
+		(N'writeoff',   null, 6, N'@[KindStock]', N'Акт списання'),
 		--
-		(N'payout',    -1, 6, N'@[Money]', N'Витрата безготівкових коштів'),
-		(N'cashout',   -1, 7, N'@[Money]', N'Витрата готівки'),
-		(N'payin',      1, 8, N'@[Money]', N'Надходження безготівкових коштів'),
-		(N'cashin',     1, 9, N'@[Money]', N'Надходження готівки'),
+		(N'payout',    -1, 10, N'@[Money]', N'Витрата безготівкових коштів'),
+		(N'cashout',   -1, 11, N'@[Money]', N'Витрата готівки'),
+		(N'payin',      1, 12, N'@[Money]', N'Надходження безготівкових коштів'),
+		(N'cashin',     1, 13, N'@[Money]', N'Надходження готівки'),
 		-- 
-		(N'manufact',  null, 10, N'@[Manufacturing]', N'Виробничий акт-звіт');
+		(N'manufact',  null, 20, N'@[Manufacturing]', N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
@@ -12325,6 +12362,7 @@ begin
 	(N'waybillin',  1, N'Stock',   N'@[KindStock]'),
 	(N'waybillin',  2, N'Service', N'@[KindServices]'),
 	(N'movebill',   1, N'Stock',   N'@[KindStock]'),
+	(N'writeoff',   1, N'Stock',   N'@[KindStock]'),
 	(N'payin',      1, N'', N'Немає рядків'),
 	(N'payout',     1, N'', N'Немає рядків'),
 	(N'cashin',     1, N'', N'Немає рядків'),

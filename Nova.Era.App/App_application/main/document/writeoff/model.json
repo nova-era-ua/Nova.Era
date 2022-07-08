@@ -1,0 +1,32 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "doc",
+	"model": "Document.Stock",
+	"dialogs": {
+		"edit": {
+			"template": "edit.template",
+			"view": "edit.dialog",
+			"parameters": {
+				"CheckRems": true
+			}
+		}
+	},
+	"commands": {
+		"apply": {
+			"type": "sql",
+			"procedure": "Document.Apply"
+		},
+		"unapply": {
+			"type": "sql",
+			"procedure": "Document.UnApply"
+		},
+		"getRems": {
+			"type": "sql",
+			"procedure": "Document.Rems.Get"
+		},
+		"getItemRoleRem": {
+			"type": "sql",
+			"procedure": "ItemRole.Rem.Get"
+		}
+	}
+}

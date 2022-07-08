@@ -46,6 +46,9 @@ li.line-top:before {
 .ml-3 {
   margin-left: 1rem;
 }
+.min-height-30 {
+  min-height: 29.28px;
+}
 .data-grid-fetch td {
   padding: 2px 8px!important;
 }

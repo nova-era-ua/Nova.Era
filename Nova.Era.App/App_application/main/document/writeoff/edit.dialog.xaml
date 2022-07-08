@@ -1,5 +1,5 @@
 ﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Size="Max"
-		ButtonOnTop="True" Title="@[Document.MoveBill]" SaveEvent="app.document.saved"
+		ButtonOnTop="True" Title="@[Document.WriteOff]" SaveEvent="app.document.saved"
 		CanCloseDelegate="canClose">
 	<Dialog.Buttons>
 		<Button Icon="SaveCloseOutline" Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
@@ -7,13 +7,6 @@
 			Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
 		<Button If="{Bind Document.Done}"
 			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
-		<Button Content="Створити на підставі" Render="Show">
-			<Button.DropDown>
-				<DropDownMegaMenu ItemsSource="{Bind Document.Operation.Links}" GroupBy="Category">
-					<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=createOnBase, Argument={Bind}}"/>
-				</DropDownMegaMenu>
-			</Button.DropDown>
-		</Button>
 		<Button Content="@[Close]" Command="{BindCmd Close}" />
 		<Separator />
 		<Label Content="@[Operation]"/>
@@ -28,7 +21,7 @@
 	<Grid Height="100%" Rows="Auto,Auto,Auto,Auto,1*,Auto" Padding="1rem" AutoFlow="Row">
 		<Grid AutoFlow="Column" AlignItems="Baseline" Margin="0,0,1rem,0" Gap="1rem"
 			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem">
-			<Header Content="@[Document.MoveBill]" Wrap="NoWrap"/>
+			<Header Content="@[Document.WriteOff]" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
 			<TextBox Disabled="True" Placeholder="Авто"/>
 			<Label Align="Right">від</Label>
@@ -39,24 +32,24 @@
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
-		<Grid Grid.Row="2" Padding="0" Columns="Auto,21rem,Auto,21rem,1*, Auto,22rem" AlignItems="Baseline" Gap="1rem">
+		<Grid Grid.Row="2" Padding="0" Columns="Auto,20rem,Auto,20rem,1*, Auto,22rem" AlignItems="Baseline" Gap="1rem">
 			<Label Grid.Row="1" Grid.Col="1" Content="@[WarehouseFrom]" Wrap="NoWrap"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.WhFrom}" DisplayProperty="Name">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
 			</Selector>
 
-			<Label Grid.Row="1" Grid.Col="3" Content="@[WarehouseTo]" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="4" Value="{Bind Document.WhTo}" DisplayProperty="Name">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
-			</Selector>
+			<Label Grid.Row="1" Grid.Col="3" Content="Вид витрат" Wrap="NoWrap"/>
+
+			<ComboBox Grid.Row="1" Grid.Col="4" ItemsSource="{Bind Root.$ExpenseItemRoles}"
+					  Value="{Bind Document.ItemRole}">
+				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+			</ComboBox>
 
 			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="6" Wrap="NoWrap"/>
 			<Selector Grid.Row="1" Grid.Col="7"
 					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
-						Url='/catalog/respcenter/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
+					Url='/catalog/respcenter/browse'}"/>
 			</Selector>
 		</Grid>
 		<TabBar Value="{Bind Root.$$TabNo}" Margin="0">
@@ -75,11 +68,11 @@
 					<Table.Columns>
 						<TableColumn Width="25px"/>
 						<TableColumn Width="Auto"/>
-						<TableColumn Width="100%"/>
+						<TableColumn Width="70rem"/>
 						<TableColumn Width="Fit"/>
 						<TableColumn Width="10rem" If="{Bind Root.$CheckRems}"/>
 						<TableColumn Width="Auto"/>
-						<TableColumn Width="Fit"/>
+						<TableColumn Width="20rem"/>
 						<TableColumn Width="Auto"/>
 						<TableColumn Width="25px"/>
 					</Table.Columns>
@@ -91,7 +84,7 @@
 							<TableCell Content="@[UnitShort]"/>
 							<TableCell Content="@[Role]"/>
 							<TableCell Content="@[Rem]" If="{Bind Root.$CheckRems}"/>
-							<TableCell Content="@[RoleTo]"/>
+							<TableCell Content="@[CostItem]"/>
 							<TableCell Content="@[Qty]"/>
 							<TableCell />
 						</TableRow>
@@ -108,7 +101,10 @@
 						<TableCell If="{Bind Root.$CheckRems}">
 							<Static Value="{Bind Rem, DataType=Number, NegativeRed=True, HideZeros=True}" Align="Right" Width="7rem"/>
 						</TableCell>
-						<ComboBox Value="{Bind ItemRoleTo}" ItemsSource="{Bind Root.$StockItemRoles}" Width="10rem"/>
+						<Selector Placeholder="{Bind Root.Document.CostItem.Name}" Value="{Bind CostItem}"
+								  DisplayProperty="Name">
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind CostItem}, Url='/catalog/costitem/browse'}"/>
+						</Selector>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right" Width="7rem">
 							<TextBox.Validator>
 								<Validator Placement="BottomRight"/>

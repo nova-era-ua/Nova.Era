@@ -34,10 +34,10 @@ begin
 	delete from acc.Accounts where TenantId = @TenantId;
 	commit tran;
 
-	insert into cat.ItemRoles (TenantId, Id, [Name], Color, IsStock, HasPrice)
+	insert into cat.ItemRoles (TenantId, Id, Kind, [Name], Color, IsStock, HasPrice)
 	values 
-		(@TenantId, 50, N'Товар', N'green', 1, 1),
-		(@TenantId, 51, N'Послуга', N'cyan', 0, 0);
+		(@TenantId, 50, N'Item', N'Товар', N'green', 1, 1),
+		(@TenantId, 51, N'Item', N'Послуга', N'cyan', 0, 0);
 
 	insert into acc.Accounts(TenantId, Id, [Plan], Parent, IsFolder, Code, [Name], 
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem)
@@ -56,7 +56,9 @@ begin
 	values 
 		(@TenantId, 70, N'Облік'),
 		(@TenantId, 71, N'Дохід'),
-		(@TenantId, 72, N'Собівартість');
+		(@TenantId, 72, N'Собівартість'),
+		(@TenantId, 73, N'Витрати'),
+		(@TenantId, 74, N'Фінансовий результат');
 
 	insert into cat.ItemRoleAccounts (TenantId, Id, [Plan], [Role], Account, AccKind)
 	values

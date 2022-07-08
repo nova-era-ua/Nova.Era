@@ -119,7 +119,7 @@ begin
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
 	where o.TenantId = @TenantId and ml.Menu = @Menu
-	order by f.[Order] desc;
+	order by f.[Order];
 
 	-- filters
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, [!Order] = -1
@@ -167,7 +167,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
 		[PriceKind!TPriceKind!RefId] = d.PriceKind, [RespCenter!TRespCenter!RefId] = d.RespCenter,
-		[CostItem!TCostItem!RefId] = d.CostItem,
+		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
@@ -220,7 +220,7 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId
 	group by w.Id, w.[Name];
 
-	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock,
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind,
 		[CostItem!TCostItem!RefId] = ir.CostItem
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0;
 
@@ -300,6 +300,7 @@ as table(
 	PriceKind bigint,
 	RespCenter bigint,
 	CostItem bigint,
+	ItemRole bigint,
 	Memo nvarchar(255)
 )
 go
@@ -372,8 +373,10 @@ begin
 		t.TSum = s.TSum,
 		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, ItemRoleTo, Qty, Price, [Sum], ESum, DSum, TSum, CostItem) values
-		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), nullif(s.ItemRoleTo, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, s.CostItem)
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, ItemRoleTo, Qty, Price, [Sum], ESum, DSum, TSum, 
+			CostItem) values
+		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), nullif(s.ItemRoleTo, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, 
+			s.CostItem)
 	when not matched by source and t.TenantId = @TenantId and t.Document = @Id and t.Kind=@Kind then delete;
 end
 go
@@ -415,13 +418,14 @@ begin
 		t.PriceKind = s.PriceKind,
 		t.RespCenter = s.RespCenter,
 		t.CostItem = s.CostItem,
+		t.ItemRole = s.ItemRole,
 		t.Memo = s.Memo,
 		t.SNo = s.SNo
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
-			PriceKind, RespCenter, CostItem, Memo, SNo, UserCreated) values
+			PriceKind, RespCenter, CostItem, ItemRole, Memo, SNo, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
-			s.PriceKind, s.RespCenter, s.CostItem, s.Memo, s.SNo, @UserId)
+			s.PriceKind, s.RespCenter, s.CostItem, s.ItemRole, s.Memo, s.SNo, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

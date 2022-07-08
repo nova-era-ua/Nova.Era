@@ -6,38 +6,47 @@
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid Columns="Auto,Auto">
-		<TextBox Grid.Row="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind ItemRole.Name}" 
+	<Grid Columns="1*,1*">
+		<ComboBox Grid.Row="1" Grid.Col="1" Label="@[Purpose]" Value="{Bind ItemRole.Kind}">
+			<ComboBoxItem Content="@[Item]" Value="Item"/>
+			<ComboBoxItem Content="@[Expense]" Value="Expense"/>
+			<ComboBoxItem Content="@[Revenue]" Value="Revenue"/>
+			<ComboBoxItem Content="@[Money]" Value="Money"/>
+		</ComboBox>
+		<TextBox Grid.Row="2" Grid.ColSpan="2" Label="@[Name]" Value="{Bind ItemRole.Name}" 
 				 Bold="True" TabIndex="1" UpdateTrigger="Input"/>
-		<ComboBox Grid.Row="2" Grid.Col="1" Label="@[Color]" Value="{Bind ItemRole.Color}">
+		<ComboBox Grid.Row="3" Grid.Col="1" Label="@[Color]" Value="{Bind ItemRole.Color}">
 			<ComboBoxItem Content="Default" Value=""/>
 			<ComboBoxItem Content="Green" Value="green"/>
 			<ComboBoxItem Content="Orange" Value="orange"/>
 			<ComboBoxItem Content="Cyan" Value="cyan"/>
-			<ComboBoxItem Content="Red" Value="red"/>
+			<ComboBoxItem Content="Червоний" Value="red"/>
 			<ComboBoxItem Content="Purlple" Value="purple"/>
 			<ComboBoxItem Content="Pink" Value="pink"/>
 			<ComboBoxItem Content="Gold" Value="gold"/>
-			<ComboBoxItem Content="Blue" Value="blue"/>
+			<ComboBoxItem Content="Синій" Value="blue"/>
 			<ComboBoxItem Content="Salmon" Value="salmon"/>
 			<ComboBoxItem Content="Seagreen" Value="seagreen"/>
 			<ComboBoxItem Content="Tan" Value="tan"/>
 			<ComboBoxItem Content="Magenta" Value="magenta"/>
 			<ComboBoxItem Content="LightGray" Value="lightgray"/>
-			<ComboBoxItem Content="Olive" Value="olive"/>
+			<ComboBoxItem Content="Оливковий" Value="olive"/>
 			<ComboBoxItem Content="Teal" Value="teal"/>
 		</ComboBox>
-		<TagLabel Grid.Row="2" Grid.Col="2" Style="{Bind ItemRole.Color}" Content="{Bind ItemRole.Name}" 
-				  Padding=".475rem"/>
-		<StackPanel Grid.Row="3" Grid.ColSpan="2" Orientation="Horizontal" Gap="2rem" Margin="1rem,0,0,0">
-			<CheckBox Label="@[Stock]" Value="{Bind ItemRole.IsStock}"/>
-			<CheckBox Label="@[HasPrice]" Value="{Bind ItemRole.HasPrice}"/>
-		</StackPanel>
-		<TabBar Grid.Row="4" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
+		<TagLabel Grid.Row="3" Grid.Col="2" Style="{Bind ItemRole.Color}" Content="{Bind ItemRole.Name}" 
+				  Padding=".475rem" CssClass="min-height-30"/>
+		<Block Grid.Row="4" Grid.ColSpan="2" Height="3rem" Padding="1rem,0,0,0">
+			<StackPanel If="{Bind ItemRole.$HasStock}"
+					Orientation="Horizontal" Gap="2rem" >
+				<CheckBox Label="@[Stock]" Value="{Bind ItemRole.IsStock}"/>
+				<CheckBox Label="@[HasPrice]" Value="{Bind ItemRole.HasPrice}"/>
+			</StackPanel>
+		</Block>
+		<TabBar Grid.Row="5" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton ActiveValue="">@[Accounts]</TabButton>
 			<TabButton ActiveValue="costitem">Витрати</TabButton>
 		</TabBar>
-		<Block Grid.Row="5" Grid.ColSpan="2" Height="20rem" Scroll="True">
+		<Block Grid.Row="6" Grid.ColSpan="2" Height="15rem" Scroll="True">
 			<Switch Expression="{Bind Root.$$Tab}">
 				<Case Value="">
 					<!--TODO: Toolbar LightStyle -->
@@ -81,15 +90,13 @@
 				</Case>
 				<Case Value="costitem">
 					<Selector Label="@[CostItem]"
-						Value="{Bind ItemRole.CostItem}" DisplayProperty="Name" Padding=".5rem,0" Width="50%">
-						<Selector.AddOns>
+						Value="{Bind ItemRole.CostItem}" DisplayProperty="Name" Padding=".5rem,0" Width="30rem">
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind ItemRole.CostItem}, Url='/catalog/costitem/browse' }"/>
-						</Selector.AddOns>
 					</Selector>
 				</Case>
 			</Switch>
 		</Block>
-		<TextBox Grid.Row="6" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind ItemRole.Memo}" Multiline="True"/>
+		<TextBox Grid.Row="7" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind ItemRole.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>
 

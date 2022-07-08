@@ -35,6 +35,4 @@ Future: Common
 
 Future: Catalog-Other
 =====================
-1. *Brands
-3. *Vendors
 4. *Countries
