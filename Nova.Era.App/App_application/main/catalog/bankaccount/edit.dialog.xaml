@@ -6,17 +6,21 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
+		<ComboBox Label="@[ItemRole]" Value="{Bind BankAccount.ItemRole}" 
+				  ItemsSource="{Bind ItemRoles}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
 		<Selector Label="@[Company]" Value="{Bind BankAccount.Company}" DisplayProperty="Name">
 			<Hyperlink Icon="Search" 
 				Command="{BindCmd Browse, Argument={Bind BankAccount.Company}, Url='/catalog/company/browse'}"/>
 		</Selector>
-		<TextBox Label="@[AccountNo]" Value="{Bind BankAccount.AccountNo}"/>
+		<TextBox Label="@[AccountNo]" Value="{Bind BankAccount.AccountNo}" TabIndex="1"/>
 		<Selector Label="@[Currency]" Width="10rem" DisplayProperty="Short"
 				  Value="{Bind BankAccount.Currency}" Disabled="True">
 			<Hyperlink Icon="Search" 
 				Command="{BindCmd Browse, Argument={Bind BankAccount.Currency}, Url='/catalog/currency/browse'}"/>
 		</Selector>
-		<TextBox Label="@[Name]" Value="{Bind BankAccount.Name}" Bold="True"/>
+		<TextBox Label="@[Name]" Value="{Bind BankAccount.Name}" Placeholder="{Bind BankAccount.AccountNo}"/>
 		<TextBox Label="@[Memo]" Value="{Bind BankAccount.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>

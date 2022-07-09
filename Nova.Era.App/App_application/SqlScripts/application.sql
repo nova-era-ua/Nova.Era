@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 08.07.2022 09:38:45
+generated: 09.07.2022 07:05:08
 */
 
 
@@ -3738,7 +3738,7 @@ create table cat.ItemRoleAccounts (
 	TenantId int not null,
 	Id bigint not null
 		constraint DF_ItemRoleAccounts_Id default(next value for cat.SQ_ItemRoleAccounts),
-	[Role] bigint,
+	[Role] bigint not null,
 	[Plan] bigint,
 	[Account] bigint,
 	[AccKind] bigint,
@@ -3764,13 +3764,13 @@ create table cat.Items
 		constraint DF_Items_Id default(next value for cat.SQ_Items),
 	Void bit not null 
 		constraint DF_Items_Void default(0),
+	[Role] bigint not null,
 	Article nvarchar(32),
 	Barcode nvarchar(32),
 	Unit bigint, /* base, references cat.Units */
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
-	[Role] bigint,
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
 	constraint PK_Items primary key (TenantId, Id),
@@ -3895,6 +3895,7 @@ create table cat.CashAccounts
 	IsCashAccount bit not null,
 	Company bigint not null,
 	Currency bigint not null,
+	ItemRole bigint not null,
 	[Name] nvarchar(255),
 	[Bank] bigint,
 	[AccountNo] nvarchar(255),
@@ -3903,6 +3904,7 @@ create table cat.CashAccounts
 		constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
+		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4585,6 +4587,13 @@ begin
 	-- roles
 	alter table cat.Agents add IsSupplier bit;
 	alter table cat.Agents add IsCustomer bit;
+end
+go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'CashAccounts' and COLUMN_NAME=N'ItemRole')
+begin
+	alter table cat.CashAccounts add ItemRole bigint null; -- not null
+	alter table cat.CashAccounts add constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id);
 end
 go
 ------------------------------------------------
@@ -7249,7 +7258,7 @@ begin
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo,
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
-		[Bank!TBank!RefId] = ba.Bank
+		[Bank!TBank!RefId] = ba.Bank, [ItemRole!TItemRole!RefId] = null
 	from cat.CashAccounts ba
 	where TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
@@ -7282,7 +7291,8 @@ create type cat.[BankAccount.TableType] as table
 	Company bigint,
 	[Memo] nvarchar(255),
 	Currency bigint,
-	Bank bigint
+	Bank bigint,
+	ItemRole bigint
 )
 go
 ---------------------------------------------
@@ -7318,10 +7328,11 @@ begin
 		t.Company = s.Company,
 		t.AccountNo = s.AccountNo,
 		t.Currency = s.Currency,
-		t.Bank = s.Bank
+		t.Bank = s.Bank,
+		t.ItemRole = s.ItemRole
 	when not matched by target then insert
-		(TenantId, IsCashAccount, Company, [Name], AccountNo, Currency, Bank, Memo) values
-		(@TenantId, 0, s.Company, s.[Name], s.AccountNo, s.Currency, s.Bank, s.Memo)
+		(TenantId, IsCashAccount, ItemRole, Company, [Name], AccountNo, Currency, Bank, Memo) values
+		(@TenantId, 0, s.ItemRole, s.Company, s.[Name], s.AccountNo, s.Currency, s.Bank, s.Memo)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -12333,6 +12344,7 @@ begin
 		--
 		(N'movebill',   null, 5, N'@[KindStock]', N'Внутрішнє переміщення'),
 		(N'writeoff',   null, 6, N'@[KindStock]', N'Акт списання'),
+		(N'writeon',    null, 7, N'@[KindStock]', N'Акт оприбуткування'),
 		--
 		(N'payout',    -1, 10, N'@[Money]', N'Витрата безготівкових коштів'),
 		(N'cashout',   -1, 11, N'@[Money]', N'Витрата готівки'),
@@ -12363,6 +12375,7 @@ begin
 	(N'waybillin',  2, N'Service', N'@[KindServices]'),
 	(N'movebill',   1, N'Stock',   N'@[KindStock]'),
 	(N'writeoff',   1, N'Stock',   N'@[KindStock]'),
+	(N'writeon',    1, N'Stock',   N'@[KindStock]'),
 	(N'payin',      1, N'', N'Немає рядків'),
 	(N'payout',     1, N'', N'Немає рядків'),
 	(N'cashin',     1, N'', N'Немає рядків'),

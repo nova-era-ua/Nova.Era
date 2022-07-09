@@ -5,7 +5,8 @@ const template: Template = {
 	},
 	defaults: {
 		'CashAccount.Currency'(this:any) { return this.Params.Currency;},
-		'CashAccount.Company'(this: any) { return this.Default.Company; }
+		'CashAccount.Company'(this: any) { return this.Default.Company; },
+		'CashAccount.ItemRole'(this: any) { return this.ItemRoles[0]; }
 	},
 	validators: {
 		'CashAccount.Name': '@[Error.Required]',

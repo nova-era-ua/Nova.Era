@@ -60,6 +60,7 @@ begin
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo, 
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
+		[ItemRole!TItemRole!RefId] = ba.ItemRole,
 		[!!RowCount] = t.rowcnt
 	from @ba t inner join cat.CashAccounts ba on t.id  = ba.Id and ba.TenantId = @TenantId
 	order by t.rowno;
@@ -67,6 +68,9 @@ begin
 	with T as(select comp from @ba group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join T on c.TenantId = @TenantId and c.Id = T.comp;
+
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
 
 	select [!$System!] = null, [!BankAccounts!Offset] = @Offset, [!BankAccounts!PageSize] = @PageSize, 
 		[!BankAccounts!SortOrder] = @Order, [!BankAccounts!SortDir] = @Dir,
@@ -85,9 +89,13 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [BankAccounts!TBankAccount!Array] = null,
-		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo
+		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo,
+		[ItemRole!TItemRole!RefId] = ba.ItemRole
 	from cat.CashAccounts ba
 	where ba.TenantId = @TenantId and (@Company is null or Company = @Company) and ba.IsCashAccount = 0;
+
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;
@@ -107,7 +115,7 @@ begin
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo,
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
-		[Bank!TBank!RefId] = ba.Bank
+		[Bank!TBank!RefId] = ba.Bank, [ItemRole!TItemRole!RefId] = ba.ItemRole
 	from cat.CashAccounts ba
 	where TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
@@ -118,6 +126,9 @@ begin
 	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short
 	from cat.Currencies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Currency = c.Id
 	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
+
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
 
 	-- TODO: // BASE Currency!
 	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
@@ -140,7 +151,8 @@ create type cat.[BankAccount.TableType] as table
 	Company bigint,
 	[Memo] nvarchar(255),
 	Currency bigint,
-	Bank bigint
+	Bank bigint,
+	ItemRole bigint
 )
 go
 ---------------------------------------------
@@ -176,10 +188,11 @@ begin
 		t.Company = s.Company,
 		t.AccountNo = s.AccountNo,
 		t.Currency = s.Currency,
-		t.Bank = s.Bank
+		t.Bank = s.Bank,
+		t.ItemRole = s.ItemRole
 	when not matched by target then insert
-		(TenantId, IsCashAccount, Company, [Name], AccountNo, Currency, Bank, Memo) values
-		(@TenantId, 0, s.Company, s.[Name], s.AccountNo, s.Currency, s.Bank, s.Memo)
+		(TenantId, IsCashAccount, ItemRole, Company, [Name], AccountNo, Currency, Bank, Memo) values
+		(@TenantId, 0, s.ItemRole, s.Company, s.[Name], s.AccountNo, s.Currency, s.Bank, s.Memo)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;

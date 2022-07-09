@@ -41,6 +41,10 @@
 				<CheckBox Label="@[Stock]" Value="{Bind ItemRole.IsStock}"/>
 				<CheckBox Label="@[HasPrice]" Value="{Bind ItemRole.HasPrice}"/>
 			</StackPanel>
+			<StackPanel If="{Bind ItemRole.$HasMoneyType}" Orientation="Horizontal" Gap="2rem">
+				<Radio Label="@[CashFunds]" Value="{Bind ItemRole.ExType}" CheckedValue="C"/>
+				<Radio Label="@[NonCashFunds]" Value="{Bind ItemRole.ExType}" CheckedValue="B"/>
+			</StackPanel>
 		</Block>
 		<TabBar Grid.Row="5" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton ActiveValue="">@[Accounts]</TabButton>

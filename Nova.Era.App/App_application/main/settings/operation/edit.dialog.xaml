@@ -114,6 +114,8 @@
 								<ComboBoxItem Content="Фіксований" Value=""/>
 								<ComboBoxItem Content="Роль з рядка" Value="R"/>
 								<ComboBoxItem Content="Роль з документа" Value="D"/>
+								<ComboBoxItem Content="Роль рахунку" Value="C"/>
+								<ComboBoxItem Content="Роль контрагента" Value="A"/>
 							</ComboBox>
 							<TableCell>
 								<Group>
@@ -145,6 +147,8 @@
 								<ComboBoxItem Content="Фіксований" Value=""/>
 								<ComboBoxItem Content="Роль з рядка" Value="R"/>
 								<ComboBoxItem Content="Роль з документа" Value="D"/>
+								<ComboBoxItem Content="Роль рахунку" Value="C"/>
+								<ComboBoxItem Content="Роль контрагента" Value="A"/>
 							</ComboBox>
 							<TableCell>
 								<Group>

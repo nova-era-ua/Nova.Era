@@ -26,6 +26,7 @@
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
+			<DataGridColumn Header="@[ItemRole]" Content="{Bind ItemRole.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Width="20rem"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
@@ -36,4 +37,8 @@
 		</DataGrid>
 		<Pager Grid.Row="3" Source="{Bind Parent.Pager}" XamlStyle="{StyleResource PagePager}"/>
 	</Grid>
+	<Page.Taskpad>
+		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
+		</Taskpad>
+	</Page.Taskpad>
 </Page>

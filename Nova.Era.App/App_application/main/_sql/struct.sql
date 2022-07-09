@@ -2,6 +2,16 @@
 main structure
 */
 ------------------------------------------------
+begin
+	set nocount on;
+	declare @ver int = 7869;
+	if exists(select * from a2sys.Versions where [Module]=N'ne:application')
+		update a2sys.Versions set [Version]=@ver, [File]=N'app:sqlscripts\application.sql', Title=null where [Module]=N'ne:application';
+	else
+		insert into a2sys.Versions([Module], [Version], [File], Title) values (N'ne:application', @ver, N'app:sqlscripts\application.sql', null);
+end
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'cat')
 	exec sp_executesql N'create schema cat';
 go
@@ -309,6 +319,7 @@ create table cat.ItemRoles (
 	[Color] nvarchar(32),
 	HasPrice bit,
 	IsStock bit,
+	ExType nchar(1), -- (C)ash, (B)ank, etc
 	CostItem bigint,
 	[Uid] uniqueidentifier not null
 		constraint DF_ItemRoles_Uid default(newid()),
@@ -326,7 +337,7 @@ create table cat.ItemRoleAccounts (
 	TenantId int not null,
 	Id bigint not null
 		constraint DF_ItemRoleAccounts_Id default(next value for cat.SQ_ItemRoleAccounts),
-	[Role] bigint,
+	[Role] bigint not null,
 	[Plan] bigint,
 	[Account] bigint,
 	[AccKind] bigint,
@@ -352,13 +363,13 @@ create table cat.Items
 		constraint DF_Items_Id default(next value for cat.SQ_Items),
 	Void bit not null 
 		constraint DF_Items_Void default(0),
+	[Role] bigint not null,
 	Article nvarchar(32),
 	Barcode nvarchar(32),
 	Unit bigint, /* base, references cat.Units */
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
-	[Role] bigint,
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
 	constraint PK_Items primary key (TenantId, Id),
@@ -483,6 +494,7 @@ create table cat.CashAccounts
 	IsCashAccount bit not null,
 	Company bigint not null,
 	Currency bigint not null,
+	ItemRole bigint not null,
 	[Name] nvarchar(255),
 	[Bank] bigint,
 	[AccountNo] nvarchar(255),
@@ -491,6 +503,7 @@ create table cat.CashAccounts
 		constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
 		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
+		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
 );
 go
 ------------------------------------------------

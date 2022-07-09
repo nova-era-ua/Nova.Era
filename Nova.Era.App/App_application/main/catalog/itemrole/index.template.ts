@@ -2,7 +2,8 @@
 
 const template: Template = {
 	properties: {
-		'TItemRole.$Kind': itemRoleKind
+		'TItemRole.$Kind': itemRoleKind,
+		'TItemRole.$ExType': exType
 	},
 };
 
@@ -17,4 +18,12 @@ function itemRoleKind() {
 		case 'Revenue': return "@[Revenue]";
 	}
 	return this.Kind;
+}
+
+function exType() {
+	switch (this.ExType) {
+		case 'C': return "@[CashFunds]";
+		case 'B': return "@[NonCashFunds]";
+	}
+	return '';
 }

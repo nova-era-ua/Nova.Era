@@ -3,7 +3,8 @@ define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
         properties: {
-            'TItemRole.$Kind': itemRoleKind
+            'TItemRole.$Kind': itemRoleKind,
+            'TItemRole.$ExType': exType
         },
     };
     exports.default = template;
@@ -15,5 +16,12 @@ define(["require", "exports"], function (require, exports) {
             case 'Revenue': return "@[Revenue]";
         }
         return this.Kind;
+    }
+    function exType() {
+        switch (this.ExType) {
+            case 'C': return "@[CashFunds]";
+            case 'B': return "@[NonCashFunds]";
+        }
+        return '';
     }
 });

@@ -7,7 +7,8 @@ define(["require", "exports"], function (require, exports) {
         },
         defaults: {
             'CashAccount.Currency'() { return this.Params.Currency; },
-            'CashAccount.Company'() { return this.Default.Company; }
+            'CashAccount.Company'() { return this.Default.Company; },
+            'CashAccount.ItemRole'() { return this.ItemRoles[0]; }
         },
         validators: {
             'CashAccount.Name': '@[Error.Required]',

@@ -6,6 +6,10 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
+		<ComboBox Label="@[ItemRole]" Value="{Bind CashAccount.ItemRole}" 
+				  ItemsSource="{Bind ItemRoles}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
 		<Selector Label="@[Company]" Value="{Bind CashAccount.Company}" DisplayProperty="Name">
 			<Hyperlink Icon="Search" 
 				Command="{BindCmd Browse, Argument={Bind CashAccount.Company}, Url='/catalog/company/browse'}"/>
@@ -15,7 +19,7 @@
 			<Hyperlink Icon="Search" 
 				Command="{BindCmd Browse, Argument={Bind CashAccount.Currency}, Url='/catalog/currency/browse'}"/>
 		</Selector>
-		<TextBox Label="@[Name]" Value="{Bind CashAccount.Name}" Bold="True"/>
+		<TextBox Label="@[Name]" Value="{Bind CashAccount.Name}" TabIndex="1"/>
 		<TextBox Label="@[Memo]" Value="{Bind CashAccount.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>

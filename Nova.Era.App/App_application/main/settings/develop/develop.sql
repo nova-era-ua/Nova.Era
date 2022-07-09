@@ -25,19 +25,24 @@ begin
 	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
 	delete from cat.ItemTreeElems where TenantId = @TenantId;
 	delete from cat.Items where TenantId = @TenantId;
+	delete from cat.CashAccounts where TenantId = @TenantId;
 	delete from cat.ItemRoles where TenantId = @TenantId;
 	delete from doc.OpTrans where TenantId = @TenantId;
 	delete from ui.OpMenuLinks where TenantId = @TenantId;
 	delete from doc.OperationLinks where TenantId = @TenantId;
 	delete from doc.Operations where TenantId = @TenantId;
 	delete from acc.AccKinds where TenantId = @TenantId;
+	delete from app.Settings where TenantId = @TenantId;
 	delete from acc.Accounts where TenantId = @TenantId;
 	commit tran;
 
-	insert into cat.ItemRoles (TenantId, Id, Kind, [Name], Color, IsStock, HasPrice)
+	insert into cat.ItemRoles (TenantId, Id, Kind, [Name], Color, IsStock, HasPrice, ExType)
 	values 
-		(@TenantId, 50, N'Item', N'Товар', N'green', 1, 1),
-		(@TenantId, 51, N'Item', N'Послуга', N'cyan', 0, 0);
+		(@TenantId, 50, N'Item', N'Товар', N'green', 1, 1, null),
+		(@TenantId, 51, N'Item', N'Послуга', N'cyan', 0, 0, null),
+		(@TenantId, 61, N'Money', N'Готівка', N'gold', 0, 0, N'C'),
+		(@TenantId, 62, N'Money', N'Безготівкові кошти', N'olive', 0, 0, N'B'),
+		(@TenantId, 71, N'Expense', N'Адміністративні витрати', N'tan', 0, 0, N'B');
 
 	insert into acc.Accounts(TenantId, Id, [Plan], Parent, IsFolder, Code, [Name], 
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem)
@@ -49,6 +54,7 @@ begin
 		(@TenantId, 301,   10,   10, 0, N'301', N'Каса',            0, 0, 0, 0, 1, 0, 0, 0),
 		(@TenantId, 311,   10,   10, 0, N'311', N'Рахунки в банку', 0, 0, 0, 1, 0, 0, 0, 0),
 		(@TenantId, 702,   10,   10, 0, N'702', N'Доходи',          0, 0, 0, 0, 0, 0, 1, 1),
+		(@TenantId, 791,   10,   10, 0, N'791', N'Фінрезультат',    0, 0, 0, 0, 0, 0, 1, 1),
 		(@TenantId, 902,   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0, 1, 1),
 		(@TenantId,  91,   10,   10, 0, N'91',  N'Витрати',         0, 0, 0, 0, 0, 0, 1, 1);
 
@@ -68,7 +74,10 @@ begin
 		(@TenantId, 12, 10, 50, 902, 72),
 		-- Послуги
 		(@TenantId, 20, 10, 51, 91,  70),
-		(@TenantId, 21, 10, 51, 702, 71);
+		(@TenantId, 21, 10, 51, 702, 71),
+		-- Гроші
+		(@TenantId, 31, 10, 61, 301, 70),
+		(@TenantId, 32, 10, 62, 311, 70);
 
 	insert into cat.Items(TenantId, Id, [Name], [Role]) 
 	values
@@ -117,6 +126,13 @@ begin
 		(@TenantId, 30, 103, 104, N'Оплата', N'BySum'),
 		(@TenantId, 31, 103, 105, N'Оплата', N'BySum');
 
+	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 10 and IsCashAccount = 1)
+		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], IsCashAccount, ItemRole) values (@TenantId, 10, 10, 980, N'Основна каса', 1, 61);
+	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 11 and IsCashAccount = 0)
+		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], AccountNo, IsCashAccount, ItemRole) values (@TenantId, 11, 10, 980, N'Основний рахунок', N'<номер рахунку>', 0, 62);
+
+	if not exists(select * from app.Settings)
+		insert into app.Settings(TenantId, CheckRems, AccPlanRems) values (@TenantId, N'A', 10);
 	/*
 	select * from doc.Operations where TenantId = 1;
 	select N'(@TenantId, ' + cast(Operation - 1000 + 100 as nvarchar) + ', N''' +  Menu + N'''),'
@@ -134,5 +150,5 @@ begin
 end
 go
 
---exec debug.[TestEnvironment.Create] 1, 99
+exec debug.[TestEnvironment.Create] 1, 99
 

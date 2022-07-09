@@ -421,6 +421,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\person\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\person\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\vendor\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\cashmove\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\writeon\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\writeoff\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\movebill\edit.template.ts" />
@@ -436,6 +437,7 @@
     <Content Include="App_application\main\document\print\model.json" />
     <Content Include="App_application\main\document\writeoff\model.json" />
     <Content Include="App_application\main\document\writeon\model.json" />
+    <Content Include="App_application\main\document\cashmove\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
@@ -898,6 +900,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\document\writeon\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\document\cashmove\edit.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

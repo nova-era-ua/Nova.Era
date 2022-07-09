@@ -22,6 +22,7 @@
 			<DataGridColumn Header="@[Purpose]" Content="{Bind $Kind}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Stock]" Content="{Bind IsStock}" ControlType="CheckBox" Fit="True" Align="Center"/>
 			<DataGridColumn Header="@[PriceList]" Content="{Bind HasPrice}" ControlType="CheckBox" Fit="True" Align="Center"/>
+			<DataGridColumn Header="@[Extra]" Content="{Bind $ExType}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 			<DataGridColumn Fit="True">
 				<CommandBar Visibility="Hover">

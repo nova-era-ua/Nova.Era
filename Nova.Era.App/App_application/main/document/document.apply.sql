@@ -125,14 +125,25 @@ begin
 		[Contract] bigint, CashFlowItem bigint, [Sum] money);
 
 	with TR as (
-		select Dt = ot.Dt,
-			Ct = ot.Ct,
+		select 
+			Dt = case ot.DtAccMode 
+				when N'C' then iraccdt.Account
+				else ot.Dt
+			end,
+			Ct  = case ot.CtAccMode 
+				when N'C' then iraccct.Account
+				else ot.Ct
+			end,
 			TrNo = ot.RowNo, d.[Sum],
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
 			d.[Date], d.Agent, d.Company, d.RespCenter, d.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
 			d.[Contract], d.CashFlowItem
 		from doc.Documents d
 			inner join doc.OpTrans ot on d.TenantId = ot.TenantId and ot.RowKind = N''
+			left join cat.CashAccounts accdt on d.TenantId = accdt.TenantId and d.CashAccTo = accdt.Id
+			left join cat.CashAccounts accct on d.TenantId = accct.TenantId and d.CashAccFrom = accct.Id
+			left join cat.ItemRoleAccounts iraccdt on iraccdt.TenantId = d.TenantId and iraccdt.[Role] = accdt.ItemRole and iraccdt.AccKind = ot.DtAccKind
+			left join cat.ItemRoleAccounts iraccct on iraccct.TenantId = d.TenantId and iraccct.[Role] = accct.ItemRole and iraccct.AccKind = ot.CtAccKind
 		where d.TenantId = @TenantId and d.Id = @Id and ot.Operation = @Operation
 	)
 	insert into @trans

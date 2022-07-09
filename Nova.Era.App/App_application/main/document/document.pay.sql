@@ -104,7 +104,7 @@ begin
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
 	where o.TenantId = @TenantId and ml.Menu = @Menu
-	order by f.[Order] desc;
+	order by f.[Order];
 
 	-- filters
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, [!Order] = -1

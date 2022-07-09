@@ -8,8 +8,8 @@ define(["require", "exports"], function (require, exports) {
             'TOpTrans.$PlanArg'() { return { Plan: this.Plan.Id }; },
             'TOpTrans.$DtAccVisible'() { return this.Plan.Id && this.DtAccMode === ''; },
             'TOpTrans.$CtAccVisible'() { return this.Plan.Id && this.CtAccMode === ''; },
-            'TOpTrans.$DtRoleVisible'() { return this.Plan.Id && (this.DtAccMode === 'R' || this.DtAccMode === 'D'); },
-            'TOpTrans.$CtRoleVisible'() { return this.Plan.Id && (this.CtAccMode === 'R' || this.CtAccMode === 'D'); },
+            'TOpTrans.$DtRoleVisible'() { return this.Plan.Id && (this.DtAccMode !== ''); },
+            'TOpTrans.$CtRoleVisible'() { return this.Plan.Id && (this.CtAccMode !== ''); },
             'TOpLink.$Types': opLinkTypes
         },
         validators: {

@@ -50,6 +50,10 @@ begin
 end
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'ItemRoles' and COLUMN_NAME=N'ExType')
+	alter table cat.ItemRoles add ExType nchar(1);
+go
+------------------------------------------------
 if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'ItemRoles' and COLUMN_NAME=N'Kind')
 begin
 	alter table cat.ItemRoles add [Kind] nvarchar(16); -- may be null for migrations
@@ -111,6 +115,13 @@ begin
 	-- roles
 	alter table cat.Agents add IsSupplier bit;
 	alter table cat.Agents add IsCustomer bit;
+end
+go
+------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'CashAccounts' and COLUMN_NAME=N'ItemRole')
+begin
+	alter table cat.CashAccounts add ItemRole bigint null; -- not null
+	alter table cat.CashAccounts add constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id);
 end
 go
 ------------------------------------------------

@@ -135,6 +135,8 @@
 @AddFromCatalog=Додати з каталогу
 @BanksDownloaded=Завантажено банків
 @PaymentPurpose=Призначення платежу
+@CashFunds=Готівка
+@NonCashFunds=Безготівкові кошти
 ; Documents
 @Document.WaybillOut=Продаж товарів/послуг
 @Document.MoveBill=Внутрішнє переміщення

@@ -8,17 +8,10 @@ create or alter procedure ini.[Cat.OnCreateTenant]
 as
 begin
 	set nocount on;
-	if not exists(select * from cat.Companies where TenantId = @TenantId and Id = 10)
-		insert into cat.Companies (TenantId, Id, [Name]) values (@TenantId, 10, N'Моє підприємство');
-	if not exists(select * from cat.Warehouses where TenantId = @TenantId and Id = 10)
-		insert into cat.Warehouses(TenantId, Id, [Name]) values (@TenantId, 10, N'Основний склад');
 	if not exists(select * from cat.Currencies where Id=980 and TenantId = @TenantId)
-		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Symbol], Denom, [Name]) values
-			(@TenantId, 980, N'грн', N'UAH', N'980', N'₴', 1, N'Українська гривня');
-	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 10 and IsCashAccount = 1)
-		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], IsCashAccount) values (@TenantId, 10, 10, 980, N'Основна каса', 1);
-	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 11 and IsCashAccount = 0)
-		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], AccountNo, IsCashAccount) values (@TenantId, 11, 10, 980, N'Основний рахунок', N'<номер рахунку>', 0);
+		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Symbol], Denom, [Name]) 
+		select @TenantId, Id, Short, Alpha3, Number3, Symbol, Denom, [Name]
+			from cat.Currencies where TenantId = 0 and Id = 980;
 	-- on create tenant all
 	if not exists(select * from cat.ItemTree where TenantId = @TenantId)
 		insert into cat.ItemTree(TenantId, Id, [Root], [Parent], [Name]) values (@TenantId, 0, 0, 0, N'ROOT');
@@ -115,10 +108,11 @@ begin
 		(N'writeoff',   null, 6, N'@[KindStock]', N'Акт списання'),
 		(N'writeon',    null, 7, N'@[KindStock]', N'Акт оприбуткування'),
 		--
-		(N'payout',    -1, 10, N'@[Money]', N'Витрата безготівкових коштів'),
-		(N'cashout',   -1, 11, N'@[Money]', N'Витрата готівки'),
-		(N'payin',      1, 12, N'@[Money]', N'Надходження безготівкових коштів'),
-		(N'cashin',     1, 13, N'@[Money]', N'Надходження готівки'),
+		(N'payout',    - 1, 10, N'@[Money]', N'Витрата безготівкових коштів'),
+		(N'cashout',   - 1, 11, N'@[Money]', N'Витрата готівки'),
+		(N'payin',       1, 12, N'@[Money]', N'Надходження безготівкових коштів'),
+		(N'cashin',      1, 13, N'@[Money]', N'Надходження готівки'),
+		(N'cashmove', null, 14, N'@[Money]', N'Прерахування коштів'),
 		-- 
 		(N'manufact',  null, 20, N'@[Manufacturing]', N'Виробничий акт-звіт');
 
@@ -149,6 +143,7 @@ begin
 	(N'payout',     1, N'', N'Немає рядків'),
 	(N'cashin',     1, N'', N'Немає рядків'),
 	(N'cashout',    1, N'', N'Немає рядків'),
+	(N'cashmove',   1, N'', N'Немає рядків'),
 	(N'invoice',    1, N'Stock',   N'@[KindStock]'),
 	(N'invoice',    2, N'Service', N'@[KindServices]'),
 	(N'manufact',   1, N'Stock',   N'@[KindStock]'),
@@ -184,7 +179,6 @@ begin
 		(TenantId, Id, [Order], [Name], Category, [Url], [Report]) values
 		(@TenantId, s.id, s.[order], s.[name], category, [url], [report])
 	when not matched by source and t.TenantId = @TenantId then delete;
-
 
 
 	-- contract kinds
