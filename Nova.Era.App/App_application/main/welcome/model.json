@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../@schemas/model-json-schema.json#",
+  "schema": "",
+  "model": "",
+  "actions": {
+    "index": {
+      "template": "welcome.template",
+      "view": "welcome.view"
+    }
+  }
+}

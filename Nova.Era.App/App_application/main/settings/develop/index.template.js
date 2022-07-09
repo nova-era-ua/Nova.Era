@@ -5,7 +5,8 @@ define(["require", "exports"], function (require, exports) {
         options: {},
         properties: {},
         commands: {
-            createTest
+            createTest,
+            upload
         }
     };
     exports.default = template;
@@ -13,5 +14,10 @@ define(["require", "exports"], function (require, exports) {
         const ctrl = this.$ctrl;
         await ctrl.$invoke('createTest');
         ctrl.$toast('Тестове середовище створено', "success");
+    }
+    async function upload() {
+        const ctrl = this.$ctrl;
+        let result = await ctrl.$upload('/settings/develop/upload', 'application/json');
+        alert(JSON.stringify(result));
     }
 });

@@ -1,4 +1,5 @@
-﻿@Crm=CRM
+﻿@Welcome=Вітаємо
+@Crm=CRM
 @Sales=Продажі
 @Purchases=Закупівлі
 @Manufacturing=Виробництво

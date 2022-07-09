@@ -150,5 +150,3 @@ begin
 end
 go
 
-exec debug.[TestEnvironment.Create] 1, 99
-

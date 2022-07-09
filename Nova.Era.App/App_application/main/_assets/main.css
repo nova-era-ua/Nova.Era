@@ -52,6 +52,21 @@ li.line-top:before {
 .data-grid-fetch td {
   padding: 2px 8px!important;
 }
+.welcome-list {
+  margin-top: 2rem;
+  width: 100%;
+}
+.welcome-list .a2-list-item {
+  border: 1px solid #ccc;
+  padding: 1rem;
+}
+.welcome-list .a2-list-item .list-item-header {
+  font-size: 120%;
+}
+.welcome-list .a2-list-item .list-item-body {
+  font-size: 14px;
+  color: #222;
+}
 /*PLATFORM*/
 /* Collection View: overflow:hidden (Accounting/Plan)*/
 .inner-grid .cw {

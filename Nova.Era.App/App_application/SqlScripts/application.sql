@@ -1,6 +1,6 @@
 ﻿/*
-version: 10.1.1014
-generated: 09.07.2022 07:05:08
+version: 10.1.1021
+generated: 09.07.2022 19:30:52
 */
 
 
@@ -8,7 +8,7 @@ generated: 09.07.2022 07:05:08
 
 /*
 version: 10.0.7779
-generated: 07.07.2022 17:02:16
+generated: 09.07.2022 19:22:26
 */
 
 set nocount on;
@@ -3414,6 +3414,16 @@ go
 main structure
 */
 ------------------------------------------------
+begin
+	set nocount on;
+	declare @ver int = 7869;
+	if exists(select * from a2sys.Versions where [Module]=N'ne:application')
+		update a2sys.Versions set [Version]=@ver, [File]=N'app:sqlscripts\application.sql', Title=null where [Module]=N'ne:application';
+	else
+		insert into a2sys.Versions([Module], [Version], [File], Title) values (N'ne:application', @ver, N'app:sqlscripts\application.sql', null);
+end
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'cat')
 	exec sp_executesql N'create schema cat';
 go
@@ -3721,6 +3731,7 @@ create table cat.ItemRoles (
 	[Color] nvarchar(32),
 	HasPrice bit,
 	IsStock bit,
+	ExType nchar(1), -- (C)ash, (B)ank, etc
 	CostItem bigint,
 	[Uid] uniqueidentifier not null
 		constraint DF_ItemRoles_Uid default(newid()),
@@ -4526,6 +4537,10 @@ begin
 end
 go
 ------------------------------------------------
+if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'ItemRoles' and COLUMN_NAME=N'ExType')
+	alter table cat.ItemRoles add ExType nchar(1);
+go
+------------------------------------------------
 if not exists (select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'ItemRoles' and COLUMN_NAME=N'Kind')
 begin
 	alter table cat.ItemRoles add [Kind] nvarchar(16); -- may be null for migrations
@@ -4839,9 +4854,9 @@ if not exists(select * from a2sys.SysParams where [Name] = N'SideBarMode')
 go
 ------------------------------------------------
 if not exists(select * from a2sys.SysParams where [Name] = N'AppTitle')
-	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'Nova.Era');
+	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'Нова Ера');
 else
-	update a2sys.SysParams set StringValue = N'Nova.Era' where [Name] = N'AppTitle';
+	update a2sys.SysParams set StringValue = N'Нова Ера' where [Name] = N'AppTitle';
 go
 ------------------------------------------------
 create or alter procedure a2ui.[Menu.Simple.User.Load]
@@ -4854,7 +4869,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	declare @RootId bigint;
-	set @RootId = 1;
+	set @RootId = 1; -- TODO: initial setup
 
 	with RT as (
 		select Id=m0.Id, ParentId = m0.Parent, [Level]=0
@@ -4889,6 +4904,10 @@ begin
 	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon, ClassName) 
 	values
 		(1,  null,  0, N'Main',         null,         null, null),
+		(2,  null,  0, N'Init',         null,         null, null),
+
+		(20,    2,  1, N'@[Welcome]',     N'welcome',   N'success-outline', null),
+
 		(10,    1,  10, N'@[Dashboard]',     N'dashboard',   N'dashboard-outline', null),
 		--(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
 		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
@@ -7211,6 +7230,7 @@ begin
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo, 
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
+		[ItemRole!TItemRole!RefId] = ba.ItemRole,
 		[!!RowCount] = t.rowcnt
 	from @ba t inner join cat.CashAccounts ba on t.id  = ba.Id and ba.TenantId = @TenantId
 	order by t.rowno;
@@ -7218,6 +7238,9 @@ begin
 	with T as(select comp from @ba group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join T on c.TenantId = @TenantId and c.Id = T.comp;
+
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
 
 	select [!$System!] = null, [!BankAccounts!Offset] = @Offset, [!BankAccounts!PageSize] = @PageSize, 
 		[!BankAccounts!SortOrder] = @Order, [!BankAccounts!SortDir] = @Dir,
@@ -7236,9 +7259,13 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [BankAccounts!TBankAccount!Array] = null,
-		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo
+		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo,
+		[ItemRole!TItemRole!RefId] = ba.ItemRole
 	from cat.CashAccounts ba
 	where ba.TenantId = @TenantId and (@Company is null or Company = @Company) and ba.IsCashAccount = 0;
+
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;
@@ -7258,7 +7285,7 @@ begin
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo,
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
-		[Bank!TBank!RefId] = ba.Bank, [ItemRole!TItemRole!RefId] = null
+		[Bank!TBank!RefId] = ba.Bank, [ItemRole!TItemRole!RefId] = ba.ItemRole
 	from cat.CashAccounts ba
 	where TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
@@ -7269,6 +7296,9 @@ begin
 	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short
 	from cat.Currencies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Currency = c.Id
 	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
+
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
 
 	-- TODO: // BASE Currency!
 	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
@@ -7413,6 +7443,7 @@ begin
 		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo,
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency,
+		[ItemRole!TItemRole!RefId] = ca.ItemRole,
 		[!!RowCount] = t.rowcnt
 	from @ba t inner join cat.CashAccounts ca on t.id  = ca.Id and ca.TenantId = @TenantId and ca.IsCashAccount = 1
 	order by t.rowno;
@@ -7420,6 +7451,9 @@ begin
 	with T as(select comp from @ba group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join T on c.TenantId = @TenantId and c.Id = T.comp;
+
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'C';
 
 	select [!$System!] = null, [!CashAccounts!Offset] = @Offset, [!CashAccounts!PageSize] = @PageSize, 
 		[!CashAccounts!SortOrder] = @Order, [!CashAccounts!SortDir] = @Dir,
@@ -7431,16 +7465,22 @@ create or alter procedure cat.[CashAccount.Simple.Index]
 @TenantId int = 1,
 @UserId bigint,
 @Company bigint = null,
-@Id bigint = null
+@Id bigint = null,
+@Mode nvarchar(16) = N'Cash'
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
 	select [CashAccounts!TCashAccount!Array] = null,
-		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo
+		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo,
+		[ItemRole!TItemRole!RefId] = ca.ItemRole
 	from cat.CashAccounts ca
-	where ca.TenantId = @TenantId and ca.Company = @Company and ca.IsCashAccount = 1;
+	where ca.TenantId = @TenantId and ca.Company = @Company and 
+		(@Mode = N'All' or @Mode = N'Cash' and ca.IsCashAccount = 1 or @Mode = N'Bank' and ca.IsCashAccount = 0);
+
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money';
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;
@@ -7459,7 +7499,8 @@ begin
 	select [CashAccount!TCashAccount!Object] = null,
 		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo,
 		[Company!TCompany!RefId] = ca.Company,
-		[Currency!TCurrency!RefId] = ca.Currency
+		[Currency!TCurrency!RefId] = ca.Currency,
+		[ItemRole!TItemRole!RefId] = ca.ItemRole
 	from cat.CashAccounts ca
 	where TenantId = @TenantId and ca.Id = @Id and ca.IsCashAccount = 1;
 
@@ -7470,6 +7511,9 @@ begin
 	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short
 	from cat.Currencies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and ca.Currency = c.Id
 	where c.TenantId = @TenantId and ca.Id = @Id;
+
+	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'C';
 
 	-- TODO: // BASE Currency!
 	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
@@ -7490,7 +7534,8 @@ create type cat.[CashAccount.TableType] as table
 	[Name] nvarchar(255),
 	Company bigint,
 	[Memo] nvarchar(255),
-	Currency bigint
+	Currency bigint,
+	ItemRole bigint
 )
 go
 ---------------------------------------------
@@ -7524,10 +7569,11 @@ begin
 		t.[Name] = s.[Name], 
 		t.[Memo] = s.[Memo],
 		t.Company = s.Company,
-		t.Currency = s.Currency
+		t.Currency = s.Currency,
+		t.ItemRole = s.ItemRole
 	when not matched by target then insert
-		(TenantId, IsCashAccount, Company, [Name], Currency, Memo) values
-		(@TenantId, 1, s.Company, s.[Name], s.Currency, s.Memo)
+		(TenantId, IsCashAccount, ItemRole, Company, [Name], Currency, Memo) values
+		(@TenantId, 1, s.ItemRole, s.Company, s.[Name], s.Currency, s.Memo)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -7664,6 +7710,7 @@ create type cat.[ItemRole.TableType] as table
 	[Color] nvarchar(32),
 	HasPrice bit,
 	IsStock bit,
+	ExType nchar(1),
 	CostItem bigint
 )
 go
@@ -7687,7 +7734,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [ItemRoles!TItemRole!Array] = null,
-		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Kind, ir.Memo, ir.Color, ir.HasPrice, ir.IsStock
+		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Kind, ir.Memo, ir.Color, ir.HasPrice, ir.IsStock, ir.ExType
 	from cat.ItemRoles ir
 	where ir.TenantId = @TenantId and ir.Void = 0
 	order by ir.Id;
@@ -7704,7 +7751,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [ItemRole!TItemRole!Object] = null,
-		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Kind, ir.Color, ir.HasPrice, ir.IsStock,
+		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Memo, ir.Kind, ir.Color, ir.HasPrice, ir.IsStock, ir.ExType,
 		[CostItem!TCostItem!RefId] = ir.CostItem,
 		[Accounts!TRoleAccount!Array] = null
 	from cat.ItemRoles ir
@@ -7769,10 +7816,11 @@ begin
 		t.Color = s.Color,
 		t.HasPrice = s.HasPrice,
 		t.IsStock = s.IsStock,
+		t.ExType = s.ExType,
 		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Kind, [Name], Memo, Color, HasPrice, IsStock, CostItem) values
-		(@TenantId, Kind, [Name], Memo, Color, HasPrice, IsStock, CostItem)
+		(TenantId, Kind, [Name], Memo, Color, HasPrice, IsStock, ExType, CostItem) values
+		(@TenantId, Kind, [Name], Memo, Color, HasPrice, IsStock, ExType, CostItem)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -10311,7 +10359,7 @@ begin
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
 	where o.TenantId = @TenantId and ml.Menu = @Menu
-	order by f.[Order] desc;
+	order by f.[Order];
 
 	-- filters
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, [!Order] = -1
@@ -10600,14 +10648,25 @@ begin
 		[Contract] bigint, CashFlowItem bigint, [Sum] money);
 
 	with TR as (
-		select Dt = ot.Dt,
-			Ct = ot.Ct,
+		select 
+			Dt = case ot.DtAccMode 
+				when N'C' then iraccdt.Account
+				else ot.Dt
+			end,
+			Ct  = case ot.CtAccMode 
+				when N'C' then iraccct.Account
+				else ot.Ct
+			end,
 			TrNo = ot.RowNo, d.[Sum],
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
 			d.[Date], d.Agent, d.Company, d.RespCenter, d.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
 			d.[Contract], d.CashFlowItem
 		from doc.Documents d
 			inner join doc.OpTrans ot on d.TenantId = ot.TenantId and ot.RowKind = N''
+			left join cat.CashAccounts accdt on d.TenantId = accdt.TenantId and d.CashAccTo = accdt.Id
+			left join cat.CashAccounts accct on d.TenantId = accct.TenantId and d.CashAccFrom = accct.Id
+			left join cat.ItemRoleAccounts iraccdt on iraccdt.TenantId = d.TenantId and iraccdt.[Role] = accdt.ItemRole and iraccdt.AccKind = ot.DtAccKind
+			left join cat.ItemRoleAccounts iraccct on iraccct.TenantId = d.TenantId and iraccct.[Role] = accct.ItemRole and iraccct.AccKind = ot.CtAccKind
 		where d.TenantId = @TenantId and d.Id = @Id and ot.Operation = @Operation
 	)
 	insert into @trans
@@ -12086,19 +12145,24 @@ begin
 	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
 	delete from cat.ItemTreeElems where TenantId = @TenantId;
 	delete from cat.Items where TenantId = @TenantId;
+	delete from cat.CashAccounts where TenantId = @TenantId;
 	delete from cat.ItemRoles where TenantId = @TenantId;
 	delete from doc.OpTrans where TenantId = @TenantId;
 	delete from ui.OpMenuLinks where TenantId = @TenantId;
 	delete from doc.OperationLinks where TenantId = @TenantId;
 	delete from doc.Operations where TenantId = @TenantId;
 	delete from acc.AccKinds where TenantId = @TenantId;
+	delete from app.Settings where TenantId = @TenantId;
 	delete from acc.Accounts where TenantId = @TenantId;
 	commit tran;
 
-	insert into cat.ItemRoles (TenantId, Id, Kind, [Name], Color, IsStock, HasPrice)
+	insert into cat.ItemRoles (TenantId, Id, Kind, [Name], Color, IsStock, HasPrice, ExType)
 	values 
-		(@TenantId, 50, N'Item', N'Товар', N'green', 1, 1),
-		(@TenantId, 51, N'Item', N'Послуга', N'cyan', 0, 0);
+		(@TenantId, 50, N'Item', N'Товар', N'green', 1, 1, null),
+		(@TenantId, 51, N'Item', N'Послуга', N'cyan', 0, 0, null),
+		(@TenantId, 61, N'Money', N'Готівка', N'gold', 0, 0, N'C'),
+		(@TenantId, 62, N'Money', N'Безготівкові кошти', N'olive', 0, 0, N'B'),
+		(@TenantId, 71, N'Expense', N'Адміністративні витрати', N'tan', 0, 0, N'B');
 
 	insert into acc.Accounts(TenantId, Id, [Plan], Parent, IsFolder, Code, [Name], 
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem)
@@ -12110,6 +12174,7 @@ begin
 		(@TenantId, 301,   10,   10, 0, N'301', N'Каса',            0, 0, 0, 0, 1, 0, 0, 0),
 		(@TenantId, 311,   10,   10, 0, N'311', N'Рахунки в банку', 0, 0, 0, 1, 0, 0, 0, 0),
 		(@TenantId, 702,   10,   10, 0, N'702', N'Доходи',          0, 0, 0, 0, 0, 0, 1, 1),
+		(@TenantId, 791,   10,   10, 0, N'791', N'Фінрезультат',    0, 0, 0, 0, 0, 0, 1, 1),
 		(@TenantId, 902,   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0, 1, 1),
 		(@TenantId,  91,   10,   10, 0, N'91',  N'Витрати',         0, 0, 0, 0, 0, 0, 1, 1);
 
@@ -12129,7 +12194,10 @@ begin
 		(@TenantId, 12, 10, 50, 902, 72),
 		-- Послуги
 		(@TenantId, 20, 10, 51, 91,  70),
-		(@TenantId, 21, 10, 51, 702, 71);
+		(@TenantId, 21, 10, 51, 702, 71),
+		-- Гроші
+		(@TenantId, 31, 10, 61, 301, 70),
+		(@TenantId, 32, 10, 62, 311, 70);
 
 	insert into cat.Items(TenantId, Id, [Name], [Role]) 
 	values
@@ -12178,6 +12246,13 @@ begin
 		(@TenantId, 30, 103, 104, N'Оплата', N'BySum'),
 		(@TenantId, 31, 103, 105, N'Оплата', N'BySum');
 
+	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 10 and IsCashAccount = 1)
+		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], IsCashAccount, ItemRole) values (@TenantId, 10, 10, 980, N'Основна каса', 1, 61);
+	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 11 and IsCashAccount = 0)
+		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], AccountNo, IsCashAccount, ItemRole) values (@TenantId, 11, 10, 980, N'Основний рахунок', N'<номер рахунку>', 0, 62);
+
+	if not exists(select * from app.Settings)
+		insert into app.Settings(TenantId, CheckRems, AccPlanRems) values (@TenantId, N'A', 10);
 	/*
 	select * from doc.Operations where TenantId = 1;
 	select N'(@TenantId, ' + cast(Operation - 1000 + 100 as nvarchar) + ', N''' +  Menu + N'''),'
@@ -12195,8 +12270,79 @@ begin
 end
 go
 
---exec debug.[TestEnvironment.Create] 1, 99
 
+
+------------------------------------------------
+create or alter procedure app.[Application.Export.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Application!TApp!Object] = null, [!!Id] = 1,
+		[AccKinds!AccKind!Array] = null;
+
+	select [!TAccKind!Array] = null, [Uid!!Id] = Uid, [Name], Memo,
+		[!TApp.AccKinds!ParentId] = 1
+	from acc.AccKinds where TenantId = @TenantId and Void = 0;
+end
+go
+------------------------------------------------
+drop procedure if exists app.[Application.Upload.Metadata];
+drop procedure if exists app.[Application.Upload.Update];
+drop type if exists app.[Application.AccKind.TableType];
+go
+------------------------------------------------
+create type app.[Application.AccKind.TableType] as table
+(
+	[Uid] uniqueidentifier,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure app.[Application.Upload.Metadata]
+as
+begin
+	set nocount on;
+	declare @AccKinds app.[Application.AccKind.TableType];
+	select [AccKinds!Application.AccKinds!Metadata] = null, * from @AccKinds;
+
+end
+go
+------------------------------------------------
+create or alter procedure app.[Application.Upload.Update]
+@TenantId int = 1,
+@UserId bigint,
+@AccKinds app.[Application.AccKind.TableType] readonly
+as
+begin
+	set nocount on
+	set transaction isolation level read committed;
+
+	merge acc.AccKinds as t
+	using @AccKinds as s
+	on t.[Uid] = s.[Uid]
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Memo] = s.[Memo]
+	when not matched by target then insert 
+		([Uid], [Name], [Memo]) values
+		(s.[Uid], s.[Name], s.[Memo]);
+
+	/*
+	declare @xml nvarchar(max);
+	set @xml = (select * from @AccKinds for xml auto);
+	throw 60000, @xml, 0;
+	*/
+
+	select [Result!TResult!Object] = null, [Success] = 1;
+
+end
+go
 
 /*
 admin
@@ -12239,17 +12385,10 @@ create or alter procedure ini.[Cat.OnCreateTenant]
 as
 begin
 	set nocount on;
-	if not exists(select * from cat.Companies where TenantId = @TenantId and Id = 10)
-		insert into cat.Companies (TenantId, Id, [Name]) values (@TenantId, 10, N'Моє підприємство');
-	if not exists(select * from cat.Warehouses where TenantId = @TenantId and Id = 10)
-		insert into cat.Warehouses(TenantId, Id, [Name]) values (@TenantId, 10, N'Основний склад');
 	if not exists(select * from cat.Currencies where Id=980 and TenantId = @TenantId)
-		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Symbol], Denom, [Name]) values
-			(@TenantId, 980, N'грн', N'UAH', N'980', N'₴', 1, N'Українська гривня');
-	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 10 and IsCashAccount = 1)
-		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], IsCashAccount) values (@TenantId, 10, 10, 980, N'Основна каса', 1);
-	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 11 and IsCashAccount = 0)
-		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], AccountNo, IsCashAccount) values (@TenantId, 11, 10, 980, N'Основний рахунок', N'<номер рахунку>', 0);
+		insert into cat.Currencies(TenantId, Id, Short, Alpha3, Number3, [Symbol], Denom, [Name]) 
+		select @TenantId, Id, Short, Alpha3, Number3, Symbol, Denom, [Name]
+			from cat.Currencies where TenantId = 0 and Id = 980;
 	-- on create tenant all
 	if not exists(select * from cat.ItemTree where TenantId = @TenantId)
 		insert into cat.ItemTree(TenantId, Id, [Root], [Parent], [Name]) values (@TenantId, 0, 0, 0, N'ROOT');
@@ -12346,10 +12485,11 @@ begin
 		(N'writeoff',   null, 6, N'@[KindStock]', N'Акт списання'),
 		(N'writeon',    null, 7, N'@[KindStock]', N'Акт оприбуткування'),
 		--
-		(N'payout',    -1, 10, N'@[Money]', N'Витрата безготівкових коштів'),
-		(N'cashout',   -1, 11, N'@[Money]', N'Витрата готівки'),
-		(N'payin',      1, 12, N'@[Money]', N'Надходження безготівкових коштів'),
-		(N'cashin',     1, 13, N'@[Money]', N'Надходження готівки'),
+		(N'payout',    - 1, 10, N'@[Money]', N'Витрата безготівкових коштів'),
+		(N'cashout',   - 1, 11, N'@[Money]', N'Витрата готівки'),
+		(N'payin',       1, 12, N'@[Money]', N'Надходження безготівкових коштів'),
+		(N'cashin',      1, 13, N'@[Money]', N'Надходження готівки'),
+		(N'cashmove', null, 14, N'@[Money]', N'Прерахування коштів'),
 		-- 
 		(N'manufact',  null, 20, N'@[Manufacturing]', N'Виробничий акт-звіт');
 
@@ -12380,6 +12520,7 @@ begin
 	(N'payout',     1, N'', N'Немає рядків'),
 	(N'cashin',     1, N'', N'Немає рядків'),
 	(N'cashout',    1, N'', N'Немає рядків'),
+	(N'cashmove',   1, N'', N'Немає рядків'),
 	(N'invoice',    1, N'Stock',   N'@[KindStock]'),
 	(N'invoice',    2, N'Service', N'@[KindServices]'),
 	(N'manufact',   1, N'Stock',   N'@[KindStock]'),
@@ -12415,7 +12556,6 @@ begin
 		(TenantId, Id, [Order], [Name], Category, [Url], [Report]) values
 		(@TenantId, s.id, s.[order], s.[name], category, [url], [report])
 	when not matched by source and t.TenantId = @TenantId then delete;
-
 
 
 	-- contract kinds

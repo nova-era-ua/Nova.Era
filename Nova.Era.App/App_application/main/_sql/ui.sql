@@ -26,9 +26,9 @@ if not exists(select * from a2sys.SysParams where [Name] = N'SideBarMode')
 go
 ------------------------------------------------
 if not exists(select * from a2sys.SysParams where [Name] = N'AppTitle')
-	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'Nova.Era');
+	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'Нова Ера');
 else
-	update a2sys.SysParams set StringValue = N'Nova.Era' where [Name] = N'AppTitle';
+	update a2sys.SysParams set StringValue = N'Нова Ера' where [Name] = N'AppTitle';
 go
 ------------------------------------------------
 create or alter procedure a2ui.[Menu.Simple.User.Load]
@@ -41,7 +41,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	declare @RootId bigint;
-	set @RootId = 1;
+	set @RootId = 1; -- TODO: initial setup
 
 	with RT as (
 		select Id=m0.Id, ParentId = m0.Parent, [Level]=0
@@ -76,6 +76,10 @@ begin
 	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon, ClassName) 
 	values
 		(1,  null,  0, N'Main',         null,         null, null),
+		(2,  null,  0, N'Init',         null,         null, null),
+
+		(20,    2,  1, N'@[Welcome]',     N'welcome',   N'success-outline', null),
+
 		(10,    1,  10, N'@[Dashboard]',     N'dashboard',   N'dashboard-outline', null),
 		--(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
 		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),

@@ -1,18 +1,32 @@
 ﻿{
-  "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "debug",
-  "model": "",
-  "actions": {
-    "index": {
-      "template": "index.template",
-      "view": "index.view"
-    }
-  },
-  "commands": {
-    "createTest": {
-      "type": "sql",
-      "schema": "debug",
-      "procedure": "TestEnvironment.Create"
-    }
-  }
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "debug",
+	"model": "",
+	"actions": {
+		"index": {
+			"template": "index.template",
+			"view": "index.view"
+		}
+	},
+	"commands": {
+		"createTest": {
+			"type": "sql",
+			"schema": "debug",
+			"procedure": "TestEnvironment.Create"
+		}
+	},
+	"files": {
+		"export": {
+			"schema": "app",
+			"model": "Application.Export",
+			"type": "json",
+			"outputFileName": "application.json"
+		},
+		"upload": {
+			"schema": "app",
+			"type": "parse",
+			"parse": "json",
+			"model": "Application.Upload"
+		}
+	}
 }

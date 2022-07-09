@@ -1,7 +1,7 @@
 ﻿[
 	{
 		"$schema": "@schemas/sql-json-schema.json#",
-		"version": "10.1.1014",
+		"version": "10.1.1021",
 		"outputFile": "SqlScripts/application.sql",
 		"inputFiles": [
 			"@sql/platform/a2v10platform.sql",
@@ -50,13 +50,14 @@
 			"main/reports/account/report.account.sql",
 			"main/reports/plan/report.plan.sql",
 			"main/settings/develop/develop.sql",
+			"main/settings/develop/application.sql",
 			"main/_sql/admin.sql",
 			"main/_sql/initial_data.sql",
 			"main/_sql/initial_catalog.sql"
 		]
 	},
 	{
-		"version": "10.1.1014",
+		"version": "10.1.1021",
 		"outputFile": "SqlScripts/catalog.sql",
 		"inputFiles": [
 			"main/_sql/common/security_common.sql",

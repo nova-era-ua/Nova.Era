@@ -1,0 +1,19 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<StackPanel Padding="5rem" JustifyItems="Center" Orientation="Vertical" AlignItems="Center">
+		<Header Bold="False" Size="Large">
+			<Text>
+				<SpanIcon Icon="SuccessOutline" Size="2rem"/>
+				<Span Space="Both">Вітаємо в системі</Span>
+				<Span Bold="True">Нова Ера</Span>
+			</Text>
+		</Header>
+		<Paragraph>
+			Спочатку потрібно обрати тип прикладного застосунку, який ви бажаєте використовувати.
+		</Paragraph>
+		<List Style="ThreeColumnsGrid" CssClass="welcome-list">
+			<ListItem Icon="Items" Header="Нова Ера SMB" Command="{BindCmd Execute, CommandName=start}">
+				Система для управління та обліку для малого та середньго бізнесу. Вкл
+			</ListItem>
+		</List>
+	</StackPanel>
+</Page>

@@ -16,5 +16,23 @@
 
 			</Button>
 		</Block>
+		<Line Margin="1rem,0,2rem,0"/>
+		<Block>
+			<Header>Вивантажити застосунок в зовнішній файл</Header>
+			<Paragraph>
+				Буде сформовано json-файл з поточними налаштуваннями системи. Налаштування включають:
+				плани рахунків, види рахунків, ролі в обліку, операції.
+			</Paragraph>
+			<Button Style="Primary" Command="{BindCmd Command=File, FileAction=Download, Url='/settings/develop/export', Argument=0}">Вивантажити застосунок</Button>
+		</Block>
+		<Line Margin="1rem,0,2rem,0"/>
+		<Block>
+			<Header>Завантажити застосунок з зовнішнього файлу</Header>
+			<Paragraph>
+				Поточні налаштуваннями системи будуть завантажені з файлу. Налаштування включають:
+				плани рахунків, види рахунків, ролі в обліку, операції.
+			</Paragraph>
+			<Button Style="Cyan" Command="{BindCmd Command=Execute, CommandName='upload'}">Вивантажити застосунок</Button>
+		</Block>
 	</Block>
 </Page>
