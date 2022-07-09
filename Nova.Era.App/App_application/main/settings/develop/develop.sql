@@ -29,6 +29,7 @@ begin
 	delete from cat.ItemRoles where TenantId = @TenantId;
 	delete from doc.OpTrans where TenantId = @TenantId;
 	delete from ui.OpMenuLinks where TenantId = @TenantId;
+	delete from doc.OpPrintForms where TenantId = @TenantId;
 	delete from doc.OperationLinks where TenantId = @TenantId;
 	delete from doc.Operations where TenantId = @TenantId;
 	delete from acc.AccKinds where TenantId = @TenantId;
@@ -125,6 +126,14 @@ begin
 		(@TenantId, 21, 100, 102, N'Оплата', N'BySum'),
 		(@TenantId, 30, 103, 104, N'Оплата', N'BySum'),
 		(@TenantId, 31, 103, 105, N'Оплата', N'BySum');
+
+	insert into doc.OpPrintForms(TenantId, Operation, PrintForm) 
+	values 
+		(@TenantId, 100, N'invoice'),
+		(@TenantId, 100, N'waybillout');
+
+	if not exists(select * from cat.Companies where TenantId = @TenantId and Id = 10)
+		insert into cat.Companies(TenantId, Id, [Name]) values (@TenantId, 10, N'Моє підприємство');
 
 	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 10 and IsCashAccount = 1)
 		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], IsCashAccount, ItemRole) values (@TenantId, 10, 10, 980, N'Основна каса', 1, 61);

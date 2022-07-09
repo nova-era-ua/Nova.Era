@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 09.07.2022 19:30:52
+generated: 09.07.2022 19:39:14
 */
 
 
@@ -12245,6 +12245,9 @@ begin
 		(@TenantId, 21, 100, 102, N'Оплата', N'BySum'),
 		(@TenantId, 30, 103, 104, N'Оплата', N'BySum'),
 		(@TenantId, 31, 103, 105, N'Оплата', N'BySum');
+
+	if not exists(select * from cat.Companies where TenantId = @TenantId and Id = 10)
+		insert into cat.Companies(TenantId, Id, [Name]) values (@TenantId, 10, N'Моє підприємство');
 
 	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 10 and IsCashAccount = 1)
 		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], IsCashAccount, ItemRole) values (@TenantId, 10, 10, 980, N'Основна каса', 1, 61);
