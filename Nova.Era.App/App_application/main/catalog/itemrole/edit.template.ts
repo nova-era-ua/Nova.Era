@@ -25,6 +25,10 @@ const template: Template = {
 export default template;
 
 function kindChange(role, kind) {
-	if (kind === 'Money' && !role.ExType)
-		role.ExType = 'C';
+	if (kind === 'Money') {
+		if (!role.ExType)
+			role.ExType = 'C';
+	} else {
+		role.ExType = '';
+	}
 }

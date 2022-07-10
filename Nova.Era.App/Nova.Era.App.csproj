@@ -440,9 +440,6 @@
     <Content Include="App_application\main\document\writeon\model.json" />
     <Content Include="App_application\main\document\cashmove\model.json" />
     <Content Include="App_application\main\welcome\model.json" />
-    <None Include="App_application\main\settings\develop\application.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

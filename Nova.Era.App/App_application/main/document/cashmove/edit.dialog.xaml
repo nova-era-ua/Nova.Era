@@ -52,7 +52,7 @@
 				</Selector.AddOns>
 			</Selector>
 			<Label Content="@[Sum]" Grid.Row="3" Grid.Col="1"/>
-			<TextBox Grid.Row="4" Grid.Col="2" Width="15rem"
+			<TextBox Grid.Row="3" Grid.Col="2" Width="15rem"
 					 Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
 			<Label Content="@[PaymentPurpose]" Grid.Row="5" Grid.Col="1" Grid.VAlign="Top"/>
 			<TextBox Grid.Row="5" Grid.Col="2" Value="{Bind Document.Notice}" Multiline="True" Rows="3"/>

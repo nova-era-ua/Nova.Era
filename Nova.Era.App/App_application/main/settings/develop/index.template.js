@@ -2,8 +2,6 @@ define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
-        options: {},
-        properties: {},
         commands: {
             createTest,
             upload
@@ -18,6 +16,6 @@ define(["require", "exports"], function (require, exports) {
     async function upload() {
         const ctrl = this.$ctrl;
         let result = await ctrl.$upload('/settings/develop/upload', 'application/json');
-        alert(JSON.stringify(result));
+        ctrl.$toast('Застосунок завантажено успішно', "success");
     }
 });

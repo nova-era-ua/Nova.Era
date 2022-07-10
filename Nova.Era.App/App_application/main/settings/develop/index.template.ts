@@ -1,9 +1,5 @@
 ﻿
 const template: Template = {
-	options: {
- 	},
-	properties: {
-	},
 	commands: {
 		createTest,
 		upload
@@ -21,5 +17,6 @@ async function createTest() {
 async function upload() {
 	const ctrl: IController = this.$ctrl;
 	let result = await ctrl.$upload('/settings/develop/upload', 'application/json')
-	alert(JSON.stringify(result));
+	//alert(JSON.stringify(result));
+	ctrl.$toast('Застосунок завантажено успішно', CommonStyle.success);
 }

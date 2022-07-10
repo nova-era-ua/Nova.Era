@@ -37,35 +37,36 @@ begin
 	delete from acc.Accounts where TenantId = @TenantId;
 	commit tran;
 
-	insert into cat.ItemRoles (TenantId, Id, Kind, [Name], Color, IsStock, HasPrice, ExType)
-	values 
-		(@TenantId, 50, N'Item', N'Товар', N'green', 1, 1, null),
-		(@TenantId, 51, N'Item', N'Послуга', N'cyan', 0, 0, null),
-		(@TenantId, 61, N'Money', N'Готівка', N'gold', 0, 0, N'C'),
-		(@TenantId, 62, N'Money', N'Безготівкові кошти', N'olive', 0, 0, N'B'),
-		(@TenantId, 71, N'Expense', N'Адміністративні витрати', N'tan', 0, 0, N'B');
 
-	insert into acc.Accounts(TenantId, Id, [Plan], Parent, IsFolder, Code, [Name], 
+	insert into cat.ItemRoles (TenantId, [Uid], Id, Kind, [Name], Color, IsStock, HasPrice, ExType)
+	values 
+		(@TenantId, N'09E80BE6-D4CA-4639-AC10-206244F67313', 50, N'Item', N'Товар', N'green', 1, 1, null),
+		(@TenantId, N'4BEF0104-0980-42B3-9918-0F260292BC23', 51, N'Item', N'Послуга', N'cyan', 0, 0, null),
+		(@TenantId, N'E006A9CC-8F5B-447E-BA8A-0408911F4B40', 61, N'Money', N'Готівка', N'gold', 0, 0, N'C'),
+		(@TenantId, N'44A9F6ED-6568-4E83-B9C1-53BD89552526', 62, N'Money', N'Безготівкові кошти', N'olive', 0, 0, N'B'),
+		(@TenantId, N'73E79177-352F-4D0A-94EA-F43791421D99', 71, N'Expense', N'Адміністративні витрати', N'tan', 0, 0, N'B');
+
+	insert into acc.Accounts(TenantId, Id, [Uid], [Plan], Parent, IsFolder, Code, [Name], 
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem)
 	values
-		(@TenantId,  10, null, null, 1, N'УПР', N'Управлінський', null, null, null, null, null, null, null, null),
-		(@TenantId, 281,   10,   10, 0, N'281', N'Товари',          1, 0, 1, 0, 0, 0, 0, 0),
-		(@TenantId, 361,   10,   10, 0, N'361', N'Покупці',         0, 1, 0, 0, 0, 1, 0, 0),
-		(@TenantId, 631,   10,   10, 0, N'631', N'Постачальники',   0, 1, 0, 0, 0, 1, 0, 0),
-		(@TenantId, 301,   10,   10, 0, N'301', N'Каса',            0, 0, 0, 0, 1, 0, 0, 0),
-		(@TenantId, 311,   10,   10, 0, N'311', N'Рахунки в банку', 0, 0, 0, 1, 0, 0, 0, 0),
-		(@TenantId, 702,   10,   10, 0, N'702', N'Доходи',          0, 0, 0, 0, 0, 0, 1, 1),
-		(@TenantId, 791,   10,   10, 0, N'791', N'Фінрезультат',    0, 0, 0, 0, 0, 0, 1, 1),
-		(@TenantId, 902,   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0, 1, 1),
-		(@TenantId,  91,   10,   10, 0, N'91',  N'Витрати',         0, 0, 0, 0, 0, 0, 1, 1);
+		(@TenantId,  10, N'0A7FCDF2-7379-4EFE-B8A7-9B54D38188D0', null, null, 1, N'УПР', N'Управлінський', null, null, null, null, null, null, null, null),
+		(@TenantId, 281, N'A43DAD4E-AE2E-451F-9D38-AF81BBBA00C3',   10,   10, 0, N'281', N'Товари',          1, 0, 1, 0, 0, 0, 0, 0),
+		(@TenantId, 361, N'E12C5446-C9B1-43B4-A193-7825845CC924',   10,   10, 0, N'361', N'Покупці',         0, 1, 0, 0, 0, 1, 0, 0),
+		(@TenantId, 631, N'B018D338-6184-413E-8475-6B49DE5D7E8E',   10,   10, 0, N'631', N'Постачальники',   0, 1, 0, 0, 0, 1, 0, 0),
+		(@TenantId, 301, N'A37DCAB8-0F95-4912-87A8-07268798FC56',   10,   10, 0, N'301', N'Каса',            0, 0, 0, 0, 1, 0, 0, 0),
+		(@TenantId, 311, N'13E8DE4C-2DF0-46E1-8EAD-8D2030BE20BB',   10,   10, 0, N'311', N'Рахунки в банку', 0, 0, 0, 1, 0, 0, 0, 0),
+		(@TenantId, 702, N'CDB12B3F-CE26-4C33-8722-1E526167BA97',   10,   10, 0, N'702', N'Доходи',          0, 0, 0, 0, 0, 0, 1, 1),
+		(@TenantId, 791, N'7F3D1E35-6D13-4E9A-89E1-B43EFE6CF8D2',   10,   10, 0, N'791', N'Фінрезультат',    0, 0, 0, 0, 0, 0, 1, 1),
+		(@TenantId, 902, N'69CCD887-7104-4DDE-9843-3C11194BC673',   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0, 1, 1),
+		(@TenantId,  91, N'AB88082B-8444-49FF-8878-FAE9E943292E',   10,   10, 0, N'91',  N'Витрати',         0, 0, 0, 0, 0, 0, 1, 1);
 
-	insert into acc.AccKinds(TenantId, Id, [Name])
+	insert into acc.AccKinds(TenantId, [Uid], Id, [Name])
 	values 
-		(@TenantId, 70, N'Облік'),
-		(@TenantId, 71, N'Дохід'),
-		(@TenantId, 72, N'Собівартість'),
-		(@TenantId, 73, N'Витрати'),
-		(@TenantId, 74, N'Фінансовий результат');
+		(@TenantId, N'CE63659C-DE86-4B83-A763-FFFEDED04731', 70, N'Облік'),
+		(@TenantId, N'6DB27876-CFFD-42F1-BF4F-47AFE1788AFC', 71, N'Дохід'),
+		(@TenantId, N'3899198D-45AB-4AF0-9C58-44113169CF24', 72, N'Собівартість'),
+		(@TenantId, N'8C8ED833-EF23-4A56-A0ED-208A5B804141', 73, N'Витрати'),
+		(@TenantId, N'0A5BE1F1-0130-41C0-A713-6DA836F91506', 74, N'Фінансовий результат');
 
 	insert into cat.ItemRoleAccounts (TenantId, Id, [Plan], [Role], Account, AccKind)
 	values
@@ -85,13 +86,13 @@ begin
 		(@TenantId, 20, N'Товар №1', 50),
 		(@TenantId, 21, N'Послуга №1', 51);
 
-	insert into doc.Operations (TenantId, Id, [Name], [Form]) values
-		(@TenantId, 100, N'Придбання товарів/послуг',		N'waybillin'),
-		(@TenantId, 101, N'Оплата постачальнику (банк)',	N'payout'),
-		(@TenantId, 102, N'Оплата постачальнику (готівка)',	N'cashout'),
-		(@TenantId, 103, N'Продаж товарів/послуг',			N'waybillout'),
-		(@TenantId, 104, N'Оплата від покупця (банк)',		N'payin'),
-		(@TenantId, 105, N'Оплата від покупця (готівка)',	N'cashin');
+	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form]) values
+		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		N'waybillin'),
+		(@TenantId, 101, N'E3CB0D62-24AB-4FE3-BD68-DD2453F6B032', N'Оплата постачальнику (банк)',	N'payout'),
+		(@TenantId, 102, N'80C9C85D-458E-445B-B35B-8177B40A5D41', N'Оплата постачальнику (готівка)',	N'cashout'),
+		(@TenantId, 103, N'D8DDB942-26AB-4402-9FD7-42E62BBCB57D', N'Продаж товарів/послуг',			N'waybillout'),
+		(@TenantId, 104, N'C2C94B13-926C-41E5-9446-647B6C23B83E', N'Оплата від покупця (банк)',		N'payin'),
+		(@TenantId, 105, N'B31EB587-D242-4A96-8255-B824B1551963', N'Оплата від покупця (готівка)',	N'cashin');
 
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
 		[DtSum], DtRow, DtAccMode, DtAccKind,  [CtSum], [CtRow], CtAccMode, CtAccKind)

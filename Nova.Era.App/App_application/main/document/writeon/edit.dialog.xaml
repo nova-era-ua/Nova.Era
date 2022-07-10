@@ -38,7 +38,7 @@
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhTo}, Url='/catalog/warehouse/browse'}"/>
 			</Selector>
 
-			<Label Grid.Row="1" Grid.Col="3" Content="Вид витрат" Wrap="NoWrap"/>
+			<Label Grid.Row="1" Grid.Col="3" Content="Вид доходів" Wrap="NoWrap"/>
 
 			<ComboBox Grid.Row="1" Grid.Col="4" ItemsSource="{Bind Root.$RevenueItemRoles}"
 					  Value="{Bind Document.ItemRole}">

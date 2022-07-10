@@ -24,7 +24,12 @@ define(["require", "exports"], function (require, exports) {
     };
     exports.default = template;
     function kindChange(role, kind) {
-        if (kind === 'Money' && !role.ExType)
-            role.ExType = 'C';
+        if (kind === 'Money') {
+            if (!role.ExType)
+                role.ExType = 'C';
+        }
+        else {
+            role.ExType = '';
+        }
     }
 });

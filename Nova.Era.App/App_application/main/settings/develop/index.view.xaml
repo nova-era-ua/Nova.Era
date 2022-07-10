@@ -12,9 +12,7 @@
 				Увага! При створенні тестового середовища будут видалені все документи, 
 				операції, плани рахунків, звіти, товари.
 			</Paragraph>
-			<Button Style="Danger" Content="Створити" Command="{BindCmd Execute, CommandName=createTest, Confirm='Ви впевнені?'}">
-
-			</Button>
+			<Button  Margin="1rem,0" Style="Danger" Content="Створити" Command="{BindCmd Execute, CommandName=createTest, Confirm='Ви впевнені?'}"/>
 		</Block>
 		<Line Margin="1rem,0,2rem,0"/>
 		<Block>
@@ -23,7 +21,8 @@
 				Буде сформовано json-файл з поточними налаштуваннями системи. Налаштування включають:
 				плани рахунків, види рахунків, ролі в обліку, операції.
 			</Paragraph>
-			<Button Style="Primary" Command="{BindCmd Command=File, FileAction=Download, Url='/settings/develop/export', Argument=0}">Вивантажити застосунок</Button>
+			<Button Margin="1rem,0"
+				Style="Primary" Command="{BindCmd Command=File, FileAction=Download, Url='/settings/develop/export', Argument=0}">Вивантажити застосунок</Button>
 		</Block>
 		<Line Margin="1rem,0,2rem,0"/>
 		<Block>
@@ -32,7 +31,7 @@
 				Поточні налаштуваннями системи будуть завантажені з файлу. Налаштування включають:
 				плани рахунків, види рахунків, ролі в обліку, операції.
 			</Paragraph>
-			<Button Style="Cyan" Command="{BindCmd Command=Execute, CommandName='upload'}">Вивантажити застосунок</Button>
+			<Button  Margin="1rem,0" Style="Primary" Command="{BindCmd Command=Execute, CommandName='upload'}">Завантажити застосунок</Button>
 		</Block>
 	</Block>
 </Page>

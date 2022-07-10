@@ -202,7 +202,9 @@ create table cat.CostItems
 		constraint DF_CostItems_IsFolder default(0),
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,
-		constraint PK_CostItems primary key (TenantId, Id),
+	[Uid] uniqueidentifier not null
+		constraint DF_CostItems_Uid default(newid()),
+	constraint PK_CostItems primary key (TenantId, Id),
 	constraint FK_CostItems_Parent_CostItems foreign key (TenantId, [Parent]) references cat.CostItems(TenantId, Id)
 );
 go
@@ -224,7 +226,9 @@ create table cat.CashFlowItems
 		constraint DF_CashFlowItems_IsFolder default(0),
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,
-		constraint PK_CashFlowItems primary key (TenantId, Id),
+	[Uid] uniqueidentifier not null
+		constraint DF_CashFlowItems_Uid default(newid()),
+	constraint PK_CashFlowItems primary key (TenantId, Id),
 	constraint FK_CashFlowItems_Parent_CashFlowItems foreign key (TenantId, [Parent]) references cat.CashFlowItems(TenantId, Id)
 );
 go
@@ -341,8 +345,7 @@ create table cat.ItemRoleAccounts (
 	[Plan] bigint,
 	[Account] bigint,
 	[AccKind] bigint,
-	[Uid] uniqueidentifier not null
-		constraint DF_ItemRoleAccounts_Uid default(newid()),
+
 	constraint PK_ItemRoleAccounts primary key (TenantId, Id),
 	constraint FK_ItemRoleAccounts_Role_ItemRoles foreign key (TenantId, [Role]) references cat.ItemRoles(TenantId, Id),
 	constraint FK_ItemRoleAccounts_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
@@ -372,6 +375,8 @@ create table cat.Items
 	[Memo] nvarchar(255),
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
+	[Uid] uniqueidentifier not null
+		constraint DF_Items_Uid default(newid()),
 	constraint PK_Items primary key (TenantId, Id),
 	constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
 	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id),
@@ -499,11 +504,12 @@ create table cat.CashAccounts
 	[Bank] bigint,
 	[AccountNo] nvarchar(255),
 	[Memo] nvarchar(255),
-		constraint PK_CashAccounts primary key (TenantId, Id),
-		constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
-		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
-		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+
+	constraint PK_CashAccounts primary key (TenantId, Id),
+	constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
+	constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
+	constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -520,7 +526,8 @@ create table doc.Prices (
 	PriceKind bigint not null,
 	Item bigint not null,
 	Currency bigint not null,
-	Price float not null
+	Price float not null,
+
 	constraint PK_Prices primary key (TenantId, Id),
 	constraint FK_Prices_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
 	constraint FK_Prices_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
@@ -561,12 +568,13 @@ create table doc.Contracts
 	Void bit not null 
 		constraint DF_Contracts_Void default(0),
 	[Memo] nvarchar(255),
-		constraint PK_Contracts primary key (TenantId, Id),
-		constraint FK_Contracts_Kind_ContractKinds foreign key (TenantId, Kind) references doc.ContractKinds(TenantId, Id),
-		constraint FK_Contracts_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
-		constraint FK_Contracts_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
-		constraint FK_Contracts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_Contracts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
+
+	constraint PK_Contracts primary key (TenantId, Id),
+	constraint FK_Contracts_Kind_ContractKinds foreign key (TenantId, Kind) references doc.ContractKinds(TenantId, Id),
+	constraint FK_Contracts_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
+	constraint FK_Contracts_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Contracts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_Contracts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
 )
 go
 ------------------------------------------------
@@ -718,8 +726,7 @@ create table doc.OpTrans
 	CtRow nchar(1),
 	CtAccKind bigint,
 	CtWarehouse nchar(1),
-	[Uid] uniqueidentifier not null
-		constraint DF_OpTrans_Uid default(newid()),
+
 	constraint PK_OpTrans primary key (TenantId, Id, Operation),
 	constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
 	constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
@@ -758,8 +765,7 @@ create table ui.OpMenuLinks
 	TenantId int not null,
 	Operation bigint not null,
 	Menu nvarchar(32) not null,
-	[Uid] uniqueidentifier not null
-		constraint DF_OpMenuLinks_Uid default(newid()),
+
 	constraint PK_OpMenuLinks primary key (TenantId, Operation, Menu),
 	constraint FK_OpMenuLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
@@ -1034,6 +1040,9 @@ create table rep.Reports
 	[Menu] nvarchar(32),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
+	[Uid] uniqueidentifier not null
+		constraint DF_Reports_Uid default(newid()),
+
 	constraint PK_Reports primary key (TenantId, Id),
 	constraint FK_Reports_Type_RepTypes foreign key (TenantId, [Type]) references rep.RepTypes(TenantId, Id),
 	constraint FK_Reports_File_RepFiles foreign key (TenantId, [File]) references rep.RepFiles(TenantId, Id),
