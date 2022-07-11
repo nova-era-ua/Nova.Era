@@ -2,21 +2,26 @@
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "rep",
   "model": "",
-  "actions": {
-    "rto_accdate": {
-      "model": "Report.Turnover.Account.Date",
-      "template": "turnover.accdate.template",
-      "view": "turnover.accdate.view"
-    },
-    "rto_accagent": {
-      "model": "Report.Turnover.Account.Agent",
-      "template": "turnover.accagent.template",
-      "view": "turnover.accagent.view"
-    },
-    "rto_accagentcontract": {
-      "model": "Report.Turnover.Account.Agent.Contract",
-      "template": "turnover.accagentcontract.template",
-      "view": "turnover.accagentcontract.view"
+    "actions": {
+        "rto_accdate": {
+            "model": "Report.Turnover.Account.Date",
+            "template": "turnover.accdate.template",
+            "view": "turnover.accdate.view"
+        },
+        "rto_accagent": {
+            "model": "Report.Turnover.Account.Agent",
+            "template": "turnover.accagent.template",
+            "view": "turnover.accagent.view"
+        },
+        "rto_accagentcontract": {
+            "model": "Report.Turnover.Account.Agent.Contract",
+            "template": "turnover.accagentcontract.template",
+            "view": "turnover.accagentcontract.view"
+        },
+        "rto_respcost": {
+            "model": "Report.Turnover.Account.RespCenter.CostItem",
+            "template": "turnover.accrespcost.template",
+            "view": "turnover.accrespcost.view"
+        }
     }
-  }
 }

@@ -421,6 +421,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\person\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\person\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\vendor\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\reports\account\turnover.accrespcost.template.ts" />
     <TypeScriptCompile Include="App_application\main\welcome\welcome.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\cashmove\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\writeon\edit.template.ts" />
@@ -914,6 +915,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\welcome\welcome.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\reports\account\turnover.accrespcost.view.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
