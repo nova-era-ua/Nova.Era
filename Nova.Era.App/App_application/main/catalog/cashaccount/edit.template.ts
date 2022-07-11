@@ -1,7 +1,7 @@
 ﻿
 const template: Template = {
 	properties: {
-		'TCashAccount.$Id'() { return this.Id || '@[NewItem]' }
+		'TCashAccount.$Id'() { return this.Id || '@[NewItem]' },
 		'TCurrency.$Display'() { return this.Short || this.Alpha3; }
 	},
 	defaults: {

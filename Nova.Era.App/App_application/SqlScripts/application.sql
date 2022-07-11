@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 11.07.2022 05:16:55
+generated: 11.07.2022 07:08:37
 */
 
 
@@ -7160,7 +7160,7 @@ begin
 	from cat.Companies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Company = c.Id
 	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
-	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short
+	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short, c.Alpha3
 	from cat.Currencies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Currency = c.Id
 	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
@@ -7168,7 +7168,8 @@ begin
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
 
 	-- TODO: // BASE Currency!
-	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
+	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, 
+		[Currency.Short!TCurrency!] = c.Short, [Currency.Alpha3!TCurrency!] = c.Alpha3
 	from cat.Currencies c where TenantId = @TenantId and c.Id = 980;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
@@ -7375,7 +7376,7 @@ begin
 	from cat.Companies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and ca.Company = c.Id
 	where c.TenantId = @TenantId and ca.Id = @Id;
 
-	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short
+	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short, c.Alpha3
 	from cat.Currencies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and ca.Currency = c.Id
 	where c.TenantId = @TenantId and ca.Id = @Id;
 
@@ -7383,7 +7384,8 @@ begin
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'C';
 
 	-- TODO: // BASE Currency!
-	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
+	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, 
+		[Currency.Short!TCurrency!] = c.Short, [Currency.Alpha3!TCurrency!] = c.Alpha3
 	from cat.Currencies c where TenantId = @TenantId and c.Id = 980;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
@@ -12148,17 +12150,6 @@ end
 go
 
 
--- TODO: OpMenuLinks
-------------------------------------------------
-create or alter function app.fn_accFindId(@TenantId int, @Uid uniqueidentifier)
-returns bigint
-as
-begin
-	declare @ret bigint;
-	select @ret = Id from acc.Accounts with(nolock) where [Uid] = @Uid;
-	return @ret;
-end
-go
 ------------------------------------------------
 create or alter procedure app.[Application.Delete]
 @TenantId int = 1,
@@ -12188,7 +12179,8 @@ begin
 
 	select [Application!TApp!Object] = null, [!!Id] = 1,
 		[AccKinds!AccKind!Array] = null, [Accounts!TAccount!Array] = null,
-		[ItemRoles!TItemRole!Array] = null, [Operations!TOperation!Array] = null;
+		[ItemRoles!TItemRole!Array] = null, [Operations!TOperation!Array] = null,
+		[CostItems!TCostItem!Array] = null;
 
 	select [!TAccKind!Array] = null, [Uid!!Id] = Uid, [Name], Memo,
 		[!TApp.AccKinds!ParentId] = 1
@@ -12213,10 +12205,8 @@ begin
 		left join acc.Accounts pl on a.TenantId = p.TenantId and pl.Id = T.[Plan]
 	order by T.[Level];
 
-	-- TODO: CostItem
-
 	select [!TItemRole!Array] = null, [Id!!Id] = r.[Uid], r.Kind, r.[Name], r.Memo, 
-		r.Color, r.HasPrice, r.IsStock, r.ExType, -- CostItem = ci.[Uid]
+		r.Color, r.HasPrice, r.IsStock, r.ExType, CostItem = ci.[Uid],
 		[Accounts!TItemRoleAcc!Array] = null,
 		[!TApp.ItemRoles!ParentId] = 1
 	from cat.ItemRoles r 
@@ -12231,6 +12221,12 @@ begin
 		inner join acc.Accounts acc on ira.TenantId = acc.TenantId and ira.[Account] = acc.[Id]
 		inner join acc.AccKinds ak on ira.TenantId = ak.TenantId and ira.[AccKind] = ak.[Id]
 	where ira.TenantId = @TenantId and ir.Void = 0;
+
+	select [!TCostItem!Array] = null, [Id!!Id] = ci.[Uid], ci.[Name], ci.[Memo], ci.IsFolder,
+		ParentItem = cp.[Uid], [!TApp.CostItems!ParentId] = 1
+	from cat.CostItems ci
+		left join cat.CostItems cp on ci.TenantId = cp.TenantId and ci.Parent = cp.Id
+	where ci.TenantId = @TenantId and ci.Void = 0;
 
 	-- OPERATIONS
 	select [!TOperation!Array] = null, [Id!!Id] = o.[Uid],
@@ -12278,6 +12274,7 @@ drop procedure if exists app.[Application.Upload.Metadata];
 drop procedure if exists app.[Application.Upload.Update];
 drop type if exists app.[Application.AccKind.TableType];
 drop type if exists app.[Application.Account.TableType];
+drop type if exists app.[Application.CostItem.TableType];
 drop type if exists app.[Application.ItemRole.TableType];
 drop type if exists app.[Application.ItemRoleAcc.TableType];
 drop type if exists app.[Application.Operation.TableType];
@@ -12325,7 +12322,18 @@ create type app.[Application.ItemRole.TableType] as table
 	[Color] nvarchar(32),
 	HasPrice bit,
 	IsStock bit,
-	ExType nchar(1)
+	ExType nchar(1),
+	CostItem uniqueidentifier
+)
+go
+------------------------------------------------
+create type app.[Application.CostItem.TableType] as table
+(
+	[Id] uniqueidentifier,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	IsFolder bit,
+	ParentItem uniqueidentifier
 )
 go
 ------------------------------------------------
@@ -12341,8 +12349,8 @@ go
 create type app.[Application.Operation.TableType] as table
 (
 	[Id] uniqueidentifier,
-	[Name] nvarchar(255), 
-	[Memo] nvarchar(255), 
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
 	[Form] nvarchar(16)
 );
 go
@@ -12397,7 +12405,8 @@ begin
 	set nocount on;
 
 	declare @AccKinds app.[Application.AccKind.TableType];
-	declare @Accounts app.[Application.Account.TableType] 
+	declare @Accounts app.[Application.Account.TableType];
+	declare @CostItems app.[Application.CostItem.TableType];
 	declare @ItemRoles app.[Application.ItemRole.TableType];
 	declare @ItemRoleAcc app.[Application.ItemRoleAcc.TableType];
 	declare @Operations app.[Application.Operation.TableType];
@@ -12408,6 +12417,7 @@ begin
 
 	select [AccKinds!Application.AccKinds!Metadata] = null, * from @AccKinds;
 	select [Accounts!Application.Accounts!Metadata] = null, * from @Accounts;
+	select [CostItems!Application.CostItems!Metadata] = null, * from @CostItems;
 	select [ItemRoles!Application.ItemRoles!Metadata] = null, * from @ItemRoles;
 	select [ItemRoleAcc!Application.ItemRoles.Accounts!Metadata] = null, * from @ItemRoleAcc;
 	select [Operations!Application.Operations!Metadata] = null, * from @Operations;
@@ -12423,6 +12433,7 @@ create or alter procedure app.[Application.Upload.Update]
 @UserId bigint,
 @AccKinds app.[Application.AccKind.TableType] readonly,
 @Accounts app.[Application.Account.TableType] readonly,
+@CostItems app.[Application.CostItem.TableType] readonly,
 @ItemRoles app.[Application.ItemRole.TableType] readonly,
 @ItemRoleAcc app.[Application.ItemRoleAcc.TableType] readonly,
 @Operations app.[Application.Operation.TableType] readonly,
@@ -12447,10 +12458,7 @@ begin
 		(TenantId, [Uid], [Name], [Memo]) values
 		(@TenantId, s.[Uid], s.[Name], s.[Memo]);
 
-	-- accounts
-	with T as (
-		select top(10000000) * from @Accounts order by [Level]
-	)
+	-- accounts - step 1 - properties
 	merge acc.Accounts as t 
 	using @Accounts as s
 	on t.TenantId = @TenantId and t.[Uid] = s.[Uid]
@@ -12459,23 +12467,60 @@ begin
 		t.[Name] = s.[Name],
 		t.Code = s.Code,
 		t.Memo = s.Memo,
-		t.Parent = app.fn_accFindId(@TenantId, s.ParentAcc),
 		t.IsFolder = s.IsFolder,
 		t.IsItem = s.IsItem, IsAgent = s.IsAgent, t.IsWarehouse = s.IsWarehouse,
 		t.IsBankAccount = s.IsBankAccount, t.IsCash = s.IsCash, t.IsContract = s.IsContract,
 		t.IsRespCenter = s.IsRespCenter, t.IsCostItem = s.IsCostItem
 	when not matched by target then insert
-		(TenantId, [Uid], [Plan], Parent, 
-			[Name], Code, [Memo], IsFolder, 
+		(TenantId, [Uid], [Name], Code, [Memo], IsFolder, 
 			IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem) values
-		(@TenantId, s.[Uid], app.fn_accFindId(@TenantId, s.[Plan]), app.fn_accFindId(@TenantId, s.ParentAcc),
-			s.[Name], s.Code, s.Memo, s.IsFolder,
+		(@TenantId, s.[Uid], s.[Name], s.Code, s.Memo, s.IsFolder,
 			s.IsItem, s.IsAgent, s.IsWarehouse, s.IsBankAccount, s.IsCash, s.IsContract, s.IsRespCenter, s.IsCostItem);
+
+	-- accounts - step 2 - plan & parent
+	with T as (
+		select Id = a.Id, [Plan] = pl.Id, Parent = par.Id
+		from @Accounts s inner join acc.Accounts a on a.TenantId = @TenantId and a.[Uid] = s.[Uid]
+			left join acc.Accounts pl on pl.TenantId = @TenantId and pl.[Uid] = s.[Plan]
+			left join acc.Accounts par on par.TenantId = @TenantId and par.[Uid] = s.[ParentAcc]
+	)
+	merge acc.Accounts as t 
+	using T as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set
+		t.Parent = s.Parent,
+		t.[Plan] = s.[Plan];
+
+	-- cost items - step 1
+	merge cat.CostItems as t
+	using @CostItems as s
+	on t.TenantId = @TenantId and t.[Uid] = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Memo] = s.[Memo],
+		t.IsFolder = s.[IsFolder]
+	when not matched by target then insert
+		(TenantId, [Uid], [Name], Memo, IsFolder) values
+		(@TenantId, s.Id, s.[Name], s.Memo, s.IsFolder);
+
+	-- cost items - step 2
+	with T as (
+		select Id = t.Id, Parent = px.Id
+		from @CostItems s inner join cat.CostItems t on t.TenantId = @TenantId and s.Id = t.[Uid]
+		left join cat.CostItems px on px.TenantId = @TenantId and s.ParentItem = px.[Uid]
+	)
+	update cat.CostItems set Parent = T.Id
+	from T inner join cat.CostItems ci on ci.TenantId = @TenantId and T.Id = ci.Id;
 
 	-- item roles
 	declare @itemroles table(id bigint, [uid] uniqueidentifier);
 	merge cat.ItemRoles as t
-	using @ItemRoles as s
+	using (
+		select s.Id, s.[Name], s.[Memo], s.Kind, s.Color, 
+			s.HasPrice, s.IsStock, s.ExType, CostItem = ci.Id
+		from @ItemRoles s 
+		left join cat.CostItems ci on ci.TenantId=@TenantId and s.CostItem = ci.[Uid]
+	) as s
 	on t.TenantId = @TenantId and t.[Uid] = s.[Id]
 	when matched then update set
 		t.Void = 0,
@@ -12485,7 +12530,8 @@ begin
 		t.Color = s.Color,
 		t.HasPrice = s.HasPrice,
 		t.IsStock = s.IsStock,
-		t.ExType = s.ExType
+		t.ExType = s.ExType,
+		t.CostItem = s.CostItem
 	when not matched by target then insert
 		(TenantId, [Uid], [Name], Memo, Kind, Color, HasPrice, IsStock, ExType) values
 		(@TenantId, s.[Id], s.[Name], s.Memo, s.Kind, s.Color, s.HasPrice, s.IsStock, s.ExType)
@@ -12566,7 +12612,7 @@ begin
 
 	/*
 	declare @xml nvarchar(max);
-	set @xml = (select * from @OpMenuLinks for xml auto);
+	set @xml = (select * from @CostItems for xml auto);
 	throw 60000, @xml, 0;
 	*/
 
