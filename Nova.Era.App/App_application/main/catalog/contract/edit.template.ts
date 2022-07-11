@@ -13,7 +13,8 @@ const template: Template = {
 	},
 	defaults: {
 		'Contract.Date': dateUtils.today(),
-		'Contract.Company'(this:any) { return this.Default.Company;}
+		'Contract.Company'(this: any) { return this.Params.Company.Id ? this.Params.Company : this.Default.Company; },
+		'Contract.Agent'(this: any) { return this.Params.Agent; }
 	}
 };
 

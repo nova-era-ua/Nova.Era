@@ -7,7 +7,7 @@
 	</Dialog.Buttons>
 	<Grid Columns="1*,1*,1*">
 		<DatePicker Label="@[Date]" Value="{Bind Contract.Date}"/>
-		<TextBox Grid.ColSpan="2" Grid.Col="2" Label="@[Number]" Value="{Bind Contract.SNo}"/>
+		<TextBox Grid.ColSpan="2" Grid.Col="2" Label="@[Number]" Value="{Bind Contract.SNo}" TabIndex="1"/>
 
 		<ComboBox Label="@[ContractKind]" Grid.ColSpan="3" ItemsSource="{Bind ContractKinds}" Value="{Bind Contract.Kind}">
 			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
