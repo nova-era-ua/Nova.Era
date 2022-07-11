@@ -7,6 +7,7 @@ const template: Template = {
 		'TRoleAccount.$PlanArg'() { return { Plan: this.Plan.Id }; },
 		'TItemRole.$HasStock'() { return this.Kind === 'Item'; },
 		'TItemRole.$HasMoneyType'() { return this.Kind === 'Money'; },
+		'TItemRole.$HasCostItem'() { return this.Kind !== 'Money'; }
 	},
 	defaults: {
 		'ItemRole.Kind': 'Item'

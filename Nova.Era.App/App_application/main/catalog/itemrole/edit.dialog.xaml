@@ -1,12 +1,12 @@
 ﻿<!-- Edit ItemRole -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
 		Title="{Bind ItemRole.$Id, Format='@[ItemRole] [{0}]'}" Overflow="True"
-		Width="40rem">
+		Width="45rem">
 	<Dialog.Buttons>
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid Columns="1*,1*">
+	<Grid Columns="1*,1*" Rows="Auto,Auto,Auto,5rem,Auto,15rem,Auto">
 		<ComboBox Grid.Row="1" Grid.Col="1" Label="@[Purpose]" Value="{Bind ItemRole.Kind}">
 			<ComboBoxItem Content="@[Item]" Value="Item"/>
 			<ComboBoxItem Content="@[Expense]" Value="Expense"/>
@@ -35,20 +35,22 @@
 		</ComboBox>
 		<TagLabel Grid.Row="3" Grid.Col="2" Style="{Bind ItemRole.Color}" Content="{Bind ItemRole.Name}" 
 				  Padding=".475rem" CssClass="min-height-30"/>
-		<Block Grid.Row="4" Grid.ColSpan="2" Height="3rem" Padding="1rem,0,0,0">
-			<StackPanel If="{Bind ItemRole.$HasStock}"
-					Orientation="Horizontal" Gap="2rem" >
-				<CheckBox Label="@[Stock]" Value="{Bind ItemRole.IsStock}"/>
-				<CheckBox Label="@[HasPrice]" Value="{Bind ItemRole.HasPrice}"/>
-			</StackPanel>
-			<StackPanel If="{Bind ItemRole.$HasMoneyType}" Orientation="Horizontal" Gap="2rem">
-				<Radio Label="@[CashFunds]" Value="{Bind ItemRole.ExType}" CheckedValue="C"/>
-				<Radio Label="@[NonCashFunds]" Value="{Bind ItemRole.ExType}" CheckedValue="B"/>
-			</StackPanel>
-		</Block>
+		<StackPanel If="{Bind ItemRole.$HasStock}" Grid.Row="4" Grid.Col="1"
+				Orientation="Horizontal" Gap="2rem" Padding="0,0,.5rem,0">
+			<CheckBox Label="@[Stock]" Value="{Bind ItemRole.IsStock}"/>
+			<CheckBox Label="@[HasPrice]" Value="{Bind ItemRole.HasPrice}"/>
+		</StackPanel>
+		<StackPanel Grid.Row="4" Grid.Col="1" If="{Bind ItemRole.$HasMoneyType}" 
+				Orientation="Horizontal" Gap="2rem" Padding="0,0,.5rem,0">
+			<Radio Label="@[CashFunds]" Value="{Bind ItemRole.ExType}" CheckedValue="C"/>
+			<Radio Label="@[NonCashFunds]" Value="{Bind ItemRole.ExType}" CheckedValue="B"/>
+		</StackPanel>
+		<Selector Label="@[CostItem]" Grid.Row="4" Grid.Col="2" If="{Bind ItemRole.$HasCostItem}"
+						Value="{Bind ItemRole.CostItem}" DisplayProperty="Name">
+			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind ItemRole.CostItem}, Url='/catalog/costitem/browse' }"/>
+		</Selector>
 		<TabBar Grid.Row="5" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton ActiveValue="">@[Accounts]</TabButton>
-			<TabButton ActiveValue="costitem">Витрати</TabButton>
 		</TabBar>
 		<Block Grid.Row="6" Grid.ColSpan="2" Height="15rem" Scroll="True">
 			<Switch Expression="{Bind Root.$$Tab}">
@@ -91,12 +93,6 @@
 							<Hyperlink Size="Small" Icon="Delete" Command="{BindCmd Remove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
 						</TableRow>
 					</Table>
-				</Case>
-				<Case Value="costitem">
-					<Selector Label="@[CostItem]"
-						Value="{Bind ItemRole.CostItem}" DisplayProperty="Name" Padding=".5rem,0" Width="30rem">
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind ItemRole.CostItem}, Url='/catalog/costitem/browse' }"/>
-					</Selector>
 				</Case>
 			</Switch>
 		</Block>

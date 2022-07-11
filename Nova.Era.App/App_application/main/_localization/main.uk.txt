@@ -105,8 +105,8 @@
 @CashFlowItems=Статті руху грошових коштів
 @CashFlowItemShort=Стаття РГК
 @RespCenterShort=Центр відпов.
-@CostItems=Статті витрат
-@CostItem=Стаття витрат
+@CostItems=Статті доходів/витрат
+@CostItem=Стаття доходів/витрат
 @RespCenters=Центри відповідальності
 @RespCenter=Центр відповідальності
 @ItemRoles=Ролі в обліку
