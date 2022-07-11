@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 10.07.2022 07:03:21
+generated: 11.07.2022 05:16:55
 */
 
 
@@ -3614,7 +3614,9 @@ create table cat.CostItems
 		constraint DF_CostItems_IsFolder default(0),
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,
-		constraint PK_CostItems primary key (TenantId, Id),
+	[Uid] uniqueidentifier not null
+		constraint DF_CostItems_Uid default(newid()),
+	constraint PK_CostItems primary key (TenantId, Id),
 	constraint FK_CostItems_Parent_CostItems foreign key (TenantId, [Parent]) references cat.CostItems(TenantId, Id)
 );
 go
@@ -3636,7 +3638,9 @@ create table cat.CashFlowItems
 		constraint DF_CashFlowItems_IsFolder default(0),
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,
-		constraint PK_CashFlowItems primary key (TenantId, Id),
+	[Uid] uniqueidentifier not null
+		constraint DF_CashFlowItems_Uid default(newid()),
+	constraint PK_CashFlowItems primary key (TenantId, Id),
 	constraint FK_CashFlowItems_Parent_CashFlowItems foreign key (TenantId, [Parent]) references cat.CashFlowItems(TenantId, Id)
 );
 go
@@ -3753,8 +3757,7 @@ create table cat.ItemRoleAccounts (
 	[Plan] bigint,
 	[Account] bigint,
 	[AccKind] bigint,
-	[Uid] uniqueidentifier not null
-		constraint DF_ItemRoleAccounts_Uid default(newid()),
+
 	constraint PK_ItemRoleAccounts primary key (TenantId, Id),
 	constraint FK_ItemRoleAccounts_Role_ItemRoles foreign key (TenantId, [Role]) references cat.ItemRoles(TenantId, Id),
 	constraint FK_ItemRoleAccounts_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
@@ -3784,6 +3787,8 @@ create table cat.Items
 	[Memo] nvarchar(255),
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
+	[Uid] uniqueidentifier not null
+		constraint DF_Items_Uid default(newid()),
 	constraint PK_Items primary key (TenantId, Id),
 	constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
 	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id),
@@ -3911,11 +3916,12 @@ create table cat.CashAccounts
 	[Bank] bigint,
 	[AccountNo] nvarchar(255),
 	[Memo] nvarchar(255),
-		constraint PK_CashAccounts primary key (TenantId, Id),
-		constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
-		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
-		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+
+	constraint PK_CashAccounts primary key (TenantId, Id),
+	constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
+	constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
+	constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -3932,7 +3938,8 @@ create table doc.Prices (
 	PriceKind bigint not null,
 	Item bigint not null,
 	Currency bigint not null,
-	Price float not null
+	Price float not null,
+
 	constraint PK_Prices primary key (TenantId, Id),
 	constraint FK_Prices_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
 	constraint FK_Prices_Item_Items foreign key (TenantId, Item) references cat.Items(TenantId, Id),
@@ -3973,12 +3980,13 @@ create table doc.Contracts
 	Void bit not null 
 		constraint DF_Contracts_Void default(0),
 	[Memo] nvarchar(255),
-		constraint PK_Contracts primary key (TenantId, Id),
-		constraint FK_Contracts_Kind_ContractKinds foreign key (TenantId, Kind) references doc.ContractKinds(TenantId, Id),
-		constraint FK_Contracts_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
-		constraint FK_Contracts_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
-		constraint FK_Contracts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-		constraint FK_Contracts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
+
+	constraint PK_Contracts primary key (TenantId, Id),
+	constraint FK_Contracts_Kind_ContractKinds foreign key (TenantId, Kind) references doc.ContractKinds(TenantId, Id),
+	constraint FK_Contracts_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
+	constraint FK_Contracts_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Contracts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+	constraint FK_Contracts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id)
 )
 go
 ------------------------------------------------
@@ -4130,8 +4138,7 @@ create table doc.OpTrans
 	CtRow nchar(1),
 	CtAccKind bigint,
 	CtWarehouse nchar(1),
-	[Uid] uniqueidentifier not null
-		constraint DF_OpTrans_Uid default(newid()),
+
 	constraint PK_OpTrans primary key (TenantId, Id, Operation),
 	constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
 	constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
@@ -4170,8 +4177,7 @@ create table ui.OpMenuLinks
 	TenantId int not null,
 	Operation bigint not null,
 	Menu nvarchar(32) not null,
-	[Uid] uniqueidentifier not null
-		constraint DF_OpMenuLinks_Uid default(newid()),
+
 	constraint PK_OpMenuLinks primary key (TenantId, Operation, Menu),
 	constraint FK_OpMenuLinks_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
@@ -4446,6 +4452,9 @@ create table rep.Reports
 	[Menu] nvarchar(32),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
+	[Uid] uniqueidentifier not null
+		constraint DF_Reports_Uid default(newid()),
+
 	constraint PK_Reports primary key (TenantId, Id),
 	constraint FK_Reports_Type_RepTypes foreign key (TenantId, [Type]) references rep.RepTypes(TenantId, Id),
 	constraint FK_Reports_File_RepFiles foreign key (TenantId, [File]) references rep.RepFiles(TenantId, Id),
@@ -12015,35 +12024,36 @@ begin
 	delete from acc.Accounts where TenantId = @TenantId;
 	commit tran;
 
-	insert into cat.ItemRoles (TenantId, Id, Kind, [Name], Color, IsStock, HasPrice, ExType)
-	values 
-		(@TenantId, 50, N'Item', N'Товар', N'green', 1, 1, null),
-		(@TenantId, 51, N'Item', N'Послуга', N'cyan', 0, 0, null),
-		(@TenantId, 61, N'Money', N'Готівка', N'gold', 0, 0, N'C'),
-		(@TenantId, 62, N'Money', N'Безготівкові кошти', N'olive', 0, 0, N'B'),
-		(@TenantId, 71, N'Expense', N'Адміністративні витрати', N'tan', 0, 0, N'B');
 
-	insert into acc.Accounts(TenantId, Id, [Plan], Parent, IsFolder, Code, [Name], 
+	insert into cat.ItemRoles (TenantId, [Uid], Id, Kind, [Name], Color, IsStock, HasPrice, ExType)
+	values 
+		(@TenantId, N'09E80BE6-D4CA-4639-AC10-206244F67313', 50, N'Item', N'Товар', N'green', 1, 1, null),
+		(@TenantId, N'4BEF0104-0980-42B3-9918-0F260292BC23', 51, N'Item', N'Послуга', N'cyan', 0, 0, null),
+		(@TenantId, N'E006A9CC-8F5B-447E-BA8A-0408911F4B40', 61, N'Money', N'Готівка', N'gold', 0, 0, N'C'),
+		(@TenantId, N'44A9F6ED-6568-4E83-B9C1-53BD89552526', 62, N'Money', N'Безготівкові кошти', N'olive', 0, 0, N'B'),
+		(@TenantId, N'73E79177-352F-4D0A-94EA-F43791421D99', 71, N'Expense', N'Адміністративні витрати', N'tan', 0, 0, N'B');
+
+	insert into acc.Accounts(TenantId, Id, [Uid], [Plan], Parent, IsFolder, Code, [Name], 
 		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem)
 	values
-		(@TenantId,  10, null, null, 1, N'УПР', N'Управлінський', null, null, null, null, null, null, null, null),
-		(@TenantId, 281,   10,   10, 0, N'281', N'Товари',          1, 0, 1, 0, 0, 0, 0, 0),
-		(@TenantId, 361,   10,   10, 0, N'361', N'Покупці',         0, 1, 0, 0, 0, 1, 0, 0),
-		(@TenantId, 631,   10,   10, 0, N'631', N'Постачальники',   0, 1, 0, 0, 0, 1, 0, 0),
-		(@TenantId, 301,   10,   10, 0, N'301', N'Каса',            0, 0, 0, 0, 1, 0, 0, 0),
-		(@TenantId, 311,   10,   10, 0, N'311', N'Рахунки в банку', 0, 0, 0, 1, 0, 0, 0, 0),
-		(@TenantId, 702,   10,   10, 0, N'702', N'Доходи',          0, 0, 0, 0, 0, 0, 1, 1),
-		(@TenantId, 791,   10,   10, 0, N'791', N'Фінрезультат',    0, 0, 0, 0, 0, 0, 1, 1),
-		(@TenantId, 902,   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0, 1, 1),
-		(@TenantId,  91,   10,   10, 0, N'91',  N'Витрати',         0, 0, 0, 0, 0, 0, 1, 1);
+		(@TenantId,  10, N'0A7FCDF2-7379-4EFE-B8A7-9B54D38188D0', null, null, 1, N'УПР', N'Управлінський', null, null, null, null, null, null, null, null),
+		(@TenantId, 281, N'A43DAD4E-AE2E-451F-9D38-AF81BBBA00C3',   10,   10, 0, N'281', N'Товари',          1, 0, 1, 0, 0, 0, 0, 0),
+		(@TenantId, 361, N'E12C5446-C9B1-43B4-A193-7825845CC924',   10,   10, 0, N'361', N'Покупці',         0, 1, 0, 0, 0, 1, 0, 0),
+		(@TenantId, 631, N'B018D338-6184-413E-8475-6B49DE5D7E8E',   10,   10, 0, N'631', N'Постачальники',   0, 1, 0, 0, 0, 1, 0, 0),
+		(@TenantId, 301, N'A37DCAB8-0F95-4912-87A8-07268798FC56',   10,   10, 0, N'301', N'Каса',            0, 0, 0, 0, 1, 0, 0, 0),
+		(@TenantId, 311, N'13E8DE4C-2DF0-46E1-8EAD-8D2030BE20BB',   10,   10, 0, N'311', N'Рахунки в банку', 0, 0, 0, 1, 0, 0, 0, 0),
+		(@TenantId, 702, N'CDB12B3F-CE26-4C33-8722-1E526167BA97',   10,   10, 0, N'702', N'Доходи',          0, 0, 0, 0, 0, 0, 1, 1),
+		(@TenantId, 791, N'7F3D1E35-6D13-4E9A-89E1-B43EFE6CF8D2',   10,   10, 0, N'791', N'Фінрезультат',    0, 0, 0, 0, 0, 0, 1, 1),
+		(@TenantId, 902, N'69CCD887-7104-4DDE-9843-3C11194BC673',   10,   10, 0, N'902', N'Собівартість',    0, 0, 0, 0, 0, 0, 1, 1),
+		(@TenantId,  91, N'AB88082B-8444-49FF-8878-FAE9E943292E',   10,   10, 0, N'91',  N'Витрати',         0, 0, 0, 0, 0, 0, 1, 1);
 
-	insert into acc.AccKinds(TenantId, Id, [Name])
+	insert into acc.AccKinds(TenantId, [Uid], Id, [Name])
 	values 
-		(@TenantId, 70, N'Облік'),
-		(@TenantId, 71, N'Дохід'),
-		(@TenantId, 72, N'Собівартість'),
-		(@TenantId, 73, N'Витрати'),
-		(@TenantId, 74, N'Фінансовий результат');
+		(@TenantId, N'CE63659C-DE86-4B83-A763-FFFEDED04731', 70, N'Облік'),
+		(@TenantId, N'6DB27876-CFFD-42F1-BF4F-47AFE1788AFC', 71, N'Дохід'),
+		(@TenantId, N'3899198D-45AB-4AF0-9C58-44113169CF24', 72, N'Собівартість'),
+		(@TenantId, N'8C8ED833-EF23-4A56-A0ED-208A5B804141', 73, N'Витрати'),
+		(@TenantId, N'0A5BE1F1-0130-41C0-A713-6DA836F91506', 74, N'Фінансовий результат');
 
 	insert into cat.ItemRoleAccounts (TenantId, Id, [Plan], [Role], Account, AccKind)
 	values
@@ -12063,13 +12073,13 @@ begin
 		(@TenantId, 20, N'Товар №1', 50),
 		(@TenantId, 21, N'Послуга №1', 51);
 
-	insert into doc.Operations (TenantId, Id, [Name], [Form]) values
-		(@TenantId, 100, N'Придбання товарів/послуг',		N'waybillin'),
-		(@TenantId, 101, N'Оплата постачальнику (банк)',	N'payout'),
-		(@TenantId, 102, N'Оплата постачальнику (готівка)',	N'cashout'),
-		(@TenantId, 103, N'Продаж товарів/послуг',			N'waybillout'),
-		(@TenantId, 104, N'Оплата від покупця (банк)',		N'payin'),
-		(@TenantId, 105, N'Оплата від покупця (готівка)',	N'cashin');
+	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form]) values
+		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		N'waybillin'),
+		(@TenantId, 101, N'E3CB0D62-24AB-4FE3-BD68-DD2453F6B032', N'Оплата постачальнику (банк)',	N'payout'),
+		(@TenantId, 102, N'80C9C85D-458E-445B-B35B-8177B40A5D41', N'Оплата постачальнику (готівка)',	N'cashout'),
+		(@TenantId, 103, N'D8DDB942-26AB-4402-9FD7-42E62BBCB57D', N'Продаж товарів/послуг',			N'waybillout'),
+		(@TenantId, 104, N'C2C94B13-926C-41E5-9446-647B6C23B83E', N'Оплата від покупця (банк)',		N'payin'),
+		(@TenantId, 105, N'B31EB587-D242-4A96-8255-B824B1551963', N'Оплата від покупця (готівка)',	N'cashin');
 
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
 		[DtSum], DtRow, DtAccMode, DtAccKind,  [CtSum], [CtRow], CtAccMode, CtAccKind)
@@ -12138,7 +12148,34 @@ end
 go
 
 
+-- TODO: OpMenuLinks
+------------------------------------------------
+create or alter function app.fn_accFindId(@TenantId int, @Uid uniqueidentifier)
+returns bigint
+as
+begin
+	declare @ret bigint;
+	select @ret = Id from acc.Accounts with(nolock) where [Uid] = @Uid;
+	return @ret;
+end
+go
+------------------------------------------------
+create or alter procedure app.[Application.Delete]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
 
+	delete from ui.OpMenuLinks where TenantId = @TenantId;
+	delete from doc.OpPrintForms where TenantId = @TenantId;
+	delete from doc.OperationLinks where TenantId = @TenantId;
+	delete from doc.OpTrans where TenantId = @TenantId;
+	delete from doc.Operations where TenantId = @TenantId;
+	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
+end
+go
 ------------------------------------------------
 create or alter procedure app.[Application.Export.Load]
 @TenantId int = 1,
@@ -12150,17 +12187,104 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Application!TApp!Object] = null, [!!Id] = 1,
-		[AccKinds!AccKind!Array] = null;
+		[AccKinds!AccKind!Array] = null, [Accounts!TAccount!Array] = null,
+		[ItemRoles!TItemRole!Array] = null, [Operations!TOperation!Array] = null;
 
 	select [!TAccKind!Array] = null, [Uid!!Id] = Uid, [Name], Memo,
 		[!TApp.AccKinds!ParentId] = 1
 	from acc.AccKinds where TenantId = @TenantId and Void = 0;
+
+	with T(Id, Parent, [Plan], [Level])
+	as (
+		select a.Id, Parent, a.[Plan], 0 from
+			acc.Accounts a where TenantId=@TenantId and a.Parent is null and a.[Plan] is null and Void=0
+		union all 
+		select a.Id, a.Parent, a.[Plan], T.[Level] + 1 
+		from acc.Accounts a
+			inner join T on T.Id = a.Parent and a.TenantId = @TenantId and a.Void = 0
+		where a.TenantId = @TenantId
+	)
+	select [!TAccount!Array] = null, [Uid!!Id] = a.[Uid], [ParentAcc] = p.[Uid], [Plan] = pl.[Uid], T.[Level],
+		a.[Name], a.Code, a.Memo,
+		a.IsFolder, a.IsItem, a.IsAgent, a.IsWarehouse, a.IsBankAccount, a.IsCash, a.IsContract, a.IsRespCenter, a.IsCostItem,		
+		[!TApp.Accounts!ParentId] = 1
+	from acc.Accounts a inner join T on a.TenantId = @TenantId and a.Id = T.Id
+		left join acc.Accounts p on a.TenantId = p.TenantId and p.Id = T.Parent
+		left join acc.Accounts pl on a.TenantId = p.TenantId and pl.Id = T.[Plan]
+	order by T.[Level];
+
+	-- TODO: CostItem
+
+	select [!TItemRole!Array] = null, [Id!!Id] = r.[Uid], r.Kind, r.[Name], r.Memo, 
+		r.Color, r.HasPrice, r.IsStock, r.ExType, -- CostItem = ci.[Uid]
+		[Accounts!TItemRoleAcc!Array] = null,
+		[!TApp.ItemRoles!ParentId] = 1
+	from cat.ItemRoles r 
+		left join cat.CostItems ci on r.TenantId = ci.TenantId and r.CostItem = ci.Id
+	where r.TenantId = @TenantId and r.Void = 0;
+
+	select [!TItemRoleAcc!Array] = null, [Plan] = pl.[Uid], Account = acc.[Uid], AccKind = ak.[Uid],
+		[!TItemRole.Accounts!ParentId] = ir.[Uid]
+	from cat.ItemRoleAccounts ira
+		inner join cat.ItemRoles ir on ira.TenantId = ir.TenantId and ira.[Role] = ir.[Id]
+		inner join acc.Accounts pl on ira.TenantId = pl.TenantId and ira.[Plan] = pl.[Id]
+		inner join acc.Accounts acc on ira.TenantId = acc.TenantId and ira.[Account] = acc.[Id]
+		inner join acc.AccKinds ak on ira.TenantId = ak.TenantId and ira.[AccKind] = ak.[Id]
+	where ira.TenantId = @TenantId and ir.Void = 0;
+
+	-- OPERATIONS
+	select [!TOperation!Array] = null, [Id!!Id] = o.[Uid],
+		[Name], [Memo], [Form], [Transactions!TOpTrans!Array] = null,
+		[PrintForms!TOpPrintForm!Array] = null, [Links!TOpLink!Array] = null,
+		[MenuLinks!TOpMenuLink!Array] = null,
+		[!TApp.Operations!ParentId] = 1
+	from doc.Operations o
+	where o.TenantId = @TenantId and o.Void = 0;
+
+	select [!TOpTrans!Array] = null, ot.RowNo, ot.RowKind, [Plan] = pl.[Uid], 
+		Dt = dt.[Uid], Ct = ct.[Uid], DtAccMode, DtSum, DtRow, DtAccKind = dtack.[Uid],
+		CtAccMode, CtSum, CtRow, CtAccKind =  ctack.[Uid],
+		[!TOperation.Transactions!ParentId] = o.[Uid]
+	from doc.OpTrans ot inner join doc.Operations o on ot.TenantId = o.TenantId and ot.Operation = o.Id
+		left join acc.Accounts pl on ot.TenantId = pl.TenantId and ot.[Plan] = pl.Id
+		left join acc.Accounts dt on ot.TenantId = dt.TenantId and ot.[Dt] = dt.Id
+		left join acc.Accounts ct on ot.TenantId = ct.TenantId and ot.[Ct] = ct.Id
+		left join acc.AccKinds dtack on ot.TenantId = dtack.TenantId and ot.DtAccKind = dtack.Id
+		left join acc.AccKinds ctack on ot.TenantId = ctack.TenantId and ot.CtAccKind = ctack.Id
+	where ot.TenantId = @TenantId and o.Void = 0;
+
+	select [!TOpPrintForm!Array] = null, [PrintForm] = opf.PrintForm,
+		[!TOperation.PrintForms!ParentId] = o.[Uid]
+	from doc.OpPrintForms opf 
+		inner join doc.Operations o on opf.TenantId = o.TenantId and opf.Operation = o.Id
+	where opf.TenantId = @TenantId and o.Void = 0;
+
+	select [!TOpLink!Array] = null, ol.[Category], ol.[Type], ol.[Memo], Operation = o.[Uid],
+		[!TOperation.Links!ParentId] = p.[Uid]
+	from doc.OperationLinks ol
+		inner join doc.Operations p on ol.TenantId = p.TenantId and ol.Parent = p.Id
+		inner join doc.Operations o on ol.TenantId = o.TenantId and ol.Operation = o.Id
+	where ol.TenantId = @TenantId and p.Void = 0;
+
+	select [!TOpMenuLink!Array] = null, oml.Menu,
+		[!TOperation.MenuLinks!ParentId] = o.[Uid]
+	from ui.OpMenuLinks oml 
+		inner join doc.Operations o on oml.TenantId = o.TenantId and oml.Operation = o.Id
+	where oml.TenantId = @TenantId and o.Void = 0;
 end
 go
 ------------------------------------------------
 drop procedure if exists app.[Application.Upload.Metadata];
 drop procedure if exists app.[Application.Upload.Update];
 drop type if exists app.[Application.AccKind.TableType];
+drop type if exists app.[Application.Account.TableType];
+drop type if exists app.[Application.ItemRole.TableType];
+drop type if exists app.[Application.ItemRoleAcc.TableType];
+drop type if exists app.[Application.Operation.TableType];
+drop type if exists app.[Application.OpTrans.TableType];
+drop type if exists app.[Application.OpPrintForms.TableType];
+drop type if exists app.[Application.OpLink.TableType];
+drop type if exists app.[Application.OpMenuLink.TableType];
 go
 ------------------------------------------------
 create type app.[Application.AccKind.TableType] as table
@@ -12171,45 +12295,285 @@ create type app.[Application.AccKind.TableType] as table
 )
 go
 ------------------------------------------------
+create type app.[Application.Account.TableType] as table
+(
+	[Uid] uniqueidentifier,
+	[Plan] uniqueidentifier, 
+	[ParentAcc] uniqueidentifier,
+	[Level] int,
+	IsFolder bit,
+	[Code] nvarchar(16),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	IsItem bit,
+	IsAgent bit,
+	IsWarehouse bit,
+	IsBankAccount bit,
+	IsCash bit,
+	IsContract bit,
+	IsRespCenter bit,
+	IsCostItem bit
+)
+go
+------------------------------------------------
+create type app.[Application.ItemRole.TableType] as table
+(
+	[Id] uniqueidentifier,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[Kind] nvarchar(16),
+	[Color] nvarchar(32),
+	HasPrice bit,
+	IsStock bit,
+	ExType nchar(1)
+)
+go
+------------------------------------------------
+create type app.[Application.ItemRoleAcc.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	[Plan] uniqueidentifier,
+	[Account] uniqueidentifier,
+	[AccKind] uniqueidentifier
+)
+go
+------------------------------------------------
+create type app.[Application.Operation.TableType] as table
+(
+	[Id] uniqueidentifier,
+	[Name] nvarchar(255), 
+	[Memo] nvarchar(255), 
+	[Form] nvarchar(16)
+);
+go
+------------------------------------------------
+create type app.[Application.OpTrans.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	RowNo int,
+	[Plan] uniqueidentifier,
+	[Dt] uniqueidentifier,
+	[Ct] uniqueidentifier,
+	RowKind nvarchar(16),
+	DtAccMode nchar(1), 
+	DtSum nchar(1), 
+	DtRow nchar(1),
+	DtAccKind uniqueidentifier,
+	DtWarehouse nchar(1),
+	CtAccMode nchar(1),
+	CtSum nchar(1),
+	CtRow nchar(1),
+	CtAccKind uniqueidentifier
+);
+go
+------------------------------------------------
+create type app.[Application.OpPrintForms.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	PrintForm nvarchar(16)
+)
+go
+------------------------------------------------
+create type app.[Application.OpLink.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	[Category] nvarchar(32),
+	[Type] nvarchar(32),
+	[Memo] nvarchar(255),
+	Operation uniqueidentifier
+)
+go
+------------------------------------------------
+create type app.[Application.OpMenuLink.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	Menu nvarchar(32)
+)
+go
+------------------------------------------------
 create or alter procedure app.[Application.Upload.Metadata]
 as
 begin
 	set nocount on;
-	declare @AccKinds app.[Application.AccKind.TableType];
-	select [AccKinds!Application.AccKinds!Metadata] = null, * from @AccKinds;
 
+	declare @AccKinds app.[Application.AccKind.TableType];
+	declare @Accounts app.[Application.Account.TableType] 
+	declare @ItemRoles app.[Application.ItemRole.TableType];
+	declare @ItemRoleAcc app.[Application.ItemRoleAcc.TableType];
+	declare @Operations app.[Application.Operation.TableType];
+	declare @OpTrans app.[Application.OpTrans.TableType];
+	declare @OpPrintForms app.[Application.OpPrintForms.TableType];
+	declare @OpLinks app.[Application.OpLink.TableType];
+	declare @OpMenuLinks app.[Application.OpMenuLink.TableType];
+
+	select [AccKinds!Application.AccKinds!Metadata] = null, * from @AccKinds;
+	select [Accounts!Application.Accounts!Metadata] = null, * from @Accounts;
+	select [ItemRoles!Application.ItemRoles!Metadata] = null, * from @ItemRoles;
+	select [ItemRoleAcc!Application.ItemRoles.Accounts!Metadata] = null, * from @ItemRoleAcc;
+	select [Operations!Application.Operations!Metadata] = null, * from @Operations;
+	select [OpTrans!Application.Operations.Transactions!Metadata] = null, * from @OpTrans;
+	select [OpPrintForms!Application.Operations.PrintForms!Metadata] = null, * from @OpPrintForms;
+	select [OpLinks!Application.Operations.Links!Metadata] = null, * from @OpLinks;
+	select [OpMenuLinks!Application.Operations.MenuLinks!Metadata] = null, * from @OpMenuLinks;
 end
 go
 ------------------------------------------------
 create or alter procedure app.[Application.Upload.Update]
 @TenantId int = 1,
 @UserId bigint,
-@AccKinds app.[Application.AccKind.TableType] readonly
+@AccKinds app.[Application.AccKind.TableType] readonly,
+@Accounts app.[Application.Account.TableType] readonly,
+@ItemRoles app.[Application.ItemRole.TableType] readonly,
+@ItemRoleAcc app.[Application.ItemRoleAcc.TableType] readonly,
+@Operations app.[Application.Operation.TableType] readonly,
+@OpTrans app.[Application.OpTrans.TableType] readonly,
+@OpPrintForms app.[Application.OpPrintForms.TableType] readonly,
+@OpLinks app.[Application.OpLink.TableType] readonly,
+@OpMenuLinks app.[Application.OpMenuLink.TableType] readonly
 as
 begin
 	set nocount on
 	set transaction isolation level read committed;
 
+	-- account kinds
 	merge acc.AccKinds as t
 	using @AccKinds as s
-	on t.[Uid] = s.[Uid]
+	on t.TenantId = @TenantId and t.[Uid] = s.[Uid]
 	when matched then update set
 		t.[Name] = s.[Name],
-		t.[Memo] = s.[Memo]
+		t.[Memo] = s.[Memo],
+		t.Void = 0
 	when not matched by target then insert 
-		([Uid], [Name], [Memo]) values
-		(s.[Uid], s.[Name], s.[Memo]);
+		(TenantId, [Uid], [Name], [Memo]) values
+		(@TenantId, s.[Uid], s.[Name], s.[Memo]);
+
+	-- accounts
+	with T as (
+		select top(10000000) * from @Accounts order by [Level]
+	)
+	merge acc.Accounts as t 
+	using @Accounts as s
+	on t.TenantId = @TenantId and t.[Uid] = s.[Uid]
+	when matched then update set
+		t.Void = 0,
+		t.[Name] = s.[Name],
+		t.Code = s.Code,
+		t.Memo = s.Memo,
+		t.Parent = app.fn_accFindId(@TenantId, s.ParentAcc),
+		t.IsFolder = s.IsFolder,
+		t.IsItem = s.IsItem, IsAgent = s.IsAgent, t.IsWarehouse = s.IsWarehouse,
+		t.IsBankAccount = s.IsBankAccount, t.IsCash = s.IsCash, t.IsContract = s.IsContract,
+		t.IsRespCenter = s.IsRespCenter, t.IsCostItem = s.IsCostItem
+	when not matched by target then insert
+		(TenantId, [Uid], [Plan], Parent, 
+			[Name], Code, [Memo], IsFolder, 
+			IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem) values
+		(@TenantId, s.[Uid], app.fn_accFindId(@TenantId, s.[Plan]), app.fn_accFindId(@TenantId, s.ParentAcc),
+			s.[Name], s.Code, s.Memo, s.IsFolder,
+			s.IsItem, s.IsAgent, s.IsWarehouse, s.IsBankAccount, s.IsCash, s.IsContract, s.IsRespCenter, s.IsCostItem);
+
+	-- item roles
+	declare @itemroles table(id bigint, [uid] uniqueidentifier);
+	merge cat.ItemRoles as t
+	using @ItemRoles as s
+	on t.TenantId = @TenantId and t.[Uid] = s.[Id]
+	when matched then update set
+		t.Void = 0,
+		t.[Name] = s.[Name],
+		t.[Memo] = s.[Memo],
+		t.Kind = s.Kind,
+		t.Color = s.Color,
+		t.HasPrice = s.HasPrice,
+		t.IsStock = s.IsStock,
+		t.ExType = s.ExType
+	when not matched by target then insert
+		(TenantId, [Uid], [Name], Memo, Kind, Color, HasPrice, IsStock, ExType) values
+		(@TenantId, s.[Id], s.[Name], s.Memo, s.Kind, s.Color, s.HasPrice, s.IsStock, s.ExType)
+	output inserted.Id, inserted.[Uid] into @itemroles(id, [uid]);
+
+
+	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
+	with T as (
+		select [Role] =  ir.id, Account = a.Id, AccKind = ak.Id, [Plan] = pl.Id
+		from  @ItemRoleAcc s inner join @itemroles ir on s.ParentId = ir.[uid]
+		inner join acc.Accounts pl on pl.TenantId = @TenantId and pl.[Uid] = s.[Plan]
+		inner join acc.Accounts a on a.TenantId = @TenantId and a.[Uid] = s.Account
+		inner join acc.AccKinds ak on ak.TenantId = @TenantId and ak.[Uid] = s.AccKind
+	)
+	insert into cat.ItemRoleAccounts(TenantId, [Role], [Plan], Account, AccKind)
+	select @TenantId, [Role], [Plan], Account, AccKind from T;
+	
+	-- operations
+	declare @operations table(id bigint, [uid] uniqueidentifier);
+	merge doc.Operations as t
+	using @Operations as s
+	on t.TenantId = @TenantId and t.[Uid] = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Memo] = s.[Memo],
+		t.[Form] = s.[Form]
+	when not matched by target then insert
+		(TenantId, [Uid], [Name], Memo, [Form]) values
+		(@TenantId, s.Id, s.[Name], s.Memo, s.[Form])
+	output inserted.Id, inserted.[Uid] into @operations(id, [uid]);
+
+	delete from doc.OpTrans where TenantId = @TenantId;
+	with T as (
+		select [Operation] =  op.id, RowKind = isnull(s.RowKind, N''), s.RowNo, [Plan] = pl.Id, [Dt] = dt.Id, [Ct] = ct.Id,
+			DtAccKind = dtak.Id, CtAccKind = ctak.Id, s.DtAccMode, s.CtAccMode, s.DtRow, s.CtRow,
+			s.DtSum, s.CtSum
+		from  @OpTrans s inner join @operations op on s.ParentId = op.[uid]
+			inner join acc.Accounts pl on pl.TenantId = @TenantId and pl.[Uid] = s.[Plan]
+			left join acc.Accounts dt on dt.TenantId = @TenantId and dt.[Uid] = s.Dt
+			left join acc.Accounts ct on ct.TenantId = @TenantId and ct.[Uid] = s.Ct
+			left join acc.AccKinds dtak on dtak.TenantId = @TenantId and dtak.[Uid] = s.DtAccKind
+			left join acc.AccKinds ctak on ctak.TenantId = @TenantId and ctak.[Uid] = s.CtAccKind
+	)
+	insert into doc.OpTrans(TenantId, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
+		DtAccMode, DtAccKind, DtSum, DtRow, CtAccMode, CtAccKind, CtRow, CtSum)
+	select @TenantId, Operation, RowNo, RowKind, [Plan], Dt, Ct,
+		DtAccMode, DtAccKind, DtSum, DtRow, CtAccMode, CtAccKind, CtRow, CtSum
+	from T;
+
+	delete from doc.OpPrintForms where TenantId = @TenantId;
+	with T as (
+		select [Operation] = op.id, s.PrintForm
+		from @OpPrintForms s inner join @operations op on s.ParentId = op.[uid]
+	)
+	insert into doc.OpPrintForms(TenantId, Operation, PrintForm)
+	select @TenantId, Operation, PrintForm
+	from T;
+
+	delete from doc.OperationLinks where TenantId = @TenantId;
+	with T as (
+		select [Parent] = op.id, Operation = lo.Id, s.Category, s.[Type], s.Memo
+		from @OpLinks s 
+			inner join @operations op on s.ParentId = op.[uid]
+			inner join doc.Operations lo on lo.TenantId = @TenantId and s.Operation = lo.[Uid]
+	)
+	insert into doc.OperationLinks(TenantId, Parent, Operation, Category, [Type], Memo)
+	select @TenantId, Parent, Operation, Category, [Type], Memo
+	from T;
+
+	delete from ui.OpMenuLinks where TenantId = @TenantId;
+	with T as (
+		select [Operation] = op.id, s.Menu
+		from @OpMenuLinks s inner join @operations op on s.ParentId = op.[uid]
+	)
+	insert into ui.OpMenuLinks(TenantId, Operation, Menu)
+	select @TenantId, Operation, Menu
+	from T;
 
 	/*
 	declare @xml nvarchar(max);
-	set @xml = (select * from @AccKinds for xml auto);
+	set @xml = (select * from @OpMenuLinks for xml auto);
 	throw 60000, @xml, 0;
 	*/
 
 	select [Result!TResult!Object] = null, [Success] = 1;
-
 end
 go
+
 
 /*
 admin

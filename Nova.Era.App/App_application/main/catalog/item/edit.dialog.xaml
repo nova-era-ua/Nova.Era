@@ -10,7 +10,7 @@
 		<Grid Grid.Row="1" Columns="1*,1*,Auto" Gap="1rem" Padding="0">
 			<TextBox Grid.Row="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Item.Name}" Bold="True" TabIndex="1"/>
 			<Selector Grid.Row="1" Grid.Col="3" Label="@[UnitShort]" Value="{Bind Item.Unit}" DisplayProperty="Short" 
-					Width="10rem" Delegate="fetchUnit" ListSize="15rem,10rem">
+					Width="10rem" Delegate="fetchUnit" ListSize="15rem,15rem">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>
 				<Selector.ItemsPanel>
 					<DataGrid XamlStyle="{StyleResource DataGridPanel}">

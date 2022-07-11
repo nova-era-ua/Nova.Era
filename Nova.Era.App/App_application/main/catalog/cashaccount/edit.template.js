@@ -3,7 +3,8 @@ define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
         properties: {
-            'TCashAccount.$Id'() { return this.Id || '@[NewItem]'; }
+            'TCashAccount.$Id'() { return this.Id || '@[NewItem]'; },
+            'TCurrency.$Display'() { return this.Short || this.Alpha3; }
         },
         defaults: {
             'CashAccount.Currency'() { return this.Params.Currency; },

@@ -14,7 +14,7 @@
 			<Hyperlink Icon="Search" 
 				Command="{BindCmd Browse, Argument={Bind CashAccount.Company}, Url='/catalog/company/browse'}"/>
 		</Selector>
-		<Selector Label="@[Currency]" Width="10rem" DisplayProperty="Short"
+		<Selector Label="@[Currency]" Width="10rem" DisplayProperty="$Display"
 				  Value="{Bind CashAccount.Currency}" Disabled="True">
 			<Hyperlink Icon="Search" 
 				Command="{BindCmd Browse, Argument={Bind CashAccount.Currency}, Url='/catalog/currency/browse'}"/>

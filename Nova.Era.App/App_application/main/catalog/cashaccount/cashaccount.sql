@@ -123,7 +123,7 @@ begin
 	from cat.Companies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and ca.Company = c.Id
 	where c.TenantId = @TenantId and ca.Id = @Id;
 
-	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short
+	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short, c.Alpha3
 	from cat.Currencies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and ca.Currency = c.Id
 	where c.TenantId = @TenantId and ca.Id = @Id;
 
@@ -131,7 +131,8 @@ begin
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'C';
 
 	-- TODO: // BASE Currency!
-	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, [Currency.Short!TCurrency!] = c.Short
+	select [Params!TParam!Object] = null, [Currency.Id!TCurrency!Id] = c.Id, 
+		[Currency.Short!TCurrency!] = c.Short, [Currency.Alpha3!TCurrency!] = c.Alpha3
 	from cat.Currencies c where TenantId = @TenantId and c.Id = 980;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;

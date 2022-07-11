@@ -100,7 +100,7 @@
 @PriceDoc=Встановлення цін
 @PriceKinds=Види цін
 @PriceKind=Вид ціни
-@ContractKind=Вид контракту
+@ContractKind=Вид договору
 @CashFlowItem=Стаття руху грошових коштів
 @CashFlowItems=Статті руху грошових коштів
 @CashFlowItemShort=Стаття РГК

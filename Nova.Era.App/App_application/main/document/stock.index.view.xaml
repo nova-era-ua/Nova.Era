@@ -28,6 +28,8 @@
 			</Button>
 			<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"/>
 			<Separator />
+			<Button Icon="Print" Command="{BindCmd Dialog, Action=ShowSelected, Argument={Bind Documents}, Url='/document/print/browse'}" />
+			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True"

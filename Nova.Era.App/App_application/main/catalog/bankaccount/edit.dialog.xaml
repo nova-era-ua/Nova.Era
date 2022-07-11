@@ -15,7 +15,7 @@
 				Command="{BindCmd Browse, Argument={Bind BankAccount.Company}, Url='/catalog/company/browse'}"/>
 		</Selector>
 		<TextBox Label="@[AccountNo]" Value="{Bind BankAccount.AccountNo}" TabIndex="1"/>
-		<Selector Label="@[Currency]" Width="10rem" DisplayProperty="Short"
+		<Selector Label="@[Currency]" Width="10rem" DisplayProperty="$Display"
 				  Value="{Bind BankAccount.Currency}" Disabled="True">
 			<Hyperlink Icon="Search" 
 				Command="{BindCmd Browse, Argument={Bind BankAccount.Currency}, Url='/catalog/currency/browse'}"/>
