@@ -3,18 +3,20 @@
 create or alter procedure cat.[BankAccount.Index]
 @TenantId int = 1,
 @UserId bigint,
+@Id bigint = null,
 @Offset int = 0,
 @PageSize int = 20,
 @Order nvarchar(32) = N'name',
 @Dir nvarchar(5) = N'asc',
-@Fragment nvarchar(255) = null
+@Fragment nvarchar(255) = null,
+@Company bigint = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
 	declare @ba table(rowno int identity(1, 1), id bigint, comp bigint, bank bigint, 
-		crc bigint, rowcnt int);
+		crc bigint, rowcnt int, balance money);
 
 	declare @fr nvarchar(255);
 	set @fr = N'%' + @Fragment + N'%';
@@ -25,8 +27,9 @@ begin
 	select b.Id, b.Company, b.Bank, b.Currency, 
 		count(*) over ()
 	from cat.CashAccounts b
-	where TenantId = @TenantId and b.IsCashAccount = 0 and (@fr is null or 
-		b.[Name] like @fr or b.Memo like @fr)
+	where TenantId = @TenantId and b.IsCashAccount = 0 
+		and (@Company is null or b.Company = @Company)
+		and (@fr is null or b.[Name] like @fr or b.Memo like @fr)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order
@@ -56,8 +59,16 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
+	with TB as (
+		select Id = t.id, [Sum] = sum(cj.[Sum] * cj.InOut)
+		from @ba t inner join jrn.CashJournal cj on cj.TenantId = @TenantId and cj.CashAccount = t.id
+		group by t.id
+	)
+	update @ba set balance = [Sum]
+	from @ba t inner join TB on t.id = TB.Id;
+
 	select [BankAccounts!TBankAccount!Array] = null,
-		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo, 
+		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo, Balance = t.balance,
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
 		[ItemRole!TItemRole!RefId] = ba.ItemRole,
@@ -74,6 +85,7 @@ begin
 
 	select [!$System!] = null, [!BankAccounts!Offset] = @Offset, [!BankAccounts!PageSize] = @PageSize, 
 		[!BankAccounts!SortOrder] = @Order, [!BankAccounts!SortDir] = @Dir,
+		[!BankAccounts.Company.Id!Filter] = @Company, [!BankAccounts.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
 		[!BankAccounts.Fragment!Filter] = @Fragment;
 end
 go

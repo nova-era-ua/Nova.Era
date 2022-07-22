@@ -3,7 +3,8 @@
 		<CollectionView ItemsSource="{Bind CashAccounts}" RunAt="ServerUrl">
 			<CollectionView.Filter>
 				<FilterDescription>
-					<FilterItem Property="Filter" DataType="String"/>
+					<FilterItem Property="Fragment" DataType="String"/>
+					<FilterItem Property="Company" DataType="Object"/>
 				</FilterDescription>
 			</CollectionView.Filter>
 		</CollectionView>
@@ -19,12 +20,16 @@
 					Command="{BindCmd DbRemoveSelected, Argument={Bind CashAccounts}, Confirm='@[Confirm.Delete.Element]'}"/>
 			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}" />
+			<ToolbarAligner/>
+			<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"
+					 ShowClear="True" ShowFilter="True"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True"
 				  ItemsSource="{Bind Parent.ItemsSource}" Sort="True"
 				  DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind CashAccounts}, Url='/catalog/cashaccount/edit'}">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+			<DataGridColumn Header="@[Rem]" Content="{Bind Balance, DataType=Currency, HideZeros=True, NegativeRed=True}" Role="Number" Sort="False" Bold="True"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
 			<DataGridColumn Header="@[ItemRole]" Content="{Bind ItemRole.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Width="20rem"/>
@@ -39,6 +44,14 @@
 	</Grid>
 	<Page.Taskpad>
 		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
+			<Panel Header="@[Filters]" Style="Transparent" Collapsible="True">
+				<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+					<Hyperlink If="{Bind Parent.Filter.Company.Id}"
+					Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
+				</Selector>
+			</Panel>
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

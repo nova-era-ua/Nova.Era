@@ -1,0 +1,12 @@
+﻿{
+	"$schema": "../../@schemas/model-json-schema.json#",
+	"schema": "cat",
+	"model": "BankAccount",
+	"actions": {
+		"index": {
+			"index": true,
+			"template": "../../catalog/bankaccount/index.template",
+			"view": "../../catalog/bankaccount/index.view"
+		}
+	}
+}

@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "CashAccount",
+    "actions": {
+        "index": {
+            "index": true,
+            "view": "../../catalog/cashaccount/index.view"
+        }
+    }
+}

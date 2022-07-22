@@ -163,6 +163,15 @@ begin
 	from @trans
 	group by TrNo, [Date], DtCt, [Plan], Acc, CorrAcc, 
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
+
+	if exists(select * from @trans where CashAcc is not null)
+	begin
+		insert into jrn.CashJournal(TenantId, Document, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter)
+		select TenantId = @TenantId, Document = @Id, [Date], InOut = DtCt, [Sum] = sum([Sum]), Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter
+		from @trans
+		where CashAcc is not null
+		group by [Date], DtCt, Company, Agent, CashAcc, [Contract], CashFlowItem, RespCenter;
+	end
 end
 go
 ------------------------------------------------
@@ -180,6 +189,7 @@ begin
 
 	-- ensure empty journal
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
+	delete from jrn.CashJournal where TenantId = @TenantId and Document = @Id;
 
 	declare @mode nvarchar(10) = N'bydoc';
 
@@ -297,6 +307,7 @@ begin
 	begin tran;
 	delete from jrn.StockJournal where TenantId = @TenantId and Document = @Id;
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
+	delete from jrn.CashJournal where TenantId= @TenantId and Document = @Id;
 	delete from jrn.SupplierPrices where TenantId = @TenantId and Document = @Id;
 	update doc.Documents set Done = 0, DateApplied = null
 		where TenantId = @TenantId and Id = @Id;

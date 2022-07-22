@@ -31,7 +31,9 @@
 				  Mark="{Bind $Mark}" MarkerStyle="Marker">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date" SortProperty="date"/>
-			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number" SortProperty="sum"/>
+			<DataGridColumn Header="@[Sum]" Role="Number" SortProperty="sum">
+				<SpanSum Content="{Bind Sum, DataType=Currency}" Dir="{Bind $SumDir}"/>
+			</DataGridColumn>
 			<DataGridColumn Header="@[Operation]" Content="{Bind Operation.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Label.Cash.Account]" Content="{Bind $CashAccount}" Sort="False" Wrap="NoWrap"/>

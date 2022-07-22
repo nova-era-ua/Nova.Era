@@ -6,6 +6,7 @@ const utils: Utils = require("std:utils");
 const template: Template = {
 	properties: {
 		'TCashAccount.$Name'() { return this.Name || this.AccountNo; },
+		'TDocument.$SumDir': sumDir,
 		'TDocument.$CashAccount': cashAccountText
 	}
 };
@@ -13,8 +14,13 @@ const template: Template = {
 export default utils.mergeTemplate(base, template);
 
 function cashAccountText() {
-	console.log(this, this.CashAccFrom?.Id, this.CashAccFrom?.Id);
-	if (this.CashAccFrom?.Id && this.CashAccFrom?.Id)
+	if (this.CashAccFrom?.Id && this.CashAccTo?.Id)
 		return `${this.CashAccFrom.$Name} -> ${this.CashAccTo.$Name}`;
 	return this.CashAccFrom?.Id ? this.CashAccFrom?.$Name : this.CashAccTo?.$Name;
+}
+
+function sumDir() {
+	if (this.CashAccFrom?.Id && this.CashAccTo?.Id)
+		return 0;
+	return this.CashAccFrom?.Id ? -1 : 1;
 }

@@ -504,12 +504,11 @@ create table cat.CashAccounts
 	[Bank] bigint,
 	[AccountNo] nvarchar(255),
 	[Memo] nvarchar(255),
-
-	constraint PK_CashAccounts primary key (TenantId, Id),
-	constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-	constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
-	constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
-	constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+		constraint PK_CashAccounts primary key (TenantId, Id),
+		constraint FK_CashAccounts_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
+		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
+		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -893,6 +892,42 @@ create table doc.DocDetails
 	constraint FK_DocDetails_ItemRoleTo_ItemRoles foreign key (TenantId, ItemRoleTo) references cat.ItemRoles(TenantId, Id),
 	constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
 	constraint FK_DocDetails_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'jrn' and SEQUENCE_NAME = N'SQ_CashJournal')
+	create sequence jrn.SQ_CashJournal as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'CashJournal')
+create table jrn.CashJournal
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_CashJournal_Id default(next value for jrn.SQ_CashJournal),
+	[Date] datetime not null,
+	Document bigint not null,
+	Detail bigint,
+	InOut smallint not null,
+	Company bigint not null,
+	Agent bigint null,
+	[Contract] bigint null,
+	CashAccount bigint not null,
+	CashFlowItem bigint null,
+	RespCenter bigint null,
+	[Sum] money not null
+		constraint DF_CashJournal_Sum default(0),
+	_SumIn as (case when InOut = 1 then [Sum] else 0 end),
+	_SumOut as (case when InOut = -1 then [Sum] else 0 end),
+		constraint PK_CashJournal primary key (TenantId, Id),
+		constraint FK_CashJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_CashJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+		constraint FK_CashJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_CashJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+		constraint FK_CashJournal_Contract_Contracts foreign key (TenantId, Contract) references doc.Contracts(TenantId, Id),
+		constraint FK_CashJournal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id),
+		constraint FK_CashJournal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
+		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id)
 );
 go
 ------------------------------------------------

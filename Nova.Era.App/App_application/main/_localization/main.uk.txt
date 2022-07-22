@@ -55,6 +55,7 @@
 @Categories=Категорії
 @Category=Категорія
 @Defaults=Замовчування
+@Filters=Фільтри
 @Grouping=Групування
 @Grouping.Item=Групування об'єктів обліку
 @NoGrouping=<Без групування>

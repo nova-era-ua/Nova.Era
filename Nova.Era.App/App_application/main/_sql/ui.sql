@@ -81,7 +81,7 @@ begin
 		(20,    2,  1, N'@[Welcome]',     N'welcome',   N'success-outline', null),
 
 		(10,    1,  10, N'@[Dashboard]',     N'dashboard',   N'dashboard-outline', null),
-		--(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
+		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
 		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
 		(13,    1,  13, N'@[Purchases]',     N'purchase',    N'cart', null),
 		--(14,    1,  14, N'@[Manufacturing]', N'manufacturing',  N'wrench', null),
@@ -91,7 +91,7 @@ begin
 		(88,    1,  88, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
 		(90,    1,  90, N'@[Profile]',        N'profile',   N'user', null),
 		-- CRM
-		--(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		--(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
 		-- Sales
 		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
@@ -131,12 +131,14 @@ begin
 		(1502,  150, 10, N'@[Bank]',           N'bank',   N'bank',  null),
 		(1503,  150, 11, N'@[CashAccount]',    N'cash',   N'currency-uah',  null),
 		(1504,   15, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
-		(153,    15, 13, N'@[Catalogs]',  null, null, null),
-		(1505,  153, 10, N'@[Agents]',         N'agent',     N'users',  null),
-		(1506,  153, 11, N'@[Persons]',        N'person',    N'user-role', null),
-		(1507,  153, 12, N'@[Contracts]',      N'contract',  N'user-image', null),
-		(1508,  153, 13, N'@[CatalogOther]',   N'catalog',   N'list', null),
-		(1510,   15, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
+		(153,    15, 15, N'@[Catalogs]',  null, null, null),
+		(1505,  153, 10, N'@[BankAccounts]',   N'bankacc',   N'bank', null),
+		(1506,	153, 11, N'@[CashAccounts]',   N'cashacc',   N'currency-uah', null),
+		(1507,  153, 12, N'@[Agents]',         N'agent',     N'users', null),
+		(1508,  153, 13, N'@[Persons]',        N'person',    N'user-role', null),
+		(1509,  153, 14, N'@[Contracts]',      N'contract',  N'user-image', null),
+		(1510,  153, 15, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1511,   15, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
 		(1530,   15, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 

@@ -2,19 +2,21 @@
 ------------------------------------------------
 create or alter procedure cat.[CashAccount.Index]
 @TenantId int = 1,
+@Id bigint = null,
 @UserId bigint,
 @Offset int = 0,
 @PageSize int = 20,
 @Order nvarchar(32) = N'name',
 @Dir nvarchar(5) = N'asc',
-@Fragment nvarchar(255) = null
+@Fragment nvarchar(255) = null,
+@Company bigint = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
 	declare @ba table(rowno int identity(1, 1), id bigint, comp bigint, 
-		crc bigint, rowcnt int);
+		crc bigint, rowcnt int, balance money);
 
 	declare @fr nvarchar(255);
 	set @fr = N'%' + @Fragment + N'%';
@@ -25,8 +27,9 @@ begin
 	select c.Id, c.Company, c.Currency, 
 		count(*) over ()
 	from cat.CashAccounts c
-	where TenantId = @TenantId and (@fr is null or 
-		c.[Name] like @fr or c.Memo like @fr)
+	where TenantId = @TenantId
+		and (@Company is null or c.Company = @Company)
+		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order
@@ -54,8 +57,16 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
+	with TB as (
+		select Id = t.id, [Sum] = sum(cj.[Sum] * cj.InOut)
+		from @ba t inner join jrn.CashJournal cj on cj.TenantId = @TenantId and cj.CashAccount = t.id
+		group by t.id
+	)
+	update @ba set balance = [Sum]
+	from @ba t inner join TB on t.id = TB.Id;
+
 	select [CashAccounts!TCashAccount!Array] = null,
-		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo,
+		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, Balance = t.balance,
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency,
 		[ItemRole!TItemRole!RefId] = ca.ItemRole,
@@ -72,6 +83,7 @@ begin
 
 	select [!$System!] = null, [!CashAccounts!Offset] = @Offset, [!CashAccounts!PageSize] = @PageSize, 
 		[!CashAccounts!SortOrder] = @Order, [!CashAccounts!SortDir] = @Dir,
+		[!CashAccounts.Company.Id!Filter] = @Company, [!CashAccounts.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
 		[!CashAccounts.Fragment!Filter] = @Fragment;
 end
 go
