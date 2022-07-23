@@ -56,6 +56,10 @@
             "parameters": {
                 "Mode": "B"
             }
+        },
+        "fetchPrice": {
+            "type": "sql",
+            "procedure": "Item.Fetch.Price"
         }
     }
 }

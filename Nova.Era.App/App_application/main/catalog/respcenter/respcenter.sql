@@ -97,5 +97,25 @@ begin
 	update cat.RespCenters set Void = 1 where TenantId = @TenantId and Id=@Id;
 end
 go
+------------------------------------------------
+create or alter procedure cat.[RespCenter.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [RespCenters!TRespCenter!Array] = null, [Id!!Id] = r.Id, [Name!!Name] = r.[Name], r.Memo
+	from cat.RespCenters r
+	where TenantId = @TenantId and Void = 0 and
+		([Name] like @fr or Memo like @fr)
+	order by r.[Name];
+end
+go
 
 

@@ -93,3 +93,23 @@ begin
 	exec cat.[Warehouse.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
+------------------------------------------------
+create or alter procedure cat.[Warehouse.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [Warehouses!TWarehouse!Array] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name], w.Memo
+	from cat.Warehouses w
+	where TenantId = @TenantId and Void = 0 and
+		([Name] like @fr or Memo like @fr)
+	order by w.[Name];
+end
+go

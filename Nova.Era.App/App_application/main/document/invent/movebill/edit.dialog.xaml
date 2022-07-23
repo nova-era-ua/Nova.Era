@@ -35,7 +35,7 @@
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />
 			<Label Content="@[Company]"/>
-			<Selector Value="{Bind Document.Company}" DisplayProperty="Name">
+			<Selector Value="{Bind Document.Company}" DisplayProperty="Name" Fetch="/catalog/company/fetch">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>

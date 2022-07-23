@@ -819,3 +819,85 @@ begin
 		[!Items.Fragment!Filter] = @Fragment;
 end
 go
+
+-------------------------------------------------
+create or alter procedure cat.[Item.Fetch.Price]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@IsStock nchar(1) = null,
+@PriceKind bigint = null,
+@Date datetime = null,
+@CheckRems bit = 0,
+@Wh bigint = null,
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	set @Date = isnull(@Date, getdate());
+
+	declare @source table(rowno int, id bigint, unit bigint, [role] bigint, rowcnt int);
+
+	insert into @source(id, rowno, unit, [role], rowcnt)
+		exec cat.[Item.FillList] @TenantId = @TenantId, @PageSize = 100, @Dir = N'name', @Order = N'asc', @Offset=0,
+			@IsStock = @IsStock, @Fragment = @Text;
+
+	declare @items cat.[view_Items.TableType];
+
+	if @CheckRems = 1
+	begin
+		declare @itemstable a2sys.[Id.TableType];
+		insert into @itemstable(Id) select id from @source;
+
+		insert into @items([Id!!Id], [Name!!Name], Article, Barcode, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+			[Role!TItemRole!RefId], [!TenantId], [!IsStock], Price, Rem, [!RowNo], [!!RowCount])
+		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Barcode, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
+			isnull(t.[Role], v.[Role!TItemRole!RefId]), @TenantId, v.[!IsStock], v.Price, t.Rem, s.rowno, s.rowcnt
+		from cat.view_Items v
+			inner join @source s on v.[!TenantId] = @TenantId and s.id = v.[Id!!Id]
+			left join doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) t
+			on t.Item = v.[Id!!Id]
+		where 
+			v.[!TenantId] = @TenantId
+	end
+	else
+	begin
+		insert into @items ([Id!!Id], [Name!!Name], Article, Barcode, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+			[Role!TItemRole!RefId], [!TenantId], [!IsStock], Price, Rem, [!RowNo], [!!RowCount])
+		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Barcode, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
+			v.[Role!TItemRole!RefId], @TenantId, v.[!IsStock], 0, 0, [!RowNo] = s.rowno, [!!RowCount] = s.rowcnt
+		from cat.view_Items v
+			inner join @source s on v.[Id!!Id] = s.id
+		where v.[!TenantId] = @TenantId
+	end;
+
+	-- update prices
+	if @PriceKind is not null
+	begin
+		with TP as (
+			select p.Item, [Date] = max(p.[Date])
+			from doc.Prices p inner join @items t on p.TenantId = @TenantId and p.Item = t.[Id!!Id] and 
+				p.[Date] <= @Date and p.PriceKind = @PriceKind
+			group by p.Item, p.PriceKind
+		),
+		TX as (
+			select p.Price, p.Item
+			from doc.Prices p inner join TP on p.TenantId = @TenantId and p.Item = TP.Item 
+				and p.PriceKind = @PriceKind and TP.[Date] = p.[Date]
+		)
+		update @items set Price = TX.Price 
+		from @items t inner join TX on t.[Id!!Id] = TX.Item;
+	end
+
+	select [Items!TItem!Array] = null, v.*
+	from @items v
+	order by v.[!RowNo], v.[Id!!Id];
+
+	-- all roles
+	select [!TItemRole!Map] = null, vir.* 
+	from cat.view_ItemRoles vir 
+	where vir.[!TenantId] = @TenantId;
+end
+go

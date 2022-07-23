@@ -11,6 +11,7 @@ define(["require", "exports"], function (require, exports) {
             Sum: doc.Sum,
             OpName: doc.Operation.Name,
             Form: doc.Operation.Form,
+            DocumentUrl: doc.Operation.DocumentUrl,
             Done: doc.Done
         };
     }

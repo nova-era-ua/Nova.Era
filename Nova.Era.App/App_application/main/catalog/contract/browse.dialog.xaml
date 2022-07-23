@@ -17,7 +17,7 @@
 		</CollectionView>
 	</Dialog.CollectionView>
 	<Dialog.Taskpad>
-		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem" Collapsible="False">
+		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem" Collapsible="False" Padding="1rem">
 			<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
 					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>

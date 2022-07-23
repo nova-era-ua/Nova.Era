@@ -1,15 +1,21 @@
 ﻿{
-  "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "cat",
-  "model": "Company",
-  "dialogs": {
-    "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
-    },
-    "browse": {
-      "index": true,
-      "view": "browse.dialog"
-    }
-  }
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "cat",
+	"model": "Company",
+	"dialogs": {
+		"edit": {
+			"template": "edit.template",
+			"view": "edit.dialog"
+		},
+		"browse": {
+			"index": true,
+			"view": "browse.dialog"
+		}
+	},
+	"commands": {
+		"fetch": {
+			"type": "sql",
+			"procedure": "Company.Fetch"
+		}
+	}
 }

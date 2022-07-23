@@ -33,9 +33,14 @@ define(["require", "exports"], function (require, exports) {
         },
         commands: {
             reloadRems
+        },
+        delegates: {
+            itemBrowsePrice
         }
     };
-    exports.default = utils.mergeTemplate(base, template);
+    let r = utils.mergeTemplate(base, template);
+    r.delegates.itemBrowsePrice = itemBrowsePrice;
+    exports.default = r;
     function checkRems(elem, val) {
         return elem.Qty <= elem.Rem;
     }
@@ -103,5 +108,11 @@ define(["require", "exports"], function (require, exports) {
             let rem = result.Rems.find(p => p.Item === row.Item.Id && p.Role === row.ItemRole.Id);
             row.Rem = (rem === null || rem === void 0 ? void 0 : rem.Rem) || 0;
         });
+    }
+    function itemBrowsePrice(item, text) {
+        let ctrl = this.$ctrl;
+        let arg = this.$root.$BrowseStockArg;
+        arg.Text = text;
+        return ctrl.$invoke('fetchprice', arg, '/catalog/item');
     }
 });

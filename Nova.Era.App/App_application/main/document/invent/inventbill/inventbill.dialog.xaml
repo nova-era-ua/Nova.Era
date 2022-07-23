@@ -45,7 +45,7 @@
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}" Width="10rem"/>
 			<Label Grid.Row="1" Grid.Col="7" Align="Right">@[Company]</Label>
-			<Selector Grid.Row="1" Grid.Col="8" Value="{Bind Document.Company}" DisplayProperty="Name">
+			<Selector Grid.Row="1" Grid.Col="8" Value="{Bind Document.Company}" DisplayProperty="Name" Fetch="/catalog/company/fetch">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>

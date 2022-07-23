@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 23.07.2022 08:43:38
+generated: 23.07.2022 10:23:41
 */
 
 
@@ -5240,6 +5240,26 @@ begin
 	exec cat.[Company.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
+------------------------------------------------
+create or alter procedure cat.[Company.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [Companies!TCompany!Array] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo, c.FullName
+	from cat.Companies c
+	where TenantId = @TenantId and Void = 0 and
+		([Name] like @fr or Memo like @fr or FullName like @fr)
+	order by c.[Name];
+end
+go
 
 -- Warehouse
 ------------------------------------------------
@@ -5334,6 +5354,26 @@ begin
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 	exec cat.[Warehouse.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Warehouse.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [Warehouses!TWarehouse!Array] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name], w.Memo
+	from cat.Warehouses w
+	where TenantId = @TenantId and Void = 0 and
+		([Name] like @fr or Memo like @fr)
+	order by w.[Name];
 end
 go
 
@@ -6156,6 +6196,88 @@ begin
 		[!Items!Offset] = @Offset, [!Items!PageSize] = @PageSize, 
 		[!Items!SortOrder] = @Order, [!Items!SortDir] = @Dir,
 		[!Items.Fragment!Filter] = @Fragment;
+end
+go
+
+-------------------------------------------------
+create or alter procedure cat.[Item.Fetch.Price]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@IsStock nchar(1) = null,
+@PriceKind bigint = null,
+@Date datetime = null,
+@CheckRems bit = 0,
+@Wh bigint = null,
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	set @Date = isnull(@Date, getdate());
+
+	declare @source table(rowno int, id bigint, unit bigint, [role] bigint, rowcnt int);
+
+	insert into @source(id, rowno, unit, [role], rowcnt)
+		exec cat.[Item.FillList] @TenantId = @TenantId, @PageSize = 100, @Dir = N'name', @Order = N'asc', @Offset=0,
+			@IsStock = @IsStock, @Fragment = @Text;
+
+	declare @items cat.[view_Items.TableType];
+
+	if @CheckRems = 1
+	begin
+		declare @itemstable a2sys.[Id.TableType];
+		insert into @itemstable(Id) select id from @source;
+
+		insert into @items([Id!!Id], [Name!!Name], Article, Barcode, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+			[Role!TItemRole!RefId], [!TenantId], [!IsStock], Price, Rem, [!RowNo], [!!RowCount])
+		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Barcode, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
+			isnull(t.[Role], v.[Role!TItemRole!RefId]), @TenantId, v.[!IsStock], v.Price, t.Rem, s.rowno, s.rowcnt
+		from cat.view_Items v
+			inner join @source s on v.[!TenantId] = @TenantId and s.id = v.[Id!!Id]
+			left join doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) t
+			on t.Item = v.[Id!!Id]
+		where 
+			v.[!TenantId] = @TenantId
+	end
+	else
+	begin
+		insert into @items ([Id!!Id], [Name!!Name], Article, Barcode, Memo, [Unit.Id!TUnit!Id], [Unit.Short!TUnit],
+			[Role!TItemRole!RefId], [!TenantId], [!IsStock], Price, Rem, [!RowNo], [!!RowCount])
+		select v.[Id!!Id], v.[Name!!Name], v.Article, v.Barcode, v.Memo, v.[Unit.Id!TUnit!Id], v.[Unit.Short!TUnit],
+			v.[Role!TItemRole!RefId], @TenantId, v.[!IsStock], 0, 0, [!RowNo] = s.rowno, [!!RowCount] = s.rowcnt
+		from cat.view_Items v
+			inner join @source s on v.[Id!!Id] = s.id
+		where v.[!TenantId] = @TenantId
+	end;
+
+	-- update prices
+	if @PriceKind is not null
+	begin
+		with TP as (
+			select p.Item, [Date] = max(p.[Date])
+			from doc.Prices p inner join @items t on p.TenantId = @TenantId and p.Item = t.[Id!!Id] and 
+				p.[Date] <= @Date and p.PriceKind = @PriceKind
+			group by p.Item, p.PriceKind
+		),
+		TX as (
+			select p.Price, p.Item
+			from doc.Prices p inner join TP on p.TenantId = @TenantId and p.Item = TP.Item 
+				and p.PriceKind = @PriceKind and TP.[Date] = p.[Date]
+		)
+		update @items set Price = TX.Price 
+		from @items t inner join TX on t.[Id!!Id] = TX.Item;
+	end
+
+	select [Items!TItem!Array] = null, v.*
+	from @items v
+	order by v.[!RowNo], v.[Id!!Id];
+
+	-- all roles
+	select [!TItemRole!Map] = null, vir.* 
+	from cat.view_ItemRoles vir 
+	where vir.[!TenantId] = @TenantId;
 end
 go
 
@@ -8897,6 +9019,26 @@ begin
 	if exists(select 1 from doc.Documents where TenantId = @TenantId and RespCenter = @Id)
 		throw 60000, N'UI:@[Error.Delete.Used]', 0;
 	update cat.RespCenters set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[RespCenter.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [RespCenters!TRespCenter!Array] = null, [Id!!Id] = r.Id, [Name!!Name] = r.[Name], r.Memo
+	from cat.RespCenters r
+	where TenantId = @TenantId and Void = 0 and
+		([Name] like @fr or Memo like @fr)
+	order by r.[Name];
 end
 go
 

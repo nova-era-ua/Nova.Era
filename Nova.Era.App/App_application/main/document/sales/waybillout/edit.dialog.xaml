@@ -38,7 +38,7 @@
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />
 			<Label Content="@[Company]"/>
-			<Selector Value="{Bind Document.Company}" DisplayProperty="Name">
+			<Selector Value="{Bind Document.Company}" DisplayProperty="Name" Fetch="/catalog/company/fetch">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
@@ -58,16 +58,15 @@
 
 			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
 			<Selector Grid.Row="1" Grid.Col="5"
-					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
+					Value="{Bind Document.RespCenter}" DisplayProperty="Name" Fetch="/catalog/respcenter/fetch">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
 					Url='/catalog/respcenter/browse'}"/>
 			</Selector>
 
 			<Label Grid.Row="2" Grid.Col="4" Content="@[Warehouse]"/>
-			<Selector Grid.Row="2" Grid.Col="5" Value="{Bind Document.WhFrom}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
-				</Selector.AddOns>
+			<Selector Grid.Row="2" Grid.Col="5" Value="{Bind Document.WhFrom}" DisplayProperty="Name"
+					  Fetch="/catalog/warehouse/fetch">
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
 			</Selector>
 		</Grid>
 		<TabBar Grid.Row="3" Value="{Bind Root.$$TabNo}" Margin="0">
@@ -120,9 +119,20 @@
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
 						<TextBox Value="{Bind Item.Barcode}" Align="Center" Wrap="NoWrap"/>
-						<Selector Value="{Bind Item}" DisplayProperty="Name">
+						<Selector Value="{Bind Item}" DisplayProperty="Name" Delegate="itemBrowsePrice"
+								  ListSize="40rem,15rem">
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browseprice', 
-								Data={Bind Root.$BrowseStockArg}}"/>
+								Data={Bind Root.$BrowseStockArg}}">
+							</Hyperlink>
+							<Selector.ItemsPanel>
+								<DataGrid CssClass="data-grid-fetch">
+									<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+									<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+									<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap"/>
+									<DataGridColumn Header="@[Rem]" Content="{Bind Rem, DataType=Number, HideZeros=True, NegativeRed=True}" Align="Right" Role="Number"/>
+									<DataGridColumn Header="@[Price]" Content="{Bind Price, DataType=Currency}" Align="Right" Role="Number" Width="8rem"/>
+								</DataGrid>
+							</Selector.ItemsPanel>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<ComboBox ItemsSource="{Bind Root.$StockItemRoles}" Value="{Bind ItemRole}" />

@@ -33,10 +33,17 @@ const template: Template = {
 	},
 	commands: {
 		reloadRems
+	},
+	delegates: {
+		itemBrowsePrice
 	}
 };
 
-export default utils.mergeTemplate(base, template);
+// TODO: Platform mergeDelegates
+let r = utils.mergeTemplate(base, template);
+r.delegates.itemBrowsePrice = itemBrowsePrice;
+export default r;
+//export default utils.mergeTemplate(base, template);
 
 
 // #region validators
@@ -131,6 +138,17 @@ async function priceOrRemChange(doc) {
 		let rem = result.Rems.find(p => p.Item === row.Item.Id && p.Role === row.ItemRole.Id);
 		row.Rem = rem?.Rem || 0;
 	});
+}
+
+// #endregion
+
+// #region delegates
+
+function itemBrowsePrice(item, text) {
+	let ctrl: IController = this.$ctrl;
+	let arg = this.$root.$BrowseStockArg;
+	arg.Text = text;
+	return ctrl.$invoke('fetchprice', arg, '/catalog/item');
 }
 
 // #endregion
