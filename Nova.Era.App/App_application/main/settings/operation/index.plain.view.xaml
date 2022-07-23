@@ -15,7 +15,7 @@
 		<DataGrid Grid.Row="2" Grid.VAlign="Stretch" XamlStyle="{StyleResource DataGridSimple}"
 				ItemsSource="{Bind Operations}"
 				DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Operations}, Url='/settings/operation/edit'}">
-			<DataGridColumn Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 			<DataGridColumn Header="@[Category]" Content="{Bind Form.Category}"/>
 			<DataGridColumn Header="@[Form]" Content="{Bind Form.Name}"/>

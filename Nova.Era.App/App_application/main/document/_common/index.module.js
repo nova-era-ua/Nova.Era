@@ -31,7 +31,7 @@ define(["require", "exports"], function (require, exports) {
     exports.default = template;
     async function create(menu) {
         const ctrl = this.$ctrl;
-        let url = `/document/${menu.FormId}/edit`;
+        let url = `${menu.DocumentUrl}/edit`;
         await ctrl.$showDialog(url, null, { Operation: menu.Id });
     }
     function editSelected(docs) {
@@ -44,7 +44,7 @@ define(["require", "exports"], function (require, exports) {
         if (!doc)
             return;
         const ctrl = this.$ctrl;
-        let url = `/document/${doc.Operation.Form}/edit`;
+        let url = `${doc.Operation.DocumentUrl}/edit`;
         await ctrl.$showDialog(url, { Id: doc.Id });
     }
     function clearFilter(elem) {

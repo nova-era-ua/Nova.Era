@@ -40,13 +40,13 @@ begin
 	where c.TenantId = @TenantId and c.Id in (select Company from CA);
 
 	select [LinkedDocs!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
-		[OpName] = o.[Name], [Form] = o.Form, [!TDocument.LinkedDocs!ParentId] = d.Parent
+		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.LinkedDocs!ParentId] = d.Parent
 	from doc.Documents d 
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and d.Temp = 0 and d.Parent = @Id;
 
 	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], d.[Done],
-		[OpName] = o.[Name], o.Form
+		[OpName] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and d.Parent = p.Id
 	inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;

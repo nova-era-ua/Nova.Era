@@ -33,7 +33,7 @@ export default template;
 
 async function create(this: TRoot, menu: TMenu) {
 	const ctrl = this.$ctrl;
-	let url = `/document/${menu.FormId}/edit`
+	let url = `${menu.DocumentUrl}/edit`
 	await ctrl.$showDialog(url, null, { Operation: menu.Id });
 }
 
@@ -46,7 +46,7 @@ function editSelected(docs: TDocuments) {
 async function edit(this: TRoot, doc: TDocument) {
 	if (!doc) return;
 	const ctrl = this.$ctrl;
-	let url = `/document/${doc.Operation.Form}/edit`
+	let url = `${doc.Operation.DocumentUrl}/edit`
 	await ctrl.$showDialog(url, { Id: doc.Id });
 }
 

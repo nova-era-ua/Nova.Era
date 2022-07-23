@@ -285,9 +285,9 @@
     </Content>
     <Content Include="App_application\main\document\stock.index.view.xaml">
     </Content>
-    <Content Include="App_application\main\document\invoice\invoice.dialog.xaml">
+    <Content Include="App_application\main\document\sales\invoice\invoice.dialog.xaml">
     </Content>
-    <Content Include="App_application\main\document\waybillout\edit.dialog.xaml">
+    <Content Include="App_application\main\document\sales\waybillout\edit.dialog.xaml">
     </Content>
     <Content Include="App_application\main\reports\index.view.xaml">
     </Content>
@@ -314,7 +314,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
-    <Content Include="App_application\main\document\payin\edit.dialog.xaml">
+    <Content Include="App_application\main\document\money\payin\edit.dialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
@@ -322,7 +322,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
-    <Content Include="App_application\main\document\waybillin\edit.dialog.xaml">
+    <Content Include="App_application\main\document\purchase\waybillin\edit.dialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
@@ -330,7 +330,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
-    <Content Include="App_application\main\document\cashin\edit.dialog.xaml">
+    <Content Include="App_application\main\document\money\cashin\edit.dialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
@@ -338,11 +338,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
-    <Content Include="App_application\main\document\payout\edit.dialog.xaml">
+    <Content Include="App_application\main\document\money\payout\edit.dialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
-    <Content Include="App_application\main\document\cashout\edit.dialog.xaml">
+    <Content Include="App_application\main\document\money\cashout\edit.dialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
@@ -423,12 +423,13 @@
     <TypeScriptCompile Include="App_application\main\catalog\person\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\person\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\vendor\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\invent\inventbill\inventbill.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accrespcost.template.ts" />
     <TypeScriptCompile Include="App_application\main\welcome\welcome.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\cashmove\edit.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\writeon\edit.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\writeoff\edit.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\movebill\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\money\cashmove\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\invent\writeon\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\invent\writeoff\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\invent\movebill\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\invent.index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\print\browse.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\plan\itemrems.template.ts" />
@@ -436,13 +437,14 @@
     <TypeScriptCompile Include="App_application\main\sales\price\index.template.ts" />
     <Content Include="App_application\main\settings\dashboard\model.json" />
     <Content Include="App_application\main\settings\policy\model.json" />
-    <Content Include="App_application\main\document\movebill\model.json" />
+    <Content Include="App_application\main\document\invent\movebill\model.json" />
     <Content Include="App_application\main\settings\person\model.json" />
     <Content Include="App_application\main\document\print\model.json" />
-    <Content Include="App_application\main\document\writeoff\model.json" />
-    <Content Include="App_application\main\document\writeon\model.json" />
-    <Content Include="App_application\main\document\cashmove\model.json" />
+    <Content Include="App_application\main\document\invent\writeoff\model.json" />
+    <Content Include="App_application\main\document\invent\writeon\model.json" />
+    <Content Include="App_application\main\document\money\cashmove\model.json" />
     <Content Include="App_application\main\welcome\model.json" />
+    <Content Include="App_application\main\document\invent\inventbill\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
@@ -457,12 +459,12 @@
     <TypeScriptCompile Include="App_application\main\catalog\cashflowitem\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\pricekind\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\dashboard\dashboard.template.ts" />
-    <None Include="App_application\main\document\cashout\model.json" />
-    <None Include="App_application\main\document\cashin\model.json" />
+    <None Include="App_application\main\document\money\cashout\model.json" />
+    <None Include="App_application\main\document\money\cashin\model.json" />
     <None Include="App_application\main\document\dialogs\model.json" />
-    <None Include="App_application\main\document\payout\model.json" />
-    <None Include="App_application\main\document\payin\model.json" />
-    <None Include="App_application\main\document\waybillin\model.json" />
+    <None Include="App_application\main\document\money\payout\model.json" />
+    <None Include="App_application\main\document\money\payin\model.json" />
+    <None Include="App_application\main\document\purchase\waybillin\model.json" />
     <None Include="App_application\main\sales\price\model.json" />
     <None Include="App_application\main\reports\plan\model.json" />
     <None Include="App_application\main\settings\develop\model.json" />
@@ -472,10 +474,10 @@
     <TypeScriptCompile Include="App_application\main\catalog\currency\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\currency\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\unit\index.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\cashout\edit.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\cashin\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\money\cashout\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\money\cashin\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\dialogs\transactions.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\payout\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\money\payout\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\stock.d.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\pay.module.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\common.module.ts" />
@@ -487,8 +489,8 @@
     <TypeScriptCompile Include="App_application\main\catalog\bankaccount\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\bankaccount\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\pay.index.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\payin\edit.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\waybillin\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\money\payin\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\purchase\waybillin\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\stock.module.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\index.d.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\index.module.ts" />
@@ -522,8 +524,8 @@
     </Content>
     <None Include="App_application\main\catalog\unit\model.json" />
     <None Include="App_application\main\crm\dashboard\model.json" />
-    <None Include="App_application\main\document\waybillout\model.json" />
-    <None Include="App_application\main\document\invoice\model.json" />
+    <None Include="App_application\main\document\sales\waybillout\model.json" />
+    <None Include="App_application\main\document\sales\invoice\model.json" />
     <None Include="App_application\main\purchase\agent\model.json" />
     <None Include="App_application\main\purchase\catalog\model.json" />
     <None Include="App_application\main\purchase\dashboard\model.json" />
@@ -565,8 +567,8 @@
     <None Include="App_application\sql.json" />
     <TypeScriptCompile Include="App_application\main\catalog\_common\tree.d.ts" />
     <TypeScriptCompile Include="App_application\main\document\stock.index.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\invoice\invoice.template.ts" />
-    <TypeScriptCompile Include="App_application\main\document\waybillout\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\sales\invoice\invoice.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\sales\waybillout\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\company\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\plan\turnover.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\_common\simple.template.ts" />
@@ -803,7 +805,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_application\main\document\movebill\edit.dialog.xaml">
+    <Content Include="App_application\main\document\invent\movebill\edit.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
@@ -898,19 +900,19 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_application\main\document\writeoff\edit.dialog.xaml">
+    <Content Include="App_application\main\document\invent\writeoff\edit.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_application\main\document\writeon\edit.dialog.xaml">
+    <Content Include="App_application\main\document\invent\writeon\edit.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_application\main\document\cashmove\edit.dialog.xaml">
+    <Content Include="App_application\main\document\money\cashmove\edit.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
@@ -924,6 +926,11 @@
   <ItemGroup>
     <Content Include="App_application\main\reports\account\turnover.accrespcost.view.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\document\invent\inventbill\inventbill.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -25,7 +25,7 @@ begin
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
 	select [Document!TDocBase!Object] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
-		[OpName] = o.[Name], [Form] = o.Form
+		[OpName] = o.[Name], [Form] = o.Form, [DocumentUrl] = o.DocumentUrl
 	from @rtable t inner join doc.Documents d on d.TenantId = @TenantId and t.id = d.Id
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 

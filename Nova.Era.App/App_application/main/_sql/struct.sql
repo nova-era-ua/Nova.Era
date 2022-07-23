@@ -595,6 +595,7 @@ create table doc.Forms
 (
 	TenantId int not null,
 	Id nvarchar(16) not null,
+	[Url] nvarchar(255),
 	[Order] int,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
@@ -646,10 +647,11 @@ create table doc.Operations
 		constraint DF_Operations_Void default(0),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	[Agent] nchar(1),
+	[Agent] nchar(1), -- TODO: Delete
 	Form nvarchar(16) not null,
-	[WarehouseFrom] nchar(1),
-	[WarehouseTo] nchar(1),
+	[DocumentUrl] nvarchar(255) null,
+	[WarehouseFrom] nchar(1), -- TODO: Delete
+	[WarehouseTo] nchar(1), -- TODO: Delete
 	[Uid] uniqueidentifier not null
 		constraint DF_Operations_Uid default(newid()),
 	constraint PK_Operations primary key (TenantId, Id),

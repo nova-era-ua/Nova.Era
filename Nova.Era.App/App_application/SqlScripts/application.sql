@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 22.07.2022 10:47:24
+generated: 23.07.2022 08:43:38
 */
 
 
@@ -4007,6 +4007,7 @@ create table doc.Forms
 (
 	TenantId int not null,
 	Id nvarchar(16) not null,
+	[Url] nvarchar(255),
 	[Order] int,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
@@ -4058,10 +4059,11 @@ create table doc.Operations
 		constraint DF_Operations_Void default(0),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	[Agent] nchar(1),
+	[Agent] nchar(1), -- TODO: Delete
 	Form nvarchar(16) not null,
-	[WarehouseFrom] nchar(1),
-	[WarehouseTo] nchar(1),
+	[DocumentUrl] nvarchar(255) null,
+	[WarehouseFrom] nchar(1), -- TODO: Delete
+	[WarehouseTo] nchar(1), -- TODO: Delete
 	[Uid] uniqueidentifier not null
 		constraint DF_Operations_Uid default(newid()),
 	constraint PK_Operations primary key (TenantId, Id),
@@ -4531,6 +4533,14 @@ go
 
 -- MIGRATIONS
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations' and COLUMN_NAME=N'DocumentUrl')
+	alter table doc.Operations add DocumentUrl nvarchar(255) null;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Forms' and COLUMN_NAME=N'Url')
+	alter table doc.Forms add [Url] nvarchar(255);
+go
+
 
 /*
 common
@@ -9353,7 +9363,7 @@ begin
 
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
-		[Form!TForm!RefId] = o.Form,
+		o.DocumentUrl, [Form!TForm!RefId] = o.Form, 
 		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
 		[Trans!TOpTrans!Array] = null
@@ -9392,7 +9402,7 @@ begin
 	where ot.TenantId = @TenantId and ot.Operation = @Id
 	group by a.Id, a.Code, a.[Name], a.IsItem, a.IsAgent, a.IsWarehouse, a.IsBankAccount, a.IsCash;
 
-	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], [Category], InOut,
+	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], [Category], InOut, [Url],
 		[RowKinds!TRowKind!Array] = null
 	from doc.Forms df
 	where df.TenantId = @TenantId
@@ -9438,6 +9448,7 @@ as table(
 	Id bigint null,
 	[Menu] nvarchar(32),
 	[Form] nvarchar(16),
+	[DocumentUrl] nvarchar(255),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255)
 )
@@ -9540,10 +9551,11 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.[Form] = s.[Form]
+		t.[Form] = s.[Form],
+		t.[DocumentUrl] = s.[DocumentUrl]
 	when not matched by target then insert
-		(TenantId, [Name], Form, Memo) values
-		(@TenantId, s.[Name], s.Form, s.Memo)
+		(TenantId, [Name], Form, Memo, DocumentUrl) values
+		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 
@@ -9683,13 +9695,13 @@ begin
 	where c.TenantId = @TenantId and c.Id in (select Company from CA);
 
 	select [LinkedDocs!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
-		[OpName] = o.[Name], [Form] = o.Form, [!TDocument.LinkedDocs!ParentId] = d.Parent
+		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.LinkedDocs!ParentId] = d.Parent
 	from doc.Documents d 
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and d.Temp = 0 and d.Parent = @Id;
 
 	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], d.[Done],
-		[OpName] = o.[Name], o.Form
+		[OpName] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and d.Parent = p.Id
 	inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
@@ -9829,7 +9841,7 @@ begin
 
 	-- maps
 	with T as (select op from @docs group by op)
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Operations o 
 		inner join T t on o.TenantId = @TenantId and o.Id = op;
 
@@ -9850,7 +9862,8 @@ begin
 		inner join T t on c.TenantId = @TenantId and c.Id = comp;
 
 	-- menu
-	select [Menu!TMenu!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], FormId = f.Id, FormName = f.[Name]
+	select [Menu!TMenu!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], FormId = f.Id, FormName = f.[Name],
+		o.[DocumentUrl]
 	from doc.Operations o
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
@@ -9858,9 +9871,9 @@ begin
 	order by f.[Order];
 
 	-- filters
-	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, [!Order] = -1
+	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, null, [!Order] = -1
 	union all
-	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], [!Order] = o.Id
+	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], o.DocumentUrl, [!Order] = o.Id
 	from doc.Operations o
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
 	where o.TenantId = @TenantId and ml.Menu = @Menu
@@ -9941,7 +9954,7 @@ begin
 	from doc.DocumentExtra da where da.TenantId = @TenantId and da.Id = @Id;
 
 	-- maps
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form,
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl,
 		[Links!TOpLink!Array] = null
 	from doc.Operations o 
 	where o.TenantId = @TenantId and o.Id = @Operation;
@@ -10263,7 +10276,7 @@ begin
 
 	-- maps
 	with T as (select op from @docs group by op)
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Operations o 
 		inner join T t on o.TenantId = @TenantId and o.Id = op;
 
@@ -10284,7 +10297,8 @@ begin
 		inner join T t on c.TenantId = @TenantId and c.Id = comp;
 
 	-- menu
-	select [Menu!TMenu!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], FormId = f.Id, FormName = f.[Name]
+	select [Menu!TMenu!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], FormId = f.Id, FormName = f.[Name],
+		o.DocumentUrl
 	from doc.Operations o
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
@@ -10292,9 +10306,9 @@ begin
 	order by f.[Order];
 
 	-- filters
-	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, [!Order] = -1
+	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, null, [!Order] = -1
 	union all
-	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], [!Order] = o.Id
+	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], o.DocumentUrl, [!Order] = o.Id
 	from doc.Operations o
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
 	where o.TenantId = @TenantId and ml.Menu = @Menu
@@ -10339,7 +10353,7 @@ begin
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Operations o 
 		left join doc.Documents d on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
@@ -10362,7 +10376,7 @@ begin
 	inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
-	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Form]
+	select [Operations!TOperation!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Form], DocumentUrl
 	from doc.Operations where TenantId = @TenantId and Form=@docform
 	order by Id;
 
@@ -10908,7 +10922,7 @@ begin
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
 	select [Document!TDocBase!Object] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
-		[OpName] = o.[Name], [Form] = o.Form
+		[OpName] = o.[Name], [Form] = o.Form, [DocumentUrl] = o.DocumentUrl
 	from @rtable t inner join doc.Documents d on d.TenantId = @TenantId and t.id = d.Id
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 
@@ -12919,26 +12933,28 @@ begin
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- forms
-	declare @df table(id nvarchar(16), [order] int, inout smallint, category nvarchar(255), [name] nvarchar(255));
-	insert into @df (id, inout, [order], category, [name]) values
+	declare @df table(id nvarchar(16), [order] int, inout smallint, [url] nvarchar(255), category nvarchar(255), [name] nvarchar(255));
+	insert into @df (id, inout, [order], category, [url], [name]) values
 		-- Sales
-		(N'invoice',    null, 1, N'@[Sales]', N'Замовлення клієнта'),
-		(N'complcert',  null, 2, N'@[Sales]', N'Акт виконаних робіт'),
-		(N'waybillout', null, 3, N'@[Sales]', N'Продаж товарів/послуг'),
+		(N'invoice',    null, 1, N'@[Sales]', N'/document/sales', N'Замовлення клієнта'),
+		(N'complcert',  null, 2, N'@[Sales]', N'/document/sales', N'Акт виконаних робіт'),
+		(N'waybillout', null, 3, N'@[Sales]', N'/document/sales', N'Продаж товарів/послуг'),
 		-- 
-		(N'waybillin',  null, 4, N'@[Purchases]', N'Покупка товарів/послуг'),
+		(N'waybillin',  null, 4, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
 		--
-		(N'movebill',   null, 5, N'@[KindStock]', N'Внутрішнє переміщення'),
-		(N'writeoff',   null, 6, N'@[KindStock]', N'Акт списання'),
-		(N'writeon',    null, 7, N'@[KindStock]', N'Акт оприбуткування'),
+		(N'movebill',   null, 5, N'@[KindStock]', N'/document/invent', N'Внутрішнє переміщення'),
+		(N'inventbill', null, 6, N'@[KindStock]', N'/document/invent', N'Інвентарізація'),
+		(N'writeoff',   null, 7, N'@[KindStock]', N'/document/invent', N'Акт списання'),
+		(N'writeon',    null, 8, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
 		--
-		(N'payout',    - 1, 10, N'@[Money]', N'Витрата безготівкових коштів'),
-		(N'cashout',   - 1, 11, N'@[Money]', N'Витрата готівки'),
-		(N'payin',       1, 12, N'@[Money]', N'Надходження безготівкових коштів'),
-		(N'cashin',      1, 13, N'@[Money]', N'Надходження готівки'),
-		(N'cashmove', null, 14, N'@[Money]', N'Прерахування коштів'),
+		(N'payout',    -1,  10, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
+		(N'cashout',   -1,  11, N'@[Money]', N'/document/money', N'Витрата готівки'),
+		(N'payin',      1,  12, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
+		(N'cashin',     1,  13, N'@[Money]', N'/document/money', N'Надходження готівки'),
+		(N'cashmove', null, 14, N'@[Money]', N'/document/money', N'Прерахування коштів'),
+		(N'cashoff',  -1,   15, N'@[Money]', N'/document/money', N'Списання коштів'),
 		-- 
-		(N'manufact',  null, 20, N'@[Manufacturing]', N'Виробничий акт-звіт');
+		(N'manufact',  null, 20, N'@[Manufacturing]', N'/manufacturing/document', N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
@@ -12946,11 +12962,15 @@ begin
 		t.[Name] = s.[name],
 		t.[Order] = s.[order],
 		t.InOut = s.inout,
+		t.[Url] = s.[url],
 		t.Category = s.category
 	when not matched by target then insert
-		(TenantId, Id, [Order], [Name], InOut, Category) values
-		(@TenantId, s.id, s.[order], s.[name], inout, category)
+		(TenantId, Id, [Order], [Name], InOut, Category, [Url]) values
+		(@TenantId, s.id, s.[order], s.[name], inout, category, [url])
 	when not matched by source and t.TenantId = @TenantId then delete;
+
+	update doc.Operations set DocumentUrl = f.[Url] + N'/' + f.Id
+	from doc.Operations o inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 
 	-- form row kinds
 	declare @rk table(Id nvarchar(16), [Order] int, Form nvarchar(16), [Name] nvarchar(255));
@@ -12961,6 +12981,7 @@ begin
 	(N'waybillin',  1, N'Stock',   N'@[KindStock]'),
 	(N'waybillin',  2, N'Service', N'@[KindServices]'),
 	(N'movebill',   1, N'Stock',   N'@[KindStock]'),
+	(N'inventbill', 1, N'Stock',   N'@[KindStock]'),
 	(N'writeoff',   1, N'Stock',   N'@[KindStock]'),
 	(N'writeon',    1, N'Stock',   N'@[KindStock]'),
 	(N'payin',      1, N'', N'Немає рядків'),

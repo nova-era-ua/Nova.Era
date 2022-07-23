@@ -57,7 +57,7 @@ begin
 
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
-		[Form!TForm!RefId] = o.Form,
+		o.DocumentUrl, [Form!TForm!RefId] = o.Form, 
 		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
 		[Trans!TOpTrans!Array] = null
@@ -96,7 +96,7 @@ begin
 	where ot.TenantId = @TenantId and ot.Operation = @Id
 	group by a.Id, a.Code, a.[Name], a.IsItem, a.IsAgent, a.IsWarehouse, a.IsBankAccount, a.IsCash;
 
-	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], [Category], InOut,
+	select [Forms!TForm!Array] = null, [Id!!Id] = df.Id, [Name!!Name] = df.[Name], [Category], InOut, [Url],
 		[RowKinds!TRowKind!Array] = null
 	from doc.Forms df
 	where df.TenantId = @TenantId
@@ -142,6 +142,7 @@ as table(
 	Id bigint null,
 	[Menu] nvarchar(32),
 	[Form] nvarchar(16),
+	[DocumentUrl] nvarchar(255),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255)
 )
@@ -244,10 +245,11 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.[Form] = s.[Form]
+		t.[Form] = s.[Form],
+		t.[DocumentUrl] = s.[DocumentUrl]
 	when not matched by target then insert
-		(TenantId, [Name], Form, Memo) values
-		(@TenantId, s.[Name], s.Form, s.Memo)
+		(TenantId, [Name], Form, Memo, DocumentUrl) values
+		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 

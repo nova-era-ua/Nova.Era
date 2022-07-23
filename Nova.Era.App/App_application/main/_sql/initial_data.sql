@@ -96,26 +96,28 @@ begin
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- forms
-	declare @df table(id nvarchar(16), [order] int, inout smallint, category nvarchar(255), [name] nvarchar(255));
-	insert into @df (id, inout, [order], category, [name]) values
+	declare @df table(id nvarchar(16), [order] int, inout smallint, [url] nvarchar(255), category nvarchar(255), [name] nvarchar(255));
+	insert into @df (id, inout, [order], category, [url], [name]) values
 		-- Sales
-		(N'invoice',    null, 1, N'@[Sales]', N'Замовлення клієнта'),
-		(N'complcert',  null, 2, N'@[Sales]', N'Акт виконаних робіт'),
-		(N'waybillout', null, 3, N'@[Sales]', N'Продаж товарів/послуг'),
+		(N'invoice',    null, 1, N'@[Sales]', N'/document/sales', N'Замовлення клієнта'),
+		(N'complcert',  null, 2, N'@[Sales]', N'/document/sales', N'Акт виконаних робіт'),
+		(N'waybillout', null, 3, N'@[Sales]', N'/document/sales', N'Продаж товарів/послуг'),
 		-- 
-		(N'waybillin',  null, 4, N'@[Purchases]', N'Покупка товарів/послуг'),
+		(N'waybillin',  null, 4, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
 		--
-		(N'movebill',   null, 5, N'@[KindStock]', N'Внутрішнє переміщення'),
-		(N'writeoff',   null, 6, N'@[KindStock]', N'Акт списання'),
-		(N'writeon',    null, 7, N'@[KindStock]', N'Акт оприбуткування'),
+		(N'movebill',   null, 5, N'@[KindStock]', N'/document/invent', N'Внутрішнє переміщення'),
+		(N'inventbill', null, 6, N'@[KindStock]', N'/document/invent', N'Інвентарізація'),
+		(N'writeoff',   null, 7, N'@[KindStock]', N'/document/invent', N'Акт списання'),
+		(N'writeon',    null, 8, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
 		--
-		(N'payout',    - 1, 10, N'@[Money]', N'Витрата безготівкових коштів'),
-		(N'cashout',   - 1, 11, N'@[Money]', N'Витрата готівки'),
-		(N'payin',       1, 12, N'@[Money]', N'Надходження безготівкових коштів'),
-		(N'cashin',      1, 13, N'@[Money]', N'Надходження готівки'),
-		(N'cashmove', null, 14, N'@[Money]', N'Прерахування коштів'),
+		(N'payout',    -1,  10, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
+		(N'cashout',   -1,  11, N'@[Money]', N'/document/money', N'Витрата готівки'),
+		(N'payin',      1,  12, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
+		(N'cashin',     1,  13, N'@[Money]', N'/document/money', N'Надходження готівки'),
+		(N'cashmove', null, 14, N'@[Money]', N'/document/money', N'Прерахування коштів'),
+		(N'cashoff',  -1,   15, N'@[Money]', N'/document/money', N'Списання коштів'),
 		-- 
-		(N'manufact',  null, 20, N'@[Manufacturing]', N'Виробничий акт-звіт');
+		(N'manufact',  null, 20, N'@[Manufacturing]', N'/manufacturing/document', N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
@@ -123,11 +125,15 @@ begin
 		t.[Name] = s.[name],
 		t.[Order] = s.[order],
 		t.InOut = s.inout,
+		t.[Url] = s.[url],
 		t.Category = s.category
 	when not matched by target then insert
-		(TenantId, Id, [Order], [Name], InOut, Category) values
-		(@TenantId, s.id, s.[order], s.[name], inout, category)
+		(TenantId, Id, [Order], [Name], InOut, Category, [Url]) values
+		(@TenantId, s.id, s.[order], s.[name], inout, category, [url])
 	when not matched by source and t.TenantId = @TenantId then delete;
+
+	update doc.Operations set DocumentUrl = f.[Url] + N'/' + f.Id
+	from doc.Operations o inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 
 	-- form row kinds
 	declare @rk table(Id nvarchar(16), [Order] int, Form nvarchar(16), [Name] nvarchar(255));
@@ -138,6 +144,7 @@ begin
 	(N'waybillin',  1, N'Stock',   N'@[KindStock]'),
 	(N'waybillin',  2, N'Service', N'@[KindServices]'),
 	(N'movebill',   1, N'Stock',   N'@[KindStock]'),
+	(N'inventbill', 1, N'Stock',   N'@[KindStock]'),
 	(N'writeoff',   1, N'Stock',   N'@[KindStock]'),
 	(N'writeon',    1, N'Stock',   N'@[KindStock]'),
 	(N'payin',      1, N'', N'Немає рядків'),

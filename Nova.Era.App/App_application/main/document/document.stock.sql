@@ -93,7 +93,7 @@ begin
 
 	-- maps
 	with T as (select op from @docs group by op)
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Operations o 
 		inner join T t on o.TenantId = @TenantId and o.Id = op;
 
@@ -114,7 +114,8 @@ begin
 		inner join T t on c.TenantId = @TenantId and c.Id = comp;
 
 	-- menu
-	select [Menu!TMenu!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], FormId = f.Id, FormName = f.[Name]
+	select [Menu!TMenu!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], FormId = f.Id, FormName = f.[Name],
+		o.[DocumentUrl]
 	from doc.Operations o
 		inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
@@ -122,9 +123,9 @@ begin
 	order by f.[Order];
 
 	-- filters
-	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, [!Order] = -1
+	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, null, [!Order] = -1
 	union all
-	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], [!Order] = o.Id
+	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], o.DocumentUrl, [!Order] = o.Id
 	from doc.Operations o
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
 	where o.TenantId = @TenantId and ml.Menu = @Menu
@@ -205,7 +206,7 @@ begin
 	from doc.DocumentExtra da where da.TenantId = @TenantId and da.Id = @Id;
 
 	-- maps
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form,
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl,
 		[Links!TOpLink!Array] = null
 	from doc.Operations o 
 	where o.TenantId = @TenantId and o.Id = @Operation;

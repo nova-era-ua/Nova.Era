@@ -1,0 +1,77 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Size="Max"
+		ButtonOnTop="True" Title="Перерахування коштів" SaveEvent="app.document.saved"
+		CanCloseDelegate="canClose">
+	<Dialog.Buttons>
+		<Button Icon="SaveCloseOutline" Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
+		<Button If="{Bind !Document.Done}"
+			Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
+		<Button If="{Bind Document.Done}"
+			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
+		<Button Content="@[Close]" Command="{BindCmd Close}" />
+		<Separator />
+		<Label Content="@[Operation]"/>
+		<ComboBox ItemsSource="{Bind Operations}" Width="20rem"
+					  Value="{Bind Document.Operation}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
+	</Dialog.Buttons>
+	<Dialog.Taskpad>
+		<ContentControl Content="{Source '../../_common/pay.taskpad.xaml'}"/>
+	</Dialog.Taskpad>
+	<Grid Height="100%" Rows="Auto,Auto,1*,Auto">
+		<Grid Grid.Row="1" AutoFlow="Column" AlignItems="Baseline" Gap="1rem"
+			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem" Padding="0,0,1rem,0">
+			<Header Content="Перерахування коштів" Wrap="NoWrap"/>
+			<Label Align="Right">№</Label>
+			<TextBox Placeholder="(Авто)" Disabled="True"/>
+			<Label Align="Right">від</Label>
+			<DatePicker Value="{Bind Document.Date}"/>
+			<Span />
+			<Label Content="@[Company]"></Label>
+			<Selector Label="" Value="{Bind Document.Company}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+		</Grid>
+		<Grid Columns="Auto,22rem,Auto,22rem,1*, Auto,22rem" Gap="1rem">
+			<Label Content="Перехувати з" Grid.Row="1" Grid.Col="1"/>
+			<Selector Grid.Row="1" Grid.Col="2"
+					  Value="{Bind Document.CashAccFrom}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccFrom}, 
+						Url='/catalog/cashaccount/browseall', Data={Bind Document.$CompanyArg}}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Label Content="на" Grid.Row="1" Grid.Col="3"/>
+			<Selector Grid.Row="1" Grid.Col="4"
+					  Value="{Bind Document.CashAccTo}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccTo}, 
+						Url='/catalog/cashaccount/browseall', Data={Bind Document.$CompanyArg}}"/>
+				</Selector.AddOns>
+			</Selector>
+			<Label Content="@[Sum]" Grid.Row="3" Grid.Col="1"/>
+			<TextBox Grid.Row="3" Grid.Col="2" Width="15rem"
+					 Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
+			<Label Content="@[PaymentPurpose]" Grid.Row="5" Grid.Col="1" Grid.VAlign="Top"/>
+			<TextBox Grid.Row="5" Grid.Col="2" Value="{Bind Document.Notice}" Multiline="True" Rows="3"/>
+			
+			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="6" Wrap="NoWrap"/>
+			<Selector Grid.Row="1" Grid.Col="7"
+					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
+						Url='/catalog/respcenter/browse'}"/>
+			</Selector>
+			<Label Content="@[CashFlowItem]" Grid.Row="2" Grid.Col="1"/>
+			<Selector Grid.Row="2" Grid.Col="2"
+					Value="{Bind Document.CashFlowItem}" DisplayProperty="Name">
+				<Selector.AddOns>
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashFlowItem}, 
+						Url='/catalog/cashflowitem/browse'}"/>
+				</Selector.AddOns>
+			</Selector>
+		</Grid>
+		<TextBox Grid.Row="4" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
+	</Grid>
+</Dialog>

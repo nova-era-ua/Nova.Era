@@ -5,6 +5,7 @@ define(["require", "exports"], function (require, exports) {
         properties: {
             'TRoot.$$Tab': String,
             'TOperation.$Title'() { return this.Id ? this.Id : '@[NewItemW]'; },
+            'TOperation.DocumentUrl'() { return `${this.Form.Url}/${this.Form.Id}`; },
             'TOpTrans.$PlanArg'() { return { Plan: this.Plan.Id }; },
             'TOpTrans.$DtAccVisible'() { return this.Plan.Id && this.DtAccMode === ''; },
             'TOpTrans.$CtAccVisible'() { return this.Plan.Id && this.CtAccMode === ''; },

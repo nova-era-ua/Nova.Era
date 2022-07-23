@@ -1,0 +1,25 @@
+﻿{
+  "$schema": "../../../../@schemas/model-json-schema.json#",
+  "schema": "doc",
+  "model": "Document.Stock",
+    "dialogs": {
+        "edit": {
+            "template": "invoice.template",
+            "view": "invoice.dialog"
+        }
+    },
+    "commands": {
+        "getPrices": {
+            "type": "sql",
+            "procedure": "Price.Items.Get"
+        },
+        "apply": {
+            "type": "sql",
+            "procedure": "Document.Apply"
+        },
+        "unapply": {
+            "type": "sql",
+            "procedure": "Document.UnApply"
+        }
+    }
+}

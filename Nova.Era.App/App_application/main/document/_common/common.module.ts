@@ -131,14 +131,14 @@ async function createOnBase(link) {
 	await ctrl.$save();
 	let res = await ctrl.$invoke('createonbase', { Document: this.Document.Id, LinkId: link.Id}, '/document/commands');
 
-	let url = `/document/${res.Document.Form}/edit`;
+	let url = `${res.Document.DocumentUrl}/edit`;
 	await ctrl.$showDialog(url, { Id: res.Document.Id });
 
 }
 
 async function openLinked(doc) {
 	const ctrl: IController = this.$ctrl;
-	let url = `/document/${doc.Form}/edit`;
+	let url = `${doc.DocumentUrl}/edit`;
 	await ctrl.$showDialog(url, { Id: doc.Id });
 }
 // #endregion
