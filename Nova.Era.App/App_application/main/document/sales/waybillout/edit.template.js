@@ -38,9 +38,7 @@ define(["require", "exports"], function (require, exports) {
             itemBrowsePrice
         }
     };
-    let r = utils.mergeTemplate(base, template);
-    r.delegates.itemBrowsePrice = itemBrowsePrice;
-    exports.default = r;
+    exports.default = utils.mergeTemplate(base, template);
     function checkRems(elem, val) {
         return elem.Qty <= elem.Rem;
     }

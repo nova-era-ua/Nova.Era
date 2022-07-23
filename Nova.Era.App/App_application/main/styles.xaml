@@ -9,11 +9,8 @@
 		<Setter Property="UserSelect" Value="True"/>
 	</Style>
 	<Style x:Key="DataGridPanel">
-		<Setter Property="Style" Value="Light"/>
-		<Setter Property="Striped" Value="True"/>
-		<Setter Property="Hover" Value="True"/>
 		<Setter Property="GridLines" Value="Horizontal" />
-		<Setter Property="HeadersVisibility" Value="None"/>
+		<Setter Property="Striped" Value="True" />
 		<Setter Property="CssClass" Value="data-grid-fetch"/>
 	</Style>
 	<Style x:Key="ToolbarLight">

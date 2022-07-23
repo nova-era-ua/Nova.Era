@@ -14,8 +14,8 @@
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Unit}, Url='/catalog/unit/browse'}"/>
 				<Selector.ItemsPanel>
 					<DataGrid XamlStyle="{StyleResource DataGridPanel}">
-						<DataGridColumn Content="{Bind Short}" Wrap="NoWrap" Fit="True"/>
-						<DataGridColumn Content="{Bind Name}"/>
+						<DataGridColumn Header="@[Short]" Content="{Bind Short}" Wrap="NoWrap" Fit="True"/>
+						<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 					</DataGrid>
 				</Selector.ItemsPanel>
 			</Selector>

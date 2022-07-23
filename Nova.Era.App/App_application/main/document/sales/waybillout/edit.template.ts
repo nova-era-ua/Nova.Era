@@ -39,11 +39,7 @@ const template: Template = {
 	}
 };
 
-// TODO: Platform mergeDelegates
-let r = utils.mergeTemplate(base, template);
-r.delegates.itemBrowsePrice = itemBrowsePrice;
-export default r;
-//export default utils.mergeTemplate(base, template);
+export default utils.mergeTemplate(base, template);
 
 
 // #region validators
