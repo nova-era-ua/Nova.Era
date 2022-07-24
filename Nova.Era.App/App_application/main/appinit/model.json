@@ -4,8 +4,8 @@
   "model": "",
   "actions": {
     "index": {
-      "template": "welcome.template",
-      "view": "welcome.view"
+      "template": "index.template",
+      "view": "index.view"
     }
   }
 }

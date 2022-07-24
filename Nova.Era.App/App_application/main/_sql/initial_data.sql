@@ -152,6 +152,7 @@ begin
 	(N'cashin',     1, N'', N'Немає рядків'),
 	(N'cashout',    1, N'', N'Немає рядків'),
 	(N'cashmove',   1, N'', N'Немає рядків'),
+	(N'cashoff',    1, N'', N'Немає рядків'),
 	(N'invoice',    1, N'Stock',   N'@[KindStock]'),
 	(N'invoice',    2, N'Service', N'@[KindServices]'),
 	(N'manufact',   1, N'Stock',   N'@[KindStock]'),

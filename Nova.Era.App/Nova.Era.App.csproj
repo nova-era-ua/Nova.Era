@@ -384,6 +384,7 @@
     <None Include="App_application\main\accounting\report\model.json" />
     <None Include="App_application\main\accounting\bank\model.json" />
     <None Include="App_application\main\accounting\service\model.json" />
+    <Content Include="App_application\main\appstart\model.json" />
     <None Include="App_application\main\catalog\account\model.json" />
     <None Include="App_application\main\catalog\cashaccount\model.json" />
     <None Include="App_application\main\catalog\bankaccount\model.json" />
@@ -418,6 +419,7 @@
     <Content Include="tsconfig.json" />
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
+    <TypeScriptCompile Include="App_application\main\appstart\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemrole\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\person\edit.template.ts" />
@@ -425,7 +427,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\vendor\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\invent\inventbill\inventbill.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accrespcost.template.ts" />
-    <TypeScriptCompile Include="App_application\main\welcome\welcome.template.ts" />
+    <TypeScriptCompile Include="App_application\main\appinit\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\money\cashmove\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\invent\writeon\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\invent\writeoff\edit.template.ts" />
@@ -443,7 +445,7 @@
     <Content Include="App_application\main\document\invent\writeoff\model.json" />
     <Content Include="App_application\main\document\invent\writeon\model.json" />
     <Content Include="App_application\main\document\money\cashmove\model.json" />
-    <Content Include="App_application\main\welcome\model.json" />
+    <Content Include="App_application\main\appinit\model.json" />
     <Content Include="App_application\main\document\invent\inventbill\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
@@ -918,7 +920,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_application\main\welcome\welcome.view.xaml">
+    <Content Include="App_application\main\appinit\index.view.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
@@ -931,6 +933,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\document\invent\inventbill\inventbill.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\appstart\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

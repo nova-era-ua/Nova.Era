@@ -1,0 +1,10 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<StackPanel Padding="5rem" JustifyItems="Center" Orientation="Vertical" AlignItems="Center">
+		<Header Bold="False" Size="Large">
+			<Text>
+				<SpanIcon Icon="ArrowUp" Size="2rem"/>
+				<Span Space="Both">Початкові налаштування</Span>
+			</Text>
+		</Header>
+	</StackPanel>
+</Page>

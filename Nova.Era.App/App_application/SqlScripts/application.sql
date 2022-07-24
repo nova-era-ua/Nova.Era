@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 23.07.2022 15:50:33
+generated: 24.07.2022 07:19:17
 */
 
 
@@ -4774,19 +4774,17 @@ go
 create or alter procedure a2ui.[Menu.Simple.User.Load]
 @TenantId int = 1,
 @UserId bigint = null,
-@Mobile bit = 0
+@Mobile bit = 0,
+@Root bigint = 1
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	declare @RootId bigint;
-	set @RootId = 1; -- TODO: initial setup
-
 	with RT as (
 		select Id=m0.Id, ParentId = m0.Parent, [Level]=0
 			from a2ui.Menu m0
-			where m0.Id = @RootId
+			where m0.Id = @Root
 		union all
 		select m1.Id, m1.Parent, RT.[Level]+1
 			from RT inner join a2ui.Menu m1 on m1.Parent = RT.Id
@@ -4816,9 +4814,11 @@ begin
 	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon, ClassName) 
 	values
 		(1,  null,  0, N'Main',         null,         null, null),
-		(2,  null,  0, N'Init',         null,         null, null),
+		(2,  null,  0, N'Start',         null,         null, null),
+		(3,  null,  0, N'Init',      null,         null, null),
 
-		(20,    2,  1, N'@[Welcome]',     N'welcome',   N'success-outline', null),
+		(71,    2,  1, N'@[Welcome]',     N'appstart',   N'success-outline', null),
+		(72,    3,  1, N'@[AppInit]',     N'appinit',    N'arrow-up', null),
 
 		(10,    1,  10, N'@[Dashboard]',     N'dashboard',   N'dashboard-outline', null),
 		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
@@ -13131,6 +13131,7 @@ begin
 	(N'cashin',     1, N'', N'Немає рядків'),
 	(N'cashout',    1, N'', N'Немає рядків'),
 	(N'cashmove',   1, N'', N'Немає рядків'),
+	(N'cashoff',    1, N'', N'Немає рядків'),
 	(N'invoice',    1, N'Stock',   N'@[KindStock]'),
 	(N'invoice',    2, N'Service', N'@[KindServices]'),
 	(N'manufact',   1, N'Stock',   N'@[KindStock]'),
