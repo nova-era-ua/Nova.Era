@@ -10,6 +10,7 @@ const template: Template = {
 	events: {
 	},
 	validators: {
+		'Document.Agent': null
 	},
 	commands: {
 	}

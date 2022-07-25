@@ -194,6 +194,7 @@
 @Browse.Currencies=Вибір валют
 @Browse.Contract=Вибір договору
 @Browse.Group=Вибір групи
+@Browse.ItemRole=Вибір ролі в обліку
 @Browse.PriceKind=Вибір вида ціни
 @Browse.CashFlowItem=Вибір статті руху грошових коштів
 @Browse.RespCenter=Вибір центру відповідальності

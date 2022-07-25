@@ -31,7 +31,8 @@ go
 create or alter procedure cat.[ItemRole.Index]
 @TenantId int = 1,
 @UserId bigint,
-@Id bigint = null
+@Id bigint = null,
+@Kind nvarchar(16) = null
 as
 begin
 	set nocount on;
@@ -40,7 +41,8 @@ begin
 	select [ItemRoles!TItemRole!Array] = null,
 		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Kind, ir.Memo, ir.Color, ir.HasPrice, ir.IsStock, ir.ExType
 	from cat.ItemRoles ir
-	where ir.TenantId = @TenantId and ir.Void = 0
+	where ir.TenantId = @TenantId and ir.Void = 0 and
+		(@Kind is null or ir.Kind = @Kind)
 	order by ir.Id;
 end
 go

@@ -426,6 +426,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\person\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\vendor\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\invent\inventbill\inventbill.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\money\cashoff\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accrespcost.template.ts" />
     <TypeScriptCompile Include="App_application\main\appinit\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\money\cashmove\edit.template.ts" />
@@ -447,6 +448,7 @@
     <Content Include="App_application\main\document\money\cashmove\model.json" />
     <Content Include="App_application\main\appinit\model.json" />
     <Content Include="App_application\main\document\invent\inventbill\model.json" />
+    <Content Include="App_application\main\document\money\cashoff\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
@@ -938,6 +940,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\appstart\index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\document\money\cashoff\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\itemrole\browse.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

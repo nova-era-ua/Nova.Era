@@ -13,6 +13,14 @@
 		"edit": {
 			"template": "edit.template",
 			"view": "edit.dialog"
+		},
+		"expbrowse": {
+			"index": true,
+			"template": "index.template",
+			"view": "browse.dialog",
+			"parameters": {
+				"Kind": "Expense"
+			}
 		}
 	}
 }

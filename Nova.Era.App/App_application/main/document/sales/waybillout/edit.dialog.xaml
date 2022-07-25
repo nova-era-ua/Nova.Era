@@ -42,7 +42,7 @@
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
-		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,1px,Auto,22rem,1*" 
+		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,Auto,22rem,1*,Auto,22rem" 
 			  AlignItems="Baseline" Gap="1rem">
 			<Label Grid.Row="1" Grid.Col="1" Content="@[Agent]"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name"
@@ -56,17 +56,17 @@
 					Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
 			</Selector>
 
-			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="5"
+			<Label Grid.Row="1" Grid.Col="3" Content="@[Warehouse]"/>
+			<Selector Grid.Row="1" Grid.Col="4" Value="{Bind Document.WhFrom}" DisplayProperty="Name"
+					  Fetch="/catalog/warehouse/fetch">
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
+			</Selector>
+
+			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="6" Wrap="NoWrap"/>
+			<Selector Grid.Row="1" Grid.Col="7"
 					Value="{Bind Document.RespCenter}" DisplayProperty="Name" Fetch="/catalog/respcenter/fetch">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
 					Url='/catalog/respcenter/browse'}"/>
-			</Selector>
-
-			<Label Grid.Row="2" Grid.Col="4" Content="@[Warehouse]"/>
-			<Selector Grid.Row="2" Grid.Col="5" Value="{Bind Document.WhFrom}" DisplayProperty="Name"
-					  Fetch="/catalog/warehouse/fetch">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
 			</Selector>
 		</Grid>
 		<TabBar Grid.Row="3" Value="{Bind Root.$$TabNo}" Margin="0">
@@ -85,10 +85,10 @@
 						<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
 					</Selector>
 				</Toolbar>
-				<Table ItemsSource="{Bind Document.StockRows}" 
-				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%">
+				<Table ItemsSource="{Bind Document.StockRows}"
+				   Background="Paper" GridLines="Horizontal" Width="100%" StickyHeaders="True" Height="100%">
 					<Table.Columns>
-						<TableColumn Fit="True"/>
+						<TableColumn Fit="True" Width="2rem"/>
 						<TableColumn Width="8rem"/>
 						<TableColumn Width="8rem"/>
 						<TableColumn Width="Auto"/>
@@ -102,7 +102,7 @@
 					</Table.Columns>
 					<Table.Header>
 						<TableRow>
-							<TableCell Content="#"/>
+							<TableCell Content="#" Align="Center"/>
 							<TableCell Content="@[Article]"/>
 							<TableCell Content="@[Barcode]"/>
 							<TableCell Content="@[Item]"/>
@@ -116,7 +116,7 @@
 						</TableRow>
 					</Table.Header>
 					<TableRow>
-						<TableCell Content="{Bind RowNo}"/>
+						<TableCell Content="{Bind RowNo}" Align="Center"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
 						<TextBox Value="{Bind Item.Barcode}" Align="Center" Wrap="NoWrap"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name" Delegate="itemBrowsePrice"
@@ -166,7 +166,7 @@
 					</Selector>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" 
-				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%"
+				   Background="Paper" GridLines="Horizontal" Width="100%" StickyHeaders="True" Height="100%"
 				   Columns="Fit,8rem,8rem,Auto,Fit,10rem,10rem,10rem,Fit">
 					<Table.Header>
 						<TableRow>

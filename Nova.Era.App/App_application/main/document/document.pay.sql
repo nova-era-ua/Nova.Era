@@ -149,7 +149,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, 
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[Contract!TContract!RefId] = d.[Contract], [CashFlowItem!TCashFlowItem!RefId] = d.CashFlowItem,
-		[RespCenter!TRespCenter!RefId] = d.RespCenter,
+		[RespCenter!TRespCenter!RefId] = d.RespCenter, [ItemRole!TItemRole!RefId] = d.ItemRole,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
 		[LinkedDocs!TDocBase!LazyArray] = null
 	from doc.Documents d
@@ -182,6 +182,11 @@ begin
 	from doc.Operations where TenantId = @TenantId and Form=@docform
 	order by Id;
 
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind,
+		[CostItem!TCostItem!RefId] = ir.CostItem
+	from cat.ItemRoles ir inner join doc.Documents d on ir.TenantId = d.TenantId and d.ItemRole = ir.Id
+	where ir.TenantId = @TenantId and ir.Void = 0 and d.Id = @Id;
+
 	select [Params!TParam!Object] = null, [Operation] = @Operation;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
@@ -210,7 +215,8 @@ as table(
 	[CashFlowItem] bigint,
 	RespCenter bigint,
 	Memo nvarchar(255),
-	Notice nvarchar(255)
+	Notice nvarchar(255),
+	ItemRole bigint
 )
 go
 ------------------------------------------------
@@ -252,12 +258,13 @@ begin
 		t.CashFlowItem = s.CashFlowItem,
 		t.RespCenter = s.RespCenter,
 		t.Memo = s.Memo,
-		t.Notice = s.Notice
+		t.Notice = s.Notice,
+		t.ItemRole = s.ItemRole
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, 
-			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, UserCreated) values
+			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, ItemRole, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, 
-			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, @UserId)
+			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, s.ItemRole, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

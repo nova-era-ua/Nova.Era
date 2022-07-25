@@ -128,10 +128,12 @@ begin
 		select 
 			Dt = case ot.DtAccMode 
 				when N'C' then iraccdt.Account
+				when N'D' then irdocdt.Account
 				else ot.Dt
 			end,
 			Ct  = case ot.CtAccMode 
 				when N'C' then iraccct.Account
+				when N'D' then irdocct.Account
 				else ot.Ct
 			end,
 			TrNo = ot.RowNo, d.[Sum],
@@ -142,6 +144,8 @@ begin
 			inner join doc.OpTrans ot on d.TenantId = ot.TenantId and ot.RowKind = N''
 			left join cat.CashAccounts accdt on d.TenantId = accdt.TenantId and d.CashAccTo = accdt.Id
 			left join cat.CashAccounts accct on d.TenantId = accct.TenantId and d.CashAccFrom = accct.Id
+			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind
+			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind
 			left join cat.ItemRoleAccounts iraccdt on iraccdt.TenantId = d.TenantId and iraccdt.[Role] = accdt.ItemRole and iraccdt.AccKind = ot.DtAccKind
 			left join cat.ItemRoleAccounts iraccct on iraccct.TenantId = d.TenantId and iraccct.[Role] = accct.ItemRole and iraccct.AccKind = ot.CtAccKind
 		where d.TenantId = @TenantId and d.Id = @Id and ot.Operation = @Operation
