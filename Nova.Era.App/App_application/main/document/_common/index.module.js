@@ -25,6 +25,10 @@ define(["require", "exports"], function (require, exports) {
                 exec: deleteDoc,
                 canExec(doc) { return !doc.Done; },
                 confirm: '@[Confirm.Delete.Element]'
+            },
+            copy: {
+                exec: copyDoc,
+                canExec(docs) { return docs.$hasSelected; },
             }
         }
     };
@@ -71,5 +75,11 @@ define(["require", "exports"], function (require, exports) {
         const ctrl = this.$ctrl;
         ctrl.$invoke('delete', { Id: doc.Id }, '/document/commands');
         doc.$remove();
+    }
+    function copyDoc(docs) {
+        if (!docs.$hasSelected)
+            return;
+        const doc = docs.$selected;
+        alert('copy document: ' + doc.Id);
     }
 });

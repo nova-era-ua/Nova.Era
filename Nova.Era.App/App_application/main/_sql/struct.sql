@@ -874,8 +874,10 @@ create table doc.DocDetails
 	ItemRole bigint null,
 	ItemRoleTo bigint null,
 	Unit bigint null,
-	Qty float null
+	Qty float not null
 		constraint DF_DocDetails_Qty default(0),
+	FQty float not null
+		constraint DF_DocDetails_FQty default(0),
 	Price money null,
 	[Sum] money not null
 		constraint DF_DocDetails_Sum default(0),

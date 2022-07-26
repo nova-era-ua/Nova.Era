@@ -1,65 +1,69 @@
 ﻿{
-  "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "cat",
-  "actions": {
-    "itemrems": {
-      "skipDataStack": true,
-      "model": "Item.Rems",
-      "view": "partials/itemrems.partial"
-    }
-  },
-    "dialogs": {
-        "edit": {
-            "model": "Item",
-            "template": "edit.template",
-            "view": "edit.dialog"
-        },
-        "browse": {
-            "index": true,
-            "model": "Item.Browse",
-            "view": "browse.dialog"
-        },
-        "browseprice": {
-            "index": true,
-            "model": "Item.Browse.Price",
-            "view": "browseprice.dialog"
-        },
-        "browserems": {
-            "index": true,
-            "model": "Item.Browse.Price",
-            "view": "browserems.dialog"
-        }
-    },
-    "commands": {
-        "getPath": {
-            "type": "sql",
-            "procedure": "Item.Folder.GetPath"
-        },
-        "findIndex": {
-            "type": "sql",
-            "procedure": "Item.Item.FindIndex"
-        },
-        "deleteItem": {
-            "type": "sql",
-            "procedure": "Item.Item.Delete"
-        },
-        "findArticle": {
-            "type": "sql",
-            "procedure": "Item.Find.ArticleOrBarcode",
-            "parameters": {
-                "Mode": "A"
-            }
-        },
-        "findBarcode": {
-            "type": "sql",
-            "procedure": "Item.Find.ArticleOrBarcode",
-            "parameters": {
-                "Mode": "B"
-            }
-        },
-        "fetchPrice": {
-            "type": "sql",
-            "procedure": "Item.Fetch.Price"
-        }
-    }
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "cat",
+	"actions": {
+		"itemrems": {
+			"skipDataStack": true,
+			"model": "Item.Rems",
+			"view": "partials/itemrems.partial"
+		},
+		"show": {
+			"model": "Item",
+			"view": "show.view"
+		}
+	},
+	"dialogs": {
+		"edit": {
+			"model": "Item",
+			"template": "edit.template",
+			"view": "edit.dialog"
+		},
+		"browse": {
+			"index": true,
+			"model": "Item.Browse",
+			"view": "browse.dialog"
+		},
+		"browseprice": {
+			"index": true,
+			"model": "Item.Browse.Price",
+			"view": "browseprice.dialog"
+		},
+		"browserems": {
+			"index": true,
+			"model": "Item.Browse.Price",
+			"view": "browserems.dialog"
+		}
+	},
+	"commands": {
+		"getPath": {
+			"type": "sql",
+			"procedure": "Item.Folder.GetPath"
+		},
+		"findIndex": {
+			"type": "sql",
+			"procedure": "Item.Item.FindIndex"
+		},
+		"deleteItem": {
+			"type": "sql",
+			"procedure": "Item.Item.Delete"
+		},
+		"findArticle": {
+			"type": "sql",
+			"procedure": "Item.Find.ArticleOrBarcode",
+			"parameters": {
+				"Mode": "A"
+			}
+		},
+		"findBarcode": {
+			"type": "sql",
+			"procedure": "Item.Find.ArticleOrBarcode",
+			"parameters": {
+				"Mode": "B"
+			}
+		},
+		"fetchPrice": {
+			"type": "sql",
+			"procedure": "Item.Fetch.Price"
+		}
+	}
 }

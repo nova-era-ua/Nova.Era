@@ -25,6 +25,10 @@ const template: Template = {
 			exec: deleteDoc,
 			canExec(doc: TDocument) { return !doc.Done; },
 			confirm:'@[Confirm.Delete.Element]'
+		},
+		copy: {
+			exec: copyDoc,
+			canExec(docs: TDocuments) { return docs.$hasSelected; },
 		}
 	}
 };
@@ -77,4 +81,10 @@ async function deleteDoc(doc: TDocument) {
 	const ctrl = this.$ctrl;
 	ctrl.$invoke('delete', {Id: doc.Id}, '/document/commands')
 	doc.$remove();
+}
+
+function copyDoc(docs: TDocuments) {
+	if (!docs.$hasSelected) return;
+	const doc = docs.$selected;
+	alert('copy document: ' + doc.Id);
 }

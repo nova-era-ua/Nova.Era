@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 25.07.2022 07:51:30
+generated: 26.07.2022 08:31:16
 */
 
 
@@ -4286,8 +4286,10 @@ create table doc.DocDetails
 	ItemRole bigint null,
 	ItemRoleTo bigint null,
 	Unit bigint null,
-	Qty float null
+	Qty float not null
 		constraint DF_DocDetails_Qty default(0),
+	FQty float not null
+		constraint DF_DocDetails_FQty default(0),
 	Price money null,
 	[Sum] money not null
 		constraint DF_DocDetails_Sum default(0),
@@ -4540,7 +4542,11 @@ go
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Forms' and COLUMN_NAME=N'Url')
 	alter table doc.Forms add [Url] nvarchar(255);
 go
-
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocDetails' and COLUMN_NAME=N'FQty')
+	alter table doc.DocDetails add FQty float not null
+		constraint DF_DocDetails_FQty default(0) with values;
+go
 
 /*
 common
@@ -7789,7 +7795,8 @@ go
 create or alter procedure cat.[ItemRole.Index]
 @TenantId int = 1,
 @UserId bigint,
-@Id bigint = null
+@Id bigint = null,
+@Kind nvarchar(16) = null
 as
 begin
 	set nocount on;
@@ -7798,7 +7805,8 @@ begin
 	select [ItemRoles!TItemRole!Array] = null,
 		[Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Kind, ir.Memo, ir.Color, ir.HasPrice, ir.IsStock, ir.ExType
 	from cat.ItemRoles ir
-	where ir.TenantId = @TenantId and ir.Void = 0
+	where ir.TenantId = @TenantId and ir.Void = 0 and
+		(@Kind is null or ir.Kind = @Kind)
 	order by ir.Id;
 end
 go
@@ -10072,7 +10080,7 @@ begin
 	select Id, Item, Unit, ItemRole, CostItem from doc.DocDetails dd
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
-	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum,
+	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], FQty, Price, [Sum], ESum, DSum, TSum,
 		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = Unit, 
 		[ItemRole!TItemRole!RefId] = dd.ItemRole, [ItemRoleTo!TItemRole!RefId] = dd.ItemRoleTo,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
@@ -10083,7 +10091,7 @@ begin
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock'
 	order by RowNo;
 
-	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum, 
+	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], FQty, Price, [Sum], ESum, DSum, TSum, 
 		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.ServiceRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
@@ -10206,6 +10214,7 @@ as table(
 	ItemRole bigint,
 	ItemRoleTo bigint,
 	[Qty] float,
+	[FQty] float,
 	[Price] money,
 	[Sum] money,
 	ESum money,
@@ -10257,6 +10266,7 @@ begin
 		t.ItemRole = nullif(s.ItemRole, 0),
 		t.ItemRoleTo = nullif(s.ItemRoleTo, 0),
 		t.Qty = s.Qty,
+		t.FQty = s.FQty,
 		t.Price = s.Price,
 		t.[Sum] = s.[Sum],
 		t.ESum = s.ESum,
@@ -10264,9 +10274,9 @@ begin
 		t.TSum = s.TSum,
 		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, ItemRoleTo, Qty, Price, [Sum], ESum, DSum, TSum, 
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, ItemRoleTo, Qty, FQty, Price, [Sum], ESum, DSum, TSum, 
 			CostItem) values
-		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), nullif(s.ItemRoleTo, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, 
+		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), nullif(s.ItemRoleTo, 0), s.Qty, s.FQty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, 
 			s.CostItem)
 	when not matched by source and t.TenantId = @TenantId and t.Document = @Id and t.Kind=@Kind then delete;
 end
@@ -10489,7 +10499,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, 
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[Contract!TContract!RefId] = d.[Contract], [CashFlowItem!TCashFlowItem!RefId] = d.CashFlowItem,
-		[RespCenter!TRespCenter!RefId] = d.RespCenter,
+		[RespCenter!TRespCenter!RefId] = d.RespCenter, [ItemRole!TItemRole!RefId] = d.ItemRole,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
 		[LinkedDocs!TDocBase!LazyArray] = null
 	from doc.Documents d
@@ -10522,6 +10532,11 @@ begin
 	from doc.Operations where TenantId = @TenantId and Form=@docform
 	order by Id;
 
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind,
+		[CostItem!TCostItem!RefId] = ir.CostItem
+	from cat.ItemRoles ir inner join doc.Documents d on ir.TenantId = d.TenantId and d.ItemRole = ir.Id
+	where ir.TenantId = @TenantId and ir.Void = 0 and d.Id = @Id;
+
 	select [Params!TParam!Object] = null, [Operation] = @Operation;
 
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
@@ -10550,7 +10565,8 @@ as table(
 	[CashFlowItem] bigint,
 	RespCenter bigint,
 	Memo nvarchar(255),
-	Notice nvarchar(255)
+	Notice nvarchar(255),
+	ItemRole bigint
 )
 go
 ------------------------------------------------
@@ -10592,12 +10608,13 @@ begin
 		t.CashFlowItem = s.CashFlowItem,
 		t.RespCenter = s.RespCenter,
 		t.Memo = s.Memo,
-		t.Notice = s.Notice
+		t.Notice = s.Notice,
+		t.ItemRole = s.ItemRole
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, 
-			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, UserCreated) values
+			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, ItemRole, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, 
-			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, @UserId)
+			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, s.ItemRole, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
@@ -10737,10 +10754,12 @@ begin
 		select 
 			Dt = case ot.DtAccMode 
 				when N'C' then iraccdt.Account
+				when N'D' then irdocdt.Account
 				else ot.Dt
 			end,
 			Ct  = case ot.CtAccMode 
 				when N'C' then iraccct.Account
+				when N'D' then irdocct.Account
 				else ot.Ct
 			end,
 			TrNo = ot.RowNo, d.[Sum],
@@ -10751,6 +10770,8 @@ begin
 			inner join doc.OpTrans ot on d.TenantId = ot.TenantId and ot.RowKind = N''
 			left join cat.CashAccounts accdt on d.TenantId = accdt.TenantId and d.CashAccTo = accdt.Id
 			left join cat.CashAccounts accct on d.TenantId = accct.TenantId and d.CashAccFrom = accct.Id
+			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind
+			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind
 			left join cat.ItemRoleAccounts iraccdt on iraccdt.TenantId = d.TenantId and iraccdt.[Role] = accdt.ItemRole and iraccdt.AccKind = ot.DtAccKind
 			left join cat.ItemRoleAccounts iraccct on iraccct.TenantId = d.TenantId and iraccct.[Role] = accct.ItemRole and iraccct.AccKind = ot.CtAccKind
 		where d.TenantId = @TenantId and d.Id = @Id and ot.Operation = @Operation

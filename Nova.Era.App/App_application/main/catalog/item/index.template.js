@@ -13,6 +13,10 @@ define(["require", "exports"], function (require, exports) {
             editSelected: {
                 exec: editSelected,
                 canExec(coll) { return coll.$hasSelected; }
+            },
+            navigateSelected: {
+                exec: navigate,
+                canExec(coll) { return coll.$hasSelected; }
             }
         }
     };
@@ -45,5 +49,11 @@ define(["require", "exports"], function (require, exports) {
         if (!coll.$hasSelected)
             return;
         await edit.call(this, coll.$selected);
+    }
+    function navigate(coll) {
+        if (!coll.$hasSelected)
+            return;
+        let ctrl = this.$ctrl;
+        ctrl.$navigate('/catalog/item/show', coll.$selected, true);
     }
 });

@@ -29,6 +29,7 @@
 			<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"/>
 			<Separator />
 			<Button Icon="Print" Command="{BindCmd Dialog, Action=ShowSelected, Argument={Bind Documents}, Url='/document/print/browse'}" />
+			<Button Icon="Copy" Command="{BindCmd Execute, CommandName=copy, Argument={Bind Documents}}" />
 			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>

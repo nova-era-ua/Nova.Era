@@ -182,7 +182,7 @@ begin
 	select Id, Item, Unit, ItemRole, CostItem from doc.DocDetails dd
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
-	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum,
+	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], FQty, Price, [Sum], ESum, DSum, TSum,
 		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = Unit, 
 		[ItemRole!TItemRole!RefId] = dd.ItemRole, [ItemRoleTo!TItemRole!RefId] = dd.ItemRoleTo,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
@@ -193,7 +193,7 @@ begin
 	where dd.TenantId=@TenantId and dd.Document = @Id and dd.Kind = N'Stock'
 	order by RowNo;
 
-	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum, 
+	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], FQty, Price, [Sum], ESum, DSum, TSum, 
 		[Item!TItem!RefId] = Item, [Unit!TUnit!RefId] = Unit, [ItemRole!TItemRole!RefId] = dd.ItemRole,
 		[CostItem!TCostItem!RefId] = dd.CostItem,
 		[!TDocument.ServiceRows!ParentId] = dd.Document, [RowNo!!RowNumber] = RowNo
@@ -316,6 +316,7 @@ as table(
 	ItemRole bigint,
 	ItemRoleTo bigint,
 	[Qty] float,
+	[FQty] float,
 	[Price] money,
 	[Sum] money,
 	ESum money,
@@ -367,6 +368,7 @@ begin
 		t.ItemRole = nullif(s.ItemRole, 0),
 		t.ItemRoleTo = nullif(s.ItemRoleTo, 0),
 		t.Qty = s.Qty,
+		t.FQty = s.FQty,
 		t.Price = s.Price,
 		t.[Sum] = s.[Sum],
 		t.ESum = s.ESum,
@@ -374,9 +376,9 @@ begin
 		t.TSum = s.TSum,
 		t.CostItem = s.CostItem
 	when not matched by target then insert
-		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, ItemRoleTo, Qty, Price, [Sum], ESum, DSum, TSum, 
+		(TenantId, Document, Kind, RowNo, Item, Unit, ItemRole, ItemRoleTo, Qty, FQty, Price, [Sum], ESum, DSum, TSum, 
 			CostItem) values
-		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), nullif(s.ItemRoleTo, 0), s.Qty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, 
+		(@TenantId, @Id, @Kind, s.RowNo, s.Item, s.Unit, nullif(s.ItemRole, 0), nullif(s.ItemRoleTo, 0), s.Qty, s.FQty, s.Price, s.[Sum], s.ESum, s.DSum, s.TSum, 
 			s.CostItem)
 	when not matched by source and t.TenantId = @TenantId and t.Document = @Id and t.Kind=@Kind then delete;
 end

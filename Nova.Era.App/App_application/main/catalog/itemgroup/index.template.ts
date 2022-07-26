@@ -29,6 +29,12 @@ function modelLoad() {
 }
 
 async function addItem() {
+
+	if (this.Groups.$isEmpty) {
+		addHierarchy.call(this);
+		return;
+	}
+
 	let parent = this.Groups.$selected;
 	if (!parent) return;
 

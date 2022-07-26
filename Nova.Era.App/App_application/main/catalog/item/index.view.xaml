@@ -43,6 +43,8 @@
 					Argument={Bind Parent.ItemsSource}}"/>
 				<Button Icon="Delete" Command="{BindCmd DbRemoveSelected, Argument={Bind Parent.ItemsSource}, Confirm='@[Confirm.Delete.Element]'}"/>
 				<Separator />
+				<Button Icon="ArrowOpen" Command="{BindCmd Execute, CommandName=navigateSelected, Argument={Bind Parent.ItemsSource}}"/>
+				<Separator />
 				<Button Icon="Reload" Command="{BindCmd Reload, Argument={Bind Parent.ItemsSource}}"/>
 				<ToolbarAligner />
 				<TextBox Placeholder="@[Search]" ShowClear="True" ShowFilter="True"

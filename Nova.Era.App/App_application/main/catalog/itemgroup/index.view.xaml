@@ -4,8 +4,8 @@
 			<Button Icon="Plus" Content="@[Create]" Command="{BindCmd Execute, CommandName=addItem}">
 				<Button.DropDown>
 					<DropDownMenu>
-						<MenuItem Content="Створити групу" Command="{BindCmd Execute, CommandName=addItem}"/>
-						<Separator />
+						<MenuItem Content="Створити групу" Command="{BindCmd Execute, CommandName=addItem}" 
+								  Separator="After" If="{Bind !Groups.$isEmpty}"/>
 						<MenuItem Content="Створити групування" Command="{BindCmd Execute, CommandName=addHierarchy}"/>
 					</DropDownMenu>
 				</Button.DropDown>

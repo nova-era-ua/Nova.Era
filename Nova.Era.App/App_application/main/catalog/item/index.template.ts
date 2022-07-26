@@ -11,7 +11,11 @@ const template: Template = {
 		edit,
 		editSelected: {
 			exec: editSelected,
-			canExec(coll) {return coll.$hasSelected}
+			canExec(coll) { return coll.$hasSelected; }
+		},
+		navigateSelected: {
+			exec: navigate,
+			canExec(coll) { return coll.$hasSelected; }
 		}
 	}
 }
@@ -47,4 +51,10 @@ async function edit(item) {
 async function editSelected(coll) {
 	if (!coll.$hasSelected) return;
 	await edit.call(this, coll.$selected);
+}
+
+function navigate(coll) {
+	if (!coll.$hasSelected) return;
+	let ctrl: IController = this.$ctrl;
+	ctrl.$navigate('/catalog/item/show', coll.$selected, true);
 }

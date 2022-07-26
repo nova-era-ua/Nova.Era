@@ -49,8 +49,12 @@
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
-		<Grid Grid.Row="2">
-			
+		<Grid Grid.Row="2" Columns="Auto,22rem,1*">
+			<Label Grid.Row="1" Grid.Col="1" Content="@[Warehouse]" Wrap="NoWrap"/>
+			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.WhFrom}" DisplayProperty="Name"
+					  Fetch="/catalog/warehouse/fetch">
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
+			</Selector>
 		</Grid>
 		<TabBar Grid.Row="3" Value="{Bind Root.$$TabNo}" Margin="0">
 			<TabBar.Description>
@@ -62,6 +66,7 @@
 					<Badge Content="{Bind Document.StockRows.Count}" CssClass="badge-doc"/>
 				</Text>
 			</TabButton>
+			<TabButton ActiveValue="com">Склад комісії</TabButton>
 		</TabBar>
 		<Switch Expression="{Bind Root.$$TabNo}">
 			<Case Value="">
@@ -70,17 +75,24 @@
 				</Toolbar>
 				<Table Grid.Row="5" ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" 
 					   Width="100%" Height="100%"
-					Columns="Fit,11rem,Auto,Fit,10rem,10rem,10rem,Fit" StickyHeaders="True">
+					Columns="Fit,11rem,Auto,Fit,6rem,6rem,6rem,6rem,6rem,Fit" StickyHeaders="True">
 					<Table.Header>
 						<TableRow>
-							<TableCell Content="#"/>
+							<TableCell Content="#" RowSpan="2"/>
+							<TableCell Content="Запаси" ColSpan="3"/>
+							<TableCell Content="@[Price]" RowSpan="2"/>
+							<TableCell Content="Фактично" ColSpan="2"/>
+							<TableCell Content="За даними обліку" ColSpan="2"/>
+							<TableCell RowSpan="2"/>
+						</TableRow>
+						<TableRow>
 							<TableCell Content="@[Article]"/>
-							<TableCell />
+							<TableCell Content="@[Name]"/>
 							<TableCell Content="@[UnitShort]"/>
 							<TableCell Content="@[Qty]"/>
-							<TableCell Content="@[Price]"/>
 							<TableCell Content="@[Sum]"/>
-							<TableCell />
+							<TableCell Content="@[Qty]"/>
+							<TableCell Content="@[Sum]"/>
 						</TableRow>
 					</Table.Header>
 					<TableRow>
@@ -93,15 +105,19 @@
 							</Selector.AddOns>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
-						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
+						<TextBox Value="{Bind FQty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
+						<Static Value="{Bind Qty, DataType=Number}" Align="Right"/>
+						<Static Value="{Bind Sum, DataType=Currency}" Align="Right"/>
 						<Hyperlink Icon="Clear" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
 					</TableRow>
 					<Table.Footer>
 						<TableRow>
 							<TableCell ColSpan="5"/>
-							<TableCell Content="Всього"/>
+							<TableCell Content="@[Total]"/>
+							<TableCell Content="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
+							<TableCell />
 							<TableCell Content="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
 							<TableCell />
 						</TableRow>
