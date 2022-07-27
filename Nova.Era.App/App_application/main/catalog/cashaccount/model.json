@@ -1,24 +1,36 @@
 ﻿{
-  "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "cat",
-  "model": "CashAccount",
-    "dialogs": {
-        "edit": {
-            "template": "edit.template",
-            "view": "edit.dialog"
-        },
-        "browse": {
-            "index": true,
-            "model": "CashAccount.Simple",
-            "view": "browse.dialog"
-        },
-        "browseall": {
-            "index": true,
-            "model": "CashAccount.Simple",
-            "view": "browse.dialog",
-            "parameters": {
-                "Mode": "All"
-            }
-        }
-    }
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "cat",
+	"model": "CashAccount",
+	"dialogs": {
+		"edit": {
+			"template": "edit.template",
+			"view": "edit.dialog"
+		},
+		"browse": {
+			"index": true,
+			"model": "CashAccount.Simple",
+			"view": "browse.dialog"
+		},
+		"browseall": {
+			"index": true,
+			"model": "CashAccount.Simple",
+			"view": "browse.dialog",
+			"parameters": {
+				"Mode": "All"
+			}
+		}
+	},
+	"commands": {
+		"getRem": {
+			"type": "sql",
+			"procedure": "CashAccount.GetRem"
+		}
+	},
+	"popups": {
+		"info": {
+			"model": "",
+			"view": "info.popup"
+		}
+	}
 }

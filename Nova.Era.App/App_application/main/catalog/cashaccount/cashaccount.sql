@@ -93,16 +93,25 @@ create or alter procedure cat.[CashAccount.Simple.Index]
 @UserId bigint,
 @Company bigint = null,
 @Id bigint = null,
-@Mode nvarchar(16) = N'Cash'
+@Mode nvarchar(16) = N'Cash',
+@Date date = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	set @Date = isnull(@Date, getdate());
+
+	with TB as (
+		select Balance = sum([Sum] * InOut), CashAccount from jrn.CashJournal
+		where [Date] <= @Date and TenantId = @TenantId
+		group by CashAccount
+	)
 	select [CashAccounts!TCashAccount!Array] = null,
-		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo,
+		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, TB.Balance,
 		[ItemRole!TItemRole!RefId] = ca.ItemRole
 	from cat.CashAccounts ca
+		left join TB on ca.Id = TB.CashAccount
 	where ca.TenantId = @TenantId and ca.Company = @Company and 
 		(@Mode = N'All' or @Mode = N'Cash' and ca.IsCashAccount = 1 or @Mode = N'Bank' and ca.IsCashAccount = 0);
 
@@ -219,5 +228,18 @@ begin
 	set transaction isolation level read committed;
 
 	update cat.CashAccounts set Void = 1 where TenantId = @TenantId and Id = @Id and IsCashAccount = 1;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[CashAccount.GetRem]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint,
+@Date date
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	select [Result!TResult!Object] = null, Balance = rep.fn_getCashAccountRem(@TenantId, @Id, @Date)
 end
 go

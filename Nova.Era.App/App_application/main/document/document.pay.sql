@@ -49,6 +49,11 @@ begin
 				when N'date' then d.[Date]
 			end
 		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'date' then d.[Date]
+			end
+		end desc,
 		case when @Dir = N'asc' then
 			case @Order 
 				when N'sum' then d.[Sum]
@@ -56,12 +61,17 @@ begin
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order
-				when N'date' then d.[Date]
+				when N'sum' then d.[Sum]
 			end
 		end desc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'id' then d.[Id]
+			end
+		end asc,
 		case when @Dir = N'desc' then
 			case @Order
-				when N'sum' then d.[Sum]
+				when N'id' then d.[Id]
 			end
 		end desc
 	offset @Offset rows fetch next @PageSize rows only
@@ -84,18 +94,19 @@ begin
 
 	with T as (select agent from @docs group by agent)
 	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
-	from cat.Agents a 
+	from cat.Agents a
 		inner join T t on a.TenantId = @TenantId and a.Id = agent;
 
 	with C as (select ca = cafrom from @docs union all select cato from @docs),
 	T as (select ca from C group by ca)
-	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.[AccountNo]
-	from cat.CashAccounts ca 
+	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.[AccountNo],
+		Balance = cast(0 as money)
+	from cat.CashAccounts ca
 		inner join T t on ca.TenantId = @TenantId and ca.Id = ca;
 
 	with T as (select comp from @docs group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
-	from cat.Companies c 
+	from cat.Companies c
 		inner join T t on c.TenantId = @TenantId and c.Id = comp;
 
 	-- menu
@@ -160,10 +171,11 @@ begin
 		left join doc.Documents d on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
-	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.AccountNo
+	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.AccountNo,
+		Balance = rep.fn_getCashAccountRem(@TenantId, ca.Id, d.[Date])
 	from cat.CashAccounts ca inner join doc.Documents d on d.TenantId = ca.TenantId and ca.Id in (d.CashAccFrom, d.CashAccTo)
 	where d.Id = @Id and d.TenantId = @TenantId
-	group by ca.Id, ca.[Name], ca.AccountNo;
+	group by ca.Id, ca.[Name], ca.AccountNo, d.[Date];
 
 	select [!TCashFlowItem!Map] = null, [Id!!Id] = cf.Id, [Name!!Name] = cf.[Name]
 	from cat.CashFlowItems cf inner join doc.Documents d on d.TenantId = cf.TenantId and cf.Id = d.CashFlowItem

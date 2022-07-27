@@ -29,7 +29,7 @@
 				XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True" Striped="True"
 				DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"
 				  Mark="{Bind $Mark}" MarkerStyle="Marker">
-			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" />
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date" SortProperty="date"/>
 			<DataGridColumn Header="@[Sum]" Role="Number" SortProperty="sum">
 				<SpanSum Content="{Bind Sum, DataType=Currency}" Dir="{Bind $SumDir}"/>

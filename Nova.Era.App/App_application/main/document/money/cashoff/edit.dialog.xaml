@@ -34,13 +34,18 @@
 				</Selector.AddOns>
 			</Selector>
 		</Grid>
-		<Grid Columns="Auto,22rem,1px,Auto,22rem,1*" Gap="1rem">
+		<Grid Columns="Auto,22rem,Auto,1*,Auto,22rem" Gap="1rem">
 			<Label Content="Грошовий рахунок" Grid.Row="1" Grid.Col="1"/>
 			<Selector Grid.Row="1" Grid.Col="2"
-					Value="{Bind Document.CashAccFrom}" DisplayProperty="Name">
+					Value="{Bind Document.CashAccFrom}" 
+					  DisplayProperty="Name">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccFrom}, 
 					Url='/catalog/cashaccount/browseall', Data={Bind Document.$CompanyArg}}"/>
 			</Selector>
+			<Popover Grid.VAlign="Center" If="{Bind !Document.Done}"
+				Grid.Row="1" Grid.Col="3" Text="{Bind Document.CashAccFrom.$Balance}" Wrap="NoWrap"
+					 Url="{Bind Document.CashAccFrom.$InfoUrl}" Placement="BottomRight"/>
+
 			<Label Content="Списання на" Grid.Row="2" Grid.Col="1"/>
 			<Selector Grid.Row="2" Grid.Col="2"
 					Value="{Bind Document.ItemRole}" DisplayProperty="Name">
@@ -53,16 +58,16 @@
 					 Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
 			<Label Content="@[PaymentPurpose]" Grid.Row="5" Grid.Col="1" Grid.VAlign="Top"/>
 			<TextBox Grid.Row="5" Grid.Col="2" Value="{Bind Document.Notice}" Multiline="True" Rows="3"/>
-			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="5"
+			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="5" Wrap="NoWrap"/>
+			<Selector Grid.Row="1" Grid.Col="6"
 					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
 						Url='/catalog/respcenter/browse'}"/>
 				</Selector.AddOns>
 			</Selector>
-			<Label Content="@[CashFlowItem]" Grid.Row="2" Grid.Col="4"/>
-			<Selector Grid.Row="2" Grid.Col="5"
+			<Label Content="@[CashFlowItem]" Grid.Row="3" Grid.Col="1" Wrap="NoWrap"/>
+			<Selector Grid.Row="3" Grid.Col="2"
 					Value="{Bind Document.CashFlowItem}" DisplayProperty="Name">
 				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashFlowItem}, 

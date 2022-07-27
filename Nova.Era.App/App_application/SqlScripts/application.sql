@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 26.07.2022 08:31:16
+generated: 27.07.2022 13:30:41
 */
 
 
@@ -4743,6 +4743,18 @@ begin
 	return @retval;
 end
 go
+------------------------------------------------
+create or alter function rep.fn_getCashAccountRem(@TenantId int, @CashAccount bigint, @Date date)
+returns money
+as
+begin
+	declare @result money;
+	set @Date = isnull(@Date, getdate());
+	select @result = sum([Sum] * InOut) from jrn.CashJournal 
+		where TenantId = @TenantId and CashAccount = @CashAccount and [Date] <= @Date;
+	return @result;
+end
+go
 
 /*
 user interface
@@ -5554,6 +5566,16 @@ begin
 				when N'article' then i.[Article]
 				when N'barcode' then i.Barcode
 				when N'memo' then i.[Memo]
+			end
+		end desc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'id' then i.Id
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'id' then i.Id
 			end
 		end desc,
 		i.Id
@@ -7533,16 +7555,25 @@ create or alter procedure cat.[CashAccount.Simple.Index]
 @UserId bigint,
 @Company bigint = null,
 @Id bigint = null,
-@Mode nvarchar(16) = N'Cash'
+@Mode nvarchar(16) = N'Cash',
+@Date date = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	set @Date = isnull(@Date, getdate());
+
+	with TB as (
+		select Balance = sum([Sum] * InOut), CashAccount from jrn.CashJournal
+		where [Date] <= @Date and TenantId = @TenantId
+		group by CashAccount
+	)
 	select [CashAccounts!TCashAccount!Array] = null,
-		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo,
+		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, TB.Balance,
 		[ItemRole!TItemRole!RefId] = ca.ItemRole
 	from cat.CashAccounts ca
+		left join TB on ca.Id = TB.CashAccount
 	where ca.TenantId = @TenantId and ca.Company = @Company and 
 		(@Mode = N'All' or @Mode = N'Cash' and ca.IsCashAccount = 1 or @Mode = N'Bank' and ca.IsCashAccount = 0);
 
@@ -10434,18 +10465,19 @@ begin
 
 	with T as (select agent from @docs group by agent)
 	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
-	from cat.Agents a 
+	from cat.Agents a
 		inner join T t on a.TenantId = @TenantId and a.Id = agent;
 
 	with C as (select ca = cafrom from @docs union all select cato from @docs),
 	T as (select ca from C group by ca)
-	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.[AccountNo]
-	from cat.CashAccounts ca 
+	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.[AccountNo],
+		Balance = cast(0 as money)
+	from cat.CashAccounts ca
 		inner join T t on ca.TenantId = @TenantId and ca.Id = ca;
 
 	with T as (select comp from @docs group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
-	from cat.Companies c 
+	from cat.Companies c
 		inner join T t on c.TenantId = @TenantId and c.Id = comp;
 
 	-- menu
@@ -10510,10 +10542,11 @@ begin
 		left join doc.Documents d on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
-	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.AccountNo
+	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.AccountNo,
+		Balance = rep.fn_getCashAccountRem(@TenantId, ca.Id, d.[Date])
 	from cat.CashAccounts ca inner join doc.Documents d on d.TenantId = ca.TenantId and ca.Id in (d.CashAccFrom, d.CashAccTo)
 	where d.Id = @Id and d.TenantId = @TenantId
-	group by ca.Id, ca.[Name], ca.AccountNo;
+	group by ca.Id, ca.[Name], ca.AccountNo, d.[Date];
 
 	select [!TCashFlowItem!Map] = null, [Id!!Id] = cf.Id, [Name!!Name] = cf.[Name]
 	from cat.CashFlowItems cf inner join doc.Documents d on d.TenantId = cf.TenantId and cf.Id = d.CashFlowItem

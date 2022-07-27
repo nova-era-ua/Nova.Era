@@ -1,0 +1,5 @@
+﻿<!-- Popup CashAccount -->	
+<Popup xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Padding="1rem" Width="20rem">
+	<Text>Тут має буде інформація про рух коштів по цьому рахунку</Text>
+</Popup>
+

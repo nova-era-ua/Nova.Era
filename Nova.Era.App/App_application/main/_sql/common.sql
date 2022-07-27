@@ -193,3 +193,15 @@ begin
 	return @retval;
 end
 go
+------------------------------------------------
+create or alter function rep.fn_getCashAccountRem(@TenantId int, @CashAccount bigint, @Date date)
+returns money
+as
+begin
+	declare @result money;
+	set @Date = isnull(@Date, getdate());
+	select @result = sum([Sum] * InOut) from jrn.CashJournal 
+		where TenantId = @TenantId and CashAccount = @CashAccount and [Date] <= @Date;
+	return @result;
+end
+go

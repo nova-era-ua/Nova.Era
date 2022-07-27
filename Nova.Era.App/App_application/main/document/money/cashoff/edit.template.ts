@@ -1,9 +1,9 @@
-﻿// CASH IN
+﻿// CASH OFF
 
 const base: Template = require('/document/_common/pay.module');
 const utils: Utils = require("std:utils");
 
-const template: Template = {
+const template: Template = {	
 	validators: {
 		'Document.Agent': null,
 		'Document.CashAccFrom': '@[Error.Required]',
@@ -12,6 +12,3 @@ const template: Template = {
 };
 
 export default utils.mergeTemplate(base, template);
-
-
-
