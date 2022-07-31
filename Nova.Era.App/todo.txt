@@ -17,7 +17,8 @@
 75. Копирование объектов учета
 76. Автонумерация
 77. Загрузка товаров/контрагентов
-78.
+78. Country -> Sort, Filter, Load From Catalog
+79. Item.Country - field and reference
 
 
 Sample

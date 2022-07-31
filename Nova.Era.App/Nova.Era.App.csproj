@@ -88,7 +88,7 @@
     <Content Include="App_application\main\catalog\cashaccount\cashaccount.sql" />
     <Content Include="App_application\main\catalog\bankaccount\bankaccount.sql" />
     <Content Include="App_application\main\catalog\bank\bank.sql" />
-    <Content Include="App_application\main\catalog\country\pricelist.sql" />
+    <Content Include="App_application\main\catalog\country\country.sql" />
     <Content Include="App_application\main\catalog\person\person.sql" />
     <Content Include="App_application\main\catalog\respcenter\respcenter.sql" />
     <Content Include="App_application\main\catalog\costitem\costitem.sql" />
@@ -421,6 +421,7 @@
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
     <TypeScriptCompile Include="App_application\main\appstart\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\country\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\itemrole\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\person\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\person\index.template.ts" />
@@ -963,6 +964,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\catalog\cashaccount\info.popup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\country\edit.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

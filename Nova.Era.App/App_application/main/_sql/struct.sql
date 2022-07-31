@@ -155,7 +155,7 @@ create table cat.Countries
 	Void bit not null 
 		constraint DF_Countries_Void default(0),
 	[Alpha2] nchar(2),
-	[Aplha3] nchar(3),
+	[Alpha3] nchar(3),
 
 	[Name] nvarchar(255) null,
 	[Memo] nvarchar(255) null,
@@ -375,13 +375,15 @@ create table cat.Items
 	[Memo] nvarchar(255),
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
+	Country nchar(3), -- references cat.Countries
 	[Uid] uniqueidentifier not null
 		constraint DF_Items_Uid default(newid()),
 	constraint PK_Items primary key (TenantId, Id),
 	constraint FK_Items_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
 	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id),
 	constraint FK_Items_Brand_Brands foreign key (TenantId, Brand) references cat.Brands(TenantId, Id),
-	constraint FK_Items_Role_ItemRoles foreign key (TenantId, Role) references cat.ItemRoles(TenantId, Id)
+	constraint FK_Items_Role_ItemRoles foreign key (TenantId, [Role]) references cat.ItemRoles(TenantId, Id),
+	constraint FK_Items_Country_Countries foreign key (TenantId, Country) references cat.Countries(TenantId, Code)
 );
 go
 ------------------------------------------------

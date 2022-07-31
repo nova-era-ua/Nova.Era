@@ -1,5 +1,46 @@
 ﻿<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<EmptyPanel Icon="SmileSad">
-		Yet not implemented
-	</EmptyPanel>
+	<CollectionView ItemsSource="{Bind Countries}" RunAt="Server" Filter="Fragment">
+		<Grid Height="100%" Rows="Auto,1*" Padding="0">
+			<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+				<Button Icon="Plus" Content="@[Create]"
+					Command="{BindCmd Dialog, Action=Append, Argument={Bind Countries}, Url=/catalog/country/edit}"/>
+				<Button Icon="Edit"
+					Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Countries}, Url=/catalog/country/edit}"/>
+				<Button Icon="Delete"
+					Command="{BindCmd DbRemoveSelected, Argument={Bind Countries}, Confirm='@[Confirm.Delete.Element]'}"/>
+				<Separator />
+				<Button Icon="EllipsisVertical">
+					<Button.DropDown>
+						<DropDownMenu>
+							<MenuItem Content="@[AddFromCatalog]" Command="{BindCmd Execute, CommandName=addFromCatalog}"/>
+						</DropDownMenu>
+					</Button.DropDown>
+				</Button>
+				<Separator />
+				<Button Icon="Reload" Command="{BindCmd Reload}"/>
+				<ToolbarAligner />
+				<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"
+						 ShowClear="True" ShowFilter="True" />
+			</Toolbar>
+			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" 
+					ItemsSource="{Bind Parent.ItemsSource}"
+					FixedHeader="True" Sort="True"
+					DoubleClick="{BindCmd Dialog, Action=EditSelected, 
+						Argument={Bind Countries}, Url='/catalog/country/edit'}">
+				<DataGridColumn Header="@[Code]" Content="{Bind Id}" Role="Id"/>
+				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+				<DataGridColumn Header="Alpha2" Content="{Bind Alpha2}" Fit="True" Align="Center" />
+				<DataGridColumn Header="Alpha3" Content="{Bind Alpha3}" Fit="True" Align="Center" />
+				<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
+				<DataGridColumn Fit="True">
+					<CommandBar Visibility="Hover">
+						<Button Icon="Edit" 
+						   Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/country/edit'}"/>
+						<Button Icon="Delete"
+						   Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}" />
+					</CommandBar>
+				</DataGridColumn>
+			</DataGrid>
+		</Grid>
+	</CollectionView>
 </Partial>

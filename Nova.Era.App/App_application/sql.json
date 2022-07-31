@@ -21,6 +21,7 @@
 			"main/catalog/person/person.sql",
 			"main/catalog/contract/contract.sql",
 			"main/catalog/bank/bank.sql",
+			"main/catalog/country/country.sql",
 			"main/catalog/bankaccount/bankaccount.sql",
 			"main/catalog/cashaccount/cashaccount.sql",
 			"main/catalog/acckind/acckind.sql",

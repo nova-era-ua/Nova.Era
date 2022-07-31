@@ -217,8 +217,10 @@
 @Flag.WriteSupplierPrices=Записати ціни постачальників
 ; 
 @Error.Required=Обов\'язкове поле
-@Error.Currency.Len=Код має мати довжину 3 символа
+@Error.Currency.Len=Код має мати довжину 3 літери
 @Error.Currency.DuplicateCode=Валюта з таким кодом вже існує
+@Error.Country.Len3=Код має мати довжину 3 літери
+@Error.Country.Len2=Код має мати довжину 2 літери
 ;
 @Error.Delete.Folder=Неможливо видалити папку.\nМожна видаляти тількі порожні папки.
 @Error.UnitCodeUA=Код має складатися з цифр та мати довжину 4 символа.
