@@ -301,7 +301,8 @@ as table(
 	[Role] bigint,
 	Unit bigint,
 	Vendor bigint,
-	Brand bigint
+	Brand bigint,
+	Country nchar(3)
 );
 go
 -------------------------------------------------
@@ -324,7 +325,8 @@ begin
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Barcode, i.Memo,
 		[Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
-		[Brand!TBrand!RefId] = i.Brand, [Vendor!TVendor!RefId] = i.Vendor
+		[Brand!TBrand!RefId] = i.Brand, [Vendor!TVendor!RefId] = i.Vendor,
+		[Country!TCountry!RefId] = i.Country
 	from cat.Items i 
 		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId and i.Id=@Id and i.Void = 0;
@@ -341,6 +343,11 @@ begin
 	select [!TVendor!Map] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name]
 	from cat.Vendors v
 		inner join cat.Items i on v.TenantId = i.TenantId and v.Id = i.Vendor
+	where i.TenantId = @TenantId and i.Id = @Id;
+
+	select [!TCountry!Map] = null, [Id!!Id] = c.Code, [Name!!Name] = c.[Name]
+	from cat.Countries c
+		inner join cat.Items i on c.TenantId = i.TenantId and c.Code = i.Country
 	where i.TenantId = @TenantId and i.Id = @Id;
 
 	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock,
@@ -402,10 +409,11 @@ begin
 			t.[Role] = s.[Role],
 			t.Unit = s.Unit,
 			t.Brand = s.Brand,
-			t.Vendor = s.Vendor
+			t.Vendor = s.Vendor,
+			t.Country = s.Country
 	when not matched by target then 
-		insert (TenantId, [Name], FullName, [Article], Barcode, Memo, [Role], Unit, Brand, Vendor)
-		values (@TenantId, s.[Name], s.FullName, s.Article, s.Barcode, s.Memo, s.[Role], s.Unit, s.Brand, s.Vendor)
+		insert (TenantId, [Name], FullName, [Article], Barcode, Memo, [Role], Unit, Brand, Vendor, Country)
+		values (@TenantId, s.[Name], s.FullName, s.Article, s.Barcode, s.Memo, s.[Role], s.Unit, s.Brand, s.Vendor, s.Country)
 	output 
 		$action op, inserted.Id id
 	into @output(op, id);

@@ -1,0 +1,32 @@
+﻿<!-- download Country -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="@[Browse.Country]" Overflow="True"
+		Width="40rem">
+	<Dialog.Buttons>
+		<Button Content="Додати" Command="{BindCmd Execute, CommandName=addElements, Argument={Bind Countries}}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Dialog.CollectionView>
+		<CollectionView ItemsSource="{Bind $data.$Countries}" RunAt="Client" 
+			FilterDelegate="filter" Filter="Fragment" />
+	</Dialog.CollectionView>
+	<Grid AutoFlow="Row">
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<TextBox Value="{Bind Parent.Filter.Fragment}" Placeholder="@[Search]"
+					 Width="20rem" ShowFilter="True" ShowClear="True" TabIndex="1"/>
+		</Toolbar>
+		<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}"
+				Height="25rem" FixedHeader="True" Sort="True">
+			<DataGridColumn Content="{Bind $checked}" Align="Center" ControlType="CheckBox" Editable="True" Fit="True"/>
+			<DataGridColumn Header="@[Code]" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+			<DataGridColumn Header="Alpha2" Content="{Bind Alpha2}" Wrap="NoWrap" Fit="True"/>
+			<DataGridColumn Header="Alpha3" Content="{Bind Alpha3}" Wrap="NoWrap" Fit="True"/>
+		</DataGrid>
+		<Flex Orientation="Horizontal" Gap="6">
+			<Span Bold="True" Color="Gray" Wrap="NoWrap">Буде додано:</Span>
+			<Span Content="{Bind Root.$CheckedList}" Wrap="Wrap"/>
+		</Flex>
+	</Grid>
+</Dialog>
+

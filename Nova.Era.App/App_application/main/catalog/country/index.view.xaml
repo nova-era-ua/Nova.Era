@@ -12,7 +12,7 @@
 				<Button Icon="EllipsisVertical">
 					<Button.DropDown>
 						<DropDownMenu>
-							<MenuItem Content="@[AddFromCatalog]" Command="{BindCmd Execute, CommandName=addFromCatalog}"/>
+							<MenuItem Content="Завантажити з сайту НБУ" Command="{BindCmd Execute, CommandName=addFromSite}"/>
 						</DropDownMenu>
 					</Button.DropDown>
 				</Button>

@@ -139,6 +139,7 @@
 @PaymentPurpose=Призначення платежу
 @CashFunds=Готівка
 @NonCashFunds=Безготівкові кошти
+@Country.Origin=Країна походження
 ; Documents
 @Document.WaybillOut=Продаж товарів/послуг
 @Document.MoveBill=Внутрішнє переміщення
@@ -203,6 +204,7 @@
 @Browse.Vendor=Вибір виробника
 @Browse.Brand=Вибір бренду
 @Browse.Person=Вибір фізичної особи
+@Browse.Country=Вибір країни світу
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків

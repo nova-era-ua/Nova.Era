@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 31.07.2022 15:28:35
+generated: 01.08.2022 12:41:07
 */
 
 
@@ -8,7 +8,7 @@ generated: 31.07.2022 15:28:35
 
 /*
 version: 10.0.7779
-generated: 23.07.2022 15:09:01
+generated: 01.08.2022 12:29:16
 */
 
 set nocount on;
@@ -7258,15 +7258,52 @@ go
 create or alter procedure cat.[Country.Index]
 @TenantId int = 1,
 @UserId bigint,
-@Id nchar(3) = null
+@Id nchar(3) = null,
+@Offset int = 0,
+@PageSize int = -1,
+@Order nvarchar(32) = N'id',
+@Dir nvarchar(5) = N'asc',
+@Fragment nvarchar(255) = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Countries!TCountry!Array] = null, [Id!!Id] = Code, [Name!!Name] = [Name], Alpha2, Alpha3, Memo
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Fragment + N'%';
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
+	select [Countries!TCountry!Array] = null,
+		[Id!!Id] = c.Code, [Name!!Name] = c.[Name], c.Memo, 
+		c.Alpha3, c.Alpha2
 	from cat.Countries c
-	where c.TenantId = @TenantId and c.Void = 0;
+	where TenantId = @TenantId
+		and (@fr is null or c.Code like @fr or c.Alpha3 like @fr or c.Alpha2 like @fr 
+		or c.[Name] like @fr or c.Memo like @fr)
+	order by
+		case when @Dir = N'asc' then
+			case @Order
+				when N'id' then c.[Code]
+				when N'alpha3' then c.[Alpha3]
+				when N'alpha2' then c.[Alpha2]
+				when N'name' then c.[Name]
+				when N'memo' then c.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'id' then c.[Code]
+				when N'alpha3' then c.[Alpha3]
+				when N'alpha2' then c.[Alpha2]
+				when N'name' then c.[Name]
+				when N'memo' then c.[Memo]
+			end
+		end desc;
+
+	select [!$System!] = null, [!Countries!Offset] = @Offset, [!Countries!PageSize] = @PageSize, 
+		[!Countries!SortOrder] = @Order, [!Countries!SortDir] = @Dir,
+		[!Countries.Fragment!Filter] = @Fragment
 end
 go
 ------------------------------------------------
@@ -7287,7 +7324,9 @@ end
 go
 ------------------------------------------------
 drop procedure if exists cat.[Country.Metadata];
+drop procedure if exists cat.[Country.Download.Metadata];
 drop procedure if exists cat.[Country.Update];
+drop procedure if exists cat.[Country.Download.Update];
 drop type if exists cat.[Country.TableType];
 go
 ------------------------------------------------
@@ -7341,33 +7380,7 @@ begin
 	exec cat.[Country.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
-/*
----------------------------------------------
-create or alter procedure cat.[Country.AddFromCatalog]
-@TenantId int = 1,
-@UserId bigint,
-@Ids nvarchar(max)
-as
-begin
-	set nocount on;
-	set transaction isolation level read committed;
-	merge cat.Countrys as t
-	using (
-		select u.Id, u.Short, u.CodeUA, u.[Name] 
-		from cat.Countrys u
-			inner join string_split(@Ids, N',') t on u.TenantId = 0 and u.Id = t.[value]) as s
-	on t.TenantId = @TenantId and t.CodeUA = s.CodeUA
-	when matched then update set 
-		Short = s.Short,
-		[Name] = s.[Name],
-		Void = 0
-	when not matched by target then insert
-		(TenantId, Short, CodeUA, [Name]) values
-		(@TenantId, s.Short, s.CodeUA, s.[Name]);
-end
-go
-*/
----------------------------------------------
+------------------------------------------------
 create or alter procedure cat.[Country.Delete]
 @TenantId int = 1,
 @UserId bigint,
@@ -7382,7 +7395,6 @@ begin
 	update cat.Countries set Void = 1 where TenantId = @TenantId and Code=@Id;
 end
 go
-
 ------------------------------------------------
 create or alter procedure cat.[Country.Fetch]
 @TenantId int = 1,
@@ -7401,6 +7413,61 @@ begin
 	from cat.Countries c 
 	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or [Alpha3] like @fr or [Alpha2] like @fr)
 	order by c.[Code];
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Country.Download.Load]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Countries!TCountry!Array] = null, [Id!!Id] = Code, [Name!!Name] = [Name], Alpha2, Alpha3, Memo
+	from cat.Countries c
+	where c.TenantId = @TenantId and 1 <> 1;
+
+	select [$Countries!TCountry!Array] = null, [Id!!Id] = Code, [Name!!Name] = [Name], Alpha2, Alpha3, Memo
+	from cat.Countries c
+	where c.TenantId = @TenantId and 1 <> 1;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Country.Download.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @Country cat.[Country.TableType];
+	select [Countries!Countries!Metadata] = null, * from @Country;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Country.Download.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Countries cat.[Country.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	
+	declare @id bigint;
+
+	merge cat.Countries as t
+	using @Countries as s on (t.TenantId = @TenantId and t.Code = s.Id)
+	when matched then update set
+		t.[Name] = s.[Name], 
+		t.[Memo] = s.[Memo], 
+		t.[Alpha3] = s.[Alpha3],
+		t.[Alpha2] = s.[Alpha2],
+		t.Void = 0
+	when not matched by target then insert
+		(TenantId, Code, [Name], Memo, Alpha2, Alpha3) values
+		(@TenantId, Id, [Name], Memo, Alpha2, Alpha3);
 end
 go
 
