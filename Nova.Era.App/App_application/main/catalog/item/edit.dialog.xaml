@@ -73,6 +73,10 @@
 						Label="@[Brand]" Value="{Bind Item.Brand}" DisplayProperty="Name" Fetch="/catalog/brand/fetch">
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Brand}, Url='/catalog/brand/browse'}"/>
 					</Selector>
+					<Selector Grid.Row="3"
+						Label="@[Country.Origin]" Value="{Bind Item.Country}" DisplayProperty="Name" Fetch="/catalog/country/fetch">
+						<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Country}, Url='/catalog/country/browse'}"/>
+					</Selector>
 				</Grid>
 			</Case>
 		</Switch>
