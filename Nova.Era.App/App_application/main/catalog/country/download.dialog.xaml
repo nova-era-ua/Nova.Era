@@ -13,7 +13,7 @@
 	<Grid AutoFlow="Row">
 		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 			<TextBox Value="{Bind Parent.Filter.Fragment}" Placeholder="@[Search]"
-					 Width="20rem" ShowFilter="True" ShowClear="True" TabIndex="1"/>
+					 Width="20rem" ShowFilter="True" ShowClear="True" TabIndex="1" UpdateTrigger="Input"/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}"
 				Height="25rem" FixedHeader="True" Sort="True">
