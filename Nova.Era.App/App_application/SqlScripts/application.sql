@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 03.08.2022 18:11:33
+generated: 04.08.2022 09:27:57
 */
 
 
@@ -10177,12 +10177,12 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	declare @items a2sys.[Id.TableType];
-	insert into @items (Id) 
+	declare @itemstable a2sys.[Id.TableType];
+	insert into @itemstable (Id) 
 		select [value] from string_split(@Items, N',');
 
 	select [Rems!TRem!Array] = null, r.Item, r.Rem, r.[Role]
-	from doc.fn_getItemsRems(@CheckRems, @TenantId, @items, @Date, @Wh) r;
+	from doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) r;
 end
 go
 
@@ -11531,7 +11531,7 @@ begin
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum,
-		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = Unit, 
+		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = dd.Unit, 
 		[!TDocument.Rows!ParentId] = dd.Document, [RowNo!!RowNumber] = r.rowno
 	from doc.DocDetails dd
 		inner join @rows r on dd.Id = r.id
@@ -13162,7 +13162,7 @@ begin
 	from T inner join cat.CostItems ci on ci.TenantId = @TenantId and T.Id = ci.Id;
 
 	-- item roles
-	declare @itemroles table(id bigint, [uid] uniqueidentifier);
+	declare @itemrolestable table(id bigint, [uid] uniqueidentifier);
 	merge cat.ItemRoles as t
 	using (
 		select s.Id, s.[Name], s.[Memo], s.Kind, s.Color, 
@@ -13184,13 +13184,13 @@ begin
 	when not matched by target then insert
 		(TenantId, [Uid], [Name], Memo, Kind, Color, HasPrice, IsStock, ExType) values
 		(@TenantId, s.[Id], s.[Name], s.Memo, s.Kind, s.Color, s.HasPrice, s.IsStock, s.ExType)
-	output inserted.Id, inserted.[Uid] into @itemroles(id, [uid]);
+	output inserted.Id, inserted.[Uid] into @itemrolestable(id, [uid]);
 
 
 	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
 	with T as (
 		select [Role] =  ir.id, Account = a.Id, AccKind = ak.Id, [Plan] = pl.Id
-		from  @ItemRoleAcc s inner join @itemroles ir on s.ParentId = ir.[uid]
+		from  @ItemRoleAcc s inner join @itemrolestable ir on s.ParentId = ir.[uid]
 		inner join acc.Accounts pl on pl.TenantId = @TenantId and pl.[Uid] = s.[Plan]
 		inner join acc.Accounts a on a.TenantId = @TenantId and a.[Uid] = s.Account
 		inner join acc.AccKinds ak on ak.TenantId = @TenantId and ak.[Uid] = s.AccKind
@@ -13199,7 +13199,7 @@ begin
 	select @TenantId, [Role], [Plan], Account, AccKind from T;
 	
 	-- operations
-	declare @operations table(id bigint, [uid] uniqueidentifier);
+	declare @operationstable table(id bigint, [uid] uniqueidentifier);
 	merge doc.Operations as t
 	using @Operations as s
 	on t.TenantId = @TenantId and t.[Uid] = s.Id
@@ -13210,14 +13210,14 @@ begin
 	when not matched by target then insert
 		(TenantId, [Uid], [Name], Memo, [Form]) values
 		(@TenantId, s.Id, s.[Name], s.Memo, s.[Form])
-	output inserted.Id, inserted.[Uid] into @operations(id, [uid]);
+	output inserted.Id, inserted.[Uid] into @operationstable(id, [uid]);
 
 	delete from doc.OpTrans where TenantId = @TenantId;
 	with T as (
 		select [Operation] =  op.id, RowKind = isnull(s.RowKind, N''), s.RowNo, [Plan] = pl.Id, [Dt] = dt.Id, [Ct] = ct.Id,
 			DtAccKind = dtak.Id, CtAccKind = ctak.Id, s.DtAccMode, s.CtAccMode, s.DtRow, s.CtRow,
 			s.DtSum, s.CtSum
-		from  @OpTrans s inner join @operations op on s.ParentId = op.[uid]
+		from  @OpTrans s inner join @operationstable op on s.ParentId = op.[uid]
 			inner join acc.Accounts pl on pl.TenantId = @TenantId and pl.[Uid] = s.[Plan]
 			left join acc.Accounts dt on dt.TenantId = @TenantId and dt.[Uid] = s.Dt
 			left join acc.Accounts ct on ct.TenantId = @TenantId and ct.[Uid] = s.Ct
@@ -13233,7 +13233,7 @@ begin
 	delete from doc.OpPrintForms where TenantId = @TenantId;
 	with T as (
 		select [Operation] = op.id, s.PrintForm
-		from @OpPrintForms s inner join @operations op on s.ParentId = op.[uid]
+		from @OpPrintForms s inner join @operationstable op on s.ParentId = op.[uid]
 	)
 	insert into doc.OpPrintForms(TenantId, Operation, PrintForm)
 	select @TenantId, Operation, PrintForm
@@ -13243,7 +13243,7 @@ begin
 	with T as (
 		select [Parent] = op.id, Operation = lo.Id, s.Category, s.[Type], s.Memo
 		from @OpLinks s 
-			inner join @operations op on s.ParentId = op.[uid]
+			inner join @operationstable op on s.ParentId = op.[uid]
 			inner join doc.Operations lo on lo.TenantId = @TenantId and s.Operation = lo.[Uid]
 	)
 	insert into doc.OperationLinks(TenantId, Parent, Operation, Category, [Type], Memo)
@@ -13253,7 +13253,7 @@ begin
 	delete from ui.OpMenuLinks where TenantId = @TenantId;
 	with T as (
 		select [Operation] = op.id, s.Menu
-		from @OpMenuLinks s inner join @operations op on s.ParentId = op.[uid]
+		from @OpMenuLinks s inner join @operationstable op on s.ParentId = op.[uid]
 	)
 	insert into ui.OpMenuLinks(TenantId, Operation, Menu)
 	select @TenantId, Operation, Menu

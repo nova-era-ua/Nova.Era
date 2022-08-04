@@ -81,12 +81,12 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	declare @items a2sys.[Id.TableType];
-	insert into @items (Id) 
+	declare @itemstable a2sys.[Id.TableType];
+	insert into @itemstable (Id) 
 		select [value] from string_split(@Items, N',');
 
 	select [Rems!TRem!Array] = null, r.Item, r.Rem, r.[Role]
-	from doc.fn_getItemsRems(@CheckRems, @TenantId, @items, @Date, @Wh) r;
+	from doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) r;
 end
 go
 

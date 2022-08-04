@@ -45,7 +45,7 @@ begin
 	where dd.TenantId = @TenantId and dd.Document = @Id;
 
 	select [!TRow!Array] = null, [Id!!Id] = dd.Id, [Qty], Price, [Sum], ESum, DSum, TSum,
-		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = Unit, 
+		[Item!TItem!RefId] = dd.Item, [Unit!TUnit!RefId] = dd.Unit, 
 		[!TDocument.Rows!ParentId] = dd.Document, [RowNo!!RowNumber] = r.rowno
 	from doc.DocDetails dd
 		inner join @rows r on dd.Id = r.id

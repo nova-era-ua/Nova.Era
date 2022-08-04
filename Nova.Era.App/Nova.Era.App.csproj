@@ -118,6 +118,7 @@
     <Content Include="App_application\main\reports\stock\report.stock.sql">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\settings\develop\application.sql" />
     <Content Include="App_application\main\settings\develop\develop.sql" />
     <Content Include="App_application\main\settings\operation\operation.sql" />
     <Content Include="App_application\main\settings\accountplan\plan.sql" />
