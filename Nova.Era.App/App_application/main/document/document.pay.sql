@@ -77,7 +77,7 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.[Notice], d.Done,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.[Notice], d.SNo, d.[No], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
@@ -155,7 +155,7 @@ begin
 
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.Notice, d.[Sum], d.Done,
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.Notice, d.SNo, d.[No], d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, 
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
@@ -228,6 +228,8 @@ as table(
 	RespCenter bigint,
 	Memo nvarchar(255),
 	Notice nvarchar(255),
+	SNo nvarchar(64),
+	[No] nvarchar(64),
 	ItemRole bigint
 )
 go
@@ -254,6 +256,20 @@ begin
 	declare @rtable table(id bigint);
 	declare @id bigint;
 
+
+	declare @no nvarchar(64);
+	select @no = [No] from @Document;
+	if @no is null
+	begin
+		declare @autonumAN bigint, @autonumComp bigint, @autonumDate date;
+
+		select @autonumAN = o.Autonum, @autonumComp = d.Company, @autonumDate = d.[Date]
+		from @Document d inner join doc.Operations o on d.Operation = o.Id and o.TenantId = @TenantId;
+
+		exec doc.[Autonum.NextValue] 
+			@TenantId = @TenantId, @Company = @autonumComp, @Autonum = @autonumAN, @Date = @autonumDate, @Number = @no output;
+	end
+
 	merge doc.Documents as t
 	using @Document as s
 	on t.TenantId = @TenantId and t.Id = s.Id
@@ -271,12 +287,14 @@ begin
 		t.RespCenter = s.RespCenter,
 		t.Memo = s.Memo,
 		t.Notice = s.Notice,
+		t.[No] = @no,
+		t.[SNo] = s.SNo,
 		t.ItemRole = s.ItemRole
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, 
-			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, ItemRole, UserCreated) values
+			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, SNo, [No], ItemRole, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, 
-			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, s.ItemRole, @UserId)
+			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, s.SNo, @no, s.ItemRole, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

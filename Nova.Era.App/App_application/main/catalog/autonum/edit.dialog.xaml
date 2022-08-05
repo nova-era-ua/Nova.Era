@@ -1,0 +1,34 @@
+﻿<!-- Edit Autonum -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="{Bind Autonum.$Id, Format='@[Autonum] [{0}]'}" Overflow="True" Size="Medium">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid>
+		<TextBox Label="@[Name]" Value="{Bind Autonum.Name}" 
+				 Bold="True" TabIndex="1" UpdateTrigger="Input"/>
+		<ComboBox Label="Періодичність" Value="{Bind Autonum.Period}" Width="15rem">
+			<ComboBoxItem Content="Наскрізна" Value="A"/>
+			<ComboBoxItem Content="В межах року" Value="Y"/>
+			<ComboBoxItem Content="В межах кварталу" Value="Q"/>
+			<ComboBoxItem Content="В межах місяця" Value="M"/>
+		</ComboBox>
+		<TextBox Label="Шаблон номера" Value="{Bind Autonum.Pattern}" />
+		<Html CssClass="descr-simple-list">
+			Макроси:
+			<![CDATA[
+			<ul>
+				<li>{p} - префікс підприємства</li>
+				<li>{n*} - номер в періоді (будь яка кількість літер 'n')</li>
+				<li>{yyyy} - поточний рік - 4 цифри</li>
+				<li>{yy} - поточний рік - 2 цифри</li>
+				<li>{qq} - поточний квартал - 2 цифри</li>
+				<li>{mm} - поточний місяць - 2 цифри</li>
+			</ul>
+			]]>
+		</Html>
+		<TextBox Label="@[Memo]" Value="{Bind Autonum.Memo}" Multiline="True"/>
+	</Grid>
+</Dialog>
+

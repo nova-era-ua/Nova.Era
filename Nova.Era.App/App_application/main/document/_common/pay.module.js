@@ -15,6 +15,7 @@ define(["require", "exports"], function (require, exports) {
     };
     exports.default = utils.mergeTemplate(base, template);
     async function dateChange(doc, date) {
+        doc.No = '';
         if (!doc.CashAccFrom.Id)
             return;
         const ctrl = this.$ctrl;

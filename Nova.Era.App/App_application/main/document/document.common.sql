@@ -89,4 +89,65 @@ begin
 	from doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) r;
 end
 go
+------------------------------------------------
+create or alter procedure doc.[Autonum.NextValue]
+@TenantId int, 
+@Company bigint, 
+@Autonum bigint, 
+@Date date, 
+@Number nvarchar(64) output
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	if 0 = isnull(@Autonum, 0)
+	begin
+		set @Number = null;
+		return;
+	end
+		
+
+	declare @m int, @q int, @y int, @pattern nvarchar(255);
+	declare @compprefix nvarchar(8);
+	
+	select @compprefix = isnull(AutonumPrefix, N'') from cat.Companies 
+		where TenantId = @TenantId and Id=@Company;
+	select @pattern = Pattern,
+		@m = case when [Period] = N'M'  then month(@Date) else 0 end,
+		@q = case when [Period] = N'Q'  then datepart(quarter, @Date) else 0 end,
+		@y = case when [Period] <> N'A' then year(@Date) else 0 end
+	from doc.Autonums where TenantId = @TenantId and Id = @Autonum;
+
+	declare @rtable table(number int);
+	begin tran;
+		update doc.AutonumValues set CurrentNumber = CurrentNumber + 1 
+			output inserted.CurrentNumber into @rtable(number)
+		where TenantId = @TenantId and Company = @Company and Autonum = @Autonum 
+			and [Year] = @y and Quart = @q and [Month] = @m;
+	if @@rowcount = 0
+		insert into doc.AutonumValues(TenantId, Company, Autonum, [Year], [Quart], [Month], CurrentNumber)
+			output inserted.CurrentNumber into @rtable(number)
+		values(@TenantId, @Company, @Autonum, @y, @q, @m, 1);
+	commit tran;
+	
+	-- and format number
+	declare @n int;
+	select @n = number from @rtable;
+	--select format(@n, replicate(N'0', 5));
+	set @Number = replace(@pattern, N'{yy}', format(@Date, N'yy'));
+	set @Number = replace(@Number, N'{yyyy}', format(@Date, N'yyyy'));
+	set @Number = replace(@Number, N'{mm}', format(@Date, N'MM'));
+	set @Number = replace(@Number, N'{qq}', format(datepart(quarter, @Date), N'00'));
+	set @Number = replace(@Number, N'{p}', @compprefix);
+	declare @p0 int, @p1 int, @patno nvarchar(255);
+	set @p0 = charindex(N'{n', @Number);
+	set @p1 = charindex(N'n}', @Number);
+	if @p0 > 0 and @p1 > 0
+		set @patno = replicate(N'0', @p1 - @p0);
+	else
+		set @patno = N'0';
+	set @Number = stuff(@Number, @p0, @p1 - @p0 + 2, format(@n, @patno));
+end
+go
 

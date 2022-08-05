@@ -79,6 +79,7 @@
     <Content Include="App_application\%40sql\platform\source\a2v10ui.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10ui_simple.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10workflow.sql" />
+    <Content Include="App_application\main\catalog\autonum\autonum.sql" />
     <Content Include="App_application\main\catalog\agent\agent.sql" />
     <Content Include="App_application\main\catalog\agent\index.view.xaml">
       <SubType>Designer</SubType>
@@ -386,6 +387,7 @@
     <None Include="App_application\main\accounting\bank\model.json" />
     <None Include="App_application\main\accounting\service\model.json" />
     <Content Include="App_application\main\appstart\model.json" />
+    <Content Include="App_application\main\catalog\autonum\model.json" />
     <None Include="App_application\main\catalog\account\model.json" />
     <None Include="App_application\main\catalog\cashaccount\model.json" />
     <None Include="App_application\main\catalog\bankaccount\model.json" />
@@ -421,6 +423,7 @@
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
     <TypeScriptCompile Include="App_application\main\appstart\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\autonum\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\country\download.template.ts" />
     <Content Include="App_application\main\catalog\country\download.server.js" />
@@ -992,6 +995,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\catalog\bank\browse.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\autonum\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\autonum\index.view.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

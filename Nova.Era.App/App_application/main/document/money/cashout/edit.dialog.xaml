@@ -23,7 +23,7 @@
 			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem" Padding="0,0,1rem,0" Gap="1rem">
 			<Header Content="Витрата готівки" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
-			<TextBox Placeholder="(Авто)" Disabled="True"/>
+			<TextBox Placeholder="(Авто)" Disabled="True" Value="{Bind Document.No}"/>
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />

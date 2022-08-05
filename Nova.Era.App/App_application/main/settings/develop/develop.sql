@@ -18,6 +18,7 @@ begin
 	begin tran;
 	delete from rep.Reports where TenantId = @TenantId;
 	delete from jrn.Journal where TenantId = @TenantId;
+	delete from doc.Prices where TenantId = @TenantId;
 	delete from jrn.SupplierPrices where TenantId = @TenantId;
 	delete from doc.DocDetails where TenantId = @TenantId;
 	delete from doc.DocumentExtra where TenantId = @TenantId;
@@ -35,6 +36,8 @@ begin
 	delete from acc.AccKinds where TenantId = @TenantId;
 	delete from app.Settings where TenantId = @TenantId;
 	delete from acc.Accounts where TenantId = @TenantId;
+	delete from doc.AutonumValues where TenantId = @TenantId;
+	delete from doc.Autonums where TenantId = @TenantId;
 	commit tran;
 
 
@@ -86,13 +89,19 @@ begin
 		(@TenantId, 20, N'Товар №1', 50),
 		(@TenantId, 21, N'Послуга №1', 51);
 
-	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form], DocumentUrl) values
-		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		 N'waybillin',  N'/document/purchase/waybillin'),
-		(@TenantId, 101, N'E3CB0D62-24AB-4FE3-BD68-DD2453F6B032', N'Оплата постачальнику (банк)',	 N'payout',     N'/document/money/payout'),
-		(@TenantId, 102, N'80C9C85D-458E-445B-B35B-8177B40A5D41', N'Оплата постачальнику (готівка)', N'cashout',    N'/document/money/cashout'),
-		(@TenantId, 103, N'D8DDB942-26AB-4402-9FD7-42E62BBCB57D', N'Продаж товарів/послуг',			 N'waybillout', N'/document/sales/waybillout'),
-		(@TenantId, 104, N'C2C94B13-926C-41E5-9446-647B6C23B83E', N'Оплата від покупця (банк)',		 N'payin',      N'/document/money/payin'),
-		(@TenantId, 105, N'B31EB587-D242-4A96-8255-B824B1551963', N'Оплата від покупця (готівка)',	 N'cashin',     N'/document/money/cashin');
+	insert into doc.Autonums(TenantId, Id, [Name], [Period], Pattern) 
+	values
+		(@TenantId, 20, N'Видаткові накладні', N'Y', N'{p}-{nnnnnn}'),
+		(@TenantId, 21, N'Платіжні доручення', N'Y', N'{p}-{nnnnnn}'),
+		(@TenantId, 22, N'Видаткові касові ордери', N'Y', N'{p}-{nnnnnn}');
+
+	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form], DocumentUrl, Autonum) values
+		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		 N'waybillin',  N'/document/purchase/waybillin', null),
+		(@TenantId, 101, N'E3CB0D62-24AB-4FE3-BD68-DD2453F6B032', N'Оплата постачальнику (банк)',	 N'payout',     N'/document/money/payout', 21),
+		(@TenantId, 102, N'80C9C85D-458E-445B-B35B-8177B40A5D41', N'Оплата постачальнику (готівка)', N'cashout',    N'/document/money/cashout', 22),
+		(@TenantId, 103, N'D8DDB942-26AB-4402-9FD7-42E62BBCB57D', N'Продаж товарів/послуг',			 N'waybillout', N'/document/sales/waybillout', 20),
+		(@TenantId, 104, N'C2C94B13-926C-41E5-9446-647B6C23B83E', N'Оплата від покупця (банк)',		 N'payin',      N'/document/money/payin', null),
+		(@TenantId, 105, N'B31EB587-D242-4A96-8255-B824B1551963', N'Оплата від покупця (готівка)',	 N'cashin',     N'/document/money/cashin', null);
 
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
 		[DtSum], DtRow, DtAccMode, DtAccKind,  [CtSum], [CtRow], CtAccMode, CtAccKind)
@@ -134,7 +143,9 @@ begin
 		(@TenantId, 100, N'waybillout');
 
 	if not exists(select * from cat.Companies where TenantId = @TenantId and Id = 10)
-		insert into cat.Companies(TenantId, Id, [Name]) values (@TenantId, 10, N'Моє підприємство');
+		insert into cat.Companies(TenantId, Id, [Name], AutonumPrefix) values (@TenantId, 10, N'Моє підприємство', N'МП');
+	else if (select AutonumPrefix from cat.Companies where TenantId = @TenantId and Id = 10) is null
+		update cat.Companies set AutonumPrefix = N'МП' where TenantId = @TenantId and Id = 10;
 
 	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 10 and IsCashAccount = 1)
 		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], IsCashAccount, ItemRole) values (@TenantId, 10, 10, 980, N'Основна каса', 1, 61);

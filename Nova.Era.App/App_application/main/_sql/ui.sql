@@ -194,6 +194,7 @@ begin
 	(901, N'Settings',  02, N'@[General]',   N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
 	(910, N'Settings',  10, N'@[Accounts]',  N'@[ItemRoles]',   N'/catalog/itemrole/index', N'list',  N''),
 	(911, N'Settings',  11, N'@[Accounts]',  N'@[AccKinds]',    N'/catalog/acckind/index', N'list',  N''),
+	(915, N'Settings',  12, N'@[Documents]', N'@[Autonums]',    N'/catalog/autonum/index', N'list',  N''),
 	(920, N'Settings',  21, N'@[Accounting]', N'@[Banks]',         N'/catalog/bank/index', N'list',  N''),
 	(921, N'Settings',  22, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
 	(922, N'Settings',  23, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),

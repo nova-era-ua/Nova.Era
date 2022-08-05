@@ -437,6 +437,7 @@ create table cat.Companies
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
+	[AutonumPrefix] nvarchar(8),
 		constraint PK_Companies primary key (TenantId, Id)
 );
 go
@@ -511,6 +512,40 @@ create table cat.CashAccounts
 		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
 		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Autonums')
+	create sequence doc.SQ_Autonums as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Autonums')
+create table doc.Autonums (
+	TenantId int not null,
+	[Id] bigint not null
+		constraint DF_Autonum_Id default(next value for doc.SQ_Autonums),
+	Void bit not null 
+		constraint DF_Autonum_Void default(0),
+	[Name] nvarchar(255),
+	[Period] nchar(1) not null, -- (A)ll, (Y)ear, Q(uart), M(onth)
+	Pattern nvarchar(255), -- yyyy, yy, MM, qq, n(*), p
+	[Memo] nvarchar(255),
+		constraint PK_Autonum primary key (TenantId, [Id])
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'AutonumValues')
+create table doc.AutonumValues (
+	TenantId int not null,
+	[Company] bigint not null,
+	[Autonum] bigint not null,
+	[Year] int not null,
+	[Quart] int not null,
+	[Month] int not null,
+	CurrentNumber int null,
+		constraint PK_AutonumValues primary key (TenantId, Company, [Autonum], [Year], Quart, [Month]),
+		constraint FK_AutonumValues_Autonum_Autonum foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id),
+		constraint FK_AutonumValues_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -654,10 +689,13 @@ create table doc.Operations
 	[DocumentUrl] nvarchar(255) null,
 	[WarehouseFrom] nchar(1), -- TODO: Delete
 	[WarehouseTo] nchar(1), -- TODO: Delete
+	[Autonum] bigint,
 	[Uid] uniqueidentifier not null
 		constraint DF_Operations_Uid default(newid()),
 	constraint PK_Operations primary key (TenantId, Id),
-	constraint FK_Operations_Form_Forms foreign key (TenantId, Form) references doc.Forms(TenantId, Id)
+	constraint FK_Operations_Form_Forms foreign key (TenantId, Form) references doc.Forms(TenantId, Id),
+	constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id)
+
 );
 go
 ------------------------------------------------
@@ -798,6 +836,7 @@ create table doc.Documents
 	Operation bigint not null,
 	[Sum] money not null
 		constraint DF_Documents_Sum default(0),
+	[No] nvarchar(64),
 	[SNo] nvarchar(64),
 	Done bit not null
 		constraint DF_Documents_Done default(0),

@@ -48,7 +48,7 @@
 				Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,25rem" Margin="0,0,1rem,0">
 			<Header Content="Замовлення" Grid.VAlign="Baseline" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
-			<TextBox Placeholder="Авто" Width="10rem" Value="{Bind Document.Id}"/>
+			<TextBox Placeholder="Авто" Width="10rem" Value="{Bind Document.No}" Disabled="True"/>
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}" Width="10rem"/>
 			<Label Grid.Row="1" Grid.Col="7" Align="Right">@[Company]</Label>

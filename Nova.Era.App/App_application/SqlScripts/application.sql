@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 05.08.2022 06:32:41
+generated: 05.08.2022 17:18:01
 */
 
 
@@ -3849,6 +3849,7 @@ create table cat.Companies
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
+	[AutonumPrefix] nvarchar(8),
 		constraint PK_Companies primary key (TenantId, Id)
 );
 go
@@ -3923,6 +3924,40 @@ create table cat.CashAccounts
 		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
 		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Autonums')
+	create sequence doc.SQ_Autonums as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Autonums')
+create table doc.Autonums (
+	TenantId int not null,
+	[Id] bigint not null
+		constraint DF_Autonum_Id default(next value for doc.SQ_Autonums),
+	Void bit not null 
+		constraint DF_Autonum_Void default(0),
+	[Name] nvarchar(255),
+	[Period] nchar(1) not null, -- (A)ll, (Y)ear, Q(uart), M(onth)
+	Pattern nvarchar(255), -- yyyy, yy, MM, qq, n(*), p
+	[Memo] nvarchar(255),
+		constraint PK_Autonum primary key (TenantId, [Id])
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'AutonumValues')
+create table doc.AutonumValues (
+	TenantId int not null,
+	[Company] bigint not null,
+	[Autonum] bigint not null,
+	[Year] int not null,
+	[Quart] int not null,
+	[Month] int not null,
+	CurrentNumber int null,
+		constraint PK_AutonumValues primary key (TenantId, Company, [Autonum], [Year], Quart, [Month]),
+		constraint FK_AutonumValues_Autonum_Autonum foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id),
+		constraint FK_AutonumValues_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4066,10 +4101,13 @@ create table doc.Operations
 	[DocumentUrl] nvarchar(255) null,
 	[WarehouseFrom] nchar(1), -- TODO: Delete
 	[WarehouseTo] nchar(1), -- TODO: Delete
+	[Autonum] bigint,
 	[Uid] uniqueidentifier not null
 		constraint DF_Operations_Uid default(newid()),
 	constraint PK_Operations primary key (TenantId, Id),
-	constraint FK_Operations_Form_Forms foreign key (TenantId, Form) references doc.Forms(TenantId, Id)
+	constraint FK_Operations_Form_Forms foreign key (TenantId, Form) references doc.Forms(TenantId, Id),
+	constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id)
+
 );
 go
 ------------------------------------------------
@@ -4566,7 +4604,19 @@ if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE where TABL
 	alter table cat.Items add 
 		constraint FK_Items_Country_Countries foreign key (TenantId, Country) references cat.Countries(TenantId, Code);
 go
-
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Companies' and COLUMN_NAME=N'AutonumPrefix')
+	alter table cat.Companies add [AutonumPrefix] nvarchar(8);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations' and COLUMN_NAME=N'Autonum')
+	alter table doc.Operations add Autonum bigint; -- references doc.Autonums
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Operations' and CONSTRAINT_NAME = N'FK_Operations_Autonum_Autonums')
+	alter table doc.Operations add 
+		constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id);
+go
 
 
 /*
@@ -4973,6 +5023,7 @@ begin
 	(901, N'Settings',  02, N'@[General]',   N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
 	(910, N'Settings',  10, N'@[Accounts]',  N'@[ItemRoles]',   N'/catalog/itemrole/index', N'list',  N''),
 	(911, N'Settings',  11, N'@[Accounts]',  N'@[AccKinds]',    N'/catalog/acckind/index', N'list',  N''),
+	(915, N'Settings',  12, N'@[Documents]', N'@[Autonums]',    N'/catalog/autonum/index', N'list',  N''),
 	(920, N'Settings',  21, N'@[Accounting]', N'@[Banks]',         N'/catalog/bank/index', N'list',  N''),
 	(921, N'Settings',  22, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
 	(922, N'Settings',  23, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
@@ -5222,7 +5273,8 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo
+	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
+		AutonumPrefix
 	from cat.Companies c
 	where c.TenantId = @TenantId and c.Id = @Id;
 end
@@ -5238,7 +5290,8 @@ as table(
 	Id bigint null,
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
-	[Memo] nvarchar(255)
+	[Memo] nvarchar(255),
+	AutonumPrefix nvarchar(8)
 )
 go
 ------------------------------------------------
@@ -5270,10 +5323,11 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.[FullName] = s.[FullName]
+		t.[FullName] = s.[FullName],
+		t.AutonumPrefix = s.AutonumPrefix
 	when not matched by target then insert
-		(TenantId, [Name], FullName, Memo) values
-		(@TenantId, s.[Name], s.FullName, s.Memo)
+		(TenantId, [Name], FullName, Memo, AutonumPrefix) values
+		(@TenantId, s.[Name], s.FullName, s.Memo, s.AutonumPrefix)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 	exec cat.[Company.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
@@ -7053,6 +7107,7 @@ go
 create or alter procedure cat.[Bank.Index]
 @TenantId int = 1,
 @UserId bigint,
+@Id bigint = null,
 @Offset int = 0,
 @PageSize int = 20,
 @Order nvarchar(32) = N'name',
@@ -7132,6 +7187,41 @@ begin
 		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo, b.[Code], b.FullName, b.BankCode
 	from cat.Banks b
 	where TenantId = @TenantId and b.Id = @Id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Bank.FindByCode]
+@TenantId int = 1,
+@UserId bigint,
+@Code nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Bank!TBank!Object] = null,
+		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo, b.[Code], b.FullName, b.BankCode
+	from cat.Banks b
+	where TenantId = @TenantId and b.BankCode = @Code;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Bank.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select [Banks!TBank!Array] = null,
+		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.BankCode
+	from cat.Banks b
+	where TenantId = @TenantId and (b.BankCode like @fr or b.[Name] like @fr);
 end
 go
 ---------------------------------------------
@@ -7561,6 +7651,10 @@ begin
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join T on c.TenantId = @TenantId and c.Id = T.comp;
 
+	with T as(select crc from @ba group by crc)
+	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Alpha3
+	from cat.Currencies c inner join T on c.TenantId = @TenantId and c.Id = T.crc;
+
 	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
 
@@ -7619,6 +7713,10 @@ begin
 	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short, c.Alpha3
 	from cat.Currencies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Currency = c.Id
 	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
+
+	select [!TBank!Map] = null, [Id!!Id] = b.Id, b.BankCode, b.[Name]
+	from cat.Banks b inner join cat.CashAccounts ba on b.TenantId = ba.TenantId and ba.Bank = b.Id
+	where b.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
@@ -9343,6 +9441,110 @@ go
 
 
 
+/* ACCOUNT KIND */
+drop procedure if exists doc.[Autonum.Metadata];
+drop procedure if exists doc.[Autonum.Update];
+drop type if exists doc.[Autonum.TableType];
+go
+------------------------------------------------
+create type doc.[Autonum.TableType] as table
+(
+	Id bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[Period] nchar(1),
+	Pattern nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure doc.[Autonum.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Autonums!TAutonum!Array] = null,
+		[Id!!Id] = an.Id, [Name!!Name] = an.[Name], an.Memo, an.Pattern, an.[Period]
+	from doc.Autonums an
+	where an.TenantId = @TenantId and an.Void = 0
+	order by an.Id;
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Autonum.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Autonum!TAutonum!Object] = null,
+		[Id!!Id] = an.Id, [Name!!Name] = an.[Name], an.Memo, an.[Period], an.Pattern
+	from doc.Autonums an
+	where an.TenantId = @TenantId and an.Id = @Id;
+end
+go
+---------------------------------------------
+create or alter procedure doc.[Autonum.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @Autonum doc.[Autonum.TableType];
+	select [Autonum!Autonum!Metadata] = null, * from @Autonum;
+end
+go
+---------------------------------------------
+create or alter procedure doc.[Autonum.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Autonum doc.[Autonum.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	
+	declare @output  table (op sysname, id bigint);
+	declare @id bigint;
+
+	merge doc.Autonums as t
+	using @Autonum as s on (t.TenantId = @TenantId and t.Id = s.Id)
+	when matched then update set
+		t.[Name] = s.[Name], 
+		t.[Memo] = s.[Memo],
+		t.[Period] = s.[Period],
+		t.Pattern = s.[Pattern]
+	when not matched by target then insert
+		(TenantId, [Name], Memo, [Period], Pattern) values
+		(@TenantId, [Name], Memo, [Period], Pattern)
+	output $action, inserted.Id into @output (op, id);
+
+	select top(1) @id = id from @output;
+	exec doc.[Autonum.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+---------------------------------------------
+create or alter procedure doc.[Autonum.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update doc.Autonums set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+
+
 /* Accounting plan */
 ------------------------------------------------
 create or alter procedure acc.[Accounting.Account.Index]
@@ -9804,7 +10006,7 @@ begin
 
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
-		o.DocumentUrl, [Form!TForm!RefId] = o.Form, 
+		o.DocumentUrl, [Form!TForm!RefId] = o.Form, [Autonum!TAutonum!RefId] = o.Autonum,
 		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
 		[Trans!TOpTrans!Array] = null
@@ -9863,6 +10065,12 @@ begin
 	where pf.TenantId = @TenantId
 	order by pf.[Order];
 
+	select [Autonums!TAutonum!Array] = null, [Id!!Id] = an.Id, [Name]
+	from doc.Autonums an
+	where an.TenantId = @TenantId and an.Void = 0
+	order by an.[Name];
+
+
 	select [!TRowKind!Array] = null, [Id!!Id] = rk.Id, [Name!!Name] = rk.[Name], [!TForm.RowKinds!ParentId] = rk.Form
 	from doc.FormRowKinds rk where rk.TenantId = @TenantId
 	order by rk.[Order];
@@ -9891,7 +10099,8 @@ as table(
 	[Form] nvarchar(16),
 	[DocumentUrl] nvarchar(255),
 	[Name] nvarchar(255),
-	[Memo] nvarchar(255)
+	[Memo] nvarchar(255),
+	Autonum bigint
 )
 go
 -------------------------------------------------
@@ -9993,10 +10202,11 @@ begin
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
 		t.[Form] = s.[Form],
-		t.[DocumentUrl] = s.[DocumentUrl]
+		t.[DocumentUrl] = s.[DocumentUrl],
+		t.Autonum = s.[Autonum]
 	when not matched by target then insert
-		(TenantId, [Name], Form, Memo, DocumentUrl) values
-		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl)
+		(TenantId, [Name], Form, Memo, DocumentUrl, Autonum) values
+		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl, s.Autonum)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 
@@ -10183,6 +10393,61 @@ begin
 
 	select [Rems!TRem!Array] = null, r.Item, r.Rem, r.[Role]
 	from doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) r;
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Autonum.NextValue]
+@TenantId int, 
+@Company bigint, 
+@Autonum bigint, 
+@Date date, 
+@Number nvarchar(64) output
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @m int, @q int, @y int, @pattern nvarchar(255);
+	declare @compprefix nvarchar(8);
+	
+	select @compprefix = isnull(AutonumPrefix, N'') from cat.Companies 
+		where TenantId = @TenantId and Id=@Company;
+	select @pattern = Pattern,
+		@m = case when [Period] = N'M'  then month(@Date) else 0 end,
+		@q = case when [Period] = N'Q'  then datepart(quarter, @Date) else 0 end,
+		@y = case when [Period] <> N'A' then year(@Date) else 0 end
+	from doc.Autonums where TenantId = @TenantId and Id = @Autonum;
+
+	declare @rtable table(number int);
+	begin tran;
+		update doc.AutonumValues set CurrentNumber = CurrentNumber + 1 
+			output inserted.CurrentNumber into @rtable(number)
+		where TenantId = @TenantId and Company = @Company and Autonum = @Autonum 
+			and [Year] = @y and Quart = @q and [Month] = @m;
+	if @@rowcount = 0
+		insert into doc.AutonumValues(TenantId, Company, Autonum, [Year], [Quart], [Month], CurrentNumber)
+			output inserted.CurrentNumber into @rtable(number)
+		values(@TenantId, @Company, @Autonum, @y, @q, @m, 1);
+	commit tran;
+	
+	-- and format number
+	declare @n int;
+	select @n = number from @rtable;
+	--select format(@n, replicate(N'0', 5));
+	set @Number = replace(@pattern, N'{yy}', format(@Date, N'yy'));
+	set @Number = replace(@Number, N'{yyyy}', format(@Date, N'yyyy'));
+	set @Number = replace(@Number, N'{mm}', format(@Date, N'MM'));
+	set @Number = replace(@Number, N'{qq}', format(datepart(quarter, @Date), N'00'));
+	set @Number = replace(@Number, N'{p}', @compprefix);
+	declare @p0 int, @p1 int, @patno nvarchar(255);
+	set @p0 = charindex(N'{n', @Number);
+	set @p1 = charindex(N'n}', @Number);
+	if @p0 > 0 and @p1 > 0
+		set @patno = replicate(N'0', @p1 - @p0);
+	else
+		set @patno = N'0';
+	select @Number, @n, @p0, @p1, @p1 - @p0, @patno;
+	set @Number = stuff(@Number, @p0, @p1 - @p0 + 2, format(@n, @patno));
 end
 go
 
@@ -12724,13 +12989,13 @@ begin
 		(@TenantId, 20, N'Товар №1', 50),
 		(@TenantId, 21, N'Послуга №1', 51);
 
-	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form]) values
-		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		N'waybillin'),
-		(@TenantId, 101, N'E3CB0D62-24AB-4FE3-BD68-DD2453F6B032', N'Оплата постачальнику (банк)',	N'payout'),
-		(@TenantId, 102, N'80C9C85D-458E-445B-B35B-8177B40A5D41', N'Оплата постачальнику (готівка)',	N'cashout'),
-		(@TenantId, 103, N'D8DDB942-26AB-4402-9FD7-42E62BBCB57D', N'Продаж товарів/послуг',			N'waybillout'),
-		(@TenantId, 104, N'C2C94B13-926C-41E5-9446-647B6C23B83E', N'Оплата від покупця (банк)',		N'payin'),
-		(@TenantId, 105, N'B31EB587-D242-4A96-8255-B824B1551963', N'Оплата від покупця (готівка)',	N'cashin');
+	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form], DocumentUrl) values
+		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		 N'waybillin',  N'/document/purchase/waybillin'),
+		(@TenantId, 101, N'E3CB0D62-24AB-4FE3-BD68-DD2453F6B032', N'Оплата постачальнику (банк)',	 N'payout',     N'/document/money/payout'),
+		(@TenantId, 102, N'80C9C85D-458E-445B-B35B-8177B40A5D41', N'Оплата постачальнику (готівка)', N'cashout',    N'/document/money/cashout'),
+		(@TenantId, 103, N'D8DDB942-26AB-4402-9FD7-42E62BBCB57D', N'Продаж товарів/послуг',			 N'waybillout', N'/document/sales/waybillout'),
+		(@TenantId, 104, N'C2C94B13-926C-41E5-9446-647B6C23B83E', N'Оплата від покупця (банк)',		 N'payin',      N'/document/money/payin'),
+		(@TenantId, 105, N'B31EB587-D242-4A96-8255-B824B1551963', N'Оплата від покупця (готівка)',	 N'cashin',     N'/document/money/cashin');
 
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
 		[DtSum], DtRow, DtAccMode, DtAccKind,  [CtSum], [CtRow], CtAccMode, CtAccKind)

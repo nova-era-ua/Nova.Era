@@ -70,6 +70,12 @@ li.line-top:before {
   font-size: 14px;
   color: #222;
 }
+.descr-simple-list {
+  color: #999;
+}
+.descr-simple-list ul {
+  margin: 0;
+}
 /*PLATFORM*/
 /* Collection View: overflow:hidden (Accounting/Plan)*/
 .inner-grid .cw {

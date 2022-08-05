@@ -34,6 +34,7 @@
 			"main/catalog/cashflowitem/cashflowitem.sql",
 			"main/catalog/costitem/costitem.sql",
 			"main/catalog/respcenter/respcenter.sql",
+			"main/catalog/autonum/autonum.sql",
 			"main/accounting/plan/plan.sql",
 			"main/settings/accountplan/plan.sql",
 			"main/settings/operation/operation.sql",

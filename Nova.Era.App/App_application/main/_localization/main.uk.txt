@@ -112,6 +112,8 @@
 @RespCenter=Центр відповідальності
 @ItemRoles=Ролі в обліку
 @ItemRole=Роль в обліку
+@Autonums=Автонумерація
+@Autonum=Автонумерація
 @Roles=Ролі
 @Role=Роль
 @RoleTo=Нова роль
@@ -140,6 +142,7 @@
 @CashFunds=Готівка
 @NonCashFunds=Безготівкові кошти
 @Country.Origin=Країна походження
+@Autonum.Code=Код автонумерації
 ; Documents
 @Document.WaybillOut=Продаж товарів/послуг
 @Document.MoveBill=Внутрішнє переміщення

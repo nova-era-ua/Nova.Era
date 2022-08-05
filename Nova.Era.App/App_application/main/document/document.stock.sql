@@ -81,7 +81,7 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo, d.[No],
 		d.Notice, d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
@@ -163,7 +163,7 @@ begin
 
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.Notice, d.[Sum], d.Done,
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.[No], d.Notice, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
@@ -292,6 +292,7 @@ as table(
 	[Date] datetime,
 	[Sum] money,
 	[SNo] nvarchar(64),
+	[No] nvarchar(64),
 	Operation bigint,
 	Agent bigint,
 	Company bigint,
@@ -405,6 +406,19 @@ begin
 	declare @rtable table(id bigint);
 	declare @id bigint;
 
+	declare @no nvarchar(64);
+	select @no = [No] from @Document;
+	if @no is null
+	begin
+		declare @autonumAN bigint, @autonumComp bigint, @autonumDate date;
+
+		select @autonumAN = o.Autonum, @autonumComp = d.Company, @autonumDate = d.[Date]
+		from @Document d inner join doc.Operations o on d.Operation = o.Id and o.TenantId = @TenantId;
+
+		exec doc.[Autonum.NextValue] 
+			@TenantId = @TenantId, @Company = @autonumComp, @Autonum = @autonumAN, @Date = @autonumDate, @Number = @no output;
+	end
+
 	merge doc.Documents as t
 	using @Document as s
 	on t.TenantId = @TenantId and t.Id = s.Id
@@ -423,12 +437,13 @@ begin
 		t.CostItem = s.CostItem,
 		t.ItemRole = s.ItemRole,
 		t.Memo = s.Memo,
-		t.SNo = s.SNo
+		t.SNo = s.SNo,
+		t.[No] = @no
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
-			PriceKind, RespCenter, CostItem, ItemRole, Memo, SNo, UserCreated) values
+			PriceKind, RespCenter, CostItem, ItemRole, Memo, SNo, [No], UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
-			s.PriceKind, s.RespCenter, s.CostItem, s.ItemRole, s.Memo, s.SNo, @UserId)
+			s.PriceKind, s.RespCenter, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

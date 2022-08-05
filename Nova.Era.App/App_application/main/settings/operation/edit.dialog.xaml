@@ -14,6 +14,11 @@
 				  ItemsSource="{Bind Forms}" Value="{Bind Operation.Form}" GroupBy="Category">
 			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 		</ComboBox>
+		<Selector Grid.Row="2" Grid.Col="4" Label="@[Autonums]" Style="ComboBox"
+				  ShowCaret="True" ShowClear="True" DisplayProperty="Name"
+			ItemsSource="{Bind Autonums}" Value="{Bind Operation.Autonum}"/>
+
+
 	</Grid>
 	<Block Margin="0, 1rem, 1rem, 1rem">
 		<TabBar Value="{Bind Root.$$Tab}" Margin="0">

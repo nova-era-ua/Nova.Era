@@ -38,6 +38,7 @@ const template: Template = {
 		'Document.Contract.change': contractChange,
 		'Document.Agent.change': agentChange,
 		'Document.Company.change': companyChange,
+		'Document.Date.change': dateChange,
 		'app.document.saved': handleLinkSaved,
 		'app.document.apply': handleLinkApply
 	},
@@ -83,6 +84,11 @@ function agentChange(doc, agent) {
 function companyChange(doc, company) {
 	if (doc.Contract.Company.Id !== company.Id)
 		doc.Contract.$empty();
+	doc.No = '';
+}
+
+function dateChange(doc, date) {
+	doc.No = '';
 }
 
 function handleLinkSaved(elem) {

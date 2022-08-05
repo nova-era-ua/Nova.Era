@@ -35,6 +35,7 @@ define(["require", "exports"], function (require, exports) {
             'Document.Contract.change': contractChange,
             'Document.Agent.change': agentChange,
             'Document.Company.change': companyChange,
+            'Document.Date.change': dateChange,
             'app.document.saved': handleLinkSaved,
             'app.document.apply': handleLinkApply
         },
@@ -71,6 +72,10 @@ define(["require", "exports"], function (require, exports) {
     function companyChange(doc, company) {
         if (doc.Contract.Company.Id !== company.Id)
             doc.Contract.$empty();
+        doc.No = '';
+    }
+    function dateChange(doc, date) {
+        doc.No = '';
     }
     function handleLinkSaved(elem) {
         let wasDirty = this.$dirty;

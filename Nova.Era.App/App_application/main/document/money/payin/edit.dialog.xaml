@@ -23,7 +23,7 @@
 			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem" Padding="0,0,1rem,0" Gap="1rem">
 			<Header Content="Надходження безготівкових коштів" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
-			<TextBox Placeholder="(Авто)" Disabled="True"/>
+			<TextBox Value="{Bind Document.SNo}"/>
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />
@@ -36,25 +36,20 @@
 		</Grid>
 		<Grid Columns="Auto,22rem,1px,Auto,22rem,1*" Gap="1rem">
 			<Label Content="@[Agent]" Grid.Row="1" Grid.Col="1"/>
-			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
-				</Selector.AddOns>
+			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name"
+					  Fetch="/catalog/agent/fetch">
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
 			</Selector>
 			<Label Content="@[Contract]" Grid.Row="2" Grid.Col="1"/>
 			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
-				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, 
 						Data={Bind Document.$CompanyAgentArg},
 						Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
-				</Selector.AddOns>
 			</Selector>
 			<Label Content="@[BankAccount]" Grid.Row="3" Grid.Col="1"/>
 			<Selector Grid.Row="3" Grid.Col="2" Value="{Bind Document.CashAccTo}" DisplayProperty="$Name">
-				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccTo}, 
 						Url='/catalog/bankaccount/browse', Data={Bind Document.$CompanyArg}}"/>
-				</Selector.AddOns>
 			</Selector>
 			<Label Content="@[Sum]" Grid.Row="4" Grid.Col="1"/>
 			<TextBox Grid.Row="4" Grid.Col="2" Width="15rem"
@@ -63,12 +58,10 @@
 			<TextBox Grid.Row="5" Grid.Col="2" Value="{Bind Document.Notice}" Multiline="True" Rows="3"/>
 
 			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="5"
-					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
-				<Selector.AddOns>
+			<Selector Grid.Row="1" Grid.Col="5" Value="{Bind Document.RespCenter}" DisplayProperty="Name"
+					  Fetch="/catalog/respcenter/fetch">
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
 						Url='/catalog/respcenter/browse'}"/>
-				</Selector.AddOns>
 			</Selector>
 
 			<Label Content="@[CashFlowItem]" Grid.Row="2" Grid.Col="4" Wrap="NoWrap"/>

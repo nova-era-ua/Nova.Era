@@ -8,6 +8,8 @@
 	<Grid>
 		<TextBox Label="@[Name]" Value="{Bind Company.Name}" Bold="True" TabIndex="1"/>
 		<TextBox Label="@[Memo]" Value="{Bind Company.Memo}" Multiline="True"/>
+
+		<TextBox Label="@[Autonum.Code]" Value="{Bind Company.AutonumPrefix}" Width="15rem"/>
 	</Grid>
 </Dialog>
 

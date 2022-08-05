@@ -29,5 +29,21 @@ if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE where TABL
 	alter table cat.Items add 
 		constraint FK_Items_Country_Countries foreign key (TenantId, Country) references cat.Countries(TenantId, Code);
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Companies' and COLUMN_NAME=N'AutonumPrefix')
+	alter table cat.Companies add [AutonumPrefix] nvarchar(8);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations' and COLUMN_NAME=N'Autonum')
+	alter table doc.Operations add Autonum bigint; -- references doc.Autonums
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE where TABLE_SCHEMA = N'doc' and TABLE_NAME = N'Operations' and CONSTRAINT_NAME = N'FK_Operations_Autonum_Autonums')
+	alter table doc.Operations add 
+		constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id);
+go
 
-
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'No')
+	alter table doc.Documents add [No] nvarchar(64);
+go

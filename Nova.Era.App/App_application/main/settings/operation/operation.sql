@@ -57,7 +57,7 @@ begin
 
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
-		o.DocumentUrl, [Form!TForm!RefId] = o.Form, 
+		o.DocumentUrl, [Form!TForm!RefId] = o.Form, [Autonum!TAutonum!RefId] = o.Autonum,
 		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
 		[Trans!TOpTrans!Array] = null
@@ -116,6 +116,12 @@ begin
 	where pf.TenantId = @TenantId
 	order by pf.[Order];
 
+	select [Autonums!TAutonum!Array] = null, [Id!!Id] = an.Id, [Name]
+	from doc.Autonums an
+	where an.TenantId = @TenantId and an.Void = 0
+	order by an.[Name];
+
+
 	select [!TRowKind!Array] = null, [Id!!Id] = rk.Id, [Name!!Name] = rk.[Name], [!TForm.RowKinds!ParentId] = rk.Form
 	from doc.FormRowKinds rk where rk.TenantId = @TenantId
 	order by rk.[Order];
@@ -144,7 +150,8 @@ as table(
 	[Form] nvarchar(16),
 	[DocumentUrl] nvarchar(255),
 	[Name] nvarchar(255),
-	[Memo] nvarchar(255)
+	[Memo] nvarchar(255),
+	Autonum bigint
 )
 go
 -------------------------------------------------
@@ -246,10 +253,11 @@ begin
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
 		t.[Form] = s.[Form],
-		t.[DocumentUrl] = s.[DocumentUrl]
+		t.[DocumentUrl] = s.[DocumentUrl],
+		t.Autonum = s.[Autonum]
 	when not matched by target then insert
-		(TenantId, [Name], Form, Memo, DocumentUrl) values
-		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl)
+		(TenantId, [Name], Form, Memo, DocumentUrl, Autonum) values
+		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl, s.Autonum)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 

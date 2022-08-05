@@ -24,7 +24,8 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo
+	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
+		AutonumPrefix
 	from cat.Companies c
 	where c.TenantId = @TenantId and c.Id = @Id;
 end
@@ -40,7 +41,8 @@ as table(
 	Id bigint null,
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
-	[Memo] nvarchar(255)
+	[Memo] nvarchar(255),
+	AutonumPrefix nvarchar(8)
 )
 go
 ------------------------------------------------
@@ -72,10 +74,11 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.[FullName] = s.[FullName]
+		t.[FullName] = s.[FullName],
+		t.AutonumPrefix = s.AutonumPrefix
 	when not matched by target then insert
-		(TenantId, [Name], FullName, Memo) values
-		(@TenantId, s.[Name], s.FullName, s.Memo)
+		(TenantId, [Name], FullName, Memo, AutonumPrefix) values
+		(@TenantId, s.[Name], s.FullName, s.Memo, s.AutonumPrefix)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 	exec cat.[Company.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;

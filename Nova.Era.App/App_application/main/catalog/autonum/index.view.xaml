@@ -1,0 +1,31 @@
+﻿<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Grid Height="100%" Rows="Auto,1*" Padding="0">
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<Button Icon="Plus" Content="@[Create]"
+					Command="{BindCmd Dialog, Action=Append, Argument={Bind Autonums}, Url=/catalog/autonum/edit}"/>
+			<Button Icon="Edit"
+					Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Autonums}, Url=/catalog/autonum/edit}"/>
+			<Button Icon="Delete"
+					Command="{BindCmd DbRemoveSelected, Argument={Bind Autonums}, Confirm='@[Confirm.Delete.Element]'}"/>
+			<Separator />
+			<Button Icon="Reload" Command="{BindCmd Reload}"/>
+		</Toolbar>
+		<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" 
+					ItemsSource="{Bind Autonums}"
+					FixedHeader="True"
+					DoubleClick="{BindCmd Dialog, Action=EditSelected, 
+						Argument={Bind Autonums}, Url='/catalog/autonum/edit'}">
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
+			<DataGridColumn Fit="True">
+				<CommandBar Visibility="Hover">
+					<Button Icon="Edit" 
+						   Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/autonum/edit'}"/>
+					<Button Icon="Delete"
+						   Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}" />
+				</CommandBar>
+			</DataGridColumn>
+		</DataGrid>
+	</Grid>
+</Partial>
