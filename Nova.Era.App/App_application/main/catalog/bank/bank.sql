@@ -3,6 +3,7 @@
 create or alter procedure cat.[Bank.Index]
 @TenantId int = 1,
 @UserId bigint,
+@Id bigint = null,
 @Offset int = 0,
 @PageSize int = 20,
 @Order nvarchar(32) = N'name',
@@ -82,6 +83,41 @@ begin
 		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo, b.[Code], b.FullName, b.BankCode
 	from cat.Banks b
 	where TenantId = @TenantId and b.Id = @Id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Bank.FindByCode]
+@TenantId int = 1,
+@UserId bigint,
+@Code nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Bank!TBank!Object] = null,
+		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo, b.[Code], b.FullName, b.BankCode
+	from cat.Banks b
+	where TenantId = @TenantId and b.BankCode = @Code;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Bank.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select [Banks!TBank!Array] = null,
+		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.BankCode
+	from cat.Banks b
+	where TenantId = @TenantId and (b.BankCode like @fr or b.[Name] like @fr);
 end
 go
 ---------------------------------------------

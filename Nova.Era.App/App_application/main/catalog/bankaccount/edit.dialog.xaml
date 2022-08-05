@@ -5,23 +5,43 @@
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid>
-		<ComboBox Label="@[ItemRole]" Value="{Bind BankAccount.ItemRole}" 
+	<Grid Columns="1*,1*,1*">
+		<ComboBox Grid.ColSpan="3" Label="@[ItemRole]" Value="{Bind BankAccount.ItemRole}" 
 				  ItemsSource="{Bind ItemRoles}">
 			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 		</ComboBox>
-		<Selector Label="@[Company]" Value="{Bind BankAccount.Company}" DisplayProperty="Name">
+		<Selector Grid.ColSpan="3" Label="@[Company]" Value="{Bind BankAccount.Company}" DisplayProperty="Name">
 			<Hyperlink Icon="Search" 
 				Command="{BindCmd Browse, Argument={Bind BankAccount.Company}, Url='/catalog/company/browse'}"/>
 		</Selector>
-		<TextBox Label="@[AccountNo]" Value="{Bind BankAccount.AccountNo}" TabIndex="1"/>
-		<Selector Label="@[Currency]" Width="10rem" DisplayProperty="$Display"
+		<TextBox Grid.ColSpan="3" Label="@[Name]" Value="{Bind BankAccount.Name}" Placeholder="{Bind BankAccount.AccountNo}"  TabIndex="1"/>
+		<TextBox Grid.ColSpan="2" Label="@[AccountNo]" Value="{Bind BankAccount.AccountNo, Filters='Upper,Barcode'}"/>
+		<Selector Label="@[Currency]" DisplayProperty="$Display"
 				  Value="{Bind BankAccount.Currency}" Disabled="True">
 			<Hyperlink Icon="Search" 
 				Command="{BindCmd Browse, Argument={Bind BankAccount.Currency}, Url='/catalog/currency/browse'}"/>
 		</Selector>
-		<TextBox Label="@[Name]" Value="{Bind BankAccount.Name}" Placeholder="{Bind BankAccount.AccountNo}"/>
-		<TextBox Label="@[Memo]" Value="{Bind BankAccount.Memo}" Multiline="True"/>
+		<Selector Grid.ColSpan="2" Label="@[Bank]" Value="{Bind BankAccount.Bank}" DisplayProperty="Name"
+				  Fetch="/catalog/bank/fetch" ListSize="30rem,20rem">
+			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind BankAccount.Bank}, Url='/catalog/bank/browse'}"/>
+			<Selector.ItemsPanel>
+				<DataGrid XamlStyle="{StyleResource DataGridPanel}">
+					<DataGridColumn Header="@[Code]" Content="{Bind BankCode}" Wrap="NoWrap" Fit="True"/>
+					<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+				</DataGrid>
+			</Selector.ItemsPanel>
+		</Selector>
+		<Selector Label="@[Code]" Value="{Bind BankAccount.Bank}" DisplayProperty="BankCode"
+				  Fetch="/catalog/bank/fetch" ListSize="30rem,20rem">
+			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind BankAccount.Bank}, Url='/catalog/bank/browse'}"/>
+			<Selector.ItemsPanel>
+				<DataGrid XamlStyle="{StyleResource DataGridPanel}">
+					<DataGridColumn Header="@[Code]" Content="{Bind BankCode}" Wrap="NoWrap" Fit="True"/>
+					<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+				</DataGrid>
+			</Selector.ItemsPanel>
+		</Selector>
+		<TextBox Grid.Row="7" Grid.ColSpan="3" Label="@[Memo]" Value="{Bind BankAccount.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>
 

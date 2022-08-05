@@ -1,24 +1,37 @@
 ﻿{
-  "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "cat",
-  "model": "Bank",
-  "actions": {
-    "index": {
-      "index": true,
-      "template": "index.template",
-      "view": "index.view"
-    }
-  },
-  "dialogs": {
-    "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
-    }
-  },
-  "commands": {
-    "downloadBanks": {
-      "type": "javascript",
-      "file": "downloadbanks.server"
-    }
-  }
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "cat",
+	"model": "Bank",
+	"actions": {
+		"index": {
+			"index": true,
+			"template": "index.template",
+			"view": "index.view"
+		}
+	},
+	"dialogs": {
+		"edit": {
+			"template": "edit.template",
+			"view": "edit.dialog"
+		},
+		"browse": {
+			"index": true,
+			"template": "index.template",
+			"view": "browse.dialog"
+		}
+	},
+	"commands": {
+		"downloadBanks": {
+			"type": "javascript",
+			"file": "downloadbanks.server"
+		},
+		"find": {
+			"type": "sql",
+			"procedure": "Bank.FindByCode"
+		},
+		"fetch": {
+			"type": "sql",
+			"procedure": "Bank.Fetch"
+		}
+	}
 }

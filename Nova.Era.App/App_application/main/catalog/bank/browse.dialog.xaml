@@ -1,0 +1,53 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		Title="@[Browse.Bank]" Width="55rem">
+	<Dialog.Buttons>
+		<Button Style="Primary" Content="@[Select]" 
+				Command="{BindCmd Select, Argument={Bind Banks}}"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Dialog.CollectionView>
+		<CollectionView ItemsSource="{Bind Banks}" RunAt="Server" Filter="Fragment" />
+	</Dialog.CollectionView>
+	<Grid Rows="Auto,1*,Auto">
+		<Toolbar Style="Light" Padding="0" AlignItems="Stretch">
+			<Button Icon="Plus" Content="@[Create]"
+					Command="{BindCmd Dialog, Action=Append, Argument={Bind Banks}, Url=/catalog/bank/edit}"/>
+			<Button Icon="Edit"
+					Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Banks}, Url=/catalog/bank/edit}"/>
+			<Button Icon="Delete"
+					Command="{BindCmd DbRemoveSelected, Argument={Bind Banks}, Confirm='@[Confirm.Delete.Element]'}"/>
+			<Separator />
+			<Button Icon="EllipsisVertical">
+				<Button.DropDown>
+					<DropDownMenu>
+						<MenuItem Content="@[DownloadFromNBU]" Command="{BindCmd Execute, CommandName=download}"/>
+					</DropDownMenu>
+				</Button.DropDown>
+			</Button>
+			<Separator />
+			<Button Icon="Reload" Command="{BindCmd Reload}"/>
+			<ToolbarAligner />
+			<TextBox Value="{Bind Parent.Filter.Fragment}"
+						 Placeholder="@[Search]"
+						 Width="25rem" ShowClear="True" ShowFilter="True"/>
+		</Toolbar>
+		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True"
+					Sort="True" Height="25rem"
+					DoubleClick="{BindCmd Select, Argument={Bind Banks}}">
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[CodeBankUA]" Content="{Bind BankCode}" Fit="True" Wrap="NoWrap"/>
+			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+			<DataGridColumn Header="@[CodeUA]" Content="{Bind Code}" Fit="True" Wrap="NoWrap"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Width="20"/>
+			<DataGridColumn Fit="True">
+				<CommandBar Visibility="Hover">
+					<Button Icon="Edit" 
+						   Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/bank/edit'}"/>
+					<Button Icon="Delete"
+						   Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}" />
+				</CommandBar>
+			</DataGridColumn>
+		</DataGrid>
+		<Pager Source="{Bind Parent.Pager}" XamlStyle="{StyleResource PagePager}"/>
+	</Grid>
+</Dialog>

@@ -80,6 +80,10 @@ begin
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join T on c.TenantId = @TenantId and c.Id = T.comp;
 
+	with T as(select crc from @ba group by crc)
+	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Alpha3
+	from cat.Currencies c inner join T on c.TenantId = @TenantId and c.Id = T.crc;
+
 	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
 
@@ -138,6 +142,10 @@ begin
 	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, c.Short, c.Alpha3
 	from cat.Currencies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Currency = c.Id
 	where c.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
+
+	select [!TBank!Map] = null, [Id!!Id] = b.Id, b.BankCode, b.[Name]
+	from cat.Banks b inner join cat.CashAccounts ba on b.TenantId = ba.TenantId and ba.Bank = b.Id
+	where b.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';
