@@ -86,7 +86,7 @@
 					</Selector>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.StockRows}"
-				   Background="Paper" GridLines="Horizontal" Width="100%" StickyHeaders="True" Height="100%">
+				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%">
 					<Table.Columns>
 						<TableColumn Fit="True" Width="2rem"/>
 						<TableColumn Width="8rem"/>
@@ -166,7 +166,7 @@
 					</Selector>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" 
-				   Background="Paper" GridLines="Horizontal" Width="100%" StickyHeaders="True" Height="100%"
+				   Background="Paper" GridLines="Both" Width="100%" StickyHeaders="True" Height="100%"
 				   Columns="Fit,8rem,8rem,Auto,Fit,10rem,10rem,10rem,Fit">
 					<Table.Header>
 						<TableRow>

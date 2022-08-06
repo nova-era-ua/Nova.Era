@@ -11,6 +11,8 @@ begin
 	delete from doc.OpPrintForms where TenantId = @TenantId;
 	delete from doc.OperationLinks where TenantId = @TenantId;
 	delete from doc.OpTrans where TenantId = @TenantId;
+	delete from doc.AutonumValues where TenantId = @TenantId;
+	delete from doc.Autonums where TenantId = @TenantId;
 	delete from doc.Operations where TenantId = @TenantId;
 	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
 end
@@ -28,7 +30,7 @@ begin
 	select [Application!TApp!Object] = null, [!!Id] = 1,
 		[AccKinds!AccKind!Array] = null, [Accounts!TAccount!Array] = null,
 		[ItemRoles!TItemRole!Array] = null, [Operations!TOperation!Array] = null,
-		[CostItems!TCostItem!Array] = null;
+		[CostItems!TCostItem!Array] = null, [Autonums!TAutonum!Array] = null;
 
 	select [!TAccKind!Array] = null, [Uid!!Id] = Uid, [Name], Memo,
 		[!TApp.AccKinds!ParentId] = 1
@@ -76,13 +78,20 @@ begin
 		left join cat.CostItems cp on ci.TenantId = cp.TenantId and ci.Parent = cp.Id
 	where ci.TenantId = @TenantId and ci.Void = 0;
 
+	select [!TAutonum!Array] = null, [Uid!!Id] = an.[Uid], an.[Name], an.[Memo], an.[Period], an.Pattern,
+		[!TApp.Autonums!ParentId] = 1
+	from doc.Autonums an
+	where an.TenantId = @TenantId and an.Void = 0;
+
+
 	-- OPERATIONS
 	select [!TOperation!Array] = null, [Id!!Id] = o.[Uid],
-		[Name], [Memo], [Form], [Transactions!TOpTrans!Array] = null,
+		o.[Name], o.[Memo], o.[Form], Autonum = an.[Uid], [Transactions!TOpTrans!Array] = null,
 		[PrintForms!TOpPrintForm!Array] = null, [Links!TOpLink!Array] = null,
-		[MenuLinks!TOpMenuLink!Array] = null,
+		[MenuLinks!TOpMenuLink!Array] = null, 
 		[!TApp.Operations!ParentId] = 1
 	from doc.Operations o
+		left join doc.Autonums an on o.TenantId = an.TenantId and o.Autonum = an.Id
 	where o.TenantId = @TenantId and o.Void = 0;
 
 	select [!TOpTrans!Array] = null, ot.RowNo, ot.RowKind, [Plan] = pl.[Uid], 
@@ -130,6 +139,7 @@ drop type if exists app.[Application.OpTrans.TableType];
 drop type if exists app.[Application.OpPrintForms.TableType];
 drop type if exists app.[Application.OpLink.TableType];
 drop type if exists app.[Application.OpMenuLink.TableType];
+drop type if exists app.[Application.Autonum.TableType];
 go
 ------------------------------------------------
 create type app.[Application.AccKind.TableType] as table
@@ -199,7 +209,8 @@ create type app.[Application.Operation.TableType] as table
 	[Id] uniqueidentifier,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	[Form] nvarchar(16)
+	[Form] nvarchar(16),
+	[Autonum] uniqueidentifier
 );
 go
 ------------------------------------------------
@@ -237,14 +248,24 @@ create type app.[Application.OpLink.TableType] as table
 	[Type] nvarchar(32),
 	[Memo] nvarchar(255),
 	Operation uniqueidentifier
-)
+);
 go
 ------------------------------------------------
 create type app.[Application.OpMenuLink.TableType] as table
 (
 	[ParentId] uniqueidentifier,
 	Menu nvarchar(32)
-)
+);
+go
+------------------------------------------------
+create type app.[Application.Autonum.TableType] as table
+(
+	[Uid] uniqueidentifier,
+	[Name] nvarchar(255),
+	[Period] nchar(1),
+	Pattern nvarchar(255),
+	[Memo] nvarchar(255)
+);
 go
 ------------------------------------------------
 create or alter procedure app.[Application.Upload.Metadata]
@@ -262,6 +283,7 @@ begin
 	declare @OpPrintForms app.[Application.OpPrintForms.TableType];
 	declare @OpLinks app.[Application.OpLink.TableType];
 	declare @OpMenuLinks app.[Application.OpMenuLink.TableType];
+	declare @Autonums app.[Application.Autonum.TableType];
 
 	select [AccKinds!Application.AccKinds!Metadata] = null, * from @AccKinds;
 	select [Accounts!Application.Accounts!Metadata] = null, * from @Accounts;
@@ -273,6 +295,7 @@ begin
 	select [OpPrintForms!Application.Operations.PrintForms!Metadata] = null, * from @OpPrintForms;
 	select [OpLinks!Application.Operations.Links!Metadata] = null, * from @OpLinks;
 	select [OpMenuLinks!Application.Operations.MenuLinks!Metadata] = null, * from @OpMenuLinks;
+	select [Autonums!Application.Autonums!Metadata] = null, * from @Autonums;
 end
 go
 ------------------------------------------------
@@ -288,11 +311,18 @@ create or alter procedure app.[Application.Upload.Update]
 @OpTrans app.[Application.OpTrans.TableType] readonly,
 @OpPrintForms app.[Application.OpPrintForms.TableType] readonly,
 @OpLinks app.[Application.OpLink.TableType] readonly,
-@OpMenuLinks app.[Application.OpMenuLink.TableType] readonly
+@OpMenuLinks app.[Application.OpMenuLink.TableType] readonly,
+@Autonums app.[Application.Autonum.TableType] readonly
 as
 begin
 	set nocount on
 	set transaction isolation level read committed;
+
+	/*
+	declare @xml nvarchar(max);
+	set @xml = (select * from @Autonums for xml auto);
+	throw 60000, @xml, 0;
+	*/
 
 	-- account kinds
 	merge acc.AccKinds as t
@@ -397,18 +427,41 @@ begin
 	insert into cat.ItemRoleAccounts(TenantId, [Role], [Plan], Account, AccKind)
 	select @TenantId, [Role], [Plan], Account, AccKind from T;
 	
+
+	-- autnums
+	merge doc.Autonums as t
+	using @Autonums as s
+	on t.TenantId = @TenantId and t.[Uid] = s.[Uid]
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Period] = s.[Period],
+		t.Pattern = s.Pattern,
+		t.[Memo] = s.[Memo],
+		t.Void = 0
+	when not matched by target then insert 
+		(TenantId, [Uid], [Name], [Period], Pattern, [Memo]) values
+		(@TenantId, s.[Uid], s.[Name], s.[Period], s.Pattern, s.[Memo]);
+
 	-- operations
 	declare @operationstable table(id bigint, [uid] uniqueidentifier);
+
+	with OT as (
+		select Id = o.Id, o.[Name], o.Memo, o.Form, Autonum = ans.Id
+		from @Operations o left join @Autonums an on o.Autonum = an.[Uid]
+		left join doc.Autonums ans on ans.TenantId = @TenantId and ans.[Uid] = an.[Uid]
+
+	)
 	merge doc.Operations as t
-	using @Operations as s
+	using OT as s
 	on t.TenantId = @TenantId and t.[Uid] = s.Id
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.[Form] = s.[Form]
+		t.[Form] = s.[Form],
+		t.[Autonum] = s.Autonum
 	when not matched by target then insert
-		(TenantId, [Uid], [Name], Memo, [Form]) values
-		(@TenantId, s.Id, s.[Name], s.Memo, s.[Form])
+		(TenantId, [Uid], [Name], Memo, [Form], Autonum) values
+		(@TenantId, s.Id, s.[Name], s.Memo, s.[Form], s.Autonum)
 	output inserted.Id, inserted.[Uid] into @operationstable(id, [uid]);
 
 	delete from doc.OpTrans where TenantId = @TenantId;

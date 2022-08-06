@@ -23,6 +23,9 @@
 			</Button>
 			<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"/>
 			<Separator />
+			<Button Icon="Print" Command="{BindCmd Dialog, Action=ShowSelected, Argument={Bind Documents}, Url='/document/print/browse'}" />
+			<Button Icon="Copy" Command="{BindCmd Execute, CommandName=copy, Argument={Bind Documents}}" />
+			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True"
@@ -31,7 +34,7 @@
 				  Mark="{Bind $Mark}" MarkerStyle="Marker">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" />
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date" SortProperty="date"/>
-			<DataGridColumn Header="@[Number]" Content="{Bind $No}" Fit="True" Wrap="NoWrap" SortProperty="no"/>
+			<DataGridColumn Header="@[Number]" Content="{Bind $No}" Role="Number" SortProperty="no"/>
 			<DataGridColumn Header="@[Sum]" Role="Number" SortProperty="sum">
 				<SpanSum Content="{Bind Sum, DataType=Currency}" Dir="{Bind $SumDir}"/>
 			</DataGridColumn>
@@ -39,7 +42,7 @@
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Label.Cash.Account]" Content="{Bind $CashAccount}" Sort="False" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
-			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Sort="False"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
 					<Button Icon="Edit" Command="{BindCmd Execute, CommandName=edit, Argument={Bind}}"/>

@@ -42,8 +42,12 @@ if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE where TABL
 	alter table doc.Operations add 
 		constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id);
 go
-
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'No')
 	alter table doc.Documents add [No] nvarchar(64);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Autonums' and COLUMN_NAME=N'Uid')
+	alter table doc.Autonums add [Uid] uniqueidentifier not null
+		constraint DF_Autonum_Uid default(newid()) with values;
 go

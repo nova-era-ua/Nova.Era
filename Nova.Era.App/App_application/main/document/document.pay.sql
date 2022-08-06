@@ -73,7 +73,20 @@ begin
 			case @Order
 				when N'id' then d.[Id]
 			end
-		end desc
+		end desc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'no' then isnull(d.[No], d.SNo)
+				when N'memo' then d.Memo
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'no' then isnull(d.[No], d.SNo)
+				when N'memo' then d.Memo
+			end
+		end desc,
+		d.Id desc
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 

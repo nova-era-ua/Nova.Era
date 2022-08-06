@@ -57,6 +57,7 @@ define(["require", "exports"], function (require, exports) {
         }
     }
     async function dateChange(doc) {
+        doc.No = '';
         if (!doc.PriceKind.Id)
             return;
         if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty)

@@ -76,10 +76,13 @@ define(["require", "exports"], function (require, exports) {
         ctrl.$invoke('delete', { Id: doc.Id }, '/document/commands');
         doc.$remove();
     }
-    function copyDoc(docs) {
+    async function copyDoc(docs) {
         if (!docs.$hasSelected)
             return;
+        const ctrl = this.$ctrl;
         const doc = docs.$selected;
-        alert('copy document: ' + doc.Id);
+        let res = await ctrl.$invoke('copy', { Id: doc.Id }, '/document/commands');
+        let url = `${res.Document.DocumentUrl}/edit`;
+        await ctrl.$showDialog(url, { Id: res.Document.Id });
     }
 });

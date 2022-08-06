@@ -6,7 +6,8 @@ define(["require", "exports"], function (require, exports) {
             'TAutonum.$Id'() { return this.Id || '@[NewItem]'; },
         },
         defaults: {
-            'Autonum.Period': 'Y'
+            'Autonum.Period': 'Y',
+            'Autonum.Pattern': '{n}'
         },
         validators: {
             'Autonum.Name': '@[Error.Required]',

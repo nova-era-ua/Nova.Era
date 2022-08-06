@@ -28,10 +28,9 @@
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />
 			<Label Content="@[Company]"></Label>
-			<Selector Label="" Value="{Bind Document.Company}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
-				</Selector.AddOns>
+			<Selector Label="" Value="{Bind Document.Company}" DisplayProperty="Name"
+					  Fetch="/catalog/company/fetch">
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
 		<Grid Columns="Auto,22rem,1px,Auto,22rem,1*" Gap="1rem">

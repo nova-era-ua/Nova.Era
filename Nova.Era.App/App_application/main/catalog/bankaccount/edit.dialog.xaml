@@ -1,6 +1,6 @@
 ﻿<!-- Edit BankAccount -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="{Bind BankAccount.$Id, Format='@[Properties] [{0}]'}" Overflow="True">
+		Title="{Bind BankAccount.$Id, Format='@[BankAccount] [{0}]'}" Overflow="True">
 	<Dialog.Buttons>
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>

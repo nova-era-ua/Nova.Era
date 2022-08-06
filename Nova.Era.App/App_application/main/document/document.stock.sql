@@ -56,7 +56,7 @@ begin
 		end asc,
 		case when @Dir = N'asc' then
 			case @Order 
-				when N'no' then d.[SNo]
+				when N'no' then isnull(d.[SNo], d.[No])
 				when N'memo' then d.[Memo]
 			end
 		end asc,
@@ -73,7 +73,7 @@ begin
 		end desc,
 		case when @Dir = N'desc' then
 			case @Order 
-				when N'no' then d.[SNo]
+				when N'no' then isnull(d.[SNo], d.[No])
 				when N'memo' then d.[Memo]
 			end
 		end desc,

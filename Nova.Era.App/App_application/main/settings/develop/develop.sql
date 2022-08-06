@@ -89,11 +89,11 @@ begin
 		(@TenantId, 20, N'Товар №1', 50),
 		(@TenantId, 21, N'Послуга №1', 51);
 
-	insert into doc.Autonums(TenantId, Id, [Name], [Period], Pattern) 
+	insert into doc.Autonums(TenantId, Id, [Name], [Period], Pattern, [Uid]) 
 	values
-		(@TenantId, 20, N'Видаткові накладні', N'Y', N'{p}-{nnnnnn}'),
-		(@TenantId, 21, N'Платіжні доручення', N'Y', N'{p}-{nnnnnn}'),
-		(@TenantId, 22, N'Видаткові касові ордери', N'Y', N'{p}-{nnnnnn}');
+		(@TenantId, 20, N'Видаткові накладні', N'Y', N'{p}-{nnnnnn}', N'4F421AC2-AA7B-4C4F-8F7E-9D73E37C6295'),
+		(@TenantId, 21, N'Платіжні доручення', N'Y', N'{p}-{nnnnnn}', N'90FB4D9E-E49C-42A4-9B26-7EBE9EDC3268'),
+		(@TenantId, 22, N'Видаткові касові ордери', N'Y', N'{p}-{nnnnnn}', N'69C0105F-DA81-42FE-8C1E-9739007C7511');
 
 	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form], DocumentUrl, Autonum) values
 		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		 N'waybillin',  N'/document/purchase/waybillin', null),

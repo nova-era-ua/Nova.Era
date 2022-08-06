@@ -5,7 +5,8 @@ const template: Template = {
 		'TAutonum.$Id'() { return this.Id || '@[NewItem]' },
 	},
 	defaults: {
-		'Autonum.Period': 'Y'
+		'Autonum.Period': 'Y',
+		'Autonum.Pattern': '{n}'
 	},
 	validators: {
 		'Autonum.Name': '@[Error.Required]',

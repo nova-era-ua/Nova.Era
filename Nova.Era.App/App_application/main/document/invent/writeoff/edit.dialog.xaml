@@ -23,7 +23,7 @@
 			  Columns="Auto,2rem,Auto,2rem,Auto,1*,Auto,22rem">
 			<Header Content="@[Document.WriteOff]" Wrap="NoWrap"/>
 			<Label Align="Right">№</Label>
-			<TextBox Disabled="True" Placeholder="Авто"/>
+			<TextBox Disabled="True" Placeholder="Авто" Value="{Bind Document.No}"/>
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}"/>
 			<Span />

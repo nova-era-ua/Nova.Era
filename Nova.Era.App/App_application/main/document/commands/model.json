@@ -7,8 +7,12 @@
       "procedure": "Document.Delete"
     },
     "createonbase": {
-      "type": "sql",
-      "procedure": "Document.CreateOnBase"
+        "type": "sql",
+        "procedure": "Document.CreateOnBase"
+    },
+    "copy": {
+        "type": "sql",
+        "procedure": "Document.Copy"
     }
   }
 }

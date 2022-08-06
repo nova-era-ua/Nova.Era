@@ -77,6 +77,19 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure doc.[Document.Copy]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	throw 60000, @Id, 0;
+end
+go
+------------------------------------------------
 create or alter procedure doc.[Document.Delete]
 @TenantId int = 1,
 @UserId bigint,

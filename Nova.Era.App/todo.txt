@@ -1,7 +1,6 @@
 ﻿
 31. Unit: Pager, Filter, Sort
 34. StockReports: turnover
-42. Document:Number
 48. Agent.BankAccounts
 
 57. BankAccount/Cash - неправильный placeholder при выборе
@@ -12,12 +11,10 @@
 71. Придбання - Barcode в форму
 72. Списание/получение денег
 73. Инвентаризация
-74. Копирование документов
 75. Копирование объектов учета
-76. Автонумерация
 77. Загрузка товаров/контрагентов
 78. Contacts
-
+79. Defaults переделать на Save/Cancel
 
 
 Sample

@@ -9,7 +9,7 @@
 	</Dialog.Buttons>
 	<Grid Columns="1*,1*,1*,1*">
 		<TextBox Grid.Row="1" Grid.Col="1" Grid.ColSpan="2"
-			Label="@[Name]" Value="{Bind Operation.Name}" UpdateTrigger="Input" Bold="True"/>
+			Label="@[Name]" Value="{Bind Operation.Name}" Bold="True" TabIndex="1"/>
 		<ComboBox Grid.Row="1" Grid.Col="4" Label="Форма" 
 				  ItemsSource="{Bind Forms}" Value="{Bind Operation.Form}" GroupBy="Category">
 			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>

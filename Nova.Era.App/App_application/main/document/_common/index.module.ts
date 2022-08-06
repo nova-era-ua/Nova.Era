@@ -79,12 +79,15 @@ function handleApply(elem) {
 
 async function deleteDoc(doc: TDocument) {
 	const ctrl = this.$ctrl;
-	ctrl.$invoke('delete', {Id: doc.Id}, '/document/commands')
+	ctrl.$invoke('delete', { Id: doc.Id }, '/document/commands');
 	doc.$remove();
 }
 
-function copyDoc(docs: TDocuments) {
+async function copyDoc(docs: TDocuments) {
 	if (!docs.$hasSelected) return;
+	const ctrl = this.$ctrl;
 	const doc = docs.$selected;
-	alert('copy document: ' + doc.Id);
+	let res = await ctrl.$invoke('copy', { Id: doc.Id }, '/document/commands');
+	let url = `${res.Document.DocumentUrl}/edit`
+	await ctrl.$showDialog(url, { Id: res.Document.Id });
 }

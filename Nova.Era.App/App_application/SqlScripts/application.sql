@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 05.08.2022 17:18:01
+generated: 06.08.2022 07:48:46
 */
 
 
@@ -4248,6 +4248,7 @@ create table doc.Documents
 	Operation bigint not null,
 	[Sum] money not null
 		constraint DF_Documents_Sum default(0),
+	[No] nvarchar(64),
 	[SNo] nvarchar(64),
 	Done bit not null
 		constraint DF_Documents_Done default(0),
@@ -4618,6 +4619,10 @@ if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE where TABL
 		constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id);
 go
 
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'No')
+	alter table doc.Documents add [No] nvarchar(64);
+go
 
 /*
 common
@@ -10407,6 +10412,13 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
+	if 0 = isnull(@Autonum, 0)
+	begin
+		set @Number = null;
+		return;
+	end
+		
+
 	declare @m int, @q int, @y int, @pattern nvarchar(255);
 	declare @compprefix nvarchar(8);
 	
@@ -10446,7 +10458,6 @@ begin
 		set @patno = replicate(N'0', @p1 - @p0);
 	else
 		set @patno = N'0';
-	select @Number, @n, @p0, @p1, @p1 - @p0, @patno;
 	set @Number = stuff(@Number, @p0, @p1 - @p0 + 2, format(@n, @patno));
 end
 go
@@ -10535,7 +10546,7 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo, d.[No],
 		d.Notice, d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
@@ -10617,7 +10628,7 @@ begin
 
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.Notice, d.[Sum], d.Done,
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.[No], d.Notice, d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
@@ -10746,6 +10757,7 @@ as table(
 	[Date] datetime,
 	[Sum] money,
 	[SNo] nvarchar(64),
+	[No] nvarchar(64),
 	Operation bigint,
 	Agent bigint,
 	Company bigint,
@@ -10859,6 +10871,19 @@ begin
 	declare @rtable table(id bigint);
 	declare @id bigint;
 
+	declare @no nvarchar(64);
+	select @no = [No] from @Document;
+	if @no is null
+	begin
+		declare @autonumAN bigint, @autonumComp bigint, @autonumDate date;
+
+		select @autonumAN = o.Autonum, @autonumComp = d.Company, @autonumDate = d.[Date]
+		from @Document d inner join doc.Operations o on d.Operation = o.Id and o.TenantId = @TenantId;
+
+		exec doc.[Autonum.NextValue] 
+			@TenantId = @TenantId, @Company = @autonumComp, @Autonum = @autonumAN, @Date = @autonumDate, @Number = @no output;
+	end
+
 	merge doc.Documents as t
 	using @Document as s
 	on t.TenantId = @TenantId and t.Id = s.Id
@@ -10877,12 +10902,13 @@ begin
 		t.CostItem = s.CostItem,
 		t.ItemRole = s.ItemRole,
 		t.Memo = s.Memo,
-		t.SNo = s.SNo
+		t.SNo = s.SNo,
+		t.[No] = @no
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
-			PriceKind, RespCenter, CostItem, ItemRole, Memo, SNo, UserCreated) values
+			PriceKind, RespCenter, CostItem, ItemRole, Memo, SNo, [No], UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
-			s.PriceKind, s.RespCenter, s.CostItem, s.ItemRole, s.Memo, s.SNo, @UserId)
+			s.PriceKind, s.RespCenter, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
@@ -10979,11 +11005,22 @@ begin
 			case @Order
 				when N'id' then d.[Id]
 			end
-		end desc
+		end desc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'no' then isnull(d.[No], d.SNo)
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'no' then isnull(d.[No], d.SNo)
+			end
+		end desc,
+		d.Id desc
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.[Notice], d.Done,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.[Notice], d.SNo, d.[No], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
@@ -11061,7 +11098,7 @@ begin
 
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.Notice, d.[Sum], d.Done,
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.Notice, d.SNo, d.[No], d.[Sum], d.Done,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, 
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
@@ -11134,6 +11171,8 @@ as table(
 	RespCenter bigint,
 	Memo nvarchar(255),
 	Notice nvarchar(255),
+	SNo nvarchar(64),
+	[No] nvarchar(64),
 	ItemRole bigint
 )
 go
@@ -11160,6 +11199,20 @@ begin
 	declare @rtable table(id bigint);
 	declare @id bigint;
 
+
+	declare @no nvarchar(64);
+	select @no = [No] from @Document;
+	if @no is null
+	begin
+		declare @autonumAN bigint, @autonumComp bigint, @autonumDate date;
+
+		select @autonumAN = o.Autonum, @autonumComp = d.Company, @autonumDate = d.[Date]
+		from @Document d inner join doc.Operations o on d.Operation = o.Id and o.TenantId = @TenantId;
+
+		exec doc.[Autonum.NextValue] 
+			@TenantId = @TenantId, @Company = @autonumComp, @Autonum = @autonumAN, @Date = @autonumDate, @Number = @no output;
+	end
+
 	merge doc.Documents as t
 	using @Document as s
 	on t.TenantId = @TenantId and t.Id = s.Id
@@ -11177,12 +11230,14 @@ begin
 		t.RespCenter = s.RespCenter,
 		t.Memo = s.Memo,
 		t.Notice = s.Notice,
+		t.[No] = @no,
+		t.[SNo] = s.SNo,
 		t.ItemRole = s.ItemRole
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, 
-			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, ItemRole, UserCreated) values
+			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, SNo, [No], ItemRole, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, 
-			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, s.ItemRole, @UserId)
+			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, s.SNo, @no, s.ItemRole, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
@@ -12921,6 +12976,7 @@ begin
 	begin tran;
 	delete from rep.Reports where TenantId = @TenantId;
 	delete from jrn.Journal where TenantId = @TenantId;
+	delete from doc.Prices where TenantId = @TenantId;
 	delete from jrn.SupplierPrices where TenantId = @TenantId;
 	delete from doc.DocDetails where TenantId = @TenantId;
 	delete from doc.DocumentExtra where TenantId = @TenantId;
@@ -12938,6 +12994,8 @@ begin
 	delete from acc.AccKinds where TenantId = @TenantId;
 	delete from app.Settings where TenantId = @TenantId;
 	delete from acc.Accounts where TenantId = @TenantId;
+	delete from doc.AutonumValues where TenantId = @TenantId;
+	delete from doc.Autonums where TenantId = @TenantId;
 	commit tran;
 
 
@@ -12989,13 +13047,19 @@ begin
 		(@TenantId, 20, N'Товар №1', 50),
 		(@TenantId, 21, N'Послуга №1', 51);
 
-	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form], DocumentUrl) values
-		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		 N'waybillin',  N'/document/purchase/waybillin'),
-		(@TenantId, 101, N'E3CB0D62-24AB-4FE3-BD68-DD2453F6B032', N'Оплата постачальнику (банк)',	 N'payout',     N'/document/money/payout'),
-		(@TenantId, 102, N'80C9C85D-458E-445B-B35B-8177B40A5D41', N'Оплата постачальнику (готівка)', N'cashout',    N'/document/money/cashout'),
-		(@TenantId, 103, N'D8DDB942-26AB-4402-9FD7-42E62BBCB57D', N'Продаж товарів/послуг',			 N'waybillout', N'/document/sales/waybillout'),
-		(@TenantId, 104, N'C2C94B13-926C-41E5-9446-647B6C23B83E', N'Оплата від покупця (банк)',		 N'payin',      N'/document/money/payin'),
-		(@TenantId, 105, N'B31EB587-D242-4A96-8255-B824B1551963', N'Оплата від покупця (готівка)',	 N'cashin',     N'/document/money/cashin');
+	insert into doc.Autonums(TenantId, Id, [Name], [Period], Pattern) 
+	values
+		(@TenantId, 20, N'Видаткові накладні', N'Y', N'{p}-{nnnnnn}'),
+		(@TenantId, 21, N'Платіжні доручення', N'Y', N'{p}-{nnnnnn}'),
+		(@TenantId, 22, N'Видаткові касові ордери', N'Y', N'{p}-{nnnnnn}');
+
+	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form], DocumentUrl, Autonum) values
+		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		 N'waybillin',  N'/document/purchase/waybillin', null),
+		(@TenantId, 101, N'E3CB0D62-24AB-4FE3-BD68-DD2453F6B032', N'Оплата постачальнику (банк)',	 N'payout',     N'/document/money/payout', 21),
+		(@TenantId, 102, N'80C9C85D-458E-445B-B35B-8177B40A5D41', N'Оплата постачальнику (готівка)', N'cashout',    N'/document/money/cashout', 22),
+		(@TenantId, 103, N'D8DDB942-26AB-4402-9FD7-42E62BBCB57D', N'Продаж товарів/послуг',			 N'waybillout', N'/document/sales/waybillout', 20),
+		(@TenantId, 104, N'C2C94B13-926C-41E5-9446-647B6C23B83E', N'Оплата від покупця (банк)',		 N'payin',      N'/document/money/payin', null),
+		(@TenantId, 105, N'B31EB587-D242-4A96-8255-B824B1551963', N'Оплата від покупця (готівка)',	 N'cashin',     N'/document/money/cashin', null);
 
 	insert into doc.OpTrans(TenantId, Id, Operation, RowNo, RowKind, [Plan], Dt, Ct, 
 		[DtSum], DtRow, DtAccMode, DtAccKind,  [CtSum], [CtRow], CtAccMode, CtAccKind)
@@ -13037,7 +13101,9 @@ begin
 		(@TenantId, 100, N'waybillout');
 
 	if not exists(select * from cat.Companies where TenantId = @TenantId and Id = 10)
-		insert into cat.Companies(TenantId, Id, [Name]) values (@TenantId, 10, N'Моє підприємство');
+		insert into cat.Companies(TenantId, Id, [Name], AutonumPrefix) values (@TenantId, 10, N'Моє підприємство', N'МП');
+	else if (select AutonumPrefix from cat.Companies where TenantId = @TenantId and Id = 10) is null
+		update cat.Companies set AutonumPrefix = N'МП' where TenantId = @TenantId and Id = 10;
 
 	if not exists(select * from cat.CashAccounts where TenantId = @TenantId and Id = 10 and IsCashAccount = 1)
 		insert into cat.CashAccounts(TenantId, Id, Company, Currency, [Name], IsCashAccount, ItemRole) values (@TenantId, 10, 10, 980, N'Основна каса', 1, 61);

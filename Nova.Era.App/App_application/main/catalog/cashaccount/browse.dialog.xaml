@@ -9,7 +9,7 @@
 	<DataGrid ItemsSource="{Bind CashAccounts}"
 			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
 			DoubleClick="{BindCmd Select, Argument={Bind CashAccounts}}">
-		<DataGridColumn Content="{Bind Id}" Role="Id"/>
+		<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 		<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 	</DataGrid>

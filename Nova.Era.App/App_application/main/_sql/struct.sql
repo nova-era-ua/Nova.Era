@@ -530,6 +530,8 @@ create table doc.Autonums (
 	[Period] nchar(1) not null, -- (A)ll, (Y)ear, Q(uart), M(onth)
 	Pattern nvarchar(255), -- yyyy, yy, MM, qq, n(*), p
 	[Memo] nvarchar(255),
+	[Uid] uniqueidentifier not null
+		constraint DF_Autonum_Uid default(newid()),
 		constraint PK_Autonum primary key (TenantId, [Id])
 );
 go
