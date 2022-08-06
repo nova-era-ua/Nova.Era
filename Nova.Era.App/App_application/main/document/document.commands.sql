@@ -86,7 +86,29 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 	set xact_abort on;
-	throw 60000, @Id, 0;
+
+	declare @rtable table(id bigint);
+	insert into doc.Documents (TenantId, Temp, [Date],  Operation, [Sum],  SNo, Company, Agent, [Contract], Currency, 
+		WhFrom, WhTo, CashAccFrom, CashAccTo, RespCenter, ItemRole, CostItem, CashFlowItem, PriceKind, Notice, Memo, 
+		UserCreated)
+	output inserted.Id into @rtable(id)
+	select @TenantId, 1, [Date], Operation, [Sum], SNo, Company, Agent, [Contract], Currency, 
+		WhFrom, WhTo, CashAccFrom, CashAccTo, RespCenter, ItemRole, CostItem, CashFlowItem, PriceKind, Notice, Memo,
+		@UserId
+	from doc.Documents where TenantId = @TenantId and Id = @Id;
+	
+	declare @newid bigint;
+	select @newid = id from @rtable;
+
+	insert into doc.DocDetails (TenantId, Document, RowNo, Kind, Item, ItemRole, ItemRoleTo, Unit,
+		Qty, FQty, Price, [Sum], ESum, DSum, TSum, Memo, CostItem)
+	select @TenantId, @newid, RowNo, Kind, Item, ItemRole, ItemRoleTo, Unit,
+		Qty, FQty, Price, [Sum], ESum, DSum, TSum, Memo, CostItem
+	from doc.DocDetails where TenantId = @TenantId and Document = @Id;
+
+	select [Document!TDocCopy!Object] = null, Id = @newid, o.DocumentUrl
+	from doc.Documents d inner join doc.Operations o on d.TenantId = @TenantId and d.Operation = o.Id
+	where d.TenantId = @TenantId and d.Id = @newid;
 end
 go
 ------------------------------------------------
