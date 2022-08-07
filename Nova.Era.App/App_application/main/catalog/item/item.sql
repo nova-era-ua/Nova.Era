@@ -351,7 +351,8 @@ begin
 	where i.TenantId = @TenantId and i.Id = @Id;
 
 	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock,
-		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name]
+		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name],
+		[Accounts!TItemRoleAcc!Array] = null
 	from cat.ItemRoles ir 
 		left join cat.CostItems ci on ir.TenantId = ci.TenantId and ir.CostItem =ci.Id
 	where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Item';
@@ -361,6 +362,17 @@ begin
 		[Path] = cat.fn_GetItemBreadcrumbs(@TenantId, iti.Parent, null)
 	from cat.ItemTreeElems iti 
 	where TenantId = @TenantId  and iti.Item = @Id;
+
+	-- TItemRoleAcc
+	select [!TItemRoleAcc!LazyArray] = null, [Plan] = p.Code, Kind = ak.[Name], Account = a.Code,
+		[!TItemRole.Accounts!ParentId] = ira.[Role]
+	from cat.ItemRoleAccounts ira
+		inner join cat.ItemRoles ir on ira.TenantId = ir.TenantId and ira.[Role] = ir.Id
+		inner join acc.Accounts p on ira.TenantId = p.TenantId and ira.[Plan] = p.Id
+		inner join acc.AccKinds ak on ira.TenantId = ak.TenantId and ira.AccKind = ak.Id
+		inner join acc.Accounts a on ira.TenantId = a.TenantId and ira.Account = a.Id
+	where ira.TenantId = @TenantId and ir.Kind = N'Item'
+	order by ira.Id;
 end
 go
 -------------------------------------------------

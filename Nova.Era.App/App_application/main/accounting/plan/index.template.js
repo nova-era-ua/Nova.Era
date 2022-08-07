@@ -35,14 +35,14 @@ define(["require", "exports"], function (require, exports) {
         if (!doc)
             return;
         const ctrl = this.$ctrl;
-        let url = `/document/${doc.Operation.Form}/edit`;
+        let url = `${doc.Operation.DocumentUrl}/edit`;
         await ctrl.$showDialog(url, { Id: doc.Id });
     }
     async function editDocument(doc) {
         if (!doc)
             return;
         const ctrl = this.$ctrl;
-        let url = `/document/${doc.Operation.Form}/edit`;
+        let url = `${doc.Operation.DocumentUrl}/edit`;
         await ctrl.$showDialog(url, { Id: doc.Id });
     }
 });

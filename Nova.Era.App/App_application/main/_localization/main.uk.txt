@@ -150,6 +150,7 @@
 @Document.WriteOn=Акт оприбуткування ТМЦ
 ; Actions
 @Add=Додати
+@Open=Відкрити
 ;
 @Debit=Дебет
 @Credit=Кредит

@@ -425,6 +425,7 @@
     <TypeScriptCompile Include="App_application\main\appstart\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\autonum\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\contract\show.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\country\download.template.ts" />
     <Content Include="App_application\main\catalog\country\download.server.js" />
     <TypeScriptCompile Include="App_application\main\catalog\country\index.template.ts" />
@@ -1007,6 +1008,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\catalog\autonum\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\catalog\contract\show.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

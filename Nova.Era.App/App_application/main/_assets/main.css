@@ -10,6 +10,9 @@
 .overflow-hidden {
   overflow: hidden;
 }
+.grid-fh .cw {
+  overflow: hidden;
+}
 .badge-doc {
   font-weight: normal;
   font-size: 12px;

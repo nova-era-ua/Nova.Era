@@ -1,6 +1,9 @@
 ﻿// contract.index.template
 
 const template: Template = {
+	options: {
+		persistSelect: ["Contracts"]
+	},
 	properties: {
 		'TRoot.$CreateArg': createArg
 	},

@@ -37,7 +37,7 @@ begin
 	select [!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where 1 <> 1;
 
-	select [!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
+	select [!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Operations o where 1 <> 1;
 end
 go
@@ -113,7 +113,7 @@ begin
 	from cat.Companies c inner join TC on c.TenantId = @TenantId and c.Id = TC.company;
 
 	with T as (select operation from @docs group by operation)
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Operations o 
 		inner join T t on o.TenantId = @TenantId and o.Id = operation;
 

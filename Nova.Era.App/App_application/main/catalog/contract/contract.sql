@@ -217,4 +217,130 @@ begin
 end
 go
 
+-------------------------------------------------
+create or alter procedure doc.[Contract.Show.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Agent bigint = null,
+@Company bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 
+	select [Contract!TContract!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.Memo, c.SNo,
+		[Agent!TAgent!RefId] = c.Agent, [Company!TCompany!RefId] = c.Company, [PriceKind!TPriceKind!RefId] = c.PriceKind,
+		[Kind!TContractKind!RefId] = c.Kind,
+		[Documents!TDocument!LazyArray] = null
+	from doc.Contracts c
+	where c.TenantId = @TenantId and c.Id = @Id;
+
+	-- maps
+	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from cat.Agents a inner join doc.Contracts c on c.TenantId = a.TenantId and c.Agent = a.Id
+	where c.Id = @Id and c.TenantId = @TenantId;
+
+	select [!TCompany!Map] = null, [Id!!Id] = cmp.Id, [Name!!Name] = cmp.[Name]
+	from cat.Companies cmp inner join doc.Contracts c on cmp.TenantId = c.TenantId and c.Company = cmp.Id
+	where c.Id = @Id and c.TenantId = @TenantId;
+
+	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
+	from cat.PriceKinds pk inner join doc.Contracts c on pk.TenantId = c.TenantId and c.PriceKind = pk.Id
+	where c.Id = @Id and c.TenantId = @TenantId;
+
+	select [!TContractKind!Array] = null, [Id!!Id] = ck.Id, [Name!!Name] = ck.[Name]
+	from doc.ContractKinds ck inner join doc.Contracts c on ck.TenantId = c.TenantId and c.Kind = ck.Id
+	where ck.TenantId = @TenantId order by [Order];
+
+	-- declarations
+	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo,
+		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company, [Operation!TOperation!RefId] = d.Operation
+	from doc.Documents d
+	where d.TenantId = @TenantId and 1 <> 1;
+
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
+	from doc.Operations o 
+		where o.TenantId = @TenantId and 0 <> 0;
+end
+go
+-------------------------------------------------
+create or alter procedure doc.[Contract.Show.Documents]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Offset int = 0,
+@PageSize int = 20,
+@Order nvarchar(255) = N'date',
+@Dir nvarchar(20) = N'desc',
+@Agent bigint = null,
+@Company bigint = null,
+@From date = null,
+@To date = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date;
+	set @end = dateadd(day, 1, @To);
+
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
+	declare @docs table(doc bigint, agent bigint, company bigint, operation bigint, rowcnt int)
+	insert into @docs(doc, agent, company, operation, rowcnt)
+	select d.Id, d.Agent, d.Company, d.Operation,
+		count(*) over()
+	from doc.Documents d 
+	where d.TenantId = @TenantId and d.[Contract] = @Id
+		and (d.[Date] >= @From and d.[Date] < @end)
+	order by 
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'date' then d.[Date]
+			end
+		end asc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'sum' then d.[Sum]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'date' then d.[Date]
+			end
+		end desc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'sum' then d.[Sum]
+			end
+		end desc
+	offset @Offset rows fetch next @PageSize rows only
+	option (recompile);
+
+	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo,
+		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company, [Operation!TOperation!RefId] = d.Operation,
+		[!!RowCount] = t.rowcnt
+	from @docs t inner join doc.Documents d on d.TenantId = @TenantId and d.Id = t.doc;
+
+	-- maps
+	with TA as(select agent from @docs group by agent)
+	select [!TAgent!Map] = null, [Id!!Id] = Id, [Name!!Name] = a.[Name]
+	from cat.Agents a inner join TA on a.TenantId = @TenantId and a.Id = TA.agent;
+
+	with TC as(select company from @docs group by company)
+	select [!TCompany!Map] = null, [Id!!Id] = Id, [Name!!Name] = c.[Name]
+	from cat.Companies c inner join TC on c.TenantId = @TenantId and c.Id = TC.company;
+
+	with T as (select operation from @docs group by operation)
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
+	from doc.Operations o 
+		inner join T t on o.TenantId = @TenantId and o.Id = operation;
+
+	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
+		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
+		[!Documents.Period.From!Filter] = @From, [!Documents.Period.To!Filter] = @To;
+end
+go

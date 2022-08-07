@@ -16,6 +16,8 @@
 			<Button Icon="Edit" Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Contracts}, Url='/catalog/contract/edit'}"/>
 			<Button Icon="Delete" Command="{BindCmd DbRemoveSelected, Argument={Bind Contracts}, Confirm='@[Confirm.Delete.Element]'}"/>
 			<Separator />
+			<Button Icon="ArrowOpen" Content="@[Open]" Command="{BindCmd Command=Dialog, Action=ShowSelected, Argument={Bind Contracts}, Url='/catalog/contract/show'}"/>
+			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 			<ToolbarAligner/>
 			<TextBox Placeholder="@[Search]" Value="{Bind Parent.Filter.Fragment}" Width="20rem"

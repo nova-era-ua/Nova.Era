@@ -28,6 +28,7 @@
 		<TabBar Grid.Row="2" Value="{Bind Root.$$Tab}">
 			<TabButton Content="Групування" ActiveValue=""/>
 			<TabButton Content="Додатково" ActiveValue="other"/>
+			<TabButton Content="Рахунки в обліку" ActiveValue="acc"/>
 		</TabBar>
 		<Switch Expression="{Bind Root.$$Tab}" Grid.Row="3">
 			<Case Value="">
@@ -78,6 +79,23 @@
 						<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Country}, Url='/catalog/country/browse'}"/>
 					</Selector>
 				</Grid>
+			</Case>
+			<Case Value="acc">
+				<Table ItemsSource="{Bind Item.Role.Accounts}"
+						GridLines="Both" Width="50%" Striped="True" Background="Paper">
+					<Table.Header>
+						<TableRow>
+							<TableCell Content="@[AccountPlan]" Wrap="NoWrap"/>
+							<TableCell Content="@[AccKind]" Wrap="NoWrap"/>
+							<TableCell Content="@[Account]"/> 
+						</TableRow>
+					</Table.Header>
+					<TableRow>
+						<TableCell Content="{Bind Plan}" Wrap="NoWrap" Align="Center"/>
+						<TableCell Content="{Bind Kind}" Wrap="NoWrap"/>
+						<TableCell Content="{Bind Account}" Align="Right"/>
+					</TableRow>
+				</Table>
 			</Case>
 		</Switch>
 		<TextBox Grid.Row="4" Label="@[Memo]" Value="{Bind Item.Memo}" Multiline="True"/>

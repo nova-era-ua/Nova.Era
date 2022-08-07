@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 06.08.2022 07:48:46
+generated: 07.08.2022 10:51:13
 */
 
 
@@ -3942,6 +3942,8 @@ create table doc.Autonums (
 	[Period] nchar(1) not null, -- (A)ll, (Y)ear, Q(uart), M(onth)
 	Pattern nvarchar(255), -- yyyy, yy, MM, qq, n(*), p
 	[Memo] nvarchar(255),
+	[Uid] uniqueidentifier not null
+		constraint DF_Autonum_Uid default(newid()),
 		constraint PK_Autonum primary key (TenantId, [Id])
 );
 go
@@ -4618,10 +4620,14 @@ if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE where TABL
 	alter table doc.Operations add 
 		constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id);
 go
-
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'No')
 	alter table doc.Documents add [No] nvarchar(64);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Autonums' and COLUMN_NAME=N'Uid')
+	alter table doc.Autonums add [Uid] uniqueidentifier not null
+		constraint DF_Autonum_Uid default(newid()) with values;
 go
 
 /*
@@ -10521,7 +10527,7 @@ begin
 		end asc,
 		case when @Dir = N'asc' then
 			case @Order 
-				when N'no' then d.[SNo]
+				when N'no' then isnull(d.[SNo], d.[No])
 				when N'memo' then d.[Memo]
 			end
 		end asc,
@@ -10538,7 +10544,7 @@ begin
 		end desc,
 		case when @Dir = N'desc' then
 			case @Order 
-				when N'no' then d.[SNo]
+				when N'no' then isnull(d.[SNo], d.[No])
 				when N'memo' then d.[Memo]
 			end
 		end desc,
@@ -11009,11 +11015,13 @@ begin
 		case when @Dir = N'asc' then
 			case @Order 
 				when N'no' then isnull(d.[No], d.SNo)
+				when N'memo' then d.Memo
 			end
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order
 				when N'no' then isnull(d.[No], d.SNo)
+				when N'memo' then d.Memo
 			end
 		end desc,
 		d.Id desc
@@ -11757,6 +11765,41 @@ begin
 		exec doc.[Document.CreateOnBase.BySum] @TenantId = @TenantId, @UserId = @UserId, @LinkId = @LinkId, @Document = @Document;
 	else if @type = N'ByRows'
 		exec doc.[Document.CreateOnBase.ByRows] @TenantId = @TenantId, @UserId = @UserId, @LinkId = @LinkId, @Document = @Document;
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.Copy]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	declare @rtable table(id bigint);
+	insert into doc.Documents (TenantId, Temp, [Date],  Operation, [Sum],  SNo, Company, Agent, [Contract], Currency, 
+		WhFrom, WhTo, CashAccFrom, CashAccTo, RespCenter, ItemRole, CostItem, CashFlowItem, PriceKind, Notice, Memo, 
+		UserCreated)
+	output inserted.Id into @rtable(id)
+	select @TenantId, 1, [Date], Operation, [Sum], SNo, Company, Agent, [Contract], Currency, 
+		WhFrom, WhTo, CashAccFrom, CashAccTo, RespCenter, ItemRole, CostItem, CashFlowItem, PriceKind, Notice, Memo,
+		@UserId
+	from doc.Documents where TenantId = @TenantId and Id = @Id;
+	
+	declare @newid bigint;
+	select @newid = id from @rtable;
+
+	insert into doc.DocDetails (TenantId, Document, RowNo, Kind, Item, ItemRole, ItemRoleTo, Unit,
+		Qty, FQty, Price, [Sum], ESum, DSum, TSum, Memo, CostItem)
+	select @TenantId, @newid, RowNo, Kind, Item, ItemRole, ItemRoleTo, Unit,
+		Qty, FQty, Price, [Sum], ESum, DSum, TSum, Memo, CostItem
+	from doc.DocDetails where TenantId = @TenantId and Document = @Id;
+
+	select [Document!TDocCopy!Object] = null, Id = @newid, o.DocumentUrl
+	from doc.Documents d inner join doc.Operations o on d.TenantId = @TenantId and d.Operation = o.Id
+	where d.TenantId = @TenantId and d.Id = @newid;
 end
 go
 ------------------------------------------------
@@ -13047,11 +13090,11 @@ begin
 		(@TenantId, 20, N'Товар №1', 50),
 		(@TenantId, 21, N'Послуга №1', 51);
 
-	insert into doc.Autonums(TenantId, Id, [Name], [Period], Pattern) 
+	insert into doc.Autonums(TenantId, Id, [Name], [Period], Pattern, [Uid]) 
 	values
-		(@TenantId, 20, N'Видаткові накладні', N'Y', N'{p}-{nnnnnn}'),
-		(@TenantId, 21, N'Платіжні доручення', N'Y', N'{p}-{nnnnnn}'),
-		(@TenantId, 22, N'Видаткові касові ордери', N'Y', N'{p}-{nnnnnn}');
+		(@TenantId, 20, N'Видаткові накладні', N'Y', N'{p}-{nnnnnn}', N'4F421AC2-AA7B-4C4F-8F7E-9D73E37C6295'),
+		(@TenantId, 21, N'Платіжні доручення', N'Y', N'{p}-{nnnnnn}', N'90FB4D9E-E49C-42A4-9B26-7EBE9EDC3268'),
+		(@TenantId, 22, N'Видаткові касові ордери', N'Y', N'{p}-{nnnnnn}', N'69C0105F-DA81-42FE-8C1E-9739007C7511');
 
 	insert into doc.Operations (TenantId, Id, [Uid], [Name], [Form], DocumentUrl, Autonum) values
 		(@TenantId, 100, N'137A9E57-D0A6-438E-B9A0-8B84272D5EB3', N'Придбання товарів/послуг',		 N'waybillin',  N'/document/purchase/waybillin', null),
@@ -13143,6 +13186,8 @@ begin
 	delete from doc.OpPrintForms where TenantId = @TenantId;
 	delete from doc.OperationLinks where TenantId = @TenantId;
 	delete from doc.OpTrans where TenantId = @TenantId;
+	delete from doc.AutonumValues where TenantId = @TenantId;
+	delete from doc.Autonums where TenantId = @TenantId;
 	delete from doc.Operations where TenantId = @TenantId;
 	delete from cat.ItemRoleAccounts where TenantId = @TenantId;
 end
@@ -13160,7 +13205,7 @@ begin
 	select [Application!TApp!Object] = null, [!!Id] = 1,
 		[AccKinds!AccKind!Array] = null, [Accounts!TAccount!Array] = null,
 		[ItemRoles!TItemRole!Array] = null, [Operations!TOperation!Array] = null,
-		[CostItems!TCostItem!Array] = null;
+		[CostItems!TCostItem!Array] = null, [Autonums!TAutonum!Array] = null;
 
 	select [!TAccKind!Array] = null, [Uid!!Id] = Uid, [Name], Memo,
 		[!TApp.AccKinds!ParentId] = 1
@@ -13208,13 +13253,20 @@ begin
 		left join cat.CostItems cp on ci.TenantId = cp.TenantId and ci.Parent = cp.Id
 	where ci.TenantId = @TenantId and ci.Void = 0;
 
+	select [!TAutonum!Array] = null, [Uid!!Id] = an.[Uid], an.[Name], an.[Memo], an.[Period], an.Pattern,
+		[!TApp.Autonums!ParentId] = 1
+	from doc.Autonums an
+	where an.TenantId = @TenantId and an.Void = 0;
+
+
 	-- OPERATIONS
 	select [!TOperation!Array] = null, [Id!!Id] = o.[Uid],
-		[Name], [Memo], [Form], [Transactions!TOpTrans!Array] = null,
+		o.[Name], o.[Memo], o.[Form], Autonum = an.[Uid], [Transactions!TOpTrans!Array] = null,
 		[PrintForms!TOpPrintForm!Array] = null, [Links!TOpLink!Array] = null,
-		[MenuLinks!TOpMenuLink!Array] = null,
+		[MenuLinks!TOpMenuLink!Array] = null, 
 		[!TApp.Operations!ParentId] = 1
 	from doc.Operations o
+		left join doc.Autonums an on o.TenantId = an.TenantId and o.Autonum = an.Id
 	where o.TenantId = @TenantId and o.Void = 0;
 
 	select [!TOpTrans!Array] = null, ot.RowNo, ot.RowKind, [Plan] = pl.[Uid], 
@@ -13262,6 +13314,7 @@ drop type if exists app.[Application.OpTrans.TableType];
 drop type if exists app.[Application.OpPrintForms.TableType];
 drop type if exists app.[Application.OpLink.TableType];
 drop type if exists app.[Application.OpMenuLink.TableType];
+drop type if exists app.[Application.Autonum.TableType];
 go
 ------------------------------------------------
 create type app.[Application.AccKind.TableType] as table
@@ -13331,7 +13384,8 @@ create type app.[Application.Operation.TableType] as table
 	[Id] uniqueidentifier,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	[Form] nvarchar(16)
+	[Form] nvarchar(16),
+	[Autonum] uniqueidentifier
 );
 go
 ------------------------------------------------
@@ -13369,14 +13423,24 @@ create type app.[Application.OpLink.TableType] as table
 	[Type] nvarchar(32),
 	[Memo] nvarchar(255),
 	Operation uniqueidentifier
-)
+);
 go
 ------------------------------------------------
 create type app.[Application.OpMenuLink.TableType] as table
 (
 	[ParentId] uniqueidentifier,
 	Menu nvarchar(32)
-)
+);
+go
+------------------------------------------------
+create type app.[Application.Autonum.TableType] as table
+(
+	[Uid] uniqueidentifier,
+	[Name] nvarchar(255),
+	[Period] nchar(1),
+	Pattern nvarchar(255),
+	[Memo] nvarchar(255)
+);
 go
 ------------------------------------------------
 create or alter procedure app.[Application.Upload.Metadata]
@@ -13394,6 +13458,7 @@ begin
 	declare @OpPrintForms app.[Application.OpPrintForms.TableType];
 	declare @OpLinks app.[Application.OpLink.TableType];
 	declare @OpMenuLinks app.[Application.OpMenuLink.TableType];
+	declare @Autonums app.[Application.Autonum.TableType];
 
 	select [AccKinds!Application.AccKinds!Metadata] = null, * from @AccKinds;
 	select [Accounts!Application.Accounts!Metadata] = null, * from @Accounts;
@@ -13405,6 +13470,7 @@ begin
 	select [OpPrintForms!Application.Operations.PrintForms!Metadata] = null, * from @OpPrintForms;
 	select [OpLinks!Application.Operations.Links!Metadata] = null, * from @OpLinks;
 	select [OpMenuLinks!Application.Operations.MenuLinks!Metadata] = null, * from @OpMenuLinks;
+	select [Autonums!Application.Autonums!Metadata] = null, * from @Autonums;
 end
 go
 ------------------------------------------------
@@ -13420,11 +13486,18 @@ create or alter procedure app.[Application.Upload.Update]
 @OpTrans app.[Application.OpTrans.TableType] readonly,
 @OpPrintForms app.[Application.OpPrintForms.TableType] readonly,
 @OpLinks app.[Application.OpLink.TableType] readonly,
-@OpMenuLinks app.[Application.OpMenuLink.TableType] readonly
+@OpMenuLinks app.[Application.OpMenuLink.TableType] readonly,
+@Autonums app.[Application.Autonum.TableType] readonly
 as
 begin
 	set nocount on
 	set transaction isolation level read committed;
+
+	/*
+	declare @xml nvarchar(max);
+	set @xml = (select * from @Autonums for xml auto);
+	throw 60000, @xml, 0;
+	*/
 
 	-- account kinds
 	merge acc.AccKinds as t
@@ -13529,18 +13602,41 @@ begin
 	insert into cat.ItemRoleAccounts(TenantId, [Role], [Plan], Account, AccKind)
 	select @TenantId, [Role], [Plan], Account, AccKind from T;
 	
+
+	-- autnums
+	merge doc.Autonums as t
+	using @Autonums as s
+	on t.TenantId = @TenantId and t.[Uid] = s.[Uid]
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Period] = s.[Period],
+		t.Pattern = s.Pattern,
+		t.[Memo] = s.[Memo],
+		t.Void = 0
+	when not matched by target then insert 
+		(TenantId, [Uid], [Name], [Period], Pattern, [Memo]) values
+		(@TenantId, s.[Uid], s.[Name], s.[Period], s.Pattern, s.[Memo]);
+
 	-- operations
 	declare @operationstable table(id bigint, [uid] uniqueidentifier);
+
+	with OT as (
+		select Id = o.Id, o.[Name], o.Memo, o.Form, Autonum = ans.Id
+		from @Operations o left join @Autonums an on o.Autonum = an.[Uid]
+		left join doc.Autonums ans on ans.TenantId = @TenantId and ans.[Uid] = an.[Uid]
+
+	)
 	merge doc.Operations as t
-	using @Operations as s
+	using OT as s
 	on t.TenantId = @TenantId and t.[Uid] = s.Id
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.[Form] = s.[Form]
+		t.[Form] = s.[Form],
+		t.[Autonum] = s.Autonum
 	when not matched by target then insert
-		(TenantId, [Uid], [Name], Memo, [Form]) values
-		(@TenantId, s.Id, s.[Name], s.Memo, s.[Form])
+		(TenantId, [Uid], [Name], Memo, [Form], Autonum) values
+		(@TenantId, s.Id, s.[Name], s.Memo, s.[Form], s.Autonum)
 	output inserted.Id, inserted.[Uid] into @operationstable(id, [uid]);
 
 	delete from doc.OpTrans where TenantId = @TenantId;

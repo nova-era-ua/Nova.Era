@@ -1,16 +1,21 @@
 ﻿{
-  "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "doc",
-  "model": "Contract",
-  "dialogs": {
-    "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
-    },
-    "browse": {
-      "index": true,
-      "template": "index.template",
-      "view": "browse.dialog"
-    }
-  }
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "doc",
+	"model": "Contract",
+	"dialogs": {
+		"edit": {
+			"template": "edit.template",
+			"view": "edit.dialog"
+		},
+		"browse": {
+			"index": true,
+			"template": "index.template",
+			"view": "browse.dialog"
+		},
+		"show": {
+			"model": "Contract.Show",
+			"template": "show.template",
+			"view": "show.dialog"
+		}
+	}
 }
