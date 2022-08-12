@@ -54,8 +54,8 @@
 			"main/settings/develop/develop.sql",
 			"main/settings/develop/application.sql",
 			"main/_sql/admin.sql",
-			"main/_sql/initial_data.sql",
-			"main/_sql/initial_catalog.sql"
+			"main/_sql/initial_catalog.sql",
+			"main/_sql/initial_data.sql"
 		]
 	},
 	{

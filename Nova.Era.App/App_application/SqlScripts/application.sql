@@ -1,14 +1,14 @@
 ﻿/*
 version: 10.1.1021
-generated: 07.08.2022 10:51:13
+generated: 12.08.2022 17:20:42
 */
 
 
 /* SqlScripts/application.sql */
 
 /*
-version: 10.0.7779
-generated: 01.08.2022 12:29:16
+version: 10.0.7877
+generated: 12.08.2022 17:12:43
 */
 
 set nocount on;
@@ -27,9 +27,9 @@ if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'a2sys
 go
 ----------------------------------------------
 if exists(select * from a2sys.Versions where [Module]=N'script:platform')
-	update a2sys.Versions set [Version]=7779, [File]=N'a2v10platform.sql', Title=null where [Module]=N'script:platform';
+	update a2sys.Versions set [Version]=7877, [File]=N'a2v10platform.sql', Title=null where [Module]=N'script:platform';
 else
-	insert into a2sys.Versions([Module], [Version], [File], Title) values (N'script:platform', 7779, N'a2v10platform.sql', null);
+	insert into a2sys.Versions([Module], [Version], [File], Title) values (N'script:platform', 7877, N'a2v10platform.sql', null);
 go
 
 
@@ -5834,7 +5834,8 @@ begin
 	where i.TenantId = @TenantId and i.Id = @Id;
 
 	select [ItemRoles!TItemRole!Array] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock,
-		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name]
+		[CostItem.Id!TCostItem!Id] = ir.CostItem, [CostItem.Name!TCostItem!Name] = ci.[Name],
+		[Accounts!TItemRoleAcc!Array] = null
 	from cat.ItemRoles ir 
 		left join cat.CostItems ci on ir.TenantId = ci.TenantId and ir.CostItem =ci.Id
 	where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Item';
@@ -5844,6 +5845,17 @@ begin
 		[Path] = cat.fn_GetItemBreadcrumbs(@TenantId, iti.Parent, null)
 	from cat.ItemTreeElems iti 
 	where TenantId = @TenantId  and iti.Item = @Id;
+
+	-- TItemRoleAcc
+	select [!TItemRoleAcc!LazyArray] = null, [Plan] = p.Code, Kind = ak.[Name], Account = a.Code,
+		[!TItemRole.Accounts!ParentId] = ira.[Role]
+	from cat.ItemRoleAccounts ira
+		inner join cat.ItemRoles ir on ira.TenantId = ir.TenantId and ira.[Role] = ir.Id
+		inner join acc.Accounts p on ira.TenantId = p.TenantId and ira.[Plan] = p.Id
+		inner join acc.AccKinds ak on ira.TenantId = ak.TenantId and ira.AccKind = ak.Id
+		inner join acc.Accounts a on ira.TenantId = a.TenantId and ira.Account = a.Id
+	where ira.TenantId = @TenantId and ir.Kind = N'Item'
+	order by ira.Id;
 end
 go
 -------------------------------------------------
@@ -7111,7 +7123,133 @@ begin
 end
 go
 
+-------------------------------------------------
+create or alter procedure doc.[Contract.Show.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Agent bigint = null,
+@Company bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 
+	select [Contract!TContract!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.Memo, c.SNo,
+		[Agent!TAgent!RefId] = c.Agent, [Company!TCompany!RefId] = c.Company, [PriceKind!TPriceKind!RefId] = c.PriceKind,
+		[Kind!TContractKind!RefId] = c.Kind,
+		[Documents!TDocument!LazyArray] = null
+	from doc.Contracts c
+	where c.TenantId = @TenantId and c.Id = @Id;
+
+	-- maps
+	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from cat.Agents a inner join doc.Contracts c on c.TenantId = a.TenantId and c.Agent = a.Id
+	where c.Id = @Id and c.TenantId = @TenantId;
+
+	select [!TCompany!Map] = null, [Id!!Id] = cmp.Id, [Name!!Name] = cmp.[Name]
+	from cat.Companies cmp inner join doc.Contracts c on cmp.TenantId = c.TenantId and c.Company = cmp.Id
+	where c.Id = @Id and c.TenantId = @TenantId;
+
+	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
+	from cat.PriceKinds pk inner join doc.Contracts c on pk.TenantId = c.TenantId and c.PriceKind = pk.Id
+	where c.Id = @Id and c.TenantId = @TenantId;
+
+	select [!TContractKind!Array] = null, [Id!!Id] = ck.Id, [Name!!Name] = ck.[Name]
+	from doc.ContractKinds ck inner join doc.Contracts c on ck.TenantId = c.TenantId and c.Kind = ck.Id
+	where ck.TenantId = @TenantId order by [Order];
+
+	-- declarations
+	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo,
+		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company, [Operation!TOperation!RefId] = d.Operation
+	from doc.Documents d
+	where d.TenantId = @TenantId and 1 <> 1;
+
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
+	from doc.Operations o 
+		where o.TenantId = @TenantId and 0 <> 0;
+end
+go
+-------------------------------------------------
+create or alter procedure doc.[Contract.Show.Documents]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Offset int = 0,
+@PageSize int = 20,
+@Order nvarchar(255) = N'date',
+@Dir nvarchar(20) = N'desc',
+@Agent bigint = null,
+@Company bigint = null,
+@From date = null,
+@To date = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date;
+	set @end = dateadd(day, 1, @To);
+
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
+	declare @docs table(doc bigint, agent bigint, company bigint, operation bigint, rowcnt int)
+	insert into @docs(doc, agent, company, operation, rowcnt)
+	select d.Id, d.Agent, d.Company, d.Operation,
+		count(*) over()
+	from doc.Documents d 
+	where d.TenantId = @TenantId and d.[Contract] = @Id
+		and (d.[Date] >= @From and d.[Date] < @end)
+	order by 
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'date' then d.[Date]
+			end
+		end asc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'sum' then d.[Sum]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'date' then d.[Date]
+			end
+		end desc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'sum' then d.[Sum]
+			end
+		end desc
+	offset @Offset rows fetch next @PageSize rows only
+	option (recompile);
+
+	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo,
+		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company, [Operation!TOperation!RefId] = d.Operation,
+		[!!RowCount] = t.rowcnt
+	from @docs t inner join doc.Documents d on d.TenantId = @TenantId and d.Id = t.doc;
+
+	-- maps
+	with TA as(select agent from @docs group by agent)
+	select [!TAgent!Map] = null, [Id!!Id] = Id, [Name!!Name] = a.[Name]
+	from cat.Agents a inner join TA on a.TenantId = @TenantId and a.Id = TA.agent;
+
+	with TC as(select company from @docs group by company)
+	select [!TCompany!Map] = null, [Id!!Id] = Id, [Name!!Name] = c.[Name]
+	from cat.Companies c inner join TC on c.TenantId = @TenantId and c.Id = TC.company;
+
+	with T as (select operation from @docs group by operation)
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
+	from doc.Operations o 
+		inner join T t on o.TenantId = @TenantId and o.Id = operation;
+
+	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
+		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
+		[!Documents.Period.From!Filter] = @From, [!Documents.Period.To!Filter] = @To;
+end
+go
 
 /* BANK */
 ------------------------------------------------
@@ -9595,7 +9733,7 @@ begin
 	select [!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where 1 <> 1;
 
-	select [!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
+	select [!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Operations o where 1 <> 1;
 end
 go
@@ -9671,7 +9809,7 @@ begin
 	from cat.Companies c inner join TC on c.TenantId = @TenantId and c.Id = TC.company;
 
 	with T as (select operation from @docs group by operation)
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Operations o 
 		inner join T t on o.TenantId = @TenantId and o.Id = operation;
 
@@ -13729,6 +13867,69 @@ end
 go
 
 /*
+initial catalog
+*/
+-- currencies
+------------------------------------------------
+begin
+set nocount on;
+
+declare @crc table(Id bigint, [Alpha3] nchar(3), [Number3] nchar(3), [Symbol] nvarchar(3), [Denom] int, [Name] nvarchar(255));
+
+insert into @crc (Id, Alpha3, Number3, [Symbol], Denom, [Name]) values
+(980, N'UAH', N'980', N'₴', 1, N'Українська гривня'),
+(840, N'USD', N'840', N'$', 100, N'Долар США'),
+(978, N'EUR', N'978', N'€', 100, N'Євро'),
+(826, N'GBP', N'826', N'£', 100, N'Британський фунт стерлінгов'),
+(756, N'CHF', N'756', N'₣', 100, N'Швейцарський франк'),
+(985, N'PLN', N'985', N'Zł',100, N'Польський злотий');
+
+merge cat.Currencies as t
+using @crc as s on t.Id = s.Id and t.TenantId = 0
+when matched then update set
+	t.[Alpha3] = s.[Alpha3],
+	t.[Number3] = s.[Number3],
+	t.[Symbol] = s.[Symbol],
+	t.Denom = s.Denom,
+	t.[Name] = s.[Name]
+when not matched by target then insert
+	(TenantId, Id, Alpha3, Number3, [Symbol], Denom, [Name]) values
+	(0, s.Id, s.Alpha3, s.Number3, s.[Symbol], s.Denom, s.[Name])
+when not matched by source and t.TenantId = 0 then delete;
+end
+go
+-- units
+------------------------------------------------
+begin
+set nocount on;
+
+declare @un table(Id bigint, Short nvarchar(8), [CodeUA] nchar(4), [Name] nvarchar(255));
+
+insert into @un (Id, [Name], Short, CodeUA) values
+(20, N'Штука',    N'шт',   N'2009'),
+(21, N'Грам',     N'г',    N'0303'),
+(22, N'Кілограм', N'кг',   N'0301'),
+(23, N'Літр',     N'л',    N'0138'),
+(24, N'Метр',     N'м',    N'0101'),
+(25, N'Квадратний метр', N'м²',   N'0123'),
+(26, N'Кубічний метр',   N'м³',   N'0134'),
+(27, N'Година',   N'год',   N'0175');
+
+
+merge cat.Units as t
+using @un as s on t.Id = s.Id and t.TenantId = 0
+when matched then update set
+	t.[Short] = s.[Short],
+	t.[Name] = s.[Name],
+	t.[CodeUA] = s.[CodeUA]
+when not matched by target then insert
+	(TenantId, Id, Short, CodeUA, [Name]) values
+	(0, s.Id, s.Short, s.CodeUA, s.[Name])
+when not matched by source and t.TenantId = 0 then delete;
+end
+go
+
+/*
 initial data
 */
 ------------------------------------------------
@@ -13945,67 +14146,4 @@ exec ini.[Rep.OnCreateTenant] @TenantId = 1;
 go
 
 
-
-/*
-initial catalog
-*/
--- currencies
-------------------------------------------------
-begin
-set nocount on;
-
-declare @crc table(Id bigint, [Alpha3] nchar(3), [Number3] nchar(3), [Symbol] nvarchar(3), [Denom] int, [Name] nvarchar(255));
-
-insert into @crc (Id, Alpha3, Number3, [Symbol], Denom, [Name]) values
-(980, N'UAH', N'980', N'₴', 1, N'Українська гривня'),
-(840, N'USD', N'840', N'$', 100, N'Долар США'),
-(978, N'EUR', N'978', N'€', 100, N'Євро'),
-(826, N'GBP', N'826', N'£', 100, N'Британський фунт стерлінгов'),
-(756, N'CHF', N'756', N'₣', 100, N'Швейцарський франк'),
-(985, N'PLN', N'985', N'Zł',100, N'Польський злотий');
-
-merge cat.Currencies as t
-using @crc as s on t.Id = s.Id and t.TenantId = 0
-when matched then update set
-	t.[Alpha3] = s.[Alpha3],
-	t.[Number3] = s.[Number3],
-	t.[Symbol] = s.[Symbol],
-	t.Denom = s.Denom,
-	t.[Name] = s.[Name]
-when not matched by target then insert
-	(TenantId, Id, Alpha3, Number3, [Symbol], Denom, [Name]) values
-	(0, s.Id, s.Alpha3, s.Number3, s.[Symbol], s.Denom, s.[Name])
-when not matched by source and t.TenantId = 0 then delete;
-end
-go
--- units
-------------------------------------------------
-begin
-set nocount on;
-
-declare @un table(Id bigint, Short nvarchar(8), [CodeUA] nchar(4), [Name] nvarchar(255));
-
-insert into @un (Id, [Name], Short, CodeUA) values
-(20, N'Штука',    N'шт',   N'2009'),
-(21, N'Грам',     N'г',    N'0303'),
-(22, N'Кілограм', N'кг',   N'0301'),
-(23, N'Літр',     N'л',    N'0138'),
-(24, N'Метр',     N'м',    N'0101'),
-(25, N'Квадратний метр', N'м²',   N'0123'),
-(26, N'Кубічний метр',   N'м³',   N'0134'),
-(27, N'Година',   N'год',   N'0175');
-
-
-merge cat.Units as t
-using @un as s on t.Id = s.Id and t.TenantId = 0
-when matched then update set
-	t.[Short] = s.[Short],
-	t.[Name] = s.[Name],
-	t.[CodeUA] = s.[CodeUA]
-when not matched by target then insert
-	(TenantId, Id, Short, CodeUA, [Name]) values
-	(0, s.Id, s.Short, s.CodeUA, s.[Name])
-when not matched by source and t.TenantId = 0 then delete;
-end
-go
 
