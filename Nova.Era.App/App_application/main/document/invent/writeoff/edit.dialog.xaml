@@ -34,7 +34,8 @@
 		</Grid>
 		<Grid Grid.Row="2" Padding="0" Columns="Auto,20rem,Auto,20rem,1*, Auto,22rem" AlignItems="Baseline" Gap="1rem">
 			<Label Grid.Row="1" Grid.Col="1" Content="@[WarehouseFrom]" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.WhFrom}" DisplayProperty="Name">
+			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.WhFrom}" DisplayProperty="Name"
+					  Fetch="/catalog/warehouse/fetch">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
 			</Selector>
 
@@ -47,7 +48,7 @@
 
 			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="6" Wrap="NoWrap"/>
 			<Selector Grid.Row="1" Grid.Col="7"
-					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
+					Value="{Bind Document.RespCenter}" DisplayProperty="Name" Fetch="/catalog/respcenter/fetch">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
 					Url='/catalog/respcenter/browse'}"/>
 			</Selector>

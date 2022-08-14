@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 12.08.2022 17:20:42
+generated: 14.08.2022 09:02:25
 */
 
 
@@ -10556,7 +10556,7 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	if 0 = isnull(@Autonum, 0)
+	if 0 = isnull(@Autonum, 0) or @Company is null
 	begin
 		set @Number = null;
 		return;

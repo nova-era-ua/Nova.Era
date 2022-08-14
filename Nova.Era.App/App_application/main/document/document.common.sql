@@ -101,7 +101,7 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	if 0 = isnull(@Autonum, 0)
+	if 0 = isnull(@Autonum, 0) or @Company is null
 	begin
 		set @Number = null;
 		return;
