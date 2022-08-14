@@ -45,22 +45,24 @@
 		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,Auto,22rem,1*,Auto,22rem" 
 			  AlignItems="Baseline" Gap="1rem">
 			<Label Grid.Row="1" Grid.Col="1" Content="@[Agent]"/>
-			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name"
-					  Fetch="/catalog/agent/fetch">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
-			</Selector>
+			<SelectorSimple Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" Url="/catalog/agent"/>
+			
 			<Label Grid.Row="2" Grid.Col="1" Content="@[Contract]"/>
-			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, 
-					Data={Bind Document.$CompanyAgentArg},
-					Argument={Bind Document.Contract}, Url='/catalog/contract/browse'}"/>
-			</Selector>
+			<SelectorSimple Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" Url="/catalog/contract"
+							Data="{Bind Document.$CompanyAgentArg}" ListSize="40rem,25rem">
+				<Selector.ItemsPanel>
+					<DataGrid XamlStyle="{StyleResource DataGridPanel}" HeadersVisibility="Column">
+						<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+						<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Fit="True" Wrap="NoWrap" Align="Center"/>
+						<DataGridColumn Header="@[Number]" Content="{Bind SNo}" Fit="True" Wrap="NoWrap"/>
+						<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}"/>
+					</DataGrid>
+				</Selector.ItemsPanel>
+			</SelectorSimple>
 
 			<Label Grid.Row="1" Grid.Col="3" Content="@[Warehouse]"/>
-			<Selector Grid.Row="1" Grid.Col="4" Value="{Bind Document.WhFrom}" DisplayProperty="Name"
-					  Fetch="/catalog/warehouse/fetch">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.WhFrom}, Url='/catalog/warehouse/browse'}"/>
-			</Selector>
+			<SelectorSimple Grid.Row="1" Grid.Col="4" Value="{Bind Document.WhFrom}"
+					  Url="/catalog/warehouse"/>
 
 			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="6" Wrap="NoWrap"/>
 			<Selector Grid.Row="1" Grid.Col="7"
@@ -160,9 +162,7 @@
 					<ToolbarAligner/>
 					<Label Content="@[PriceKind]" Margin="0,.5rem,0,0"/>
 					<Selector Value="{Bind Document.PriceKind}" DisplayProperty="Name">
-						<Selector.AddOns>
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
-						</Selector.AddOns>
+						<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
 					</Selector>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" 

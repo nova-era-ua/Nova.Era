@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 14.08.2022 09:02:25
+generated: 14.08.2022 11:28:08
 */
 
 
@@ -8,7 +8,7 @@ generated: 14.08.2022 09:02:25
 
 /*
 version: 10.0.7877
-generated: 12.08.2022 17:12:43
+generated: 14.08.2022 11:20:30
 */
 
 set nocount on;
@@ -6905,6 +6905,49 @@ end
 go
 
 -- CONTRACT
+drop procedure if exists doc.[Contract.Maps];
+drop type if exists doc.[Contract.Index.TableType]
+go
+-------------------------------------------------
+create type doc.[Contract.Index.TableType] as table
+(
+	rowno int identity(1, 1), 
+	id bigint, 
+	agent bigint, 
+	comp bigint, 
+	pkind bigint, 
+	kind nvarchar(16), 
+	rowcnt int
+);
+go
+-------------------------------------------------
+create or alter procedure doc.[Contract.Maps]
+@TenantId int = 1,
+@Elems doc.[Contract.Index.TableType] readonly
+as
+begin
+	-- maps
+	with T as (select agent from @Elems group by agent)
+	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from cat.Agents a 
+		inner join T t on a.TenantId = @TenantId and a.Id = agent;
+
+	with T as (select comp from @Elems group by comp)
+	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.Companies c 
+		inner join T t on c.TenantId = @TenantId and c.Id = comp;
+
+	with T as (select pkind from @Elems group by pkind)
+	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
+	from cat.PriceKinds pk 
+		inner join T t on pk.TenantId = @TenantId and pk.Id = pkind;
+
+	with T as (select kind from @Elems group by kind)
+	select [!TContractKind!Map] = null, [Id!!Id] = ck.Id, [Name!!Name] = ck.[Name]
+	from doc.ContractKinds ck 
+		inner join T t on ck.TenantId = @TenantId and ck.Id = kind;
+end
+go
 -------------------------------------------------
 create or alter procedure doc.[Contract.Index]
 @TenantId int = 1,
@@ -6928,8 +6971,7 @@ begin
 	declare @fr nvarchar(255);
 	set @fr = N'%' + @Fragment + N'%';
 
-	declare @cnts table(rowno int identity(1, 1), id bigint, agent bigint, 
-		comp bigint, pkind bigint, kind nvarchar(16), rowcnt int);
+	declare @cnts doc.[Contract.Index.TableType];
 
 	insert into @cnts(id, agent, comp, pkind, kind, rowcnt)
 	select c.Id, c.Agent, c.Company, c.PriceKind, c.Kind,
@@ -6977,25 +7019,7 @@ begin
 	order by t.rowno;
 
 	-- maps
-	with T as (select agent from @cnts group by agent)
-	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
-	from cat.Agents a 
-		inner join T t on a.TenantId = @TenantId and a.Id = agent;
-
-	with T as (select comp from @cnts group by comp)
-	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
-	from cat.Companies c 
-		inner join T t on c.TenantId = @TenantId and c.Id = comp;
-
-	with T as (select pkind from @cnts group by pkind)
-	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
-	from cat.PriceKinds pk 
-		inner join T t on pk.TenantId = @TenantId and pk.Id = pkind;
-
-	with T as (select kind from @cnts group by kind)
-	select [!TContractKind!Map] = null, [Id!!Id] = ck.Id, [Name!!Name] = ck.[Name]
-	from doc.ContractKinds ck 
-		inner join T t on ck.TenantId = @TenantId and ck.Id = kind;
+	exec doc.[Contract.Maps] @TenantId, @cnts;
 
 	select [!$System!] = null, [!Contracts!Offset] = @Offset, [!Contracts!PageSize] = @PageSize, 
 		[!Contracts!SortOrder] = @Order, [!Contracts!SortDir] = @Dir,
@@ -7248,6 +7272,48 @@ begin
 	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
 		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
 		[!Documents.Period.From!Filter] = @From, [!Documents.Period.To!Filter] = @To;
+end
+go
+
+-------------------------------------------------
+create or alter procedure doc.[Contract.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Agent bigint = null,
+@Company bigint = null,
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	set @Company = nullif(@Company, 0);
+	set @Agent = nullif(@Agent, 0);
+
+	declare @cnts doc.[Contract.Index.TableType];
+
+	insert into @cnts(id, agent, comp, pkind, kind)
+	select top(100) c.Id, c.Agent, c.Company, c.PriceKind, c.Kind
+	from doc.Contracts c
+	where c.TenantId = @TenantId and c.Void = 0
+		and (@Agent is null or c.Agent = @Agent)
+		and (@Company is null or c.Company = @Company)
+		and (c.[Name] like @fr or c.[SNo] like @fr or c.Memo like @fr);
+
+	select [Contracts!TContract!Array] = null, [Id!!Id] = c.Id, c.[Date], [Name!!Name] = c.[Name], c.[Memo], c.SNo,
+		[Agent!TAgent!RefId] = c.Agent, [Company!TCompany!RefId] = c.Company,
+		[PriceKind!TPriceKind!RefId] = c.PriceKind,
+		[Kind!TContractKind!RefId] = c.Kind
+	from @cnts t inner join 
+		doc.Contracts c on c.TenantId = @TenantId and c.Id = t.id;
+
+	-- maps
+	exec doc.[Contract.Maps] @TenantId, @cnts;
+
 end
 go
 

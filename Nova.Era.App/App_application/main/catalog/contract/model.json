@@ -17,5 +17,11 @@
 			"template": "show.template",
 			"view": "show.dialog"
 		}
+	},
+	"commands": {
+		"fetch": {
+			"type": "sql",
+			"procedure": "Contract.Fetch"
+		}
 	}
 }
