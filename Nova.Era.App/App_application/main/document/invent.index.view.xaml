@@ -64,22 +64,13 @@
 				ItemsSource="{Bind Operations}" Value="{Bind Parent.Filter.Operation}">
 				<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
 			</ComboBox>
-			<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
-					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.Company.Id}"
-						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
-				</Selector.AddOns>
-			</Selector>
-			<Selector Label="@[Warehouse]" Placeholder="@[Placeholder.AllWarehouses]"
-					  Value="{Bind Parent.Filter.Warehouse}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Warehouse}, Url='/catalog/warehouse/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.Warehouse.Id}"
-						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Warehouse}}"/>
-				</Selector.AddOns>
-			</Selector>
+			
+			<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+					  Value="{Bind Parent.Filter.Company}" Url="/catalog/company" ShowClear="True"/>
+
+			<SelectorSimple Label="@[Warehouse]" Placeholder="@[Placeholder.AllWarehouses]"
+					  Value="{Bind Parent.Filter.Warehouse}" Url="/catalog/warehouse" ShowClear="True"/>
+
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

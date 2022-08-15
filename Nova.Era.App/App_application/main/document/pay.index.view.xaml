@@ -61,30 +61,15 @@
 				ItemsSource="{Bind Operations}" Value="{Bind Parent.Filter.Operation}">
 				<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
 			</ComboBox>
-			<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
-					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.Company.Id}"
-						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
-				</Selector.AddOns>
-			</Selector>
-			<Selector Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
-					  Value="{Bind Parent.Filter.Agent}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Agent}, Url='/catalog/agent/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.Agent.Id}"
-						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Agent}}"/>
-				</Selector.AddOns>
-			</Selector>
-			<Selector Label="@[Label.Cash.Account]"  Placeholder="@[Placeholder.AllCashAccounts]"
-					  Value="{Bind Parent.Filter.CashAccount}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.CashAccount}, Url='/catalog/bankaccount/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.CashAccount.Id}"
-						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.CashAccount}}"/>
-				</Selector.AddOns>
-			</Selector>
+			<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+					  Value="{Bind Parent.Filter.Company}" Url="/catalog/company" ShowClear="True"/>
+
+			<SelectorSimple Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
+					  Value="{Bind Parent.Filter.Agent}" Url="/catalog/agent" ShowClear="True"/>
+
+			<SelectorSimple Label="@[Label.Cash.Account]"  Placeholder="@[Placeholder.AllCashAccounts]"
+					  Value="{Bind Parent.Filter.CashAccount}" Url="/catalog/cashaccount" ShowClear="True"/>
+
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

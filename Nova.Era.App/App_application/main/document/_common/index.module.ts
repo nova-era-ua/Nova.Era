@@ -14,7 +14,6 @@ const template: Template = {
 		'app.document.apply': handleApply
 	},
 	commands: {
-		clearFilter,
 		create,
 		editSelected: {
 			exec: editSelected,
@@ -52,11 +51,6 @@ async function edit(this: TRoot, doc: TDocument) {
 	const ctrl = this.$ctrl;
 	let url = `${doc.Operation.DocumentUrl}/edit`
 	await ctrl.$showDialog(url, { Id: doc.Id });
-}
-
-function clearFilter(elem) {
-	elem.Id = 0;
-	elem.Name = '';
 }
 
 // events

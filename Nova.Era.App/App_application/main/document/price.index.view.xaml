@@ -49,14 +49,8 @@
 			<PeriodPicker Label="@[Period]" Display="Name" Placement="BottomRight"
 				Value="{Bind Parent.Filter.Period}"
 				Description="{Bind Parent.Filter.Period.Name}"/>
-			<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
-					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.Company.Id}"
-						Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
-				</Selector.AddOns>
-			</Selector>
+			<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+					  Value="{Bind Parent.Filter.Company}" Url="/catalog/company" ShowClear="True"/>
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

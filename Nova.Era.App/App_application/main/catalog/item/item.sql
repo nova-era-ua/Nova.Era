@@ -890,7 +890,7 @@ begin
 			left join doc.fn_getItemsRems(@CheckRems, @TenantId, @itemstable, @Date, @Wh) t
 			on t.Item = v.[Id!!Id]
 		where 
-			v.[!TenantId] = @TenantId
+			v.[!TenantId] = @TenantId;
 	end
 	else
 	begin

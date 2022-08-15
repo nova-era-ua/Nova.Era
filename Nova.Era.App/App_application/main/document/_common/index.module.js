@@ -14,7 +14,6 @@ define(["require", "exports"], function (require, exports) {
             'app.document.apply': handleApply
         },
         commands: {
-            clearFilter,
             create,
             editSelected: {
                 exec: editSelected,
@@ -50,10 +49,6 @@ define(["require", "exports"], function (require, exports) {
         const ctrl = this.$ctrl;
         let url = `${doc.Operation.DocumentUrl}/edit`;
         await ctrl.$showDialog(url, { Id: doc.Id });
-    }
-    function clearFilter(elem) {
-        elem.Id = 0;
-        elem.Name = '';
     }
     function handleSaved(savedRoot) {
         const savedDoc = savedRoot.Document;
