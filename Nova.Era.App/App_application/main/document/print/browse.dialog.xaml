@@ -19,7 +19,10 @@
 		</List>
 		<GridDivider Grid.Col="2"/>
 		<Slot Grid.Col="3" Scope="{Bind PrintForms.$selected}">
-			<IFrame Source="{Bind $ReportUrl}" />
+			<!--
+				<IFrame Source="{Bind $ReportUrl}" />
+			-->
+			<PdfViewer Source="{Bind $ReportUrl}"/>
 			<Slot.Fallback>
 				<EmptyPanel Content="Для цієї операції немає друкованих форм" />
 			</Slot.Fallback>

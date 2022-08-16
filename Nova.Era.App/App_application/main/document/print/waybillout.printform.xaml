@@ -11,22 +11,22 @@
 		<Table Columns="30mm,60mm,1fr">
 			<TableRow>
 				<TableCell Content="Постачальник"/>
-				<TableCell Content="{Bind Document.Company.Name}" Bold="True"/>
+				<TableCell Content="{Bind Document.Company.Name}" />
 				<TableCell />
 			</TableRow>
 			<TableRow>
 				<TableCell Content="Покупець"/>
-				<TableCell Content="{Bind Document.Agent.Name}" Bold="True"/>
+				<TableCell Content="{Bind Document.Agent.Name}" />
 				<TableCell />
 			</TableRow>
 			<TableRow>
 				<TableCell Content="Договір"/>
-				<TableCell Content="{Bind Document.Contract.Name}" Bold="True"/>
+				<TableCell Content="{Bind Document.Contract.Name}"/>
 				<TableCell />
 			</TableRow>
 			<TableRow>
 				<TableCell Content="Склад"/>
-				<TableCell Content="{Bind Document.WhFrom.Name}" Bold="True"/>
+				<TableCell Content="{Bind Document.WhFrom.Name}" />
 				<TableCell />
 			</TableRow>
 		</Table>
