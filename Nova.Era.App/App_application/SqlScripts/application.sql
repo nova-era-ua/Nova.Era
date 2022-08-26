@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 23.08.2022 07:49:10
+generated: 24.08.2022 11:08:57
 */
 
 
@@ -5001,6 +5001,7 @@ begin
 		(883,   88, 13, N'@[Administration]', null, null, null),
 		(8830, 883, 16, N'@[Users]',        N'user',    N'user',  null),
 		(8850,  88, 20, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
+		(8851,  88, 23, N'Test',            N'test',      N'file', null),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 

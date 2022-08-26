@@ -32,8 +32,7 @@
 		<TreeView Grid.Row="2" Grid.Col="1" Grid.VAlign="Stretch" FolderSelect="True" TestId="AccountPlan"
 						ItemsSource="{Bind Accounts}" AutoSelect="FirstItem"
 				DoubleClick="{BindCmd Execute, CommandName=edit, Argument={Bind Accounts.$selected}}">
-			<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}"
-						InitialExpand="True"/>
+			<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}"/>
 			<TreeView.ContextMenu>
 				<DropDownMenu>
 					<MenuItem Content="@[CreateAccount]"

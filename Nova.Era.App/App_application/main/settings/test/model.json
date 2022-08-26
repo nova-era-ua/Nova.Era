@@ -1,0 +1,11 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "acc",
+	"model": "Account",
+	"actions": {
+		"index": {
+			"index": true,
+			"view": "index.view"
+		}
+	}
+}

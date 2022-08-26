@@ -18,7 +18,7 @@ begin
 			inner join T on T.Id = a.Parent and a.TenantId = @TenantId and a.Void = 0
 		where a.TenantId = @TenantId
 	)
-	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder, [InitExpand!!Expanded] = 1,
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
 		[Documents!TDocument!LazyArray] = null
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId

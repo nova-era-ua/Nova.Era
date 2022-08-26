@@ -7,7 +7,7 @@
 		<GridDivider Grid.Row="1" Grid.Col="2" Grid.RowSpan="2"/>
 		<TreeView Grid.Row="2" Grid.Col="1" Grid.VAlign="Stretch" FolderSelect="True" TestId="AccountPlan"
 						ItemsSource="{Bind Accounts}" AutoSelect="FirstItem">
-			<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}" InitialExpand="True"/>
+			<TreeViewItem ItemsSource="{Bind Items}" Label="{Bind $Title}" Icon="{Bind $Icon}" />
 		</TreeView>
 		<Grid Grid.Col="3" Grid.RowSpan="2" Rows="Auto,1*" Height="100%" If="{Bind Accounts.$selected}" CssClass="inner-grid">
 			<TabBar Value="{Bind Root.$$Tab}" Margin="0">
