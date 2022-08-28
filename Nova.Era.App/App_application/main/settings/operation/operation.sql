@@ -2,7 +2,6 @@
 -------------------------------------------------
 create or alter procedure doc.[Operation.Plain.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint = null
 as
@@ -25,7 +24,6 @@ go
 -------------------------------------------------
 create or alter procedure doc.[Operation.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint
 as
 begin
@@ -47,7 +45,6 @@ go
 -------------------------------------------------
 create or alter procedure doc.[Operation.Load]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint = null
 as
@@ -60,7 +57,7 @@ begin
 		o.DocumentUrl, [Form!TForm!RefId] = o.Form, [Autonum!TAutonum!RefId] = o.Autonum,
 		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
-		[Trans!TOpTrans!Array] = null
+		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null
 	from doc.Operations o
 	where o.TenantId = @TenantId and o.Id=@Id;
 
@@ -80,7 +77,15 @@ begin
 		[DtAccKind!TAccKind!RefId] = ot.DtAccKind, [CtAccKind!TAccKind!RefId] = ot.CtAccKind
 	from doc.OpTrans ot 
 	where ot.TenantId = @TenantId and ot.Operation = @Id
-	order by ot.Id;
+	order by ot.RowNo;
+
+	-- STORE TRANSACTIONS
+	select [!TOpStore!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
+		os.IsIn, os.IsOut, IsStorno = cast(case when os.Factor = -1 then 1 else 0 end as bit), 
+		[!TOperation.Store!ParentId] = os.Operation
+	from doc.OpStore os
+	where os.TenantId = @TenantId and os.Operation = @Id
+	order by os.RowNo;
 
 	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, [Type], [Category],
 		[Operation.Id!TOper!Id] = o.Id, [Operation.Name!TOper!Name] = o.[Name],
@@ -136,7 +141,7 @@ go
 drop procedure if exists doc.[Operation.Metadata];
 drop procedure if exists doc.[Operation.Update];
 drop type if exists doc.[Operation.TableType];
-drop type if exists doc.[OpJournalStore.TableType];
+drop type if exists doc.[OpStore.TableType];
 drop type if exists doc.[OpTrans.TableType];
 drop type if exists doc.[OpMenu.TableType]
 drop type if exists doc.[OpPrintForm.TableType]
@@ -178,9 +183,10 @@ as table(
 )
 go
 -------------------------------------------------
-create type doc.[OpJournalStore.TableType]
+create type doc.[OpStore.TableType]
 as table(
 	Id bigint,
+	RowNo int,
 	RowKind nvarchar(8),
 	IsIn bit,
 	IsOut bit,
@@ -213,13 +219,13 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	declare @Operation doc.[Operation.TableType];
-	declare @JournalStore doc.[OpJournalStore.TableType];
+	declare @OpStore doc.[OpStore.TableType];
 	declare @OpTrans doc.[OpTrans.TableType];
 	declare @OpMenu doc.[OpMenu.TableType];
 	declare @OpPrintForm doc.[OpPrintForm.TableType];
 	declare @OpLinks doc.[OpLink.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
-	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
+	select [Store!Operation.Store!Metadata] = null, * from @OpStore;
 	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 	select [Menu!Menu!Metadata] = null, * from @OpMenu;
 	select [PrintForms!PrintForms!Metadata] = null, * from @OpPrintForm;
@@ -229,10 +235,9 @@ go
 ------------------------------------------------
 create or alter procedure doc.[Operation.Update]
 @TenantId bigint = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Operation doc.[Operation.TableType] readonly,
-@JournalStore doc.[OpJournalStore.TableType] readonly,
+@Store doc.[OpStore.TableType] readonly,
 @Trans doc.[OpTrans.TableType] readonly,
 @Menu doc.[OpMenu.TableType] readonly,
 @Links doc.[OpLink.TableType] readonly,
@@ -261,18 +266,19 @@ begin
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 
-	merge doc.OpJournalStore as t
-	using @JournalStore as s
+	merge doc.OpStore as t
+	using @Store as s
 	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
 	when matched then update set 
+		t.RowNo = s.RowNo,
 		t.RowKind = isnull(s.RowKind, N''),
 		t.IsIn = s.IsIn,
 		t.IsOut = s.IsOut,
 		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
 	when not matched by target then insert
-		(TenantId, Operation, RowKind, IsIn, IsOut, Factor) values
-		(@TenantId, @Id, isnull(RowKind, N''), s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
-	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
+		(TenantId, Operation, RowNo, RowKind, IsIn, IsOut, Factor) values
+		(@TenantId, @Id, RowNo, isnull(RowKind, N''), s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
+	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
 
 	merge doc.OpTrans as t
 	using @Trans as s
@@ -328,8 +334,7 @@ begin
 		(@TenantId, @Id, s.Operation, s.[Type], s.[Category])
 	when not matched by source and t.TenantId = @TenantId and t.Parent = @Id then delete;
 
-	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,
-		@Id = @Id;
+	exec doc.[Operation.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @Id;
 end
 go
 -------------------------------------------------

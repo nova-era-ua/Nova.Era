@@ -22,7 +22,7 @@ const template: Template = {
 		'Operation.Form.change': formChange,
 		'Operation.Trans[].DtAccMode.change'(elem) { elem.Dt.$empty(); },
 		'Operation.Trans[].CtAccMode.change'(elem) { elem.Ct.$empty(); },
-		'Operation.OpLinks[].add'(links, link) { link.Type = 'BySum';}
+		'Operation.OpLinks[].add'(links, link) { link.Type = 'BySum'; }
 	}
 };
 

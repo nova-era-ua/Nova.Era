@@ -3,115 +3,120 @@
 	<Dialog.Buttons>
 		<Button Content="@[Close]" Command="{BindCmd Close}" />
 	</Dialog.Buttons>
-
-	<Table ItemsSource="{Bind Transactions}" Width="100%"
-		   GridLines="Both" Columns="1rem,5rem,8rem,5rem,Auto,5rem,8rem,5rem,Auto"
-		   Striped="True">
-		<Table.Header>
-			<TableRow>
-				<TableCell RowSpan="2" Content="#"/>
-				<TableCell ColSpan="4" Content="@[Debit]"/>
-				<TableCell ColSpan="4" Content="@[Credit]"/>
-			</TableRow>
-			<TableRow>
-				<TableCell Content="@[Account]"/>
-				<TableCell Content="@[Sum]"/>
-				<TableCell Content="@[Qty]"/>
-				<TableCell Content="@[Analytics]"/>
-				<TableCell Content="@[Account]"/>
-				<TableCell Content="@[Sum]"/>
-				<TableCell Content="@[Qty]"/>
-				<TableCell Content="@[Analytics]"/>
-			</TableRow>
-		</Table.Header>
-		<TableRow VAlign="Top">
-			<TableCell Content="{Bind Id}"/>
-			<TableCell ColSpan="4">
-				<Table ItemsSource="{Bind Dt}" GridLines="None" Width="100%" Columns="5rem,8rem,5rem,Auto">
+	<TabBar Value="{Bind Root.$$Tab}" Margin="0,0,1rem,0">
+		<TabButton Content="Бухгалтерські проводки" ActiveValue=""/>
+		<TabButton Content="Рух запасів" ActiveValue="store"/>
+		<TabButton Content="Рух грошових коштів" ActiveValue="cash"/>
+		<TabButton Content="Рух взаєморазрахунків" ActiveValue="agent"/>
+	</TabBar>
+	<Switch Expression="{Bind Root.$$Tab}">
+		<Case Value="">
+			<Table ItemsSource="{Bind Transactions}" CssClass="fixed-layout"
+			   GridLines="Both" Columns="1rem, 5rem,8rem,5rem,26rem, 5rem,8rem,5rem,26rem"
+			   Striped="True" >
+				<Table.Header>
 					<TableRow>
-						<TableCell Content="{Bind Account.Code}"/>
-						<TableCell Content="{Bind Sum, DataType=Currency, HideZeros=True}" Align="Right" Bold="True"/>
-						<TableCell Content="{Bind Qty, DataType=Number, HideZeros=True}" Align="Right"/>
-						<Table GridLines="None" Width="100%" Columns="Fit,Auto" CssClass="inner-table">
-							<TableRow If="{Bind Item.Id}">
-								<TableCell Content="@[Object]"/>
-								<TableCell Content="{Bind Item.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind Warehouse.Id}">
-								<TableCell Content="@[Warehouse]"/>
-								<TableCell Content="{Bind Warehouse.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind Agent.Id}">
-								<TableCell Content="@[Agent]"/>
-								<TableCell Content="{Bind Agent.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind Contract.Id}">
-								<TableCell Content="@[Contract]"/>
-								<TableCell Content="{Bind Contract.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind CashAcc.Id}">
-								<TableCell Content="{Bind CashAcc.$Title}"/>
-								<TableCell Content="{Bind CashAcc.$Name}"/>
-							</TableRow>
-							<TableRow If="{Bind CashFlowItem.Id}">
-								<TableCell Content="@[CashFlowItemShort]" Wrap="NoWrap"/>
-								<TableCell Content="{Bind CashFlowItem.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind RespCenter.Id}">
-								<TableCell Content="@[RespCenterShort]" Wrap="NoWrap"/>
-								<TableCell Content="{Bind RespCenter.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind CostItem.Id}">
-								<TableCell Content="@[CostItem]" Wrap="NoWrap"/>
-								<TableCell Content="{Bind CostItem.Name}"/>
+						<TableCell RowSpan="2" Content="#"/>
+						<TableCell ColSpan="4" Content="@[Debit]"/>
+						<TableCell ColSpan="4" Content="@[Credit]"/>
+					</TableRow>
+					<TableRow>
+						<TableCell Content="@[Account]"/>
+						<TableCell Content="@[Sum]"/>
+						<TableCell Content="@[Qty]"/>
+						<TableCell Content="@[Analytics]"/>
+						<TableCell Content="@[Account]"/>
+						<TableCell Content="@[Sum]"/>
+						<TableCell Content="@[Qty]"/>
+						<TableCell Content="@[Analytics]"/>
+					</TableRow>
+				</Table.Header>
+				<TableRow VAlign="Top">
+					<TableCell Content="{Bind Id}"/>
+					<TableCell ColSpan="4">
+						<Table CssClass="fixed-layout" ItemsSource="{Bind Dt}" GridLines="Both" 
+							   Width="100%" Columns="5rem,8rem,5rem,26rem">
+							<TableRow>
+								<TableCell Content="{Bind Account.Code}" Align="Center"/>
+								<TableCell Content="{Bind Sum, DataType=Currency, HideZeros=True}" Align="Right" Bold="True"/>
+								<TableCell Content="{Bind Qty, DataType=Number, HideZeros=True}" Align="Right"/>
+								<TableCell Padding="0,6">
+									<PropertyGrid Compact="True" GridLines="Horizontal" NoWrapName="True">
+										<PropertyGridItem If="{Bind Item.Id}" Content="{Bind Item.Name}" Name="@[Item]"/>
+										<PropertyGridItem If="{Bind Warehouse.Id}" Content="{Bind Warehouse.Name}" Name="@[Warehouse]"/>
+										<PropertyGridItem If="{Bind Agent.Id}" Content="{Bind Agent.Name}" Name="@[Agent]"/>
+										<PropertyGridItem If="{Bind Contract.Id}" Content="{Bind Contract.Name}" Name="@[Contract]"/>
+										<!--, CashAcc -->
+										<PropertyGridItem If="{Bind CashFlowItem.Id}" Content="{Bind CashFlowItem.Name}" Name="@[CashFlowItemShort]"/>
+										<PropertyGridItem If="{Bind RespCenter.Id}" Content="{Bind RespCenter.Name}" Name="@[RespCenterShort]"/>
+										<PropertyGridItem If="{Bind CostItem.Id}" Content="{Bind CostItem.Name}" Name="@[CostItem]"/>
+									</PropertyGrid>
+								</TableCell>
+								<Table If="False" GridLines="None" Width="100%" Columns="Fit,Auto" CssClass="inner-table">
+									<TableRow If="{Bind CashAcc.Id}">
+										<TableCell Content="{Bind CashAcc.$Title}"/>
+										<TableCell Content="{Bind CashAcc.$Name}"/>
+									</TableRow>
+								</Table>
 							</TableRow>
 						</Table>
-					</TableRow>
-				</Table>
-			</TableCell>
-			<TableCell ColSpan="4">
-				<Table ItemsSource="{Bind Ct}" GridLines="None" Width="100%" Columns="5rem,8rem,5rem,Auto">
-					<TableRow>
-						<TableCell Content="{Bind Account.Code}" Align="Center"/>
-						<TableCell Content="{Bind Sum, DataType=Currency, HideZeros=True}" Align="Right" Bold="True"/>
-						<TableCell Content="{Bind Qty, DataType=Number, HideZeros=True}" Align="Right"/>
-						<Table Width="100%" GridLines="None" Columns="Fit,Auto" CssClass="inner-table">
-							<TableRow If="{Bind Item.Id}">
-								<TableCell Content="@[Object]"/>
-								<TableCell Content="{Bind Item.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind Warehouse.Id}">
-								<TableCell Content="@[Warehouse]"/>
-								<TableCell Content="{Bind Warehouse.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind Agent.Id}">
-								<TableCell Content="@[Agent]"/>
-								<TableCell Content="{Bind Agent.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind Contract.Id}">
-								<TableCell Content="@[Contract]"/>
-								<TableCell Content="{Bind Contract.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind CashAcc.Id}">
-								<TableCell Content="{Bind CashAcc.$Title}"/>
-								<TableCell Content="{Bind CashAcc.$Name}"/>
-							</TableRow>
-							<TableRow If="{Bind CashFlowItem.Id}">
-								<TableCell Content="@[CashFlowItemShort]" Wrap="NoWrap"/>
-								<TableCell Content="{Bind CashFlowItem.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind RespCenter.Id}">
-								<TableCell Content="@[RespCenterShort]" Wrap="NoWrap"/>
-								<TableCell Content="{Bind RespCenter.Name}"/>
-							</TableRow>
-							<TableRow If="{Bind CostItem.Id}">
-								<TableCell Content="@[CostItem]" Wrap="NoWrap"/>
-								<TableCell Content="{Bind CostItem.Name}"/>
+					</TableCell>
+					<TableCell ColSpan="4">
+						<Table CssClass="fixed-layout" ItemsSource="{Bind Ct}" GridLines="Both" Width="100%" 
+							   Columns="5rem,8rem,5rem,26rem">
+							<TableRow>
+								<TableCell Content="{Bind Account.Code}" Align="Center"/>
+								<TableCell Content="{Bind Sum, DataType=Currency, HideZeros=True}" Align="Right" Bold="True"/>
+								<TableCell Content="{Bind Qty, DataType=Number, HideZeros=True}" Align="Right"/>
+								<TableCell Padding="0,6">
+								<PropertyGrid Compact="True" GridLines="Horizontal" NoWrapName="True">
+									<PropertyGridItem If="{Bind Item.Id}" Content="{Bind Item.Name}" Name="@[Item]"/>
+									<PropertyGridItem If="{Bind Warehouse.Id}" Content="{Bind Warehouse.Name}" Name="@[Warehouse]"/>
+									<PropertyGridItem If="{Bind Agent.Id}" Content="{Bind Agent.Name}" Name="@[Agent]"/>
+									<PropertyGridItem If="{Bind Contract.Id}" Content="{Bind Contract.Name}" Name="@[Contract]"/>
+									<!--, CashAcc -->
+									<PropertyGridItem If="{Bind CashFlowItem.Id}" Content="{Bind CashFlowItem.Name}" Name="@[CashFlowItemShort]"/>
+									<PropertyGridItem If="{Bind RespCenter.Id}" Content="{Bind RespCenter.Name}" Name="@[RespCenterShort]"/>
+									<PropertyGridItem If="{Bind CostItem.Id}" Content="{Bind CostItem.Name}" Name="@[CostItem]"/>
+								</PropertyGrid>
+								</TableCell>
+								<Table If="False" Width="100%" GridLines="None" Columns="Fit,Auto" CssClass="inner-table">
+									<TableRow If="{Bind CashAcc.Id}">
+										<TableCell Content="{Bind CashAcc.$Title}"/>
+										<TableCell Content="{Bind CashAcc.$Name}"/>
+									</TableRow>
+								</Table>
 							</TableRow>
 						</Table>
+					</TableCell>
+				</TableRow>
+			</Table>
+		</Case>
+		<Case Value="store">
+			<Table ItemsSource="{Bind StoreTrans}" GridLines="Both" Striped="True" 
+				   Width="100%" Columns="Fit,Fit,Fit,Auto">
+				<Table.Header>
+					<TableRow>
+						<TableCell Content="Видаток/прибуток" Wrap="NoWrap"/>
+						<TableCell Content="@[Sum]"/>
+						<TableCell Content="@[Qty]"/>
+						<TableCell Content="@[Analytics]"/>
 					</TableRow>
-				</Table>
-			</TableCell>
-		</TableRow>
-	</Table>
+				</Table.Header>
+				<TableRow VAlign="Top">
+					<TableCell Content="{Bind $Dir}"/>
+					<TableCell Content="{Bind Sum, DataType=Currency, HideZeros=True}" Align="Right" Bold="True"/>
+					<TableCell Content="{Bind Qty, DataType=Number, HideZeros=True}" Align="Right"/>
+					<TableCell Padding="0,6" >
+						<PropertyGrid GridLines="Horizontal" Compact="True">
+							<PropertyGridItem If="{Bind Company.Id}" Content="{Bind Company.Name}" Name="@[Company]"/>
+							<PropertyGridItem If="{Bind Item.Id}" Content="{Bind Item.Name}" Name="@[Item]"/>
+							<PropertyGridItem If="{Bind Warehouse.Id}" Content="{Bind Warehouse.Name}" Name="@[Warehouse]"/>
+							<PropertyGridItem If="{Bind RespCenter.Id}" Content="{Bind RespCenter.Name}" Name="@[RespCenterShort]"/>
+						</PropertyGrid>
+					</TableCell>
+				</TableRow>
+			</Table>
+		</Case>
+	</Switch>
 </Dialog>

@@ -51,3 +51,39 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc'
 	alter table doc.Autonums add [Uid] uniqueidentifier not null
 		constraint DF_Autonum_Uid default(newid()) with values;
 go
+------------------------------------------------
+drop sequence if exists doc.SQ_OpJournalStore;
+drop table if exists doc.OpJournalStore;
+drop type if exists doc.[OpJournalStore.TableType];
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal' and COLUMN_NAME=N'CostItem')
+begin
+	alter table jrn.StockJournal add CostItem bigint;
+	alter table jrn.StockJournal add RespCenter bigint;
+end
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE where TABLE_SCHEMA = N'jrn' and TABLE_NAME = N'StockJournal' and CONSTRAINT_NAME = N'FK_StockJournal_CostItem_CostItems')
+begin
+	alter table jrn.StockJournal add constraint FK_StockJournal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id);
+	alter table jrn.StockJournal add constraint FK_StockJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id);
+end
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal' and COLUMN_NAME=N'Agent')
+begin
+	alter table jrn.StockJournal add Agent bigint null;
+	alter table jrn.StockJournal add [Contract] bigint null;
+end
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE where TABLE_SCHEMA = N'jrn' and TABLE_NAME = N'StockJournal' and CONSTRAINT_NAME = N'FK_StockJournal_Agent_Agents')
+begin
+	alter table jrn.StockJournal add constraint 
+		FK_StockJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id);
+	alter table jrn.StockJournal add constraint 
+		FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id);
+end
+go
+

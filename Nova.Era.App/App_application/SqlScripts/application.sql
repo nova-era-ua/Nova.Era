@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 24.08.2022 11:08:57
+generated: 28.08.2022 07:03:17
 */
 
 
@@ -9781,7 +9781,7 @@ begin
 			inner join T on T.Id = a.Parent and a.TenantId = @TenantId and a.Void = 0
 		where a.TenantId = @TenantId
 	)
-	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder, [InitExpand!!Expanded] = 1,
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
 		[Documents!TDocument!LazyArray] = null
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
@@ -9909,7 +9909,7 @@ begin
 		where a.TenantId = @TenantId
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
-		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent
+		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent, [InitExpand!!Expanded] = 1
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
 
@@ -10116,7 +10116,7 @@ begin
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan],
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
-		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
+		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, [InitExpand!!Expanded] = 1
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
 end
@@ -10143,7 +10143,7 @@ begin
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
-		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash
+		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, [InitExpand!!Expanded] = 1
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
 end

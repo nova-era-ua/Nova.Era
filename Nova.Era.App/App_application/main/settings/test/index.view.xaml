@@ -10,5 +10,13 @@
 		<TreeGridColumn Header="4" Fit="True"  Content="{Bind Plan}" Align="Right" VAlign="Bottom"/>
 		<TreeGridColumn Header="5" Fit="True"  Content="{Bind IsFolder}" Align="Center"/>
 		<TreeGridColumn Header="6" Fit="True"  Content="{Bind $expanded}" />
+		<TreeGrid.ContextMenu>
+			<DropDownMenu>
+				<MenuItem Icon="Edit" Content="Edit" Command="{BindCmd Dialog, Action=EditSelected, 
+					Argument={Bind Accounts}, Url='/settings/accountplan/edit'}"/>
+				<Separator />
+				<MenuItem Icon="Reload" Content="Reload" Command="{BindCmd Reload}"/>
+			</DropDownMenu>
+		</TreeGrid.ContextMenu>
 	</TreeGrid>
 </Page>

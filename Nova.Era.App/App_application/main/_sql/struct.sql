@@ -722,24 +722,25 @@ create table doc.OperationLinks
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpJournalStore')
-	create sequence doc.SQ_OpJournalStore as bigint start with 100 increment by 1;
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpStore')
+	create sequence doc.SQ_OpStore as bigint start with 100 increment by 1;
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpJournalStore')
-create table doc.OpJournalStore
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpStore')
+create table doc.OpStore
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_OpJournalStore_Id default(next value for doc.SQ_OpJournalStore),
+		constraint DF_OpStore_Id default(next value for doc.SQ_OpStore),
 	Operation bigint not null,
+	RowNo int,
 	RowKind nvarchar(16) not null,
 	IsIn bit not null,
 	IsOut bit not null,
 	Factor smallint -- 1 normal, -1 storno
-		constraint CK_OpJournalStore_Factor check (Factor in (1, -1)),
-	constraint PK_OpJournalStore primary key (TenantId, Id, Operation),
-	constraint FK_OpJournalStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+		constraint CK_OpStore_Factor check (Factor in (1, -1)),
+	constraint PK_OpStore primary key (TenantId, Id, Operation),
+	constraint FK_OpStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -991,6 +992,8 @@ create table jrn.StockJournal
 	Document bigint,
 	Detail bigint,
 	Company bigint null,
+	Agent bigint null,
+	[Contract] bigint null,
 	Warehouse bigint null,
 	Item bigint null,
 	Dir smallint not null,
@@ -998,11 +1001,17 @@ create table jrn.StockJournal
 		constraint DF_StockJournal_Qty default(0),
 	[Sum] money not null
 		constraint DF_StockJournal_Sum default(0),
-	constraint PK_StockJournal primary key (TenantId, Id),
-	constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
-	constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
-	constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-	constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+	CostItem bigint,
+	RespCenter bigint,
+		constraint PK_StockJournal primary key (TenantId, Id),
+		constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+		constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id),
+		constraint FK_StockJournal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
+		constraint FK_StockJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
+		constraint FK_StockJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+		constraint FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id)
 );
 go
 ------------------------------------------------

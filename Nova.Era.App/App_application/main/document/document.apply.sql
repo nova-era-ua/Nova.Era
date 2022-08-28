@@ -214,28 +214,25 @@ begin
 	set nocount on;
 
 	declare @journal table(
-		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint,
-		Item bigint, Qty float, [Sum] money, Kind nchar(4)
+		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint, Agent bigint, [Contract] bigint,
+		Item bigint, Qty float, [Sum] money, Kind nvarchar(16), CostItem bigint, RespCenter bigint
 	);
-	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind)
-	select d.Id, dd.Id, d.Company, d.WhFrom, d.WhTo, dd.Item, dd.Qty, dd.[Sum], isnull(dd.Kind, N'')
+	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind, CostItem, RespCenter, Agent, [Contract])
+	select d.Id, dd.Id, d.Company, d.WhFrom, d.WhTo, dd.Item, dd.Qty, dd.[Sum], isnull(dd.Kind, N''),
+		CostItem = isnull(dd.CostItem, d.CostItem), RespCenter, d.Agent, d.[Contract]
 	from doc.DocDetails dd 
 		inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 	where d.TenantId = @TenantId and d.Id = @Id;
 
-	-- out
-	insert into jrn.StockJournal(TenantId, Dir, Warehouse, Document, Detail, Company, Item, Qty, [Sum])
-	select @TenantId, -1, j.WhFrom, j.Document, j.Detail, j.Company, j.Item, j.Qty, 
-		j.[Sum] * js.Factor
-	from @journal j inner join doc.OpJournalStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
-	where js.TenantId = @TenantId and js.Operation = @Operation and js.IsOut = 1;
-
-	-- in
-	insert into jrn.StockJournal(TenantId, Dir, Warehouse, Document, Detail, Company, Item, Qty, [Sum])
-	select @TenantId, 1, j.WhTo, j.Document, j.Detail, j.Company, j.Item, j.Qty, 
-		j.[Sum] * js.Factor
-	from @journal j inner join doc.OpJournalStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
-	where js.TenantId = @TenantId and js.Operation = @Operation and js.IsIn = 1;
+	-- in/out
+	insert into jrn.StockJournal(TenantId, Dir, 
+		Warehouse, Document, Detail, Company, Item, Qty, [Sum], CostItem, 
+		RespCenter, Agent, [Contract])
+	select @TenantId, Dir = case when js.IsOut = 1 then -1 when js.IsIn = 1 then 1 end, 
+		j.WhFrom, j.Document, j.Detail, j.Company, j.Item, j.Qty * js.Factor, 
+		j.[Sum] * js.Factor, j.CostItem, j.RespCenter, j.Agent, j.[Contract]
+	from @journal j inner join doc.OpStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
+	where js.TenantId = @TenantId and js.Operation = @Operation and (js.IsOut = 1 or js.IsIn = 1);
 end
 go
 ------------------------------------------------
@@ -346,22 +343,18 @@ begin
 	declare @pay bit;   -- pay journal
 	declare @acc bit;   -- acc journal
 
-	/*
-	if exists(select * from doc.OpJournalStore 
+	if exists(select * from doc.OpStore 
 			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
 		set @stock = 1;
-	*/
 	if exists(select * from doc.OpTrans 
 			where TenantId = @TenantId and Operation = @operation)
 		set @acc = 1;
 
 	begin tran;
 		exec doc.[Document.Apply.CheckRems] @TenantId= @TenantId, @Id=@Id, @CheckRems = @CheckRems;
-		/*
 		if @stock = 1
 			exec doc.[Document.Apply.Stock] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;
-		*/
 		if @acc = 1
 			exec doc.[Document.Apply.Account] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;

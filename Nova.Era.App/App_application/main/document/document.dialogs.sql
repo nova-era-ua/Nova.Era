@@ -1,5 +1,7 @@
 ﻿/* Document.Dialogs */
 ------------------------------------------------
+/*
+здесь было с УЧЕТОМ аналитики по счетам!
 create or alter view doc.[view.Document.Transactions]
 as
 select [!TTransPart!Array] = null, [Id!!Id] = j.Id,
@@ -25,6 +27,27 @@ from jrn.Journal j
 	left join cat.CostItems ci on j.TenantId = ci.TenantId and j.CostItem = ci.Id and a.IsCostItem = 1
 	left join cat.RespCenters rc on j.TenantId = rc.TenantId and j.RespCenter = rc.Id and a.IsRespCenter = 1
 go
+*/
+
+create or alter view doc.[view.Document.Transactions]
+as
+select [!TTransPart!Array] = null, [Id!!Id] = j.Id,
+	[Account.Code!TAccount!] = a.Code, j.[Sum], j.Qty,
+	[Item!TItem!RefId] = j.Item, [Warehouse!TWarehouse!RefId] = j.Warehouse,
+	[Agent!TAgent!RefId] = j.Agent,
+	[CashAcc.Id!TCashAcc!Id] = ca.Id, [CashAcc.Name!TCashAcc] = ca.[Name], 
+	[CashAcc.No!TCashAcc!] = ca.AccountNo, [CashAcc.IsCash!TCashAcc!] = ca.IsCashAccount,
+	[Contract.Id!TContract!Id] = c.Id, [Contract.Name!TContract!Name] = c.[Name],
+	[CashFlowItem.Id!TCashFlowItem!Id] = cf.Id, [CashFlowItem.Name!TCashFlowItem!Name] = cf.[Name],
+	[CostItem!TCostItem!RefId] = j.CostItem, [RespCenter!TRespCenter!RefId] = j.RespCenter,
+	[Company!TCompany!RefId] = j.Company,
+	[!TenantId] = j.TenantId, [!Document] = j.Document, [!DtCt] = j.DtCt, [!TrNo] = j.TrNo, [!RowNo] = j.RowNo
+from jrn.Journal j 
+	inner join acc.Accounts a on j.TenantId = a.TenantId and j.Account = a.Id
+	left join doc.Contracts c on j.TenantId = c.TenantId and j.[Contract] = c.Id and a.IsContract = 1
+	left join cat.CashAccounts ca on j.TenantId = ca.TenantId and j.CashAccount = ca.Id and (a.IsCash = 1 or a.IsBankAccount = 1)
+	left join cat.CashFlowItems cf on j.TenantId = cf.TenantId and j.CashFlowItem = cf.Id  and (a.IsCash = 1 or a.IsBankAccount = 1)
+go
 ------------------------------------------------
 create or alter procedure doc.[Document.Transactions.Load]
 @TenantId int = 1,
@@ -34,6 +57,9 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
+	declare @refs table(comp bigint, item bigint, respcenter bigint, costitem bigint, 
+		account bigint, wh bigint, agent bigint, [contract] bigint, cashacc bigint);
 
 	select [Transactions!TTrans!Array] = null,
 		[Id!!Id] = TrNo, [Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
@@ -53,5 +79,46 @@ begin
 	from doc.[view.Document.Transactions]
 	where [!TenantId] = @TenantId and [!Document] = @Id and [!DtCt] = -1
 	order by [!RowNo];
+
+	-- store
+	select [StoreTrans!TStoreTrans!Array] = null, [Id!!Id] = Id, Dir, Qty, [Sum],
+		[Company!TCompany!RefId] = Company, [Item!TItem!RefId] = Item, [Warehouse!TWarehouse!RefId] = Warehouse,
+		[CostItem!TCostItem!RefId] = CostItem, [RespCenter!TRespCenter!RefId] = RespCenter,
+		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract]
+	from jrn.StockJournal
+	where TenantId = @TenantId and [Document] = @Id
+	order by Dir;
+
+	-- maps
+	insert into @refs(comp, item, costitem, respcenter, agent, wh, [contract], cashacc)
+	select Company, Item, CostItem, RespCenter, Agent, Warehouse, [Contract], CashAccount
+	from jrn.Journal
+	where TenantId = @TenantId and Document = @Id;
+
+	insert into @refs(comp, item, costitem, respcenter, wh, agent, [contract])
+	select Company, Item, CostItem, RespCenter, Warehouse, Agent, [Contract]
+	from jrn.StockJournal
+	where TenantId = @TenantId and Document = @Id;
+	
+
+	with TC as (select comp from @refs group by comp)
+	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.Companies c inner join TC t on c.TenantId = @TenantId and c.Id = t.comp;
+
+	with TW as (select wh from @refs group by wh)
+	select [!TWarehouse!Map] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name]
+	from cat.Warehouses w inner join TW t on w.TenantId = @TenantId and w.Id = t.wh;
+
+	with TI as (select item from @refs group by item)
+	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name]
+	from cat.Items i inner join TI t on i.TenantId = @TenantId and i.Id = t.item;
+
+	with TR as (select respcenter from @refs group by respcenter)
+	select [!TRespCenter!Map] = null, [Id!!Id] = r.Id, [Name!!Name] = r.[Name]
+	from cat.RespCenters r inner join TR t on r.TenantId = @TenantId and r.Id = t.respcenter;
+
+	with TA as (select agent from @refs group by agent)
+	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from cat.Agents a inner join TA t on a.TenantId = @TenantId and a.Id = t.agent;
 end
 go

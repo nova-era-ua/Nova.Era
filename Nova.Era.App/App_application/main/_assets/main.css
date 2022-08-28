@@ -84,6 +84,9 @@ li.line-top:before {
 .inner-grid .cw {
   overflow: hidden;
 }
+table.fixed-layout {
+  table-layout: fixed;
+}
 .control-group .input-group.static > span {
   overflow: hidden;
   text-overflow: ellipsis;
