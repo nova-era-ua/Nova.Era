@@ -52,11 +52,6 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc'
 		constraint DF_Autonum_Uid default(newid()) with values;
 go
 ------------------------------------------------
-drop sequence if exists doc.SQ_OpJournalStore;
-drop table if exists doc.OpJournalStore;
-drop type if exists doc.[OpJournalStore.TableType];
-go
-------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal' and COLUMN_NAME=N'CostItem')
 begin
 	alter table jrn.StockJournal add CostItem bigint;

@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 28.08.2022 07:03:17
+generated: 28.08.2022 10:46:43
 */
 
 
@@ -4134,24 +4134,25 @@ create table doc.OperationLinks
 );
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpJournalStore')
-	create sequence doc.SQ_OpJournalStore as bigint start with 100 increment by 1;
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpStore')
+	create sequence doc.SQ_OpStore as bigint start with 100 increment by 1;
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpJournalStore')
-create table doc.OpJournalStore
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpStore')
+create table doc.OpStore
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_OpJournalStore_Id default(next value for doc.SQ_OpJournalStore),
+		constraint DF_OpStore_Id default(next value for doc.SQ_OpStore),
 	Operation bigint not null,
+	RowNo int,
 	RowKind nvarchar(16) not null,
 	IsIn bit not null,
 	IsOut bit not null,
 	Factor smallint -- 1 normal, -1 storno
-		constraint CK_OpJournalStore_Factor check (Factor in (1, -1)),
-	constraint PK_OpJournalStore primary key (TenantId, Id, Operation),
-	constraint FK_OpJournalStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+		constraint CK_OpStore_Factor check (Factor in (1, -1)),
+	constraint PK_OpStore primary key (TenantId, Id, Operation),
+	constraint FK_OpStore_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4403,6 +4404,8 @@ create table jrn.StockJournal
 	Document bigint,
 	Detail bigint,
 	Company bigint null,
+	Agent bigint null,
+	[Contract] bigint null,
 	Warehouse bigint null,
 	Item bigint null,
 	Dir smallint not null,
@@ -4410,11 +4413,17 @@ create table jrn.StockJournal
 		constraint DF_StockJournal_Qty default(0),
 	[Sum] money not null
 		constraint DF_StockJournal_Sum default(0),
-	constraint PK_StockJournal primary key (TenantId, Id),
-	constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
-	constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
-	constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
-	constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id)
+	CostItem bigint,
+	RespCenter bigint,
+		constraint PK_StockJournal primary key (TenantId, Id),
+		constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+		constraint FK_StockJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_StockJournal_Warehouse_Warehouses foreign key (TenantId, Warehouse) references cat.Warehouses(TenantId, Id),
+		constraint FK_StockJournal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
+		constraint FK_StockJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
+		constraint FK_StockJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+		constraint FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4629,6 +4638,37 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc'
 	alter table doc.Autonums add [Uid] uniqueidentifier not null
 		constraint DF_Autonum_Uid default(newid()) with values;
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal' and COLUMN_NAME=N'CostItem')
+begin
+	alter table jrn.StockJournal add CostItem bigint;
+	alter table jrn.StockJournal add RespCenter bigint;
+end
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE where TABLE_SCHEMA = N'jrn' and TABLE_NAME = N'StockJournal' and CONSTRAINT_NAME = N'FK_StockJournal_CostItem_CostItems')
+begin
+	alter table jrn.StockJournal add constraint FK_StockJournal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id);
+	alter table jrn.StockJournal add constraint FK_StockJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id);
+end
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal' and COLUMN_NAME=N'Agent')
+begin
+	alter table jrn.StockJournal add Agent bigint null;
+	alter table jrn.StockJournal add [Contract] bigint null;
+end
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE where TABLE_SCHEMA = N'jrn' and TABLE_NAME = N'StockJournal' and CONSTRAINT_NAME = N'FK_StockJournal_Agent_Agents')
+begin
+	alter table jrn.StockJournal add constraint 
+		FK_StockJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id);
+	alter table jrn.StockJournal add constraint 
+		FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id);
+end
+go
+
 
 /*
 common
@@ -10167,7 +10207,6 @@ go
 -------------------------------------------------
 create or alter procedure doc.[Operation.Plain.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint = null
 as
@@ -10190,7 +10229,6 @@ go
 -------------------------------------------------
 create or alter procedure doc.[Operation.Index]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint
 as
 begin
@@ -10212,7 +10250,6 @@ go
 -------------------------------------------------
 create or alter procedure doc.[Operation.Load]
 @TenantId int = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Id bigint = null
 as
@@ -10225,7 +10262,7 @@ begin
 		o.DocumentUrl, [Form!TForm!RefId] = o.Form, [Autonum!TAutonum!RefId] = o.Autonum,
 		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
-		[Trans!TOpTrans!Array] = null
+		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null
 	from doc.Operations o
 	where o.TenantId = @TenantId and o.Id=@Id;
 
@@ -10245,7 +10282,15 @@ begin
 		[DtAccKind!TAccKind!RefId] = ot.DtAccKind, [CtAccKind!TAccKind!RefId] = ot.CtAccKind
 	from doc.OpTrans ot 
 	where ot.TenantId = @TenantId and ot.Operation = @Id
-	order by ot.Id;
+	order by ot.RowNo;
+
+	-- STORE TRANSACTIONS
+	select [!TOpStore!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
+		os.IsIn, os.IsOut, IsStorno = cast(case when os.Factor = -1 then 1 else 0 end as bit), 
+		[!TOperation.Store!ParentId] = os.Operation
+	from doc.OpStore os
+	where os.TenantId = @TenantId and os.Operation = @Id
+	order by os.RowNo;
 
 	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, [Type], [Category],
 		[Operation.Id!TOper!Id] = o.Id, [Operation.Name!TOper!Name] = o.[Name],
@@ -10301,7 +10346,7 @@ go
 drop procedure if exists doc.[Operation.Metadata];
 drop procedure if exists doc.[Operation.Update];
 drop type if exists doc.[Operation.TableType];
-drop type if exists doc.[OpJournalStore.TableType];
+drop type if exists doc.[OpStore.TableType];
 drop type if exists doc.[OpTrans.TableType];
 drop type if exists doc.[OpMenu.TableType]
 drop type if exists doc.[OpPrintForm.TableType]
@@ -10343,9 +10388,10 @@ as table(
 )
 go
 -------------------------------------------------
-create type doc.[OpJournalStore.TableType]
+create type doc.[OpStore.TableType]
 as table(
 	Id bigint,
+	RowNo int,
 	RowKind nvarchar(8),
 	IsIn bit,
 	IsOut bit,
@@ -10378,13 +10424,13 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	declare @Operation doc.[Operation.TableType];
-	declare @JournalStore doc.[OpJournalStore.TableType];
+	declare @OpStore doc.[OpStore.TableType];
 	declare @OpTrans doc.[OpTrans.TableType];
 	declare @OpMenu doc.[OpMenu.TableType];
 	declare @OpPrintForm doc.[OpPrintForm.TableType];
 	declare @OpLinks doc.[OpLink.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
-	select [JournalStore!Operation.JournalStore!Metadata] = null, * from @JournalStore;
+	select [Store!Operation.Store!Metadata] = null, * from @OpStore;
 	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 	select [Menu!Menu!Metadata] = null, * from @OpMenu;
 	select [PrintForms!PrintForms!Metadata] = null, * from @OpPrintForm;
@@ -10394,10 +10440,9 @@ go
 ------------------------------------------------
 create or alter procedure doc.[Operation.Update]
 @TenantId bigint = 1,
-@CompanyId bigint = 0,
 @UserId bigint,
 @Operation doc.[Operation.TableType] readonly,
-@JournalStore doc.[OpJournalStore.TableType] readonly,
+@Store doc.[OpStore.TableType] readonly,
 @Trans doc.[OpTrans.TableType] readonly,
 @Menu doc.[OpMenu.TableType] readonly,
 @Links doc.[OpLink.TableType] readonly,
@@ -10426,18 +10471,19 @@ begin
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 
-	merge doc.OpJournalStore as t
-	using @JournalStore as s
+	merge doc.OpStore as t
+	using @Store as s
 	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
 	when matched then update set 
+		t.RowNo = s.RowNo,
 		t.RowKind = isnull(s.RowKind, N''),
 		t.IsIn = s.IsIn,
 		t.IsOut = s.IsOut,
 		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
 	when not matched by target then insert
-		(TenantId, Operation, RowKind, IsIn, IsOut, Factor) values
-		(@TenantId, @Id, isnull(RowKind, N''), s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
-	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
+		(TenantId, Operation, RowNo, RowKind, IsIn, IsOut, Factor) values
+		(@TenantId, @Id, RowNo, isnull(RowKind, N''), s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
+	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
 
 	merge doc.OpTrans as t
 	using @Trans as s
@@ -10493,8 +10539,7 @@ begin
 		(@TenantId, @Id, s.Operation, s.[Type], s.[Category])
 	when not matched by source and t.TenantId = @TenantId and t.Parent = @Id then delete;
 
-	exec doc.[Operation.Load] @TenantId = @TenantId, @CompanyId = @CompanyId, @UserId = @UserId,
-		@Id = @Id;
+	exec doc.[Operation.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @Id;
 end
 go
 -------------------------------------------------
@@ -11676,28 +11721,25 @@ begin
 	set nocount on;
 
 	declare @journal table(
-		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint,
-		Item bigint, Qty float, [Sum] money, Kind nchar(4)
+		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint, Agent bigint, [Contract] bigint,
+		Item bigint, Qty float, [Sum] money, Kind nvarchar(16), CostItem bigint, RespCenter bigint
 	);
-	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind)
-	select d.Id, dd.Id, d.Company, d.WhFrom, d.WhTo, dd.Item, dd.Qty, dd.[Sum], isnull(dd.Kind, N'')
+	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind, CostItem, RespCenter, Agent, [Contract])
+	select d.Id, dd.Id, d.Company, d.WhFrom, d.WhTo, dd.Item, dd.Qty, dd.[Sum], isnull(dd.Kind, N''),
+		CostItem = isnull(dd.CostItem, d.CostItem), RespCenter, d.Agent, d.[Contract]
 	from doc.DocDetails dd 
 		inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 	where d.TenantId = @TenantId and d.Id = @Id;
 
-	-- out
-	insert into jrn.StockJournal(TenantId, Dir, Warehouse, Document, Detail, Company, Item, Qty, [Sum])
-	select @TenantId, -1, j.WhFrom, j.Document, j.Detail, j.Company, j.Item, j.Qty, 
-		j.[Sum] * js.Factor
-	from @journal j inner join doc.OpJournalStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
-	where js.TenantId = @TenantId and js.Operation = @Operation and js.IsOut = 1;
-
-	-- in
-	insert into jrn.StockJournal(TenantId, Dir, Warehouse, Document, Detail, Company, Item, Qty, [Sum])
-	select @TenantId, 1, j.WhTo, j.Document, j.Detail, j.Company, j.Item, j.Qty, 
-		j.[Sum] * js.Factor
-	from @journal j inner join doc.OpJournalStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
-	where js.TenantId = @TenantId and js.Operation = @Operation and js.IsIn = 1;
+	-- in/out
+	insert into jrn.StockJournal(TenantId, Dir, 
+		Warehouse, Document, Detail, Company, Item, Qty, [Sum], CostItem, 
+		RespCenter, Agent, [Contract])
+	select @TenantId, Dir = case when js.IsOut = 1 then -1 when js.IsIn = 1 then 1 end, 
+		j.WhFrom, j.Document, j.Detail, j.Company, j.Item, j.Qty * js.Factor, 
+		j.[Sum] * js.Factor, j.CostItem, j.RespCenter, j.Agent, j.[Contract]
+	from @journal j inner join doc.OpStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
+	where js.TenantId = @TenantId and js.Operation = @Operation and (js.IsOut = 1 or js.IsIn = 1);
 end
 go
 ------------------------------------------------
@@ -11808,22 +11850,18 @@ begin
 	declare @pay bit;   -- pay journal
 	declare @acc bit;   -- acc journal
 
-	/*
-	if exists(select * from doc.OpJournalStore 
+	if exists(select * from doc.OpStore 
 			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
 		set @stock = 1;
-	*/
 	if exists(select * from doc.OpTrans 
 			where TenantId = @TenantId and Operation = @operation)
 		set @acc = 1;
 
 	begin tran;
 		exec doc.[Document.Apply.CheckRems] @TenantId= @TenantId, @Id=@Id, @CheckRems = @CheckRems;
-		/*
 		if @stock = 1
 			exec doc.[Document.Apply.Stock] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;
-		*/
 		if @acc = 1
 			exec doc.[Document.Apply.Account] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;
@@ -11838,6 +11876,8 @@ go
 
 /* Document.Dialogs */
 ------------------------------------------------
+/*
+здесь было с УЧЕТОМ аналитики по счетам!
 create or alter view doc.[view.Document.Transactions]
 as
 select [!TTransPart!Array] = null, [Id!!Id] = j.Id,
@@ -11863,6 +11903,27 @@ from jrn.Journal j
 	left join cat.CostItems ci on j.TenantId = ci.TenantId and j.CostItem = ci.Id and a.IsCostItem = 1
 	left join cat.RespCenters rc on j.TenantId = rc.TenantId and j.RespCenter = rc.Id and a.IsRespCenter = 1
 go
+*/
+
+create or alter view doc.[view.Document.Transactions]
+as
+select [!TTransPart!Array] = null, [Id!!Id] = j.Id,
+	[Account.Code!TAccount!] = a.Code, j.[Sum], j.Qty,
+	[Item!TItem!RefId] = j.Item, [Warehouse!TWarehouse!RefId] = j.Warehouse,
+	[Agent!TAgent!RefId] = j.Agent,
+	[CashAcc.Id!TCashAcc!Id] = ca.Id, [CashAcc.Name!TCashAcc] = ca.[Name], 
+	[CashAcc.No!TCashAcc!] = ca.AccountNo, [CashAcc.IsCash!TCashAcc!] = ca.IsCashAccount,
+	[Contract.Id!TContract!Id] = c.Id, [Contract.Name!TContract!Name] = c.[Name],
+	[CashFlowItem.Id!TCashFlowItem!Id] = cf.Id, [CashFlowItem.Name!TCashFlowItem!Name] = cf.[Name],
+	[CostItem!TCostItem!RefId] = j.CostItem, [RespCenter!TRespCenter!RefId] = j.RespCenter,
+	[Company!TCompany!RefId] = j.Company,
+	[!TenantId] = j.TenantId, [!Document] = j.Document, [!DtCt] = j.DtCt, [!TrNo] = j.TrNo, [!RowNo] = j.RowNo
+from jrn.Journal j 
+	inner join acc.Accounts a on j.TenantId = a.TenantId and j.Account = a.Id
+	left join doc.Contracts c on j.TenantId = c.TenantId and j.[Contract] = c.Id and a.IsContract = 1
+	left join cat.CashAccounts ca on j.TenantId = ca.TenantId and j.CashAccount = ca.Id and (a.IsCash = 1 or a.IsBankAccount = 1)
+	left join cat.CashFlowItems cf on j.TenantId = cf.TenantId and j.CashFlowItem = cf.Id  and (a.IsCash = 1 or a.IsBankAccount = 1)
+go
 ------------------------------------------------
 create or alter procedure doc.[Document.Transactions.Load]
 @TenantId int = 1,
@@ -11872,6 +11933,9 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
+
+	declare @refs table(comp bigint, item bigint, respcenter bigint, costitem bigint, 
+		account bigint, wh bigint, agent bigint, [contract] bigint, cashacc bigint);
 
 	select [Transactions!TTrans!Array] = null,
 		[Id!!Id] = TrNo, [Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
@@ -11891,6 +11955,47 @@ begin
 	from doc.[view.Document.Transactions]
 	where [!TenantId] = @TenantId and [!Document] = @Id and [!DtCt] = -1
 	order by [!RowNo];
+
+	-- store
+	select [StoreTrans!TStoreTrans!Array] = null, [Id!!Id] = Id, Dir, Qty, [Sum],
+		[Company!TCompany!RefId] = Company, [Item!TItem!RefId] = Item, [Warehouse!TWarehouse!RefId] = Warehouse,
+		[CostItem!TCostItem!RefId] = CostItem, [RespCenter!TRespCenter!RefId] = RespCenter,
+		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract]
+	from jrn.StockJournal
+	where TenantId = @TenantId and [Document] = @Id
+	order by Dir;
+
+	-- maps
+	insert into @refs(comp, item, costitem, respcenter, agent, wh, [contract], cashacc)
+	select Company, Item, CostItem, RespCenter, Agent, Warehouse, [Contract], CashAccount
+	from jrn.Journal
+	where TenantId = @TenantId and Document = @Id;
+
+	insert into @refs(comp, item, costitem, respcenter, wh, agent, [contract])
+	select Company, Item, CostItem, RespCenter, Warehouse, Agent, [Contract]
+	from jrn.StockJournal
+	where TenantId = @TenantId and Document = @Id;
+	
+
+	with TC as (select comp from @refs group by comp)
+	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.Companies c inner join TC t on c.TenantId = @TenantId and c.Id = t.comp;
+
+	with TW as (select wh from @refs group by wh)
+	select [!TWarehouse!Map] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name]
+	from cat.Warehouses w inner join TW t on w.TenantId = @TenantId and w.Id = t.wh;
+
+	with TI as (select item from @refs group by item)
+	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name]
+	from cat.Items i inner join TI t on i.TenantId = @TenantId and i.Id = t.item;
+
+	with TR as (select respcenter from @refs group by respcenter)
+	select [!TRespCenter!Map] = null, [Id!!Id] = r.Id, [Name!!Name] = r.[Name]
+	from cat.RespCenters r inner join TR t on r.TenantId = @TenantId and r.Id = t.respcenter;
+
+	with TA as (select agent from @refs group by agent)
+	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from cat.Agents a inner join TA t on a.TenantId = @TenantId and a.Id = t.agent;
 end
 go
 
@@ -14212,5 +14317,15 @@ exec ini.[Forms.OnCreateTenant] @TenantId = 1;
 exec ini.[Rep.OnCreateTenant] @TenantId = 1;
 go
 
+
+
+/*
+flush
+*/
+------------------------------------------------
+drop table if exists doc.OpJournalStore;
+drop type if exists doc.[OpJournalStore.TableType];
+drop sequence if exists doc.SQ_OpJournalStore;
+go
 
 
