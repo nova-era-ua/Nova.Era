@@ -8,11 +8,12 @@
 		</CollectionView.Filter>
 		<Grid Rows="Auto,1*" Columns="1*" Height="100%" Padding="0" Gap="6" AlignItems="Top">
 			<Toolbar Grid.Row="1" Style="Light" Padding="0">
-				<Selector Value="{Bind Parent.Filter.Company}" DisplayProperty="Name" Width="15rem">
-					<Selector.AddOns>
-						<Hyperlink Icon="Search" 
-								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-					</Selector.AddOns>
+				<Selector Value="{Bind Parent.Filter.Company}" Placeholder="@[Placeholder.AllCompanies]"
+						  DisplayProperty="Name" Width="15rem" Fetch="/catalog/company/fetch">
+					<Hyperlink Icon="Search"
+						Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+					<Hyperlink Content="✕" If="{Bind Parent.Filter.Company.Id}"
+								   Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
 				</Selector>
 				<PeriodPicker ShowAllData="False"
 							  Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
@@ -22,7 +23,7 @@
 				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel, FileName={Bind Report.Name}}" />
 			</Toolbar>
 			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
-				<Sheet GridLines="Both" Wrap="NoWrap">
+				<Sheet GridLines="Both" Wrap="NoWrap" Width="1">
 					<Sheet.Columns>
 						<SheetColumn Width="16px"/>
 						<SheetColumn Width="60px"/>
@@ -67,8 +68,8 @@
 					-->
 					<SheetSection>
 						<SheetRow Style="Header">
-							<SheetCell RowSpan="2"/>
-							<SheetCell ColSpan="2" RowSpan="2" VAlign="Middle" Wrap="PreWrap">@[Agent]\n@[Contract]</SheetCell>
+							<SheetCell RowSpan="2" MinWidth="16px"/>
+							<SheetCell ColSpan="2" RowSpan="2" VAlign="Middle" Wrap="PreWrap" MinWidth="25rem">@[Agent]\n@[Contract]</SheetCell>
 							<SheetCell ColSpan="2" VAlign="Middle" Wrap="NoWrap">На початок</SheetCell>
 							<SheetCell ColSpan="{Bind RepData.Items.$DtColSpan}">@[TurnDebit]</SheetCell>
 							<SheetCell ColSpan="{Bind RepData.Items.$CtColSpan}">@[TurnCredit]</SheetCell>

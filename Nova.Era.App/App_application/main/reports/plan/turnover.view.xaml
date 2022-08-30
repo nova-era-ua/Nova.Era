@@ -9,13 +9,11 @@
 		<Grid Rows="Auto,1*" Columns="1*" Height="100%" Padding="0" Gap="6" AlignItems="Top">
 			<Toolbar Grid.Row="1" Style="Light" Padding="0">
 				<Selector Value="{Bind Parent.Filter.Company}" Placeholder="@[Placeholder.AllCompanies]"
-						  DisplayProperty="Name" Width="15rem">
-					<Selector.AddOns>
-						<Hyperlink Icon="Search" 
-								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-						<Hyperlink Icon="Clear" If="{Bind Parent.Filter.Company.Id}"
-								   Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter}}"/>
-					</Selector.AddOns>
+						  DisplayProperty="Name" Width="15rem" Fetch="/catalog/company/fetch">
+					<Hyperlink Icon="Search" 
+							Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+					<Hyperlink Content="✕" If="{Bind Parent.Filter.Company.Id}"
+								Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
 				</Selector>
 				<PeriodPicker ShowAllData="False"
 							  Value="{Bind Parent.Filter.Period}" Display="NameDate"/>

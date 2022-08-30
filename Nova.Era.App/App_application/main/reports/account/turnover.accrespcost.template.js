@@ -1,10 +1,12 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const utils = require("std:utils");
+    const base = require("reports/_common/simple.module");
     const template = {
         properties: {
             'TAccount.$Name'() { return `${this.Code} ${this.Name}`; },
-            'TRepData.$Name'() { return this.$level === 1 ? this.RespCenter.Name : (this.CostItem.Name || '@[NoCostItem]'); },
+            'TRepData.$Name'() { return this.$level === 1 ? (this.RespCenter.Name || '@[NoRespCenter]') : (this.CostItem.Name || '@[NoCostItem]'); },
             'TRepDataArray.$DtColSpan'() { return this.$cross.DtCross.length + 1; },
             'TRepDataArray.$CtColSpan'() { return this.$cross.CtCross.length + 1; }
         },
@@ -12,7 +14,7 @@ define(["require", "exports"], function (require, exports) {
             'Model.load': modelLoad
         }
     };
-    exports.default = template;
+    exports.default = utils.mergeTemplate(base, template);
     function calcCrossTotals(elem) {
         elem.Items.forEach(itemOut => {
             calcCrossTotals(itemOut);

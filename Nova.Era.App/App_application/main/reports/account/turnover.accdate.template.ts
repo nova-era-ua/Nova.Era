@@ -1,4 +1,7 @@
-﻿
+﻿const utils: Utils = require("std:utils");
+
+const base: Template = require("reports/_common/simple.module");
+
 const template: Template = {
 	properties: {
 		'TAccount.$Name'() { return `${this.Code} ${this.Name}`;},
@@ -9,7 +12,7 @@ const template: Template = {
 	}
 };
 
-export default template;
+export default utils.mergeTemplate(base, template);
 
 function dtTotals() {
 	return this.$cross.DtCross.map(x => {

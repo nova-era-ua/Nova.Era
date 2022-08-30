@@ -1,6 +1,8 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const utils = require("std:utils");
+    const base = require("reports/_common/simple.module");
     const template = {
         properties: {
             'TAccount.$Name'() { return `${this.Code} ${this.Name}`; },
@@ -13,7 +15,7 @@ define(["require", "exports"], function (require, exports) {
             'Model.load': modelLoad
         }
     };
-    exports.default = template;
+    exports.default = utils.mergeTemplate(base, template);
     function modelLoad() {
         var calcSaldo = (v) => {
             this.RepData[v] = this.RepData.Items.reduce((p, c) => p + c[v], 0);

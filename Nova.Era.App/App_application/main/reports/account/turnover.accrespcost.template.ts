@@ -1,8 +1,11 @@
-﻿
+﻿const utils: Utils = require("std:utils");
+
+const base: Template = require("reports/_common/simple.module");
+
 const template: Template = {
 	properties: {
 		'TAccount.$Name'() { return `${this.Code} ${this.Name}`; },
-		'TRepData.$Name'() { return this.$level === 1 ? this.RespCenter.Name : (this.CostItem.Name || '@[NoCostItem]'); },
+		'TRepData.$Name'() { return this.$level === 1 ? (this.RespCenter.Name || '@[NoRespCenter]') : (this.CostItem.Name || '@[NoCostItem]'); },
 		'TRepDataArray.$DtColSpan'() { return this.$cross.DtCross.length + 1; },
 		'TRepDataArray.$CtColSpan'() { return this.$cross.CtCross.length + 1; }
 	},
@@ -11,7 +14,7 @@ const template: Template = {
 	}
 };
 
-export default template;
+export default utils.mergeTemplate(base, template);
 
 function calcCrossTotals(elem) {
 	elem.Items.forEach(itemOut => {

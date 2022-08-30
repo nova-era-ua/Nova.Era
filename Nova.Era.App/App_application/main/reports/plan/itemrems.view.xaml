@@ -8,11 +8,12 @@
 		</CollectionView.Filter>
 		<Grid Rows="Auto,1*" Columns="1*" Height="100%" Padding="0" Gap="6" AlignItems="Top">
 			<Toolbar Grid.Row="1" Style="Light" Padding="0">
-				<Selector Value="{Bind Parent.Filter.Company}" DisplayProperty="Name" Width="15rem">
+				<Selector Value="{Bind Parent.Filter.Company}" Placeholder="@[Placeholder.AllCompanies]"
+						  DisplayProperty="Name" Width="15rem" Fetch="/catalog/company/fetch">
 					<Hyperlink Icon="Search" 
 							Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-					<Hyperlink Icon="Clear" If="{Bind Parent.Filter.Company.Id}"
-								   Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter}}"/>
+					<Hyperlink Content="✕" If="{Bind Parent.Filter.Company.Id}"
+								Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
 				</Selector>
 				<DatePicker Value="{Bind Parent.Filter.Date}" />
 				<Button Icon="Reload" Command="{BindCmd Reload}" />

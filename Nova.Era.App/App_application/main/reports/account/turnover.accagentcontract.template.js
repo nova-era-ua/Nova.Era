@@ -1,7 +1,9 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const du = require('std:utils').date;
+    const base = require("reports/_common/simple.module");
+    const utils = require("std:utils");
+    const du = utils.date;
     const template = {
         properties: {
             'TAccount.$Name'() { return `${this.Code} ${this.Name}`; },
@@ -14,7 +16,7 @@ define(["require", "exports"], function (require, exports) {
             'Model.load': modelLoad
         }
     };
-    exports.default = template;
+    exports.default = utils.mergeTemplate(base, template);
     function calcCrossTotals(elem) {
         elem.Items.forEach(itemOut => {
             calcCrossTotals(itemOut);

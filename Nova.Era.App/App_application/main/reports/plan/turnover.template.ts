@@ -1,4 +1,7 @@
-﻿
+﻿const base: Template = require("reports/_common/simple.module");
+
+const utils: Utils = require("std:utils");
+
 const template: Template = {
 	properties: {
 		'TAccount.$Name'() { return `${this.Code} ${this.Name}`;},
@@ -6,21 +9,13 @@ const template: Template = {
 		'TRepData.$CtStart': total('CtStart'),
 		'TRepData.$DtEnd': total('DtEnd'),
 		'TRepData.$CtEnd': total('CtEnd')
-	},
-	commands: {
-		clearFilter
 	}
 };
 
-export default template;
+export default utils.mergeTemplate(base, template);
 
 function total(prop) {
 	return function () {
 		return this.Items.reduce((p, c) => p + c[prop], 0);
 	};
-}
-
-function clearFilter(filter) {
-	filter.Company.Id = -1;
-	filter.Company.Name = '';
 }

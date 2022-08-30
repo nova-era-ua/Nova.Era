@@ -175,6 +175,8 @@
 @Color=Колір
 @Number=Номер
 @NoContract=<Без договору>
+@NoRespCenter=<Не вказано центр відповідальності>
+@NoCostItem=<Не вказано статтю витрат>
 ;
 @Filter.AllOperations=<Всі операції>
 ;

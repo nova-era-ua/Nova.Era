@@ -17,6 +17,8 @@ begin
 
 	select @Company = isnull(@Company, Company)
 	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
+
 
 	declare @acc bigint;
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
@@ -28,7 +30,9 @@ begin
 		DtSum = case when j.[Date] >= @From then _SumDt else 0 end,
 		CtSum = case when j.[Date] >= @From then _SumCt else 0 end
 	into #tmp
-	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
+	from jrn.Journal j where j.TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and Account = @acc
 		and [Date] < @end;
 
 	with T as (
@@ -102,19 +106,24 @@ begin
 
 	select @Company = isnull(@Company, Company)
 	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
 
 	declare @acc bigint;
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
 
 	declare @start money;
 	select @start = sum(j.[Sum] * j.DtCt)
-	from jrn.Journal j where TenantId = @TenantId and Company = @Company and Account = @acc and [Date] < @From;
+	from jrn.Journal j where TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and Account = @acc and [Date] < @From;
 	set @start = isnull(@start, 0);
 	
 	select [Date] = j.[Date], Id=cast([Date] as int), Acc = j.Account, CorrAcc = j.CorrAccount,
 		DtCt = j.DtCt, DtSum = j._SumDt, CtSum = j._SumCt
 	into #tmp
-	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
+	from jrn.Journal j where j.TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and Account = @acc
 		and [Date] >= @From and [Date] < @end;
 
 	if @@rowcount = 0
@@ -175,7 +184,7 @@ begin
 
 	select [!$System!] = null, 
 		[!RepData.Period.From!Filter] = @From, [!RepData.Period.To!Filter] = @To,
-		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
+		[!RepData.Company.Id!Filter] = @comp, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
 end
 go
 -------------------------------------------------
@@ -196,6 +205,7 @@ begin
 
 	select @Company = isnull(@Company, Company)
 	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
 
 	declare @acc bigint;
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
@@ -206,7 +216,9 @@ begin
 		DtSum = case when DtCt = 1 and j.[Date] >= @From then [Sum] else 0 end,
 		CtSum = case when DtCt = -1 and j.[Date] >= @From then [Sum] else 0 end
 	into #tmp
-	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
+	from jrn.Journal j where j.TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and Account = @acc
 		and [Date] < @end;
 
 	with T as (
@@ -292,21 +304,24 @@ begin
 
 	select @Company = isnull(@Company, Company)
 	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
 
 	declare @acc bigint;
 	select @acc = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
 
-	select [RespCenter] = j.[RespCenter], [CostItem] = isnull(j.[CostItem], 0), Acc = j.Account, CorrAcc = j.CorrAccount, j.DtCt,
+	select [RespCenter] = isnull(j.[RespCenter], 0), [CostItem] = isnull(j.[CostItem], 0), Acc = j.Account, CorrAcc = j.CorrAccount, j.DtCt,
 		DtStart = case when DtCt =  1 and j.[Date] < @From then [Sum] else 0 end,
 		CtStart = case when DtCt = -1 and j.[Date] < @From then [Sum] else 0 end,
 		DtSum = case when DtCt = 1 and j.[Date] >= @From then [Sum] else 0 end,
 		CtSum = case when DtCt = -1 and j.[Date] >= @From then [Sum] else 0 end
 	into #tmp
-	from jrn.Journal j where j.TenantId = @TenantId and Company = @Company and Account = @acc
+	from jrn.Journal j where j.TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and Account = @acc
 		and [Date] < @end;
 
 	with T as (
-		select [RespCenter], [CostItem],
+		select [RespCenter] = isnull(RespCenter, 0), [CostItem],
 			DtStart = rep.fn_FoldSaldo(1, sum(DtStart), sum(CtStart)),
 			CtStart = rep.fn_FoldSaldo(-1, sum(DtStart), sum(CtStart)),
 			DtSum = sum(DtSum),

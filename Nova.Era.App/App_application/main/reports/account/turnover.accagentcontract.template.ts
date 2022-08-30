@@ -1,5 +1,8 @@
 ﻿
-const du: UtilsDate = require('std:utils').date;
+const base: Template = require("reports/_common/simple.module");
+
+const utils: Utils = require("std:utils");
+const du: UtilsDate = utils.date;
 
 const template: Template = {
 	properties: {
@@ -14,7 +17,7 @@ const template: Template = {
 	}
 };
 
-export default template;
+export default utils.mergeTemplate(base, template);
 
 function calcCrossTotals(elem) {
 	elem.Items.forEach(itemOut => {
