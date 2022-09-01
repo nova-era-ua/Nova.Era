@@ -58,7 +58,30 @@ begin
 	where d.Id = @Id and d.TenantId = @TenantId
 	group by w.Id, w.[Name];
 
-	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
+	with TA as (
+		select Agent from doc.Documents d where d.TenantId = @TenantId and d.Id = @Id
+		union all
+		select c.Agent from doc.Documents d inner join doc.Contracts c on c.TenantId = d.TenantId and c.Id = d.[Contract]
+		where d.TenantId = @TenantId and d.Id = @Id
+	)
+	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from cat.Agents a
+	where a.TenantId = @TenantId and a.Id in (select Agent from TA);
+
+	with CA as(
+		select Company from doc.Documents d where d.TenantId = @TenantId and d.Id = @Id
+		union all
+		select c.Company from doc.Documents d inner join doc.Contracts c on c.TenantId = d.TenantId and c.Id = d.[Contract]
+		where d.TenantId = @TenantId and d.Id = @Id
+	)
+	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name],
+		[Logo.Stream!TImage!] = lb.[Stream], [Logo.Mime!TImage!] = lb.Mime
+	from cat.Companies c 
+		inner join doc.Documents d on d.TenantId = c.TenantId and d.Company = c.Id
+		left join app.Blobs lb on lb.TenantId = c.TenantId and c.Logo = lb.Id
+	where c.TenantId = @TenantId and d.Id = @Id;
+
+	--exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
 
 	with T as (select item from @rows group by item)
 	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article, Barcode
