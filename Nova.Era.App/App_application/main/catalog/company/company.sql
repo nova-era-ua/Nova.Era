@@ -24,10 +24,51 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
-		AutonumPrefix
+	select [Company!TCompany!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], Memo,
+		AutonumPrefix,
+		[Logo.Id!TImage!Id] = c.Logo, [Logo.Token!TImage!Token] = lb.AccessToken
 	from cat.Companies c
+		left join app.Blobs lb on c.TenantId = lb.TenantId and c.Logo = lb.Id
 	where c.TenantId = @TenantId and c.Id = @Id;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Company.Logo.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Key nvarchar(255),
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	set @TenantId = isnull(@TenantId, 1); -- required for image
+
+	select Mime, [Stream], [Name], [Token] = AccessToken
+	from app.Blobs where TenantId = @TenantId and Id = @Id;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Company.Logo.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Name nvarchar(255), 
+@Mime nvarchar(255),
+@Stream varbinary(max),
+@BlobName nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	set @TenantId = isnull(@TenantId, 1); -- required for image
+
+	declare @rtable table(id bigint, token uniqueidentifier);
+	insert into app.Blobs(TenantId, [Name], Mime, [Stream], BlobName)
+		output inserted.Id, inserted.AccessToken into @rtable(id, token)
+	values (@TenantId, @Name, @Mime, @Stream, @BlobName);
+
+	select Id = id, Token = token from @rtable;
 end
 go
 -------------------------------------------------
@@ -42,7 +83,8 @@ as table(
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
-	AutonumPrefix nvarchar(8)
+	AutonumPrefix nvarchar(8),
+	Logo bigint
 )
 go
 ------------------------------------------------
@@ -75,10 +117,11 @@ begin
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
 		t.[FullName] = s.[FullName],
-		t.AutonumPrefix = s.AutonumPrefix
+		t.AutonumPrefix = s.AutonumPrefix,
+		t.Logo = s.Logo
 	when not matched by target then insert
-		(TenantId, [Name], FullName, Memo, AutonumPrefix) values
-		(@TenantId, s.[Name], s.FullName, s.Memo, s.AutonumPrefix)
+		(TenantId, [Name], FullName, Memo, AutonumPrefix, Logo) values
+		(@TenantId, s.[Name], s.FullName, s.Memo, s.AutonumPrefix, Logo)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 	exec cat.[Company.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;

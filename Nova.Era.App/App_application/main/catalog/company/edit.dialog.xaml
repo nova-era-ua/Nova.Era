@@ -1,15 +1,36 @@
 ﻿<!-- Edit Company -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="{Bind Company.$Id, Format='@[Properties] [{0}]'}" Overflow="True">
+		Title="{Bind Company.$Id, Format='@[Properties] [{0}]'}" Overflow="True"
+		Padding="1rem">
 	<Dialog.Buttons>
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid>
+	<Grid Padding="0">
 		<TextBox Label="@[Name]" Value="{Bind Company.Name}" Bold="True" TabIndex="1"/>
-		<TextBox Label="@[Memo]" Value="{Bind Company.Memo}" Multiline="True"/>
-
-		<TextBox Label="@[Autonum.Code]" Value="{Bind Company.AutonumPrefix}" Width="15rem"/>
 	</Grid>
+	<TabBar Value="{Bind Root.$$Tab}">
+		<TabButton Content="Реєстрація та коди" ActiveValue=""/>
+		<TabButton Content="Логотип" ActiveValue="logo"/>
+		<TabButton Content="Налаштування" ActiveValue="settings"/>
+	</TabBar>
+	<Switch Expression="{Bind Root.$$Tab}">
+		<Case Value="">
+			<Grid Height="20rem">
+				
+			</Grid>
+		</Case>
+		<Case Value="logo">
+			<Block Height="20rem">
+				<Image Source="{Bind Company.Logo}" Base="/catalog/company" Height="20rem"/>
+			</Block>
+		</Case>
+		<Case Value="settings">
+			<Grid Padding="0" Height="20rem" AlignItems="Top">
+				<TextBox Label="@[Autonum.Code]" Value="{Bind Company.AutonumPrefix}" Width="15rem"/>
+			</Grid>
+		</Case>
+	</Switch>
+	<TextBox Label="@[Memo]" Value="{Bind Company.Memo}" Multiline="True"/>
 </Dialog>
 

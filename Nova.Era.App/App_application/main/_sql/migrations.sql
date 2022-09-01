@@ -82,3 +82,13 @@ begin
 end
 go
 
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Companies' and COLUMN_NAME=N'Logo')
+	alter table cat.Companies add Logo bigint null
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE where TABLE_SCHEMA = N'cat' and TABLE_NAME = N'Companies' and CONSTRAINT_NAME = N'FK_Companies_Logo_Blobs')
+	alter table cat.Companies add constraint 
+		FK_Companies_Logo_Blobs foreign key (TenantId, Logo) references app.Blobs(TenantId, Id);
+go
+

@@ -51,6 +51,26 @@ grant execute on schema::ui to public;
 grant execute on schema::app to public;
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Blobs')
+	create sequence rep.SQ_Blobs as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Blobs')
+create table app.Blobs
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Blobs_Id default(next value for rep.SQ_Blobs),
+	[Stream] varbinary(max),
+	[Name] nvarchar(255),
+	[Mime] nvarchar(255),
+	BlobName nvarchar(255),
+	AccessToken uniqueidentifier
+		constraint DF_Blobs_AccessToken default (newid()),
+	constraint PK_Blobs primary key (TenantId, Id),
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Units')
 	create sequence cat.SQ_Units as bigint start with 100 increment by 1;
 go
@@ -437,8 +457,10 @@ create table cat.Companies
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
+	Logo bigint null,
 	[AutonumPrefix] nvarchar(8),
-		constraint PK_Companies primary key (TenantId, Id)
+		constraint PK_Companies primary key (TenantId, Id),
+		constraint FK_Companies_Logo_Blobs foreign key (TenantId, Logo) references app.Blobs(TenantId, Id)
 );
 go
 ------------------------------------------------
