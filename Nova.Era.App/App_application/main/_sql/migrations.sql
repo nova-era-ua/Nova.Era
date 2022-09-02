@@ -91,4 +91,24 @@ if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE where TAB
 	alter table cat.Companies add constraint 
 		FK_Companies_Logo_Blobs foreign key (TenantId, Logo) references app.Blobs(TenantId, Id);
 go
-
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpTrans' and COLUMN_NAME=N'Factor')
+	alter table doc.OpTrans add Factor smallint -- 1 normal, -1 storno
+		constraint CK_OpTrans_Factor check (Factor in (1, -1))
+		constraint DF_OpTrans_Factor default (1) with values;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'Journal' and COLUMN_NAME=N'Project')
+	alter table jrn.Journal	add Project bigint null,
+		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'Project')
+	alter table doc.Documents add Project bigint null,
+		constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal' and COLUMN_NAME=N'Project')
+	alter table jrn.StockJournal add Project bigint,
+		constraint FK_StockJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
+go

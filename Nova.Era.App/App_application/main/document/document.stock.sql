@@ -168,7 +168,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
 		[PriceKind!TPriceKind!RefId] = d.PriceKind, [RespCenter!TRespCenter!RefId] = d.RespCenter,
-		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole,
+		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
@@ -301,6 +301,7 @@ as table(
 	[Contract] bigint,
 	PriceKind bigint,
 	RespCenter bigint,
+	Project bigint,
 	CostItem bigint,
 	ItemRole bigint,
 	Memo nvarchar(255)
@@ -434,6 +435,7 @@ begin
 		t.[Contract] = s.[Contract],
 		t.PriceKind = s.PriceKind,
 		t.RespCenter = s.RespCenter,
+		t.Project = s.Project,
 		t.CostItem = s.CostItem,
 		t.ItemRole = s.ItemRole,
 		t.Memo = s.Memo,
@@ -441,9 +443,9 @@ begin
 		t.[No] = @no
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
-			PriceKind, RespCenter, CostItem, ItemRole, Memo, SNo, [No], UserCreated) values
+			PriceKind, RespCenter, Project, CostItem, ItemRole, Memo, SNo, [No], UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
-			s.PriceKind, s.RespCenter, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, @UserId)
+			s.PriceKind, s.RespCenter, s.Project, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

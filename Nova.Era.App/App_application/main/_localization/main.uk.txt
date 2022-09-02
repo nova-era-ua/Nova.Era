@@ -29,6 +29,7 @@
 @Other=Інше
 @AccPolicy=Налаштування обліку
 @Extra=Додатково
+@Storno=Сторно
 @Period=Період
 @Warehouse=Склад
 @Warehouses=Склади
@@ -88,6 +89,8 @@
 @CashAccount=Каса
 @Contracts=Договори
 @Contract=Договір
+@Projects=Проекти
+@Project=Проект
 @Banks=Банки
 @Bank=Банк
 @Vendors=Виробники

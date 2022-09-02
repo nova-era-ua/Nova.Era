@@ -13,6 +13,10 @@ begin
 	from cat.RespCenters rc inner join doc.Documents d on d.TenantId = rc.TenantId and d.RespCenter = rc.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
+	select [!TProject!Map] = null, [Id!!Id] = p.Id, [Name!!Name] = p.[Name]
+	from cat.Projects p inner join doc.Documents d on d.TenantId = p.TenantId and d.Project = p.Id
+	where d.Id = @Id and d.TenantId = @TenantId;
+
 	select [!TContract!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.[SNo],
 		[PriceKind!TPriceKind!RefId] = c.PriceKind, [Company!TCompany!RefId] = c.Company, 
 		[Agent!TAgent!RefId] = c.Agent

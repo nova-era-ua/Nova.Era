@@ -1,7 +1,7 @@
 ﻿<!-- Edit Folder -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
 		Title="{Bind Operation.$Title, Format='@[OperationProperties] [{0}]'}" Overflow="True"
-		Width="100rem">
+		Size="Max">
 	<Dialog.Buttons>
 		<Button Content="@[SaveAndClose]" 
 				Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
@@ -56,7 +56,7 @@
 								<TableCell Content="Блок рядків"/>
 								<TableCell Content="Прибуток"/>
 								<TableCell Content="Видаток"/>
-								<TableCell Content="Сторно"/>
+								<TableCell Content="@[Storno]"/>
 							</TableRow>
 						</Table.Header>
 						<TableRow VAlign="Middle">
@@ -82,13 +82,14 @@
 						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Trans}}"/>
 					</Toolbar>
 					<Table ItemsSource="{Bind Operation.Trans}"
-						   Columns="1rem,9rem,  7rem,11rem,10rem,10rem,  7rem,11rem,10rem,10rem, Fit" CellSpacing="Medium">
+						   Columns="1rem,9rem,  7rem,11rem,10rem,10rem,  7rem,11rem,10rem,10rem, 3rem, Fit" CellSpacing="Medium">
 						<Table.Header>
 							<TableRow>
 								<TableCell Content="@[AccountPlan]" Wrap="NoWrap" RowSpan="2"/>
 								<TableCell Content="Блок рядків" Wrap="NoWrap" RowSpan="2"/>
 								<TableCell ColSpan="4">@[Debit]</TableCell>
 								<TableCell ColSpan="4">@[Credit]</TableCell>
+								<TableCell RowSpan="2">@[Storno]</TableCell>
 								<TableCell RowSpan="2"/>
 							</TableRow>
 							<TableRow>
@@ -175,6 +176,9 @@
 								<ComboBoxItem Content="Маржа" Value="R"/>
 							</ComboBox>
 							<!---->
+							<TableCell Align="Center">
+								<CheckBox Value="{Bind IsStorno}"/>
+							</TableCell>
 							<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
 						</TableRow>
 					</Table>
@@ -191,7 +195,7 @@
 								<TableCell>Блок рядків</TableCell>
 								<TableCell>Прибуток</TableCell>
 								<TableCell>Видаток</TableCell>
-								<TableCell>Сторно</TableCell>
+								<TableCell>@[Storno]</TableCell>
 								<TableCell></TableCell>
 							</TableRow>
 						</Table.Header>
@@ -220,7 +224,7 @@
 							<TableRow>
 								<TableCell>Прибуток</TableCell>
 								<TableCell>Видаток</TableCell>
-								<TableCell>Сторно</TableCell>
+								<TableCell>@[Storno]</TableCell>
 							</TableRow>
 						</Table.Header>
 						<TableRow>

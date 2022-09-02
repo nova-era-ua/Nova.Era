@@ -18,7 +18,7 @@ begin
 	declare @trans table(TrNo int, RowNo int, DtCt smallint, Acc bigint, CorrAcc bigint, [Plan] bigint, 
 		Detail bigint, Item bigint, RowMode nchar(1),
 		Wh bigint, CashAcc bigint, [Date] date, Agent bigint, Company bigint, CostItem bigint,
-		[Contract] bigint, CashFlowItem bigint, RespCenter bigint,
+		[Contract] bigint, CashFlowItem bigint, RespCenter bigint, Project bigint,
 		Qty float, [Sum] money, ESum money, SumMode nchar(1), CostSum money, [ResultSum] money);
 
 	-- DOCUMENT with ROWS
@@ -34,11 +34,12 @@ begin
 				when N'D' then irdocct.Account
 				else ot.Ct 
 			end,
-			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty, dd.[Sum], dd.ESum,
+			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty = dd.Qty * ot.Factor, [Sum] = dd.[Sum] * ot.Factor, 
+			ESum = dd.ESum * ot.Factor,
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
 			DtSum = isnull(ot.DtSum, N''), CtSum = isnull(ot.CtSum, N''),
 			d.[Date], d.Agent, d.Company, d.RespCenter, dd.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
-			d.[Contract], d.[CashFlowItem]
+			d.[Contract], d.[CashFlowItem], d.Project
 		from doc.DocDetails dd
 			inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 			inner join doc.OpTrans ot on dd.TenantId = ot.TenantId and (dd.Kind = ot.RowKind or ot.RowKind = N'All')
@@ -51,14 +52,14 @@ begin
 			--and (ot.DtRow = N'R' or ot.CtRow = N'R')
 	)
 	insert into @trans(TrNo, RowNo, DtCt, Acc, CorrAcc, [Plan], [Detail], Item, RowMode, Wh, CashAcc, 
-		[Date], Agent, Company, RespCenter, CostItem, [Contract],  CashFlowItem, Qty,[Sum], ESum, SumMode, CostSum, ResultSum)
+		[Date], Agent, Company, RespCenter, Project, CostItem, [Contract],  CashFlowItem, Qty,[Sum], ESum, SumMode, CostSum, ResultSum)
 
 	select TrNo, RowNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], Detail, Item, RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
+		[Date], Agent, Company, RespCenter, Project, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
 		from TR
 	union all 
 	select TrNo, RowNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], Detail, Item, RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = CtSum, CostSum = 0, ResultSum = [Sum]
+		[Date], Agent, Company, RespCenter, Project, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = CtSum, CostSum = 0, ResultSum = [Sum]
 		from TR;
 
 	if exists(select * from @trans where SumMode = N'S')
@@ -90,11 +91,11 @@ begin
 		end;
 	
 	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum], [Qty], [Item],
-		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter)
+		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter, Project)
 	select TenantId = @TenantId, Document = @Id, Detail = iif(RowMode = N'R', Detail, null), TrNo, RowNo = iif(RowMode = N'R', RowNo, null),
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([ResultSum]), Qty = sum(iif(RowMode = N'R', Qty, 0)),
 		Item = iif(RowMode = N'R', Item, null),
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
 	from @trans
 	group by TrNo, 
 		iif(RowMode = N'R', RowNo, null),
@@ -102,7 +103,7 @@ begin
 		iif(RowMode = N'R', Item, null),
 		iif(RowMode = N'R', Detail, null),
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, 
-		CostItem, RespCenter
+		CostItem, RespCenter, Project
 	having sum(ResultSum) <> 0 or sum(iif(RowMode = N'R', Qty, 0)) <> 0
 	order by TrNo, RowNo;
 end
@@ -122,7 +123,7 @@ begin
 	declare @trans table(TrNo int, DtCt smallint, Acc bigint, CorrAcc bigint, [Plan] bigint, 
 		RowMode nchar(1),
 		Wh bigint, CashAcc bigint, [Date] date, Agent bigint, Company bigint, RespCenter bigint, CostItem bigint,
-		[Contract] bigint, CashFlowItem bigint, [Sum] money);
+		[Contract] bigint, CashFlowItem bigint, Project bigint, [Sum] money);
 
 	with TR as (
 		select 
@@ -136,10 +137,10 @@ begin
 				when N'D' then irdocct.Account
 				else ot.Ct
 			end,
-			TrNo = ot.RowNo, d.[Sum],
+			TrNo = ot.RowNo, [Sum] = d.[Sum] * ot.Factor,
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
 			d.[Date], d.Agent, d.Company, d.RespCenter, d.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
-			d.[Contract], d.CashFlowItem
+			d.[Contract], d.CashFlowItem, d.Project
 		from doc.Documents d
 			inner join doc.OpTrans ot on d.TenantId = ot.TenantId and ot.RowKind = N''
 			left join cat.CashAccounts accdt on d.TenantId = accdt.TenantId and d.CashAccTo = accdt.Id
@@ -152,21 +153,21 @@ begin
 	)
 	insert into @trans
 	select TrNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Sum]
+		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, Project, [Sum]
 		from TR
 	union all 
 	select TrNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Sum]
+		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, Project, [Sum]
 		from TR;
 
 	insert into jrn.Journal(TenantId, Document, TrNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum],
-		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter)
+		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter, Project)
 	select TenantId = @TenantId, Document = @Id, TrNo,
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([Sum]),
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
 	from @trans
 	group by TrNo, [Date], DtCt, [Plan], Acc, CorrAcc, 
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
 
 	if exists(select * from @trans where CashAcc is not null)
 	begin
@@ -215,11 +216,13 @@ begin
 
 	declare @journal table(
 		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint, Agent bigint, [Contract] bigint,
-		Item bigint, Qty float, [Sum] money, Kind nvarchar(16), CostItem bigint, RespCenter bigint
+		Item bigint, Qty float, [Sum] money, Kind nvarchar(16), CostItem bigint, RespCenter bigint, Project bigint
 	);
-	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind, CostItem, RespCenter, Agent, [Contract])
+	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind, CostItem, 
+		RespCenter, Agent, [Contract], Project)
 	select d.Id, dd.Id, d.Company, d.WhFrom, d.WhTo, dd.Item, dd.Qty, dd.[Sum], isnull(dd.Kind, N''),
-		CostItem = isnull(dd.CostItem, d.CostItem), RespCenter, d.Agent, d.[Contract]
+		CostItem = isnull(dd.CostItem, d.CostItem), 
+		RespCenter, d.Agent, d.[Contract], d.Project
 	from doc.DocDetails dd 
 		inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 	where d.TenantId = @TenantId and d.Id = @Id;
@@ -227,10 +230,10 @@ begin
 	-- in/out
 	insert into jrn.StockJournal(TenantId, Dir, 
 		Warehouse, Document, Detail, Company, Item, Qty, [Sum], CostItem, 
-		RespCenter, Agent, [Contract])
+		RespCenter, Agent, [Contract], Project)
 	select @TenantId, Dir = case when js.IsOut = 1 then -1 when js.IsIn = 1 then 1 end, 
 		j.WhFrom, j.Document, j.Detail, j.Company, j.Item, j.Qty * js.Factor, 
-		j.[Sum] * js.Factor, j.CostItem, j.RespCenter, j.Agent, j.[Contract]
+		j.[Sum] * js.Factor, j.CostItem, j.RespCenter, j.Agent, j.[Contract], j.Project
 	from @journal j inner join doc.OpStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
 	where js.TenantId = @TenantId and js.Operation = @Operation and (js.IsOut = 1 or js.IsIn = 1);
 end

@@ -127,6 +127,24 @@ create table cat.Brands
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Projects')
+	create sequence cat.SQ_Projects as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Projects')
+create table cat.Projects
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Projects_Id default(next value for cat.SQ_Projects),
+	Void bit not null 
+		constraint DF_Projects_Void default(0),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Projects primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'cat' and SEQUENCE_NAME=N'SQ_Banks')
 	create sequence cat.SQ_Banks as int start with 100 increment by 1;
 go
@@ -792,7 +810,9 @@ create table doc.OpTrans
 	CtRow nchar(1),
 	CtAccKind bigint,
 	CtWarehouse nchar(1),
-
+	Factor smallint -- 1 normal, -1 storno
+		constraint CK_OpTrans_Factor check (Factor in (1, -1))
+		constraint DF_OpTrans_Factor default (1),
 	constraint PK_OpTrans primary key (TenantId, Id, Operation),
 	constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
 	constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
@@ -883,6 +903,7 @@ create table doc.Documents
 	CostItem bigint null,
 	CashFlowItem bigint null,
 	PriceKind bigint null,
+	Project bigint null,
 	Notice nvarchar(255),
 	Memo nvarchar(255),
 	DateApplied datetime,
@@ -907,7 +928,8 @@ create table doc.Documents
 	constraint FK_Documents_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
 	constraint FK_Documents_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
 	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
-	constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+	constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id),
+	constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -1025,6 +1047,7 @@ create table jrn.StockJournal
 		constraint DF_StockJournal_Sum default(0),
 	CostItem bigint,
 	RespCenter bigint,
+	Project bigint,
 		constraint PK_StockJournal primary key (TenantId, Id),
 		constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
@@ -1033,7 +1056,8 @@ create table jrn.StockJournal
 		constraint FK_StockJournal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
 		constraint FK_StockJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
 		constraint FK_StockJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
-		constraint FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id)
+		constraint FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id),
+		constraint FK_StockJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -1065,6 +1089,7 @@ create table jrn.Journal
 	CostItem bigint null,
 	CashFlowItem bigint null,
 	RespCenter bigint null,
+	Project bigint null,
 	Qty float null,
 	[Sum] money not null
 		constraint DF_Journal_Sum default(0),
@@ -1085,7 +1110,8 @@ create table jrn.Journal
 		constraint FK_Journal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id),
 		constraint FK_Journal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
 		constraint FK_Journal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
-		constraint FK_Journal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id)
+		constraint FK_Journal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
+		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
 );
 go
 ------------------------------------------------

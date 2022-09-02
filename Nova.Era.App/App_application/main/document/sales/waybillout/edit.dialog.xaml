@@ -43,7 +43,7 @@
 			</Selector>
 		</Grid>
 		<Grid Grid.Row="2" Padding="0" Columns="Auto,22rem,Auto,22rem,1*,Auto,22rem" 
-			  AlignItems="Baseline" Gap="1rem">
+			  AlignItems="Baseline">
 			<Label Grid.Row="1" Grid.Col="1" Content="@[Agent]"/>
 			<SelectorSimple Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" Url="/catalog/agent"/>
 			
@@ -65,11 +65,12 @@
 					  Url="/catalog/warehouse"/>
 
 			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="6" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="7"
-					Value="{Bind Document.RespCenter}" DisplayProperty="Name" Fetch="/catalog/respcenter/fetch">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
-					Url='/catalog/respcenter/browse'}"/>
-			</Selector>
+			<SelectorSimple Grid.Row="1" Grid.Col="7"
+					Value="{Bind Document.RespCenter}" Url="/catalog/respcenter"/>
+
+			<Label Content="@[Project]" Grid.Row="2" Grid.Col="6" Wrap="NoWrap"/>
+			<SelectorSimple Grid.Row="2" Grid.Col="7"
+					Value="{Bind Document.Project}" Url="/catalog/project"/>
 		</Grid>
 		<TabBar Grid.Row="3" Value="{Bind Root.$$TabNo}" Margin="0">
 			<TabButton Content="@[KindStock]" ActiveValue=""/>

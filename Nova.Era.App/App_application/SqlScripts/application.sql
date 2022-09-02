@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 01.09.2022 15:51:36
+generated: 02.09.2022 09:56:08
 */
 
 
@@ -8,7 +8,7 @@ generated: 01.09.2022 15:51:36
 
 /*
 version: 10.0.7877
-generated: 29.08.2022 09:46:08
+generated: 02.09.2022 06:47:48
 */
 
 set nocount on;
@@ -3539,6 +3539,24 @@ create table cat.Brands
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Projects')
+	create sequence cat.SQ_Projects as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Projects')
+create table cat.Projects
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Projects_Id default(next value for cat.SQ_Projects),
+	Void bit not null 
+		constraint DF_Projects_Void default(0),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_Projects primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'cat' and SEQUENCE_NAME=N'SQ_Banks')
 	create sequence cat.SQ_Banks as int start with 100 increment by 1;
 go
@@ -4204,7 +4222,9 @@ create table doc.OpTrans
 	CtRow nchar(1),
 	CtAccKind bigint,
 	CtWarehouse nchar(1),
-
+	Factor smallint -- 1 normal, -1 storno
+		constraint CK_OpTrans_Factor check (Factor in (1, -1))
+		constraint DF_OpTrans_Factor default (1),
 	constraint PK_OpTrans primary key (TenantId, Id, Operation),
 	constraint FK_OpTrans_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id),
 	constraint FK_OpTrans_Plan_Accounts foreign key (TenantId, [Plan]) references acc.Accounts(TenantId, Id),
@@ -4295,6 +4315,7 @@ create table doc.Documents
 	CostItem bigint null,
 	CashFlowItem bigint null,
 	PriceKind bigint null,
+	Project bigint null,
 	Notice nvarchar(255),
 	Memo nvarchar(255),
 	DateApplied datetime,
@@ -4319,7 +4340,8 @@ create table doc.Documents
 	constraint FK_Documents_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
 	constraint FK_Documents_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
 	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
-	constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+	constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id),
+	constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4477,6 +4499,7 @@ create table jrn.Journal
 	CostItem bigint null,
 	CashFlowItem bigint null,
 	RespCenter bigint null,
+	Project bigint null,
 	Qty float null,
 	[Sum] money not null
 		constraint DF_Journal_Sum default(0),
@@ -4497,7 +4520,8 @@ create table jrn.Journal
 		constraint FK_Journal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id),
 		constraint FK_Journal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
 		constraint FK_Journal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
-		constraint FK_Journal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id)
+		constraint FK_Journal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
+		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4700,8 +4724,23 @@ if not exists(select * from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE where TAB
 	alter table cat.Companies add constraint 
 		FK_Companies_Logo_Blobs foreign key (TenantId, Logo) references app.Blobs(TenantId, Id);
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpTrans' and COLUMN_NAME=N'Factor')
+	alter table doc.OpTrans add Factor smallint -- 1 normal, -1 storno
+		constraint CK_OpTrans_Factor check (Factor in (1, -1))
+		constraint DF_OpTrans_Factor default (1) with values;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'Journal' and COLUMN_NAME=N'Project')
+	alter table jrn.Journal	add Project bigint null,
+		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
+go
 
-
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'Project')
+	alter table doc.Documents add Project bigint null,
+		constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
+go
 /*
 common
 */
@@ -5016,8 +5055,9 @@ begin
 		(122,    12, 12, N'@[Catalogs]',      null,  null, null),
 		(1220,   122, 30, N'@[Customers]',      N'agent',     N'users', null),
 		(1221,   122, 31, N'@[Contracts]',      N'contract',  N'user-image', null),
-		(1223,   122, 32, N'@[Items]',          N'item',      N'package-outline', N'line-top'),
-		(1224,   122, 33, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1222,   122, 32, N'@[Projects]',       N'project',   N'log', null),
+		(1223,   122, 33, N'@[Items]',          N'item',      N'package-outline', N'line-top'),
+		(1224,   122, 34, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		(1230,   12, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1231,   12, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Purchase
@@ -5049,8 +5089,9 @@ begin
 		(1507,  153, 12, N'@[Agents]',         N'agent',     N'users', null),
 		(1508,  153, 13, N'@[Persons]',        N'person',    N'user-role', null),
 		(1509,  153, 14, N'@[Contracts]',      N'contract',  N'user-image', null),
-		(1510,  153, 15, N'@[CatalogOther]',   N'catalog',   N'list', null),
-		(1511,   15, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
+		(1510,  153, 15, N'@[Projects]',       N'project',   N'log', null),
+		(1511,  153, 16, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1512,   15, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
 		(1530,   15, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
@@ -5068,10 +5109,11 @@ begin
 		(8825, 882, 15, N'@[Agents]',       N'agent',     N'users', N'line-top'),
 		(8826, 882, 16, N'@[Persons]',      N'person',    N'user-role', null),
 		(8827, 882, 17, N'@[Contracts]',    N'contract',  N'user-image', null),
-		(8828, 882, 18, N'@[Items]',        N'item',      N'package-outline', N'line-top'),
-		(8829, 882, 19, N'@[CatalogOther]', N'catalog',   N'list', null),
+		(8828, 882, 17, N'@[Projects]',     N'project',   N'log', null),
+		(8829, 882, 18, N'@[Items]',        N'item',      N'package-outline', N'line-top'),
+		(8830, 882, 19, N'@[CatalogOther]', N'catalog',   N'list', null),
 		(883,   88, 13, N'@[Administration]', null, null, null),
-		(8830, 883, 16, N'@[Users]',        N'user',    N'user',  null),
+		(8831, 883, 16, N'@[Users]',        N'user',    N'user',  null),
 		(8850,  88, 20, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
 		(8851,  88, 23, N'Test',            N'test',      N'file', null),
 		-- Profile
@@ -9041,7 +9083,7 @@ begin
 		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo,
 		[!!RowCount] = t.[RowCount]
 	from cat.Brands b
-		inner join T t on t.Id = b.Id
+		inner join T t on t.Id = b.Id and b.TenantId = @TenantId
 	order by t.RowNo
 	offset @Offset rows fetch next @PageSize rows only 
 	option(recompile);
@@ -9649,6 +9691,171 @@ end
 go
 
 
+
+/* Project */
+drop procedure if exists cat.[Project.Metadata];
+drop procedure if exists cat.[Project.Update];
+drop type if exists cat.[Project.TableType];
+go
+------------------------------------------------
+create type cat.[Project.TableType] as table
+(
+	Id bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure cat.[Project.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Offset int = 0,
+@PageSize int = 20,
+@Order nvarchar(32) = N'name',
+@Dir nvarchar(5) = N'asc',
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Fragment + N'%';
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
+	with T(Id, [RowCount], RowNo) as (
+	select p.Id, count(*) over (),
+		RowNo = row_number() over (order by 
+		case when @Dir = N'asc' then
+			case @Order
+				when N'name' then p.[Name]
+				when N'memo' then p.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'name' then p.[Name]
+				when N'memo' then p.[Memo]
+			end
+		end desc,
+		case when @Dir = N'asc' then
+			case @Order
+				when N'id' then p.[Id]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'id' then p.[Id]
+			end
+		end desc,
+		p.Id
+		)
+	from cat.Projects p
+	where TenantId = @TenantId and Void = 0 and (@fr is null or p.[Name] like @fr or p.Memo like @fr))
+	select [Projects!TProject!Array] = null,
+		[Id!!Id] = p.Id, [Name!!Name] = p.[Name], p.Memo,
+		[!!RowCount] = t.[RowCount]
+	from cat.Projects p
+		inner join T t on t.Id = p.Id and p.TenantId = @TenantId
+	order by t.RowNo
+	offset @Offset rows fetch next @PageSize rows only 
+	option(recompile);
+
+	select [!$System!] = null, [!Projects!Offset] = @Offset, [!Projects!PageSize] = @PageSize, 
+		[!Projects!SortOrder] = @Order, [!Projects!SortDir] = @Dir,
+		[!Projects.Fragment!Filter] = @Fragment
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Project.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Project!TProject!Object] = null,
+		[Id!!Id] = p.Id, [Name!!Name] = p.[Name], p.Memo
+	from cat.Projects p
+	where p.TenantId = @TenantId and p.Id = @Id;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Project.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @Project cat.[Project.TableType];
+	select [Project!Project!Metadata] = null, * from @Project;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Project.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Project cat.[Project.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	
+	declare @output  table (op sysname, id bigint);
+	declare @id bigint;
+
+	merge cat.Projects as t
+	using @Project as s on (t.TenantId = @TenantId and t.Id = s.Id)
+	when matched then update set
+		t.[Name] = s.[Name], 
+		t.[Memo] = s.[Memo]
+	when not matched by target then insert
+		(TenantId, [Name], Memo) values
+		(@TenantId, [Name], Memo)
+	output $action, inserted.Id into @output (op, id);
+
+	select top(1) @id = id from @output;
+	exec cat.[Project.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+---------------------------------------------
+create or alter procedure cat.[Project.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update cat.Projects set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+
+------------------------------------------------
+create or alter procedure cat.[Project.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [Projects!TProject!Array] = null, [Id!!Id] = p.Id, [Name!!Name] = p.[Name], p.Memo
+	from cat.Projects p 
+	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or Memo like @fr)
+	order by p.[Name];
+end
+go
 
 /* RESPCENTER */
 ------------------------------------------------
@@ -10352,7 +10559,7 @@ begin
 	-- ACCOUNT TRANSACTIONS
 	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
 		[Plan!TAccount!RefId] = [Plan], [Dt!TAccount!RefId] = Dt, [Ct!TAccount!RefId] = Ct, 
-		DtAccMode, DtSum, DtRow, CtAccMode, CtSum, CtRow,
+		DtAccMode, DtSum, DtRow, CtAccMode, CtSum, CtRow, IsStorno = cast(case when ot.Factor = -1 then 1 else 0 end as bit),
 		[!TOperation.Trans!ParentId] = ot.Operation,
 		[DtAccKind!TAccKind!RefId] = ot.DtAccKind, [CtAccKind!TAccKind!RefId] = ot.CtAccKind
 	from doc.OpTrans ot 
@@ -10489,7 +10696,8 @@ as table(
 	CtAccMode nchar(1),
 	CtAccKind bigint,
 	CtRow nchar(1),
-	CtSum nchar(1)
+	CtSum nchar(1),
+	IsStorno bit
 )
 go
 ------------------------------------------------
@@ -10576,12 +10784,13 @@ begin
 		t.DtRow = s.DtRow,
 		t.CtRow = s.CtRow,
 		t.DtSum = s.DtSum,
-		t.CtSum = s.CtSum
+		t.CtSum = s.CtSum,
+		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
 	when not matched by target then insert
 		(TenantId, Operation, RowNo, RowKind, [Plan], Dt, Ct, DtAccMode, DtAccKind, CtAccMode, CtAccKind, 
-			DtRow, CtRow, DtSum, CtSum) values
+			DtRow, CtRow, DtSum, CtSum, Factor) values
 		(@TenantId, @Id, RowNo, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct, s.DtAccMode, s.DtAccKind, s.CtAccMode, s.CtAccKind, 
-			s.DtRow, s.CtRow, s.DtSum, s.CtSum)
+			s.DtRow, s.CtRow, s.DtSum, s.CtSum, case when s.IsStorno = -1 then -1 else 1 end)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	with OM as (select Id from @Menu where Checked = 1)
@@ -10653,6 +10862,10 @@ begin
 
 	select [!TRespCenter!Map] = null, [Id!!Id] = rc.Id, [Name!!Name] = rc.[Name]
 	from cat.RespCenters rc inner join doc.Documents d on d.TenantId = rc.TenantId and d.RespCenter = rc.Id
+	where d.Id = @Id and d.TenantId = @TenantId;
+
+	select [!TProject!Map] = null, [Id!!Id] = p.Id, [Name!!Name] = p.[Name]
+	from cat.Projects p inner join doc.Documents d on d.TenantId = p.TenantId and d.Project = p.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 
 	select [!TContract!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Date], c.[SNo],
@@ -10964,7 +11177,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
 		[PriceKind!TPriceKind!RefId] = d.PriceKind, [RespCenter!TRespCenter!RefId] = d.RespCenter,
-		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole,
+		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
@@ -11600,7 +11813,7 @@ begin
 	declare @trans table(TrNo int, RowNo int, DtCt smallint, Acc bigint, CorrAcc bigint, [Plan] bigint, 
 		Detail bigint, Item bigint, RowMode nchar(1),
 		Wh bigint, CashAcc bigint, [Date] date, Agent bigint, Company bigint, CostItem bigint,
-		[Contract] bigint, CashFlowItem bigint, RespCenter bigint,
+		[Contract] bigint, CashFlowItem bigint, RespCenter bigint, Project bigint,
 		Qty float, [Sum] money, ESum money, SumMode nchar(1), CostSum money, [ResultSum] money);
 
 	-- DOCUMENT with ROWS
@@ -11616,11 +11829,12 @@ begin
 				when N'D' then irdocct.Account
 				else ot.Ct 
 			end,
-			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty, dd.[Sum], dd.ESum,
+			TrNo = ot.RowNo, dd.[RowNo], Detail = dd.Id, dd.[Item], Qty = dd.Qty * ot.Factor, [Sum] = dd.[Sum] * ot.Factor, 
+			ESum = dd.ESum * ot.Factor,
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
 			DtSum = isnull(ot.DtSum, N''), CtSum = isnull(ot.CtSum, N''),
 			d.[Date], d.Agent, d.Company, d.RespCenter, dd.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
-			d.[Contract], d.[CashFlowItem]
+			d.[Contract], d.[CashFlowItem], d.Project
 		from doc.DocDetails dd
 			inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 			inner join doc.OpTrans ot on dd.TenantId = ot.TenantId and (dd.Kind = ot.RowKind or ot.RowKind = N'All')
@@ -11633,14 +11847,14 @@ begin
 			--and (ot.DtRow = N'R' or ot.CtRow = N'R')
 	)
 	insert into @trans(TrNo, RowNo, DtCt, Acc, CorrAcc, [Plan], [Detail], Item, RowMode, Wh, CashAcc, 
-		[Date], Agent, Company, RespCenter, CostItem, [Contract],  CashFlowItem, Qty,[Sum], ESum, SumMode, CostSum, ResultSum)
+		[Date], Agent, Company, RespCenter, Project, CostItem, [Contract],  CashFlowItem, Qty,[Sum], ESum, SumMode, CostSum, ResultSum)
 
 	select TrNo, RowNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], Detail, Item, RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
+		[Date], Agent, Company, RespCenter, Project, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
 		from TR
 	union all 
 	select TrNo, RowNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], Detail, Item, RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = CtSum, CostSum = 0, ResultSum = [Sum]
+		[Date], Agent, Company, RespCenter, Project, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = CtSum, CostSum = 0, ResultSum = [Sum]
 		from TR;
 
 	if exists(select * from @trans where SumMode = N'S')
@@ -11672,11 +11886,11 @@ begin
 		end;
 	
 	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum], [Qty], [Item],
-		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter)
+		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter, Project)
 	select TenantId = @TenantId, Document = @Id, Detail = iif(RowMode = N'R', Detail, null), TrNo, RowNo = iif(RowMode = N'R', RowNo, null),
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([ResultSum]), Qty = sum(iif(RowMode = N'R', Qty, 0)),
 		Item = iif(RowMode = N'R', Item, null),
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
 	from @trans
 	group by TrNo, 
 		iif(RowMode = N'R', RowNo, null),
@@ -11684,7 +11898,7 @@ begin
 		iif(RowMode = N'R', Item, null),
 		iif(RowMode = N'R', Detail, null),
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, 
-		CostItem, RespCenter
+		CostItem, RespCenter, Project
 	having sum(ResultSum) <> 0 or sum(iif(RowMode = N'R', Qty, 0)) <> 0
 	order by TrNo, RowNo;
 end
@@ -11704,7 +11918,7 @@ begin
 	declare @trans table(TrNo int, DtCt smallint, Acc bigint, CorrAcc bigint, [Plan] bigint, 
 		RowMode nchar(1),
 		Wh bigint, CashAcc bigint, [Date] date, Agent bigint, Company bigint, RespCenter bigint, CostItem bigint,
-		[Contract] bigint, CashFlowItem bigint, [Sum] money);
+		[Contract] bigint, CashFlowItem bigint, Project bigint, [Sum] money);
 
 	with TR as (
 		select 
@@ -11718,10 +11932,10 @@ begin
 				when N'D' then irdocct.Account
 				else ot.Ct
 			end,
-			TrNo = ot.RowNo, d.[Sum],
+			TrNo = ot.RowNo, [Sum] = d.[Sum] * ot.Factor,
 			[Plan] = ot.[Plan], DtRow = isnull(ot.DtRow, N''), CtRow = isnull(ot.CtRow, N''),
 			d.[Date], d.Agent, d.Company, d.RespCenter, d.CostItem, d.WhFrom, d.WhTo, d.CashAccFrom, d.CashAccTo,
-			d.[Contract], d.CashFlowItem
+			d.[Contract], d.CashFlowItem, d.Project
 		from doc.Documents d
 			inner join doc.OpTrans ot on d.TenantId = ot.TenantId and ot.RowKind = N''
 			left join cat.CashAccounts accdt on d.TenantId = accdt.TenantId and d.CashAccTo = accdt.Id
@@ -11734,21 +11948,21 @@ begin
 	)
 	insert into @trans
 	select TrNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Sum]
+		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, Project, [Sum]
 		from TR
 	union all 
 	select TrNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
-		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, [Sum]
+		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, Project, [Sum]
 		from TR;
 
 	insert into jrn.Journal(TenantId, Document, TrNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum],
-		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter)
+		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter, Project)
 	select TenantId = @TenantId, Document = @Id, TrNo,
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([Sum]),
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
 	from @trans
 	group by TrNo, [Date], DtCt, [Plan], Acc, CorrAcc, 
-		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter
+		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
 
 	if exists(select * from @trans where CashAcc is not null)
 	begin

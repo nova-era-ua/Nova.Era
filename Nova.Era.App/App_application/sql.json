@@ -33,6 +33,7 @@
 			"main/catalog/pricekind/pricekind.sql",
 			"main/catalog/cashflowitem/cashflowitem.sql",
 			"main/catalog/costitem/costitem.sql",
+			"main/catalog/project/project.sql",
 			"main/catalog/respcenter/respcenter.sql",
 			"main/catalog/autonum/autonum.sql",
 			"main/accounting/plan/plan.sql",

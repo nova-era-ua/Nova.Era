@@ -1,10 +1,10 @@
-﻿/* Brand */
-drop procedure if exists cat.[Brand.Metadata];
-drop procedure if exists cat.[Brand.Update];
-drop type if exists cat.[Brand.TableType];
+﻿/* Project */
+drop procedure if exists cat.[Project.Metadata];
+drop procedure if exists cat.[Project.Update];
+drop type if exists cat.[Project.TableType];
 go
 ------------------------------------------------
-create type cat.[Brand.TableType] as table
+create type cat.[Project.TableType] as table
 (
 	Id bigint,
 	[Name] nvarchar(255),
@@ -12,7 +12,7 @@ create type cat.[Brand.TableType] as table
 )
 go
 ------------------------------------------------
-create or alter procedure cat.[Brand.Index]
+create or alter procedure cat.[Project.Index]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint = null,
@@ -32,50 +32,50 @@ begin
 	set @Dir = lower(@Dir);
 
 	with T(Id, [RowCount], RowNo) as (
-	select b.Id, count(*) over (),
+	select p.Id, count(*) over (),
 		RowNo = row_number() over (order by 
 		case when @Dir = N'asc' then
 			case @Order
-				when N'name' then b.[Name]
-				when N'memo' then b.[Memo]
+				when N'name' then p.[Name]
+				when N'memo' then p.[Memo]
 			end
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order
-				when N'name' then b.[Name]
-				when N'memo' then b.[Memo]
+				when N'name' then p.[Name]
+				when N'memo' then p.[Memo]
 			end
 		end desc,
 		case when @Dir = N'asc' then
 			case @Order
-				when N'id' then b.[Id]
+				when N'id' then p.[Id]
 			end
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order
-				when N'id' then b.[Id]
+				when N'id' then p.[Id]
 			end
 		end desc,
-		b.Id
+		p.Id
 		)
-	from cat.Brands b
-	where TenantId = @TenantId and Void = 0 and (@fr is null or b.[Name] like @fr or b.Memo like @fr))
-	select [Brands!TBrand!Array] = null,
-		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo,
+	from cat.Projects p
+	where TenantId = @TenantId and Void = 0 and (@fr is null or p.[Name] like @fr or p.Memo like @fr))
+	select [Projects!TProject!Array] = null,
+		[Id!!Id] = p.Id, [Name!!Name] = p.[Name], p.Memo,
 		[!!RowCount] = t.[RowCount]
-	from cat.Brands b
-		inner join T t on t.Id = b.Id and b.TenantId = @TenantId
+	from cat.Projects p
+		inner join T t on t.Id = p.Id and p.TenantId = @TenantId
 	order by t.RowNo
 	offset @Offset rows fetch next @PageSize rows only 
 	option(recompile);
 
-	select [!$System!] = null, [!Brands!Offset] = @Offset, [!Brands!PageSize] = @PageSize, 
-		[!Brands!SortOrder] = @Order, [!Brands!SortDir] = @Dir,
-		[!Brands.Fragment!Filter] = @Fragment
+	select [!$System!] = null, [!Projects!Offset] = @Offset, [!Projects!PageSize] = @PageSize, 
+		[!Projects!SortOrder] = @Order, [!Projects!SortDir] = @Dir,
+		[!Projects.Fragment!Filter] = @Fragment
 end
 go
 ------------------------------------------------
-create or alter procedure cat.[Brand.Load]
+create or alter procedure cat.[Project.Load]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint = null
@@ -84,28 +84,28 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Brand!TBrand!Object] = null,
-		[Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo
-	from cat.Brands b
-	where b.TenantId = @TenantId and b.Id = @Id;
+	select [Project!TProject!Object] = null,
+		[Id!!Id] = p.Id, [Name!!Name] = p.[Name], p.Memo
+	from cat.Projects p
+	where p.TenantId = @TenantId and p.Id = @Id;
 end
 go
 ---------------------------------------------
-create or alter procedure cat.[Brand.Metadata]
+create or alter procedure cat.[Project.Metadata]
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	declare @Brand cat.[Brand.TableType];
-	select [Brand!Brand!Metadata] = null, * from @Brand;
+	declare @Project cat.[Project.TableType];
+	select [Project!Project!Metadata] = null, * from @Project;
 end
 go
 ---------------------------------------------
-create or alter procedure cat.[Brand.Update]
+create or alter procedure cat.[Project.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Brand cat.[Brand.TableType] readonly
+@Project cat.[Project.TableType] readonly
 as
 begin
 	set nocount on;
@@ -115,8 +115,8 @@ begin
 	declare @output  table (op sysname, id bigint);
 	declare @id bigint;
 
-	merge cat.Brands as t
-	using @Brand as s on (t.TenantId = @TenantId and t.Id = s.Id)
+	merge cat.Projects as t
+	using @Project as s on (t.TenantId = @TenantId and t.Id = s.Id)
 	when matched then update set
 		t.[Name] = s.[Name], 
 		t.[Memo] = s.[Memo]
@@ -126,11 +126,11 @@ begin
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
-	exec cat.[Brand.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+	exec cat.[Project.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
 ---------------------------------------------
-create or alter procedure cat.[Brand.Delete]
+create or alter procedure cat.[Project.Delete]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint
@@ -139,14 +139,12 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	if exists(select 1 from cat.Items where TenantId = @TenantId and Brand = @Id)
-		throw 60000, N'UI:@[Error.Delete.Used]', 0;
-	update cat.Brands set Void = 1 where TenantId = @TenantId and Id=@Id;
+	update cat.Projects set Void = 1 where TenantId = @TenantId and Id=@Id;
 end
 go
 
 ------------------------------------------------
-create or alter procedure cat.[Brand.Fetch]
+create or alter procedure cat.[Project.Fetch]
 @TenantId int = 1,
 @UserId bigint,
 @Text nvarchar(255)
@@ -158,9 +156,9 @@ begin
 	declare @fr nvarchar(255);
 	set @fr = N'%' + @Text + N'%';
 
-	select top(100) [Brands!TBrand!Array] = null, [Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.Memo
-	from cat.Brands b 
+	select top(100) [Projects!TProject!Array] = null, [Id!!Id] = p.Id, [Name!!Name] = p.[Name], p.Memo
+	from cat.Projects p 
 	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or Memo like @fr)
-	order by b.[Name];
+	order by p.[Name];
 end
 go

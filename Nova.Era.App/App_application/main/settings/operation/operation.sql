@@ -72,7 +72,7 @@ begin
 	-- ACCOUNT TRANSACTIONS
 	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
 		[Plan!TAccount!RefId] = [Plan], [Dt!TAccount!RefId] = Dt, [Ct!TAccount!RefId] = Ct, 
-		DtAccMode, DtSum, DtRow, CtAccMode, CtSum, CtRow,
+		DtAccMode, DtSum, DtRow, CtAccMode, CtSum, CtRow, IsStorno = cast(case when ot.Factor = -1 then 1 else 0 end as bit),
 		[!TOperation.Trans!ParentId] = ot.Operation,
 		[DtAccKind!TAccKind!RefId] = ot.DtAccKind, [CtAccKind!TAccKind!RefId] = ot.CtAccKind
 	from doc.OpTrans ot 
@@ -209,7 +209,8 @@ as table(
 	CtAccMode nchar(1),
 	CtAccKind bigint,
 	CtRow nchar(1),
-	CtSum nchar(1)
+	CtSum nchar(1),
+	IsStorno bit
 )
 go
 ------------------------------------------------
@@ -296,12 +297,13 @@ begin
 		t.DtRow = s.DtRow,
 		t.CtRow = s.CtRow,
 		t.DtSum = s.DtSum,
-		t.CtSum = s.CtSum
+		t.CtSum = s.CtSum,
+		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
 	when not matched by target then insert
 		(TenantId, Operation, RowNo, RowKind, [Plan], Dt, Ct, DtAccMode, DtAccKind, CtAccMode, CtAccKind, 
-			DtRow, CtRow, DtSum, CtSum) values
+			DtRow, CtRow, DtSum, CtSum, Factor) values
 		(@TenantId, @Id, RowNo, isnull(RowKind, N''), s.[Plan], s.Dt, s.Ct, s.DtAccMode, s.DtAccKind, s.CtAccMode, s.CtAccKind, 
-			s.DtRow, s.CtRow, s.DtSum, s.CtSum)
+			s.DtRow, s.CtRow, s.DtSum, s.CtSum, case when s.IsStorno = -1 then -1 else 1 end)
 	when not matched by source and t.TenantId=@TenantId and t.Operation = @Id then delete;
 
 	with OM as (select Id from @Menu where Checked = 1)
