@@ -10,10 +10,10 @@
 				  ItemsSource="{Bind ItemRoles}">
 			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 		</ComboBox>
-		<Selector Grid.ColSpan="3" Label="@[Company]" Value="{Bind BankAccount.Company}" DisplayProperty="Name">
-			<Hyperlink Icon="Search" 
-				Command="{BindCmd Browse, Argument={Bind BankAccount.Company}, Url='/catalog/company/browse'}"/>
-		</Selector>
+		
+		<SelectorSimple Grid.ColSpan="3" Label="@[Company]" 
+						Value="{Bind BankAccount.Company}" Url="/catalog/company"/>
+		
 		<TextBox Grid.ColSpan="3" Label="@[Name]" Value="{Bind BankAccount.Name}" Placeholder="{Bind BankAccount.AccountNo}"  TabIndex="1"/>
 		<TextBox Grid.ColSpan="2" Label="@[AccountNo]" Value="{Bind BankAccount.AccountNo, Filters='Upper,Barcode'}"/>
 		<Selector Label="@[Currency]" DisplayProperty="$Display"

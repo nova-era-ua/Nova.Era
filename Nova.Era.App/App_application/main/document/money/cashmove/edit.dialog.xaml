@@ -58,19 +58,16 @@
 			<TextBox Grid.Row="5" Grid.Col="2" Value="{Bind Document.Notice}" Multiline="True" Rows="3"/>
 			
 			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="6" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="7"
-					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
-						Url='/catalog/respcenter/browse'}"/>
-			</Selector>
+			<SelectorSimple Grid.Row="1" Grid.Col="7"
+					Value="{Bind Document.RespCenter}" Url="/catalog/respcenter"/>
+
+			<Label Content="@[Project]" Grid.Row="2" Grid.Col="6" Wrap="NoWrap"/>
+			<SelectorSimple Grid.Row="2" Grid.Col="7" 
+							Value="{Bind Document.Project}" Url="/catalog/project"/>
+
 			<Label Content="@[CashFlowItem]" Grid.Row="2" Grid.Col="1"/>
-			<Selector Grid.Row="2" Grid.Col="2"
-					Value="{Bind Document.CashFlowItem}" DisplayProperty="Name">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashFlowItem}, 
-						Url='/catalog/cashflowitem/browse'}"/>
-				</Selector.AddOns>
-			</Selector>
+			<SelectorSimple Grid.Row="2" Grid.Col="2"
+					Value="{Bind Document.CashFlowItem}" Url="/catalog/cashflowitem"/>
 		</Grid>
 		<TextBox Grid.Row="4" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
 	</Grid>

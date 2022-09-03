@@ -35,7 +35,8 @@ const template: Template = {
 		reloadRems
 	},
 	delegates: {
-		itemBrowsePrice
+		itemBrowsePrice,
+		itemBrowseService
 	}
 };
 
@@ -144,6 +145,13 @@ async function priceOrRemChange(doc) {
 function itemBrowsePrice(item, text) {
 	let ctrl: IController = this.$ctrl;
 	let arg = this.$root.$BrowseStockArg;
+	arg.Text = text;
+	return ctrl.$invoke('fetchprice', arg, '/catalog/item');
+}
+
+function itemBrowseService(item, text) {
+	let ctrl: IController = this.$ctrl;
+	let arg = this.$root.$BrowseServiceArg;
 	arg.Text = text;
 	return ctrl.$invoke('fetchprice', arg, '/catalog/item');
 }

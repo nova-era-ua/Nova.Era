@@ -173,7 +173,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, 
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[Contract!TContract!RefId] = d.[Contract], [CashFlowItem!TCashFlowItem!RefId] = d.CashFlowItem,
-		[RespCenter!TRespCenter!RefId] = d.RespCenter, [ItemRole!TItemRole!RefId] = d.ItemRole,
+		[RespCenter!TRespCenter!RefId] = d.RespCenter, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
 		[LinkedDocs!TDocBase!LazyArray] = null
 	from doc.Documents d
@@ -243,7 +243,8 @@ as table(
 	Notice nvarchar(255),
 	SNo nvarchar(64),
 	[No] nvarchar(64),
-	ItemRole bigint
+	ItemRole bigint,
+	Project bigint
 )
 go
 ------------------------------------------------
@@ -298,6 +299,7 @@ begin
 		t.[Contract] = s.[Contract],
 		t.CashFlowItem = s.CashFlowItem,
 		t.RespCenter = s.RespCenter,
+		t.Project = s.Project,
 		t.Memo = s.Memo,
 		t.Notice = s.Notice,
 		t.[No] = @no,
@@ -305,9 +307,9 @@ begin
 		t.ItemRole = s.ItemRole
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, 
-			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, SNo, [No], ItemRole, UserCreated) values
+			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Project, Memo, Notice, SNo, [No], ItemRole, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, 
-			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, s.SNo, @no, s.ItemRole, @UserId)
+			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Project, s.Memo, s.Notice, s.SNo, @no, s.ItemRole, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

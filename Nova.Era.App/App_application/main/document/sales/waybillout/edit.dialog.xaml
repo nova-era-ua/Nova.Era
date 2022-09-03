@@ -186,9 +186,18 @@
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
 						<TextBox Value="{Bind Item.Barcode}" Align="Center" Wrap="NoWrap"/>
-						<Selector Value="{Bind Item}" DisplayProperty="Name">
+						<Selector Value="{Bind Item}" DisplayProperty="Name" 
+								  Delegate="itemBrowseService" ListSize="40rem,16rem">
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
 								Url='/catalog/item/browseprice', Data={Bind Root.$BrowseServiceArg}}"/>
+							<Selector.ItemsPanel>
+								<DataGrid XamlStyle="{StyleResource DataGridPanel}" HeadersVisibility="Column">
+									<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+									<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+									<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap" Align="Center"/>
+									<DataGridColumn Header="@[Price]" Content="{Bind Price, DataType=Currency, HideZeros=True}" Align="Right" Role="Number" Width="7rem"/>
+								</DataGrid>
+							</Selector.ItemsPanel>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>

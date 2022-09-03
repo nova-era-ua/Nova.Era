@@ -35,7 +35,8 @@ define(["require", "exports"], function (require, exports) {
             reloadRems
         },
         delegates: {
-            itemBrowsePrice
+            itemBrowsePrice,
+            itemBrowseService
         }
     };
     exports.default = utils.mergeTemplate(base, template);
@@ -111,6 +112,12 @@ define(["require", "exports"], function (require, exports) {
     function itemBrowsePrice(item, text) {
         let ctrl = this.$ctrl;
         let arg = this.$root.$BrowseStockArg;
+        arg.Text = text;
+        return ctrl.$invoke('fetchprice', arg, '/catalog/item');
+    }
+    function itemBrowseService(item, text) {
+        let ctrl = this.$ctrl;
+        let arg = this.$root.$BrowseServiceArg;
         arg.Text = text;
         return ctrl.$invoke('fetchprice', arg, '/catalog/item');
     }

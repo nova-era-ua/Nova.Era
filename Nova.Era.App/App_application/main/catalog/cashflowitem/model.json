@@ -1,21 +1,27 @@
 ﻿{
-  "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "cat",
-  "model": "CashFlowItem",
-  "actions": {
-    "index": {
-      "index": true,
-      "view": "index.view"
-    }
-  },
-  "dialogs": {
-    "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
-    },
-    "browse": {
-      "index": true,
-      "view": "browse.dialog"
-    }
-  }
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "cat",
+	"model": "CashFlowItem",
+	"actions": {
+		"index": {
+			"index": true,
+			"view": "index.view"
+		}
+	},
+	"dialogs": {
+		"edit": {
+			"template": "edit.template",
+			"view": "edit.dialog"
+		},
+		"browse": {
+			"index": true,
+			"view": "browse.dialog"
+		}
+	},
+	"commands": {
+		"fetch": {
+			"type": "sql",
+			"procedure": "CashFlowItem.Fetch"
+		}
+	}
 }

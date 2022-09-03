@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 02.09.2022 09:56:08
+generated: 03.09.2022 11:29:41
 */
 
 
@@ -4459,6 +4459,7 @@ create table jrn.StockJournal
 		constraint DF_StockJournal_Sum default(0),
 	CostItem bigint,
 	RespCenter bigint,
+	Project bigint,
 		constraint PK_StockJournal primary key (TenantId, Id),
 		constraint FK_StockJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
 		constraint FK_StockJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
@@ -4467,7 +4468,8 @@ create table jrn.StockJournal
 		constraint FK_StockJournal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
 		constraint FK_StockJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
 		constraint FK_StockJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
-		constraint FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id)
+		constraint FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id),
+		constraint FK_StockJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4735,11 +4737,15 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn'
 	alter table jrn.Journal	add Project bigint null,
 		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
 go
-
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'Project')
 	alter table doc.Documents add Project bigint null,
 		constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal' and COLUMN_NAME=N'Project')
+	alter table jrn.StockJournal add Project bigint,
+		constraint FK_StockJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
 go
 /*
 common
@@ -9590,6 +9596,25 @@ begin
 end
 go
 
+------------------------------------------------
+create or alter procedure cat.[CashFlowItem.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [CashFlowItems!TCashFlowItem!Array] = null, [Id!!Id] = cfi.Id, [Name!!Name] = cfi.[Name], cfi.Memo
+	from cat.CashFlowItems cfi 
+	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or Memo like @fr)
+	order by cfi.[Name];
+end
+go
 
 
 /* COSTITEM */
@@ -11310,6 +11335,7 @@ as table(
 	[Contract] bigint,
 	PriceKind bigint,
 	RespCenter bigint,
+	Project bigint,
 	CostItem bigint,
 	ItemRole bigint,
 	Memo nvarchar(255)
@@ -11443,6 +11469,7 @@ begin
 		t.[Contract] = s.[Contract],
 		t.PriceKind = s.PriceKind,
 		t.RespCenter = s.RespCenter,
+		t.Project = s.Project,
 		t.CostItem = s.CostItem,
 		t.ItemRole = s.ItemRole,
 		t.Memo = s.Memo,
@@ -11450,9 +11477,9 @@ begin
 		t.[No] = @no
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
-			PriceKind, RespCenter, CostItem, ItemRole, Memo, SNo, [No], UserCreated) values
+			PriceKind, RespCenter, Project, CostItem, ItemRole, Memo, SNo, [No], UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
-			s.PriceKind, s.RespCenter, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, @UserId)
+			s.PriceKind, s.RespCenter, s.Project, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
@@ -11649,7 +11676,7 @@ begin
 		[Company!TCompany!RefId] = d.Company, 
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[Contract!TContract!RefId] = d.[Contract], [CashFlowItem!TCashFlowItem!RefId] = d.CashFlowItem,
-		[RespCenter!TRespCenter!RefId] = d.RespCenter, [ItemRole!TItemRole!RefId] = d.ItemRole,
+		[RespCenter!TRespCenter!RefId] = d.RespCenter, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
 		[ParentDoc!TDocBase!RefId] = d.Parent,
 		[LinkedDocs!TDocBase!LazyArray] = null
 	from doc.Documents d
@@ -11719,7 +11746,8 @@ as table(
 	Notice nvarchar(255),
 	SNo nvarchar(64),
 	[No] nvarchar(64),
-	ItemRole bigint
+	ItemRole bigint,
+	Project bigint
 )
 go
 ------------------------------------------------
@@ -11774,6 +11802,7 @@ begin
 		t.[Contract] = s.[Contract],
 		t.CashFlowItem = s.CashFlowItem,
 		t.RespCenter = s.RespCenter,
+		t.Project = s.Project,
 		t.Memo = s.Memo,
 		t.Notice = s.Notice,
 		t.[No] = @no,
@@ -11781,9 +11810,9 @@ begin
 		t.ItemRole = s.ItemRole
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, 
-			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Memo, Notice, SNo, [No], ItemRole, UserCreated) values
+			CashAccFrom, CashAccTo, [Contract], CashFlowItem, RespCenter, Project, Memo, Notice, SNo, [No], ItemRole, UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, 
-			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Memo, s.Notice, s.SNo, @no, s.ItemRole, @UserId)
+			s.CashAccFrom, s.CashAccTo, s.[Contract], s.CashFlowItem, s.RespCenter, s.Project, s.Memo, s.Notice, s.SNo, @no, s.ItemRole, @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
@@ -12011,11 +12040,13 @@ begin
 
 	declare @journal table(
 		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint, Agent bigint, [Contract] bigint,
-		Item bigint, Qty float, [Sum] money, Kind nvarchar(16), CostItem bigint, RespCenter bigint
+		Item bigint, Qty float, [Sum] money, Kind nvarchar(16), CostItem bigint, RespCenter bigint, Project bigint
 	);
-	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind, CostItem, RespCenter, Agent, [Contract])
+	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind, CostItem, 
+		RespCenter, Agent, [Contract], Project)
 	select d.Id, dd.Id, d.Company, d.WhFrom, d.WhTo, dd.Item, dd.Qty, dd.[Sum], isnull(dd.Kind, N''),
-		CostItem = isnull(dd.CostItem, d.CostItem), RespCenter, d.Agent, d.[Contract]
+		CostItem = isnull(dd.CostItem, d.CostItem), 
+		RespCenter, d.Agent, d.[Contract], d.Project
 	from doc.DocDetails dd 
 		inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 	where d.TenantId = @TenantId and d.Id = @Id;
@@ -12023,10 +12054,10 @@ begin
 	-- in/out
 	insert into jrn.StockJournal(TenantId, Dir, 
 		Warehouse, Document, Detail, Company, Item, Qty, [Sum], CostItem, 
-		RespCenter, Agent, [Contract])
+		RespCenter, Agent, [Contract], Project)
 	select @TenantId, Dir = case when js.IsOut = 1 then -1 when js.IsIn = 1 then 1 end, 
 		j.WhFrom, j.Document, j.Detail, j.Company, j.Item, j.Qty * js.Factor, 
-		j.[Sum] * js.Factor, j.CostItem, j.RespCenter, j.Agent, j.[Contract]
+		j.[Sum] * js.Factor, j.CostItem, j.RespCenter, j.Agent, j.[Contract], j.Project
 	from @journal j inner join doc.OpStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
 	where js.TenantId = @TenantId and js.Operation = @Operation and (js.IsOut = 1 or js.IsIn = 1);
 end

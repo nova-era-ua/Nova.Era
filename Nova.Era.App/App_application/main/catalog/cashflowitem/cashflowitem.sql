@@ -96,4 +96,23 @@ begin
 end
 go
 
+------------------------------------------------
+create or alter procedure cat.[CashFlowItem.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [CashFlowItems!TCashFlowItem!Array] = null, [Id!!Id] = cfi.Id, [Name!!Name] = cfi.[Name], cfi.Memo
+	from cat.CashFlowItems cfi 
+	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or Memo like @fr)
+	order by cfi.[Name];
+end
+go
 

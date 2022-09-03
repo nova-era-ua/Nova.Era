@@ -32,7 +32,7 @@
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
-		<Grid Columns="Auto,22rem,1px,Auto,22rem,1*" Gap="1rem">
+		<Grid Columns="Auto,22rem,1*,Auto,22rem">
 			<Label Content="@[Agent]" Grid.Row="1" Grid.Col="1"/>
 			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" DisplayProperty="Name">
 				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
@@ -55,19 +55,17 @@
 						<TextBox Grid.Row="5" Grid.Col="2" Value="{Bind Document.Notice}" Multiline="True" Rows="3"/>
 
 			<Label Content="@[RespCenter]" Grid.Row="1" Grid.Col="4" Wrap="NoWrap"/>
-			<Selector Grid.Row="1" Grid.Col="5"
-					Value="{Bind Document.RespCenter}" DisplayProperty="Name">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.RespCenter}, 
-					Url='/catalog/respcenter/browse'}"/>
-			</Selector>
+			<SelectorSimple Grid.Row="1" Grid.Col="5"
+					Value="{Bind Document.RespCenter}" Url="/catalog/respcenter"/>
+
+			<Label Content="@[Project]" Grid.Row="2" Grid.Col="4" Wrap="NoWrap"/>
+			<SelectorSimple Grid.Row="2" Grid.Col="5" 
+							Value="{Bind Document.Project}" Url="/catalog/project"/>
 
 
-			<Label Content="@[CashFlowItem]" Grid.Row="2" Grid.Col="4" Wrap="NoWrap"/>
-			<Selector Grid.Row="2" Grid.Col="5"
-					Value="{Bind Document.CashFlowItem}" DisplayProperty="Name">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashFlowItem}, 
-					Url='/catalog/cashflowitem/browse'}"/>
-			</Selector>
+			<Label Content="@[CashFlowItem]" Grid.Row="3" Grid.Col="4" Wrap="NoWrap"/>
+			<SelectorSimple Grid.Row="3" Grid.Col="5"
+					Value="{Bind Document.CashFlowItem}" Url="/catalog/cashflowitem"/>
 		</Grid>
 		<TextBox Grid.Row="4" Label="@[Memo]" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
