@@ -5,9 +5,9 @@
 	</Dialog.Buttons>
 	<TabBar Value="{Bind Root.$$Tab}" Margin="0,0,1rem,0">
 		<TabButton Content="Бухгалтерські проводки" ActiveValue=""/>
-		<TabButton Content="Рух запасів" ActiveValue="store"/>
-		<TabButton Content="Рух грошових коштів" ActiveValue="cash"/>
-		<TabButton Content="Рух взаєморазрахунків" ActiveValue="agent"/>
+		<TabButton Content="Запаси" ActiveValue="store" If="{Bind !StoreTrans.$isEmpty}"/>
+		<TabButton Content="Грошові кошти" ActiveValue="cash" If="{Bind !CashTrans.$isEmpty}"/>
+		<TabButton Content="Взаєморазрахунки" ActiveValue="agent"/>
 	</TabBar>
 	<Switch Expression="{Bind Root.$$Tab}">
 		<Case Value="">
@@ -113,6 +113,32 @@
 							<PropertyGridItem If="{Bind Item.Id}" Content="{Bind Item.Name}" Name="@[Item]"/>
 							<PropertyGridItem If="{Bind Warehouse.Id}" Content="{Bind Warehouse.Name}" Name="@[Warehouse]"/>
 							<PropertyGridItem If="{Bind RespCenter.Id}" Content="{Bind RespCenter.Name}" Name="@[RespCenterShort]"/>
+						</PropertyGrid>
+					</TableCell>
+				</TableRow>
+			</Table>
+		</Case>
+		<Case Value="cash">
+			<Table ItemsSource="{Bind CashTrans}" GridLines="Both" Striped="True" 
+				   Width="100%" Columns="Fit,Fit,Auto">
+				<Table.Header>
+					<TableRow>
+						<TableCell Content="Видаток/прибуток" Wrap="NoWrap"/>
+						<TableCell Content="@[Sum]"/>
+						<TableCell Content="@[Analytics]"/>
+					</TableRow>
+				</Table.Header>
+				<TableRow VAlign="Top">
+					<TableCell Content="{Bind $Dir}"/>
+					<TableCell Content="{Bind Sum, DataType=Currency, HideZeros=True}" Align="Right" Bold="True"/>
+					<TableCell Padding="0,6" >
+						<PropertyGrid GridLines="Horizontal" Compact="True">
+							<PropertyGridItem If="{Bind Company.Id}" Content="{Bind Company.Name}" Name="@[Company]"/>
+							<PropertyGridItem If="{Bind CashAccount.Id}" Content="{Bind CashAccount.Name}" Name="@[Label.Cash.Account]"/>
+							<PropertyGridItem If="{Bind Agent.Id}" Content="{Bind Agent.Name}" Name="@[Agent]"/>
+							<PropertyGridItem If="{Bind CashFlowItem.Id}" Content="{Bind CashFlowItem.Name}" Name="@[CashFlowItemShort]"/>
+							<PropertyGridItem If="{Bind RespCenter.Id}" Content="{Bind RespCenter.Name}" Name="@[RespCenterShort]"/>
+							<PropertyGridItem If="{Bind Project.Id}" Content="{Bind Project.Name}" Name="@[Project]"/>
 						</PropertyGrid>
 					</TableCell>
 				</TableRow>

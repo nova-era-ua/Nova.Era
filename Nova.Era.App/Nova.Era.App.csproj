@@ -466,6 +466,7 @@
     <Content Include="App_application\main\settings\test\model.json" />
     <Content Include="App_application\main\settings\project\model.json" />
     <Content Include="App_application\main\sales\project\model.json" />
+    <Content Include="App_application\main\document\sales\retbill\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

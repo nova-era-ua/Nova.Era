@@ -176,7 +176,7 @@
 								<ComboBoxItem Content="Маржа" Value="R"/>
 							</ComboBox>
 							<!---->
-							<TableCell Align="Center">
+							<TableCell Align="Center" VAlign="Middle">
 								<CheckBox Value="{Bind IsStorno}"/>
 							</TableCell>
 							<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
@@ -184,63 +184,94 @@
 					</Table>
 				</Case>
 				<Case Value="Journal">
-					<Header Padding="0,0,6,6" Bold="False">Рух запасів</Header>
-					<Toolbar Style="Light" Padding="0,6">
-						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Store}}"/>
-					</Toolbar>
-					<Table Columns="30rem,Fit,Fit,Fit,Fit" CellSpacing="Medium"
-							ItemsSource="{Bind Operation.Store}" Width="30rem">
-						<Table.Header>
+					<Grid Columns="Auto,Auto,Auto,1*" Rows="Auto,Auto,Auto" Padding="0,1rem" AlignItems="Top" Gap="6px,2rem">
+						<Header Grid.Row="1" Grid.Col="1" Bold="False">Рух запасів</Header>
+						<Toolbar Grid.Row="2" Grid.Col="1" Style="Light" Padding="0">
+							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Store}}"/>
+						</Toolbar>
+						<Table Grid.Row="3" Grid.Col="1"  Columns="30rem,Fit,Fit,Fit,Fit" CellSpacing="Medium"
+							ItemsSource="{Bind Operation.Store}" Width="30rem" Margin="-6px">
+							<Table.Header>
+								<TableRow>
+									<TableCell>Блок рядків</TableCell>
+									<TableCell>Прибуток</TableCell>
+									<TableCell>Видаток</TableCell>
+									<TableCell>@[Storno]</TableCell>
+									<TableCell></TableCell>
+								</TableRow>
+							</Table.Header>
 							<TableRow>
-								<TableCell>Блок рядків</TableCell>
-								<TableCell>Прибуток</TableCell>
-								<TableCell>Видаток</TableCell>
-								<TableCell>@[Storno]</TableCell>
-								<TableCell></TableCell>
-							</TableRow>
-						</Table.Header>
-						<TableRow>
-							<ComboBox Value="{Bind RowKind}"
+								<ComboBox Value="{Bind RowKind}"
 								ItemsSource="{Bind Root.Operation.Form.RowKinds}">
-								<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
-							</ComboBox>
-							<TableCell Align="Center">
-								<CheckBox Value="{Bind IsIn}"/>
-							</TableCell>
-							<TableCell Align="Center">
-								<CheckBox Value="{Bind IsOut}"/>
-							</TableCell>
-							<TableCell Align="Center">
-								<CheckBox Value="{Bind IsStorno}"/>
-							</TableCell>
-							<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
-						</TableRow>
-					</Table>
-					<Line />
-					<Header Padding="0,0,6,6" Bold="False">Взаєморазрахунки</Header>
-					<Table Columns="Fit,Fit,Fit" CellSpacing="Medium"
-							Width="20rem">
-						<Table.Header>
-							<TableRow>
-								<TableCell>Прибуток</TableCell>
-								<TableCell>Видаток</TableCell>
-								<TableCell>@[Storno]</TableCell>
+									<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
+								</ComboBox>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsIn}"/>
+								</TableCell>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsOut}"/>
+								</TableCell>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsStorno}"/>
+								</TableCell>
+								<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
 							</TableRow>
-						</Table.Header>
-						<TableRow>
-							<TableCell Align="Center">
-								<CheckBox />
-							</TableCell>
-							<TableCell Align="Center">
-								<CheckBox />
-							</TableCell>
-							<TableCell Align="Center">
-								<CheckBox />
-							</TableCell>
-						</TableRow>
-					</Table>
-					<Line />
-					<Header Padding="0,0,6,6" Bold="False">Грошові кошти</Header>
+						</Table>
+						<Header Grid.Row="1" Grid.Col="2" Bold="False">Грошові кошти</Header>
+						<Toolbar Grid.Row="2" Grid.Col="2" Style="Light" Padding="0">
+							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Cash}}"/>
+						</Toolbar>
+						<Table Grid.Row="3" Grid.Col="2" Columns="Fit,Fit,Fit,Fit" CellSpacing="Medium" Margin="-6px"
+							Width="20rem" ItemsSource="{Bind Operation.Cash}">
+							<Table.Header>
+								<TableRow>
+									<TableCell>Прибуток</TableCell>
+									<TableCell>Видаток</TableCell>
+									<TableCell>@[Storno]</TableCell>
+									<TableCell></TableCell>
+								</TableRow>
+							</Table.Header>
+							<TableRow>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsIn}"/>
+								</TableCell>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsOut}"/>
+								</TableCell>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsStorno}"/>
+								</TableCell>
+								<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
+							</TableRow>
+						</Table>
+						<Header Grid.Row="1" Grid.Col="3" Bold="False">Взаєморазрахунки</Header>
+						<Toolbar Grid.Row="2" Grid.Col="3" Style="Light" Padding="0">
+							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Store}}"/>
+						</Toolbar>
+						<Table Grid.Row="3" Grid.Col="3" Columns="Fit,Fit,Fit,Fit" CellSpacing="Medium" Margin="-6px"
+							Width="20rem" ItemsSource="{Bind Operation.Cash}">
+							<Table.Header>
+								<TableRow>
+									<TableCell>Прибуток</TableCell>
+									<TableCell>Видаток</TableCell>
+									<TableCell>@[Storno]</TableCell>
+									<TableCell></TableCell>
+								</TableRow>
+							</Table.Header>
+							<TableRow>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsIn}"/>
+								</TableCell>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsOut}"/>
+								</TableCell>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsStorno}"/>
+								</TableCell>
+								<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
+							</TableRow>
+						</Table>
+					</Grid>
 				</Case>
 				<Case Value="Menu">
 					<List ItemsSource="{Bind Menu}" GroupBy="Category" Width="20rem" Margin="1rem,.5rem"

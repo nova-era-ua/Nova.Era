@@ -822,6 +822,26 @@ create table doc.OpTrans
 	constraint FK_OpTrans_CtAccKind_ItemRoles foreign key (TenantId, CtAccKind) references acc.AccKinds(TenantId, Id),
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpCash')
+	create sequence doc.SQ_OpCash as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpCash')
+create table doc.OpCash
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_OpCash_Id default(next value for doc.SQ_OpCash),
+	Operation bigint not null,
+	IsIn bit not null,
+	IsOut bit not null,
+	Factor smallint -- 1 normal, -1 storno
+		constraint CK_OpCash_Factor check (Factor in (1, -1)),
+	constraint PK_OpCash primary key (TenantId, Id, Operation),
+	constraint FK_OpCash_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+go
 /*
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpSimple')
@@ -1007,6 +1027,7 @@ create table jrn.CashJournal
 	CashAccount bigint not null,
 	CashFlowItem bigint null,
 	RespCenter bigint null,
+	Project bigint,
 	[Sum] money not null
 		constraint DF_CashJournal_Sum default(0),
 	_SumIn as (case when InOut = 1 then [Sum] else 0 end),
@@ -1019,7 +1040,8 @@ create table jrn.CashJournal
 		constraint FK_CashJournal_Contract_Contracts foreign key (TenantId, Contract) references doc.Contracts(TenantId, Id),
 		constraint FK_CashJournal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id),
 		constraint FK_CashJournal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
-		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id)
+		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
+		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
 );
 go
 ------------------------------------------------

@@ -59,7 +59,8 @@ begin
 	set transaction isolation level read uncommitted;
 
 	declare @refs table(comp bigint, item bigint, respcenter bigint, costitem bigint, 
-		account bigint, wh bigint, agent bigint, [contract] bigint, cashacc bigint);
+		account bigint, wh bigint, agent bigint, [contract] bigint, cashacc bigint, cashflowitem bigint,
+		project bigint);
 
 	select [Transactions!TTrans!Array] = null,
 		[Id!!Id] = TrNo, [Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
@@ -84,26 +85,44 @@ begin
 	select [StoreTrans!TStoreTrans!Array] = null, [Id!!Id] = Id, Dir, Qty, [Sum],
 		[Company!TCompany!RefId] = Company, [Item!TItem!RefId] = Item, [Warehouse!TWarehouse!RefId] = Warehouse,
 		[CostItem!TCostItem!RefId] = CostItem, [RespCenter!TRespCenter!RefId] = RespCenter,
-		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract]
+		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract],
+		[Project!TProject!RefId] = Project
 	from jrn.StockJournal
 	where TenantId = @TenantId and [Document] = @Id
 	order by Dir;
 
+	-- cash
+	select [CashTrans!TCashTrans!Array] = null, [Id!!Id] = Id, InOut, [Sum],
+		[Company!TCompany!RefId] = Company, [CashAccount!TCashAccount!RefId] = CashAccount,
+		[CashFlowItem!TCashFlowItem!RefId] = CashFlowItem, [RespCenter!TRespCenter!RefId] = RespCenter,
+		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract],
+		[Project!TProject!RefId] = Project
+	from jrn.CashJournal
+	where TenantId = @TenantId and [Document] = @Id;
+
 	-- maps
-	insert into @refs(comp, item, costitem, respcenter, agent, wh, [contract], cashacc)
-	select Company, Item, CostItem, RespCenter, Agent, Warehouse, [Contract], CashAccount
+	insert into @refs(comp, item, costitem, respcenter, agent, wh, [contract], cashacc, project)
+	select Company, Item, CostItem, RespCenter, Agent, Warehouse, [Contract], CashAccount, Project
 	from jrn.Journal
 	where TenantId = @TenantId and Document = @Id;
 
-	insert into @refs(comp, item, costitem, respcenter, wh, agent, [contract])
-	select Company, Item, CostItem, RespCenter, Warehouse, Agent, [Contract]
+	insert into @refs(comp, item, costitem, respcenter, wh, agent, [contract], project)
+	select Company, Item, CostItem, RespCenter, Warehouse, Agent, [Contract], Project
 	from jrn.StockJournal
 	where TenantId = @TenantId and Document = @Id;
 	
+	insert into @refs(comp, cashflowitem, respcenter, agent, [contract], cashacc, project)
+	select Company, CashFlowItem, RespCenter, Agent, [Contract], CashAccount, Project
+	from jrn.CashJournal
+	where TenantId = @TenantId and Document = @Id;
 
 	with TC as (select comp from @refs group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join TC t on c.TenantId = @TenantId and c.Id = t.comp;
+
+	with TCA as (select cashacc from @refs group by cashacc)
+	select [!TCashAccount!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.CashAccounts c inner join TCA t on c.TenantId = @TenantId and c.Id = t.cashacc;
 
 	with TW as (select wh from @refs group by wh)
 	select [!TWarehouse!Map] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name]
@@ -120,5 +139,13 @@ begin
 	with TA as (select agent from @refs group by agent)
 	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
 	from cat.Agents a inner join TA t on a.TenantId = @TenantId and a.Id = t.agent;
+
+	with TCF as (select cashflowitem from @refs group by cashflowitem)
+	select [!TCashFlowItem!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.CashFlowItems c inner join TCF t on c.TenantId = @TenantId and c.Id = t.cashflowitem;
+
+	with TP as (select project from @refs group by project)
+	select [!TProject!Map] = null, [Id!!Id] = p.Id, [Name!!Name] = p.[Name]
+	from cat.Projects p inner join TP t on p.TenantId = @TenantId and p.Id = t.project;
 end
 go

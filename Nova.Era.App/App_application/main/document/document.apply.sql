@@ -168,15 +168,6 @@ begin
 	from @trans
 	group by TrNo, [Date], DtCt, [Plan], Acc, CorrAcc, 
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
-
-	if exists(select * from @trans where CashAcc is not null)
-	begin
-		insert into jrn.CashJournal(TenantId, Document, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter)
-		select TenantId = @TenantId, Document = @Id, [Date], InOut = DtCt, [Sum] = sum([Sum]), Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter
-		from @trans
-		where CashAcc is not null
-		group by [Date], DtCt, Company, Agent, CashAcc, [Contract], CashFlowItem, RespCenter;
-	end
 end
 go
 ------------------------------------------------
@@ -194,7 +185,6 @@ begin
 
 	-- ensure empty journal
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
-	delete from jrn.CashJournal where TenantId = @TenantId and Document = @Id;
 
 	declare @mode nvarchar(10) = N'bydoc';
 
@@ -213,6 +203,7 @@ create or alter procedure doc.[Document.Apply.Stock]
 as
 begin
 	set nocount on;
+	set transaction isolation level read committed;
 
 	declare @journal table(
 		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint, Agent bigint, [Contract] bigint,
@@ -236,6 +227,38 @@ begin
 		j.[Sum] * js.Factor, j.CostItem, j.RespCenter, j.Agent, j.[Contract], j.Project
 	from @journal j inner join doc.OpStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
 	where js.TenantId = @TenantId and js.Operation = @Operation and (js.IsOut = 1 or js.IsIn = 1);
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.Apply.Cash]
+@TenantId int = 1,
+@UserId bigint,
+@Operation bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	delete from jrn.CashJournal where TenantId = @TenantId and Document = @Id;
+
+	with T as
+	(
+		select InOut = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = d.CashAccTo, [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+			d.CashFlowItem
+		from doc.Documents d
+			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and d.Id = @Id and oc.IsIn = 1
+		union all
+		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = d.CashAccFrom, [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+			d.CashFlowItem
+		from doc.Documents d
+			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and d.Id = @Id and oc.IsOut = 1
+	)
+	insert into jrn.CashJournal(TenantId, Document, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter, Project)
+	select TenantId = @TenantId, Document = @Id, [Date], InOut, [Sum], Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter, Project
+	from T;
 end
 go
 ------------------------------------------------
@@ -345,6 +368,7 @@ begin
 	declare @stock bit; -- stock journal
 	declare @pay bit;   -- pay journal
 	declare @acc bit;   -- acc journal
+	declare @cash bit;  -- cash journal
 
 	if exists(select * from doc.OpStore 
 			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
@@ -352,6 +376,9 @@ begin
 	if exists(select * from doc.OpTrans 
 			where TenantId = @TenantId and Operation = @operation)
 		set @acc = 1;
+	if exists(select * from doc.OpCash 
+			where TenantId = @TenantId and Operation = @operation)
+		set @cash = 1;
 
 	begin tran;
 		exec doc.[Document.Apply.CheckRems] @TenantId= @TenantId, @Id=@Id, @CheckRems = @CheckRems;
@@ -360,6 +387,9 @@ begin
 				@Operation = @operation, @Id = @Id;
 		if @acc = 1
 			exec doc.[Document.Apply.Account] @TenantId = @TenantId, @UserId=@UserId,
+				@Operation = @operation, @Id = @Id;
+		if @cash = 1
+			exec doc.[Document.Apply.Cash] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;
 		if @wsp = 1
 			exec doc.[Apply.WriteSupplierPrices] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
