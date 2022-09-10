@@ -8,6 +8,16 @@
 					Command="{BindCmd Report, Report={Bind Report}, Argument={Bind DocumentId}, Url={Bind Url}, Print=True}"/>
 			<Button Content="Зберегти як файл"
 					Command="{BindCmd Report, Report={Bind Report}, Argument={Bind DocumentId}, Url={Bind Url}, Export=True}"/>
+			<!--
+			<Button Content="TestAttachment"
+					Command="{BindCmd Execute, CommandName=testAtt}"/>
+			<Button Content="Download"
+					Command="{BindCmd Attachment, Export=False, Url='/document/print/attachment', Argument={Bind Root.AttInfo}, NewWindow=True}"/>
+			<Button Content="Export"
+					Command="{BindCmd Attachment, Export=True, Url='/document/print/attachment', Argument={Bind Root.AttInfo}}"/>
+			<Button Content="Print"
+					Command="{BindCmd Attachment, Print=True, Url='/document/print/attachment', Argument={Bind Root.AttInfo}}"/>
+			-->
 		</Slot>
 		<ToolbarAligner />
 		<Button Content="@[Close]" Command="{BindCmd Close}" />

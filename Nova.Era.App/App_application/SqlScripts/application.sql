@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 09.09.2022 07:57:13
+generated: 10.09.2022 16:31:50
 */
 
 
@@ -8,7 +8,7 @@ generated: 09.09.2022 07:57:13
 
 /*
 version: 10.0.7877
-generated: 02.09.2022 06:47:48
+generated: 10.09.2022 16:02:59
 */
 
 set nocount on;
@@ -4234,6 +4234,26 @@ create table doc.OpTrans
 	constraint FK_OpTrans_CtAccKind_ItemRoles foreign key (TenantId, CtAccKind) references acc.AccKinds(TenantId, Id),
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpCash')
+	create sequence doc.SQ_OpCash as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpCash')
+create table doc.OpCash
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_OpCash_Id default(next value for doc.SQ_OpCash),
+	Operation bigint not null,
+	IsIn bit not null,
+	IsOut bit not null,
+	Factor smallint -- 1 normal, -1 storno
+		constraint CK_OpCash_Factor check (Factor in (1, -1)),
+	constraint PK_OpCash primary key (TenantId, Id, Operation),
+	constraint FK_OpCash_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+go
 /*
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpSimple')
@@ -4419,6 +4439,7 @@ create table jrn.CashJournal
 	CashAccount bigint not null,
 	CashFlowItem bigint null,
 	RespCenter bigint null,
+	Project bigint,
 	[Sum] money not null
 		constraint DF_CashJournal_Sum default(0),
 	_SumIn as (case when InOut = 1 then [Sum] else 0 end),
@@ -4431,7 +4452,8 @@ create table jrn.CashJournal
 		constraint FK_CashJournal_Contract_Contracts foreign key (TenantId, Contract) references doc.Contracts(TenantId, Id),
 		constraint FK_CashJournal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id),
 		constraint FK_CashJournal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
-		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id)
+		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
+		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4747,6 +4769,12 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn'
 	alter table jrn.StockJournal add Project bigint,
 		constraint FK_StockJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'CashJournal' and COLUMN_NAME=N'Project')
+	alter table jrn.CashJournal add Project bigint,
+		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
+go
+
 /*
 common
 */
@@ -10569,7 +10597,7 @@ begin
 		o.DocumentUrl, [Form!TForm!RefId] = o.Form, [Autonum!TAutonum!RefId] = o.Autonum,
 		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
-		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null
+		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null, [Cash!TOpCash!Array] = null
 	from doc.Operations o
 	where o.TenantId = @TenantId and o.Id=@Id;
 
@@ -10598,6 +10626,15 @@ begin
 	from doc.OpStore os
 	where os.TenantId = @TenantId and os.Operation = @Id
 	order by os.RowNo;
+
+	-- CASH TRANSACTIONS
+	select [!TOpCash!Array] = null, [Id!!Id] = Id,
+		oc.IsIn, oc.IsOut, IsStorno = cast(case when oc.Factor = -1 then 1 else 0 end as bit), 
+		[!TOperation.Cash!ParentId] = oc.Operation
+	from doc.OpCash oc
+	where oc.TenantId = @TenantId and oc.Operation = @Id;
+
+	-- SETTLEMENT TRANSACTIONS
 
 	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, [Type], [Category],
 		[Operation.Id!TOper!Id] = o.Id, [Operation.Name!TOper!Name] = o.[Name],
@@ -10654,6 +10691,7 @@ drop procedure if exists doc.[Operation.Metadata];
 drop procedure if exists doc.[Operation.Update];
 drop type if exists doc.[Operation.TableType];
 drop type if exists doc.[OpStore.TableType];
+drop type if exists doc.[OpSimpleTrans.TableType];
 drop type if exists doc.[OpTrans.TableType];
 drop type if exists doc.[OpMenu.TableType]
 drop type if exists doc.[OpPrintForm.TableType]
@@ -10706,6 +10744,15 @@ as table(
 )
 go
 -------------------------------------------------
+create type doc.[OpSimpleTrans.TableType]
+as table(
+	Id bigint,
+	IsIn bit,
+	IsOut bit,
+	IsStorno bit
+)
+go
+-------------------------------------------------
 create type doc.[OpTrans.TableType]
 as table(
 	Id bigint,
@@ -10733,12 +10780,14 @@ begin
 	set transaction isolation level read uncommitted;
 	declare @Operation doc.[Operation.TableType];
 	declare @OpStore doc.[OpStore.TableType];
+	declare @OpCash doc.[OpSimpleTrans.TableType];
 	declare @OpTrans doc.[OpTrans.TableType];
 	declare @OpMenu doc.[OpMenu.TableType];
 	declare @OpPrintForm doc.[OpPrintForm.TableType];
 	declare @OpLinks doc.[OpLink.TableType];
 	select [Operation!Operation!Metadata] = null, * from @Operation;
 	select [Store!Operation.Store!Metadata] = null, * from @OpStore;
+	select [Cash!Operation.Cash!Metadata] = null, * from @OpCash;
 	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 	select [Menu!Menu!Metadata] = null, * from @OpMenu;
 	select [PrintForms!PrintForms!Metadata] = null, * from @OpPrintForm;
@@ -10751,6 +10800,7 @@ create or alter procedure doc.[Operation.Update]
 @UserId bigint,
 @Operation doc.[Operation.TableType] readonly,
 @Store doc.[OpStore.TableType] readonly,
+@Cash doc.[OpSimpleTrans.TableType] readonly,
 @Trans doc.[OpTrans.TableType] readonly,
 @Menu doc.[OpMenu.TableType] readonly,
 @Links doc.[OpLink.TableType] readonly,
@@ -10791,6 +10841,18 @@ begin
 	when not matched by target then insert
 		(TenantId, Operation, RowNo, RowKind, IsIn, IsOut, Factor) values
 		(@TenantId, @Id, RowNo, isnull(RowKind, N''), s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
+	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
+
+	merge doc.OpCash as t
+	using @Cash as s
+	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
+	when matched then update set 
+		t.IsIn = s.IsIn,
+		t.IsOut = s.IsOut,
+		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
+	when not matched by target then insert
+		(TenantId, Operation, IsIn, IsOut, Factor) values
+		(@TenantId, @Id, s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
 	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
 
 	merge doc.OpTrans as t
@@ -11992,15 +12054,6 @@ begin
 	from @trans
 	group by TrNo, [Date], DtCt, [Plan], Acc, CorrAcc, 
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
-
-	if exists(select * from @trans where CashAcc is not null)
-	begin
-		insert into jrn.CashJournal(TenantId, Document, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter)
-		select TenantId = @TenantId, Document = @Id, [Date], InOut = DtCt, [Sum] = sum([Sum]), Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter
-		from @trans
-		where CashAcc is not null
-		group by [Date], DtCt, Company, Agent, CashAcc, [Contract], CashFlowItem, RespCenter;
-	end
 end
 go
 ------------------------------------------------
@@ -12018,7 +12071,6 @@ begin
 
 	-- ensure empty journal
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
-	delete from jrn.CashJournal where TenantId = @TenantId and Document = @Id;
 
 	declare @mode nvarchar(10) = N'bydoc';
 
@@ -12037,6 +12089,7 @@ create or alter procedure doc.[Document.Apply.Stock]
 as
 begin
 	set nocount on;
+	set transaction isolation level read committed;
 
 	declare @journal table(
 		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint, Agent bigint, [Contract] bigint,
@@ -12060,6 +12113,38 @@ begin
 		j.[Sum] * js.Factor, j.CostItem, j.RespCenter, j.Agent, j.[Contract], j.Project
 	from @journal j inner join doc.OpStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
 	where js.TenantId = @TenantId and js.Operation = @Operation and (js.IsOut = 1 or js.IsIn = 1);
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.Apply.Cash]
+@TenantId int = 1,
+@UserId bigint,
+@Operation bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	delete from jrn.CashJournal where TenantId = @TenantId and Document = @Id;
+
+	with T as
+	(
+		select InOut = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = d.CashAccTo, [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+			d.CashFlowItem
+		from doc.Documents d
+			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and d.Id = @Id and oc.IsIn = 1
+		union all
+		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = d.CashAccFrom, [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+			d.CashFlowItem
+		from doc.Documents d
+			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and d.Id = @Id and oc.IsOut = 1
+	)
+	insert into jrn.CashJournal(TenantId, Document, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter, Project)
+	select TenantId = @TenantId, Document = @Id, [Date], InOut, [Sum], Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter, Project
+	from T;
 end
 go
 ------------------------------------------------
@@ -12169,6 +12254,7 @@ begin
 	declare @stock bit; -- stock journal
 	declare @pay bit;   -- pay journal
 	declare @acc bit;   -- acc journal
+	declare @cash bit;  -- cash journal
 
 	if exists(select * from doc.OpStore 
 			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
@@ -12176,6 +12262,9 @@ begin
 	if exists(select * from doc.OpTrans 
 			where TenantId = @TenantId and Operation = @operation)
 		set @acc = 1;
+	if exists(select * from doc.OpCash 
+			where TenantId = @TenantId and Operation = @operation)
+		set @cash = 1;
 
 	begin tran;
 		exec doc.[Document.Apply.CheckRems] @TenantId= @TenantId, @Id=@Id, @CheckRems = @CheckRems;
@@ -12184,6 +12273,9 @@ begin
 				@Operation = @operation, @Id = @Id;
 		if @acc = 1
 			exec doc.[Document.Apply.Account] @TenantId = @TenantId, @UserId=@UserId,
+				@Operation = @operation, @Id = @Id;
+		if @cash = 1
+			exec doc.[Document.Apply.Cash] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;
 		if @wsp = 1
 			exec doc.[Apply.WriteSupplierPrices] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
@@ -12255,7 +12347,8 @@ begin
 	set transaction isolation level read uncommitted;
 
 	declare @refs table(comp bigint, item bigint, respcenter bigint, costitem bigint, 
-		account bigint, wh bigint, agent bigint, [contract] bigint, cashacc bigint);
+		account bigint, wh bigint, agent bigint, [contract] bigint, cashacc bigint, cashflowitem bigint,
+		project bigint);
 
 	select [Transactions!TTrans!Array] = null,
 		[Id!!Id] = TrNo, [Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
@@ -12280,26 +12373,44 @@ begin
 	select [StoreTrans!TStoreTrans!Array] = null, [Id!!Id] = Id, Dir, Qty, [Sum],
 		[Company!TCompany!RefId] = Company, [Item!TItem!RefId] = Item, [Warehouse!TWarehouse!RefId] = Warehouse,
 		[CostItem!TCostItem!RefId] = CostItem, [RespCenter!TRespCenter!RefId] = RespCenter,
-		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract]
+		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract],
+		[Project!TProject!RefId] = Project
 	from jrn.StockJournal
 	where TenantId = @TenantId and [Document] = @Id
 	order by Dir;
 
+	-- cash
+	select [CashTrans!TCashTrans!Array] = null, [Id!!Id] = Id, InOut, [Sum],
+		[Company!TCompany!RefId] = Company, [CashAccount!TCashAccount!RefId] = CashAccount,
+		[CashFlowItem!TCashFlowItem!RefId] = CashFlowItem, [RespCenter!TRespCenter!RefId] = RespCenter,
+		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract],
+		[Project!TProject!RefId] = Project
+	from jrn.CashJournal
+	where TenantId = @TenantId and [Document] = @Id;
+
 	-- maps
-	insert into @refs(comp, item, costitem, respcenter, agent, wh, [contract], cashacc)
-	select Company, Item, CostItem, RespCenter, Agent, Warehouse, [Contract], CashAccount
+	insert into @refs(comp, item, costitem, respcenter, agent, wh, [contract], cashacc, project)
+	select Company, Item, CostItem, RespCenter, Agent, Warehouse, [Contract], CashAccount, Project
 	from jrn.Journal
 	where TenantId = @TenantId and Document = @Id;
 
-	insert into @refs(comp, item, costitem, respcenter, wh, agent, [contract])
-	select Company, Item, CostItem, RespCenter, Warehouse, Agent, [Contract]
+	insert into @refs(comp, item, costitem, respcenter, wh, agent, [contract], project)
+	select Company, Item, CostItem, RespCenter, Warehouse, Agent, [Contract], Project
 	from jrn.StockJournal
 	where TenantId = @TenantId and Document = @Id;
 	
+	insert into @refs(comp, cashflowitem, respcenter, agent, [contract], cashacc, project)
+	select Company, CashFlowItem, RespCenter, Agent, [Contract], CashAccount, Project
+	from jrn.CashJournal
+	where TenantId = @TenantId and Document = @Id;
 
 	with TC as (select comp from @refs group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join TC t on c.TenantId = @TenantId and c.Id = t.comp;
+
+	with TCA as (select cashacc from @refs group by cashacc)
+	select [!TCashAccount!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.CashAccounts c inner join TCA t on c.TenantId = @TenantId and c.Id = t.cashacc;
 
 	with TW as (select wh from @refs group by wh)
 	select [!TWarehouse!Map] = null, [Id!!Id] = w.Id, [Name!!Name] = w.[Name]
@@ -12316,6 +12427,14 @@ begin
 	with TA as (select agent from @refs group by agent)
 	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
 	from cat.Agents a inner join TA t on a.TenantId = @TenantId and a.Id = t.agent;
+
+	with TCF as (select cashflowitem from @refs group by cashflowitem)
+	select [!TCashFlowItem!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.CashFlowItems c inner join TCF t on c.TenantId = @TenantId and c.Id = t.cashflowitem;
+
+	with TP as (select project from @refs group by project)
+	select [!TProject!Map] = null, [Id!!Id] = p.Id, [Name!!Name] = p.[Name]
+	from cat.Projects p inner join TP t on p.TenantId = @TenantId and p.Id = t.project;
 end
 go
 

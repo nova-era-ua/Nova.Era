@@ -1,6 +1,7 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
     "schema": "doc",
+    "model": "Document.Stock",
     "dialogs": {
         "browse": {
             "model": "Document.Print",
@@ -20,6 +21,13 @@
             "model": "Document.Stock",
             "name": "Видаткова накладна № {{Document.Id}}",
             "report": "waybillout.printform"
+        }
+    },
+    "commands": {
+        "attachReport": {
+            "type": "clr",
+            "clrType": "clr-type:A2v10.Reports.Actions.AttachPdfReport;assembly=A2v10.Reports",
+            "async": true
         }
     }
 }
