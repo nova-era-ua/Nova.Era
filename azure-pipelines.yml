@@ -39,6 +39,12 @@ steps:
     Contents: '**'
     TargetFolder: '$(Build.SourcesDirectory)\Nova.Era.Web\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main'
 
+task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)\Nova.Era.App\App_application\_apps'
+    Contents: '**'
+    TargetFolder: '$(Build.SourcesDirectory)\Nova.Era.Web\obj\$(buildConfiguration)\Package\PackageTmp\App_application\_apps'
+
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: $(Build.SourcesDirectory)\Nova.Era.Web\obj\Release\Package\PackageTmp
