@@ -39,7 +39,7 @@ steps:
     Contents: '**'
     TargetFolder: '$(Build.SourcesDirectory)\Nova.Era.Web\obj\$(buildConfiguration)\Package\PackageTmp\App_application\main'
 
-task: CopyFiles@2
+- task: CopyFiles@2
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)\Nova.Era.App\App_application\_apps'
     Contents: '**'
