@@ -31,7 +31,12 @@
 				Поточні налаштуваннями системи будуть завантажені з файлу. Налаштування включають:
 				плани рахунків, види рахунків, ролі в обліку, операції.
 			</Paragraph>
-			<Button  Margin="1rem,0" Style="Primary" Command="{BindCmd Command=Execute, CommandName='upload'}">Завантажити застосунок</Button>
+			<Button  Margin="1rem,0" Style="Primary" Command="{BindCmd Execute, CommandName='upload'}">Завантажити застосунок</Button>
 		</Block>
+		<Line Margin="1rem,0,2rem,0"/>
+		<StackPanel Orientation="Horizontal" Gap="6">
+			<Button Style="Error" Content="App List" Command="{BindCmd Execute, CommandName='appList'}"/>
+			<Button Style="Error" Content="Upload App" Command="{BindCmd Execute, CommandName='uploadApp'}"/>
+		</StackPanel>
 	</Block>
 </Page>

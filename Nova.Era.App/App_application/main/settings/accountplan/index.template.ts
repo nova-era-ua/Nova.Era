@@ -2,6 +2,8 @@
 
 const tu: UtilsText = require('std:utils').text;
 
+/** \u2007 - unicode EN FIGURE SPACE (the width of digit)  */
+
 const URLS = {
 	editPlan: '/settings/accountplan/editPlan',
 	edit: '/settings/accountplan/edit'
@@ -9,7 +11,7 @@ const URLS = {
 
 const template: Template = {
 	properties: {
-		'TAccount.$Title'(this: TAccount) { return `${this.Code} ${this.Name}`; },
+		'TAccount.$Title'(this: TAccount) { return `${this.Code}\u2007${this.Name}`; },
 		'TAccount.$Icon'() { return this.IsFolder ? 'account-folder' : 'account'; },
 		'TAccount.$IsPlan'() { return this.Plan === 0; },
 		'TRoot.$Search': String,

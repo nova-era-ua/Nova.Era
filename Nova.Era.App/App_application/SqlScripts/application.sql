@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 10.09.2022 16:31:50
+generated: 11.09.2022 08:01:54
 */
 
 
@@ -8,7 +8,7 @@ generated: 10.09.2022 16:31:50
 
 /*
 version: 10.0.7877
-generated: 10.09.2022 16:02:59
+generated: 11.09.2022 07:04:49
 */
 
 set nocount on;
@@ -14307,14 +14307,14 @@ begin
 		t.[Name] = s.[Name],
 		t.Code = s.Code,
 		t.Memo = s.Memo,
-		t.IsFolder = s.IsFolder,
+		t.IsFolder = isnull(s.IsFolder, 0),
 		t.IsItem = s.IsItem, IsAgent = s.IsAgent, t.IsWarehouse = s.IsWarehouse,
 		t.IsBankAccount = s.IsBankAccount, t.IsCash = s.IsCash, t.IsContract = s.IsContract,
 		t.IsRespCenter = s.IsRespCenter, t.IsCostItem = s.IsCostItem
 	when not matched by target then insert
 		(TenantId, [Uid], [Name], Code, [Memo], IsFolder, 
 			IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem) values
-		(@TenantId, s.[Uid], s.[Name], s.Code, s.Memo, s.IsFolder,
+		(@TenantId, s.[Uid], s.[Name], s.Code, s.Memo, isnull(s.IsFolder, 0),
 			s.IsItem, s.IsAgent, s.IsWarehouse, s.IsBankAccount, s.IsCash, s.IsContract, s.IsRespCenter, s.IsCostItem);
 
 	-- accounts - step 2 - plan & parent
@@ -14338,10 +14338,10 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.IsFolder = s.[IsFolder]
+		t.IsFolder = isnull(s.[IsFolder], 0)
 	when not matched by target then insert
 		(TenantId, [Uid], [Name], Memo, IsFolder) values
-		(@TenantId, s.Id, s.[Name], s.Memo, s.IsFolder);
+		(@TenantId, s.Id, s.[Name], s.Memo, isnull(s.IsFolder, 0));
 
 	-- cost items - step 2
 	with T as (

@@ -345,14 +345,14 @@ begin
 		t.[Name] = s.[Name],
 		t.Code = s.Code,
 		t.Memo = s.Memo,
-		t.IsFolder = s.IsFolder,
+		t.IsFolder = isnull(s.IsFolder, 0),
 		t.IsItem = s.IsItem, IsAgent = s.IsAgent, t.IsWarehouse = s.IsWarehouse,
 		t.IsBankAccount = s.IsBankAccount, t.IsCash = s.IsCash, t.IsContract = s.IsContract,
 		t.IsRespCenter = s.IsRespCenter, t.IsCostItem = s.IsCostItem
 	when not matched by target then insert
 		(TenantId, [Uid], [Name], Code, [Memo], IsFolder, 
 			IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, IsContract, IsRespCenter, IsCostItem) values
-		(@TenantId, s.[Uid], s.[Name], s.Code, s.Memo, s.IsFolder,
+		(@TenantId, s.[Uid], s.[Name], s.Code, s.Memo, isnull(s.IsFolder, 0),
 			s.IsItem, s.IsAgent, s.IsWarehouse, s.IsBankAccount, s.IsCash, s.IsContract, s.IsRespCenter, s.IsCostItem);
 
 	-- accounts - step 2 - plan & parent
@@ -376,10 +376,10 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
-		t.IsFolder = s.[IsFolder]
+		t.IsFolder = isnull(s.[IsFolder], 0)
 	when not matched by target then insert
 		(TenantId, [Uid], [Name], Memo, IsFolder) values
-		(@TenantId, s.Id, s.[Name], s.Memo, s.IsFolder);
+		(@TenantId, s.Id, s.[Name], s.Memo, isnull(s.IsFolder, 0));
 
 	-- cost items - step 2
 	with T as (

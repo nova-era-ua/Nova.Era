@@ -13,6 +13,20 @@
 			"type": "sql",
 			"schema": "debug",
 			"procedure": "TestEnvironment.Create"
+		},
+		"appList": {
+			"type": "clr",
+			"clrType": "clr-type:A2v10.Web.Mvc.Actions.AppList;assembly=A2v10.Web.Mvc",
+			"async": true
+		},
+		"uploadApp": {
+			"type": "clr",
+			"clrType": "clr-type:A2v10.Web.Mvc.Actions.UploadApp;assembly=A2v10.Web.Mvc",
+			"async": true,
+			"parameters": {
+				"model": "Application.Upload",
+				"schema": "app"
+			}
 		}
 	},
 	"files": {

@@ -103,6 +103,11 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn'
 		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'Journal' and COLUMN_NAME=N'Operation')
+	alter table jrn.Journal	add Operation bigint null,
+		constraint FK_Journal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'Project')
 	alter table doc.Documents add Project bigint null,
 		constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);

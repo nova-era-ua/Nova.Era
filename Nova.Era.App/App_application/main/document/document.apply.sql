@@ -43,10 +43,10 @@ begin
 		from doc.DocDetails dd
 			inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 			inner join doc.OpTrans ot on dd.TenantId = ot.TenantId and (dd.Kind = ot.RowKind or ot.RowKind = N'All')
-			left join cat.ItemRoleAccounts ird on ird.TenantId = dd.TenantId and ird.[Role] = isnull(dd.ItemRoleTo, dd.ItemRole) and ird.AccKind = ot.DtAccKind
-			left join cat.ItemRoleAccounts irc on irc.TenantId = dd.TenantId and irc.[Role] = dd.ItemRole and irc.AccKind = ot.CtAccKind
-			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind
-			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind
+			left join cat.ItemRoleAccounts ird on ird.TenantId = dd.TenantId and ird.[Role] = isnull(dd.ItemRoleTo, dd.ItemRole) and ird.AccKind = ot.DtAccKind and ird.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts irc on irc.TenantId = dd.TenantId and irc.[Role] = dd.ItemRole and irc.AccKind = ot.CtAccKind and irc.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind and irdocdt.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind and irdocct.[Plan] = ot.[Plan]
 		where dd.TenantId = @TenantId and dd.Document = @Id and ot.Operation = @Operation 
 			and (@exclude = 0 or Kind <> N'Service')
 			--and (ot.DtRow = N'R' or ot.CtRow = N'R')
@@ -90,9 +90,9 @@ begin
 			else Qty
 		end;
 	
-	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum], [Qty], [Item],
+	insert into jrn.Journal(TenantId, Document, Operation, Detail, TrNo, RowNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum], [Qty], [Item],
 		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter, Project)
-	select TenantId = @TenantId, Document = @Id, Detail = iif(RowMode = N'R', Detail, null), TrNo, RowNo = iif(RowMode = N'R', RowNo, null),
+	select TenantId = @TenantId, Document = @Id, Operation = @Operation, Detail = iif(RowMode = N'R', Detail, null), TrNo, RowNo = iif(RowMode = N'R', RowNo, null),
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([ResultSum]), Qty = sum(iif(RowMode = N'R', Qty, 0)),
 		Item = iif(RowMode = N'R', Item, null),
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
@@ -108,7 +108,6 @@ begin
 	order by TrNo, RowNo;
 end
 go
-------------------------------------------------
 create or alter procedure doc.[Document.Apply.Account.ByDoc]
 @TenantId int = 1,
 @UserId bigint,
@@ -145,10 +144,10 @@ begin
 			inner join doc.OpTrans ot on d.TenantId = ot.TenantId and ot.RowKind = N''
 			left join cat.CashAccounts accdt on d.TenantId = accdt.TenantId and d.CashAccTo = accdt.Id
 			left join cat.CashAccounts accct on d.TenantId = accct.TenantId and d.CashAccFrom = accct.Id
-			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind
-			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind
-			left join cat.ItemRoleAccounts iraccdt on iraccdt.TenantId = d.TenantId and iraccdt.[Role] = accdt.ItemRole and iraccdt.AccKind = ot.DtAccKind
-			left join cat.ItemRoleAccounts iraccct on iraccct.TenantId = d.TenantId and iraccct.[Role] = accct.ItemRole and iraccct.AccKind = ot.CtAccKind
+			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind and irdocdt.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind and irdocct.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts iraccdt on iraccdt.TenantId = d.TenantId and iraccdt.[Role] = accdt.ItemRole and iraccdt.AccKind = ot.DtAccKind and iraccdt.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts iraccct on iraccct.TenantId = d.TenantId and iraccct.[Role] = accct.ItemRole and iraccct.AccKind = ot.CtAccKind and iraccct.[Plan] = ot.[Plan]
 		where d.TenantId = @TenantId and d.Id = @Id and ot.Operation = @Operation
 	)
 	insert into @trans
@@ -160,9 +159,9 @@ begin
 		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, Project, [Sum]
 		from TR;
 
-	insert into jrn.Journal(TenantId, Document, TrNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum],
+	insert into jrn.Journal(TenantId, Document, Operation, TrNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum],
 		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter, Project)
-	select TenantId = @TenantId, Document = @Id, TrNo,
+	select TenantId = @TenantId, Document = @Id, Operation = @Operation, TrNo,
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([Sum]),
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
 	from @trans

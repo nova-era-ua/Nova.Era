@@ -8,7 +8,7 @@ define(["require", "exports"], function (require, exports) {
     };
     const template = {
         properties: {
-            'TAccount.$Title'() { return `${this.Code} ${this.Name}`; },
+            'TAccount.$Title'() { return `${this.Code}\u2007${this.Name}`; },
             'TAccount.$Icon'() { return this.IsFolder ? 'account-folder' : 'account'; },
             'TAccount.$IsPlan'() { return this.Plan === 0; },
             'TRoot.$Search': String,

@@ -2,7 +2,9 @@
 const template: Template = {
 	commands: {
 		createTest,
-		upload
+		upload,
+		appList,
+		uploadApp
 	} 
 };
 
@@ -19,4 +21,16 @@ async function upload() {
 	let result = await ctrl.$upload('/settings/develop/upload', 'application/json')
 	//alert(JSON.stringify(result));
 	ctrl.$toast('Застосунок завантажено успішно', CommonStyle.success);
+}
+
+async function appList() {
+	const ctrl: IController = this.$ctrl;
+	let result = await ctrl.$invoke('appList');
+	console.dir(result);
+}
+
+async function uploadApp() {
+	const ctrl: IController = this.$ctrl;
+	let result = await ctrl.$invoke('uploadApp', {FileName: "app1"});
+	console.dir(result);
 }

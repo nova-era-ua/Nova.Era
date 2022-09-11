@@ -1097,6 +1097,7 @@ create table jrn.Journal
 	RowNo int,
 	[Date] datetime,
 	Document bigint,
+	Operation bigint,
 	Detail bigint,
 	DtCt smallint not null,
 	[Plan] bigint not null,
@@ -1133,7 +1134,8 @@ create table jrn.Journal
 		constraint FK_Journal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
 		constraint FK_Journal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
 		constraint FK_Journal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
-		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
+		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+		constraint FK_Journal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
