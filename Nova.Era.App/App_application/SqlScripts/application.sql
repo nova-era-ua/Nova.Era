@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 11.09.2022 08:01:54
+generated: 12.09.2022 11:32:31
 */
 
 
@@ -8,7 +8,7 @@ generated: 11.09.2022 08:01:54
 
 /*
 version: 10.0.7877
-generated: 11.09.2022 07:04:49
+generated: 12.09.2022 10:57:39
 */
 
 set nocount on;
@@ -4509,6 +4509,7 @@ create table jrn.Journal
 	RowNo int,
 	[Date] datetime,
 	Document bigint,
+	Operation bigint,
 	Detail bigint,
 	DtCt smallint not null,
 	[Plan] bigint not null,
@@ -4545,7 +4546,8 @@ create table jrn.Journal
 		constraint FK_Journal_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id),
 		constraint FK_Journal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
 		constraint FK_Journal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
-		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
+		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+		constraint FK_Journal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4758,6 +4760,11 @@ go
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'Journal' and COLUMN_NAME=N'Project')
 	alter table jrn.Journal	add Project bigint null,
 		constraint FK_Journal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'Journal' and COLUMN_NAME=N'Operation')
+	alter table jrn.Journal	add Operation bigint null,
+		constraint FK_Journal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id);
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'Project')
@@ -5010,6 +5017,7 @@ if not exists(select * from a2sys.SysParams where [Name] = N'SideBarMode')
 	insert into a2sys.SysParams ([Name], StringValue) values (N'SideBarMode', N'Normal');
 go
 ------------------------------------------------
+set nocount on;
 if not exists(select * from a2sys.SysParams where [Name] = N'AppTitle')
 	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'Нова Ера');
 else
@@ -5069,7 +5077,12 @@ begin
 		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
 		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
 		(13,    1,  13, N'@[Purchases]',     N'purchase',    N'cart', null),
-		--(14,    1,  14, N'@[Manufacturing]', N'manufacturing',  N'wrench', null),
+
+		--(14,    1,  14, N'@[Manufacturing]', N'$manufacturing',  N'wrench', null),
+		--(1401,  14, 10, N'@[Dashboard]',     N'dashboard', N'dashboard-outline', null),
+		--(141,   14, 11, N'@[Documents]',     null, null, null),
+		--(1412, 141, 10, N'Специфікації',     N'spec', N'file-content', null),
+
 		(15,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
 		--(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
 		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
@@ -11929,10 +11942,10 @@ begin
 		from doc.DocDetails dd
 			inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
 			inner join doc.OpTrans ot on dd.TenantId = ot.TenantId and (dd.Kind = ot.RowKind or ot.RowKind = N'All')
-			left join cat.ItemRoleAccounts ird on ird.TenantId = dd.TenantId and ird.[Role] = isnull(dd.ItemRoleTo, dd.ItemRole) and ird.AccKind = ot.DtAccKind
-			left join cat.ItemRoleAccounts irc on irc.TenantId = dd.TenantId and irc.[Role] = dd.ItemRole and irc.AccKind = ot.CtAccKind
-			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind
-			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind
+			left join cat.ItemRoleAccounts ird on ird.TenantId = dd.TenantId and ird.[Role] = isnull(dd.ItemRoleTo, dd.ItemRole) and ird.AccKind = ot.DtAccKind and ird.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts irc on irc.TenantId = dd.TenantId and irc.[Role] = dd.ItemRole and irc.AccKind = ot.CtAccKind and irc.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind and irdocdt.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind and irdocct.[Plan] = ot.[Plan]
 		where dd.TenantId = @TenantId and dd.Document = @Id and ot.Operation = @Operation 
 			and (@exclude = 0 or Kind <> N'Service')
 			--and (ot.DtRow = N'R' or ot.CtRow = N'R')
@@ -11976,9 +11989,9 @@ begin
 			else Qty
 		end;
 	
-	insert into jrn.Journal(TenantId, Document, Detail, TrNo, RowNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum], [Qty], [Item],
+	insert into jrn.Journal(TenantId, Document, Operation, Detail, TrNo, RowNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum], [Qty], [Item],
 		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter, Project)
-	select TenantId = @TenantId, Document = @Id, Detail = iif(RowMode = N'R', Detail, null), TrNo, RowNo = iif(RowMode = N'R', RowNo, null),
+	select TenantId = @TenantId, Document = @Id, Operation = @Operation, Detail = iif(RowMode = N'R', Detail, null), TrNo, RowNo = iif(RowMode = N'R', RowNo, null),
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([ResultSum]), Qty = sum(iif(RowMode = N'R', Qty, 0)),
 		Item = iif(RowMode = N'R', Item, null),
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
@@ -11994,7 +12007,6 @@ begin
 	order by TrNo, RowNo;
 end
 go
-------------------------------------------------
 create or alter procedure doc.[Document.Apply.Account.ByDoc]
 @TenantId int = 1,
 @UserId bigint,
@@ -12031,10 +12043,10 @@ begin
 			inner join doc.OpTrans ot on d.TenantId = ot.TenantId and ot.RowKind = N''
 			left join cat.CashAccounts accdt on d.TenantId = accdt.TenantId and d.CashAccTo = accdt.Id
 			left join cat.CashAccounts accct on d.TenantId = accct.TenantId and d.CashAccFrom = accct.Id
-			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind
-			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind
-			left join cat.ItemRoleAccounts iraccdt on iraccdt.TenantId = d.TenantId and iraccdt.[Role] = accdt.ItemRole and iraccdt.AccKind = ot.DtAccKind
-			left join cat.ItemRoleAccounts iraccct on iraccct.TenantId = d.TenantId and iraccct.[Role] = accct.ItemRole and iraccct.AccKind = ot.CtAccKind
+			left join cat.ItemRoleAccounts irdocdt on irdocdt.TenantId = d.TenantId and irdocdt.[Role] = d.ItemRole and irdocdt.AccKind = ot.DtAccKind and irdocdt.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts irdocct on irdocct.TenantId = d.TenantId and irdocct.[Role] = d.ItemRole and irdocct.AccKind = ot.CtAccKind and irdocct.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts iraccdt on iraccdt.TenantId = d.TenantId and iraccdt.[Role] = accdt.ItemRole and iraccdt.AccKind = ot.DtAccKind and iraccdt.[Plan] = ot.[Plan]
+			left join cat.ItemRoleAccounts iraccct on iraccct.TenantId = d.TenantId and iraccct.[Role] = accct.ItemRole and iraccct.AccKind = ot.CtAccKind and iraccct.[Plan] = ot.[Plan]
 		where d.TenantId = @TenantId and d.Id = @Id and ot.Operation = @Operation
 	)
 	insert into @trans
@@ -12046,9 +12058,9 @@ begin
 		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, Project, [Sum]
 		from TR;
 
-	insert into jrn.Journal(TenantId, Document, TrNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum],
+	insert into jrn.Journal(TenantId, Document, Operation, TrNo, [Date], DtCt, [Plan], Account, CorrAccount, [Sum],
 		Company, Agent, Warehouse, CashAccount, [Contract], CashFlowItem, CostItem, RespCenter, Project)
-	select TenantId = @TenantId, Document = @Id, TrNo,
+	select TenantId = @TenantId, Document = @Id, Operation = @Operation, TrNo,
 		[Date], DtCt, [Plan], Acc, CorrAcc, [Sum] = sum([Sum]),
 		Company, Agent, Wh, CashAcc, [Contract], CashFlowItem, CostItem, RespCenter, Project
 	from @trans

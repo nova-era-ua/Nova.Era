@@ -365,7 +365,7 @@ begin
 
 	-- TItemRoleAcc
 	select [!TItemRoleAcc!LazyArray] = null, [Plan] = p.Code, Kind = ak.[Name], Account = a.Code,
-		[!TItemRole.Accounts!ParentId] = ira.[Role]
+		[!TItemRole.Accounts!ParentId] = ira.[Role], PlanName = p.[Name], AccountName = a.[Name]
 	from cat.ItemRoleAccounts ira
 		inner join cat.ItemRoles ir on ira.TenantId = ir.TenantId and ira.[Role] = ir.Id
 		inner join acc.Accounts p on ira.TenantId = p.TenantId and ira.[Plan] = p.Id

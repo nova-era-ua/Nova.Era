@@ -1,0 +1,15 @@
+﻿{
+	"$schema": "../../@schemas/model-json-schema.json#",
+	"schema": "doc",
+	"model": "Document.Stock",
+	"actions": {
+		"index": {
+			"index": true,
+			"template": "../../main/document/stock.index.template",
+			"view": "../../main/document/stock.index.view",
+			"parameters": {
+				"Menu": "Sales.Sales"
+			}
+		}
+	}
+}

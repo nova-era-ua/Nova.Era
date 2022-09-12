@@ -1,0 +1,8 @@
+﻿{
+	"$schema": "../@schemas/app-json-schema.json#",
+	"title": "Nova Era",
+	"version": "10.0.7888",
+	"copyright": "Copyright © 2022 Oleksandr Kukhtin",
+	"links": [
+	]
+}

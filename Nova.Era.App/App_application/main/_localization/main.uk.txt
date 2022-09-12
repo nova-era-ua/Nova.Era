@@ -20,6 +20,7 @@
 @AccountPlan=План рахунків
 @Accounts=Рахунки
 @Account=Рахунок
+@AccountName=Назва рахунку
 @AccountType=Тип рахунку
 @Operations=Операції
 @Transactions=Проводки

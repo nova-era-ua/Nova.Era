@@ -19,7 +19,8 @@ begin
 		where a.TenantId = @TenantId
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
-		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent, [InitExpand!!Expanded] = 1
+		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent, 
+		[InitExpand!!Expanded] = case when T.[Level] < 1 then 1 else 0 end
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
 
@@ -253,7 +254,8 @@ begin
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
-		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, [InitExpand!!Expanded] = 1
+		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, 
+		[InitExpand!!Expanded] = case when T.[Level] < 1 then 1 else 0 end
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
 end

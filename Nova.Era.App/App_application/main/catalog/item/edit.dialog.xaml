@@ -81,21 +81,12 @@
 				</Grid>
 			</Case>
 			<Case Value="acc">
-				<Table ItemsSource="{Bind Item.Role.Accounts}"
-						GridLines="Both" Width="50%" Striped="True" Background="Paper">
-					<Table.Header>
-						<TableRow>
-							<TableCell Content="@[AccountPlan]" Wrap="NoWrap"/>
-							<TableCell Content="@[AccKind]" Wrap="NoWrap"/>
-							<TableCell Content="@[Account]"/> 
-						</TableRow>
-					</Table.Header>
-					<TableRow>
-						<TableCell Content="{Bind Plan}" Wrap="NoWrap" Align="Center"/>
-						<TableCell Content="{Bind Kind}" Wrap="NoWrap"/>
-						<TableCell Content="{Bind Account}" Align="Right"/>
-					</TableRow>
-				</Table>
+				<DataGrid ItemsSource="{Bind Item.Role.Accounts}" GroupBy="PlanName"
+						  FixedHeader="True" GridLines="Horizontal" Style="Light">
+					<DataGridColumn Header="@[AccKind]" Content="{Bind Kind}" Wrap="NoWrap" Fit="True"/>
+					<DataGridColumn Header="@[Account]" Content="{Bind Account}" Wrap="NoWrap" Align="Right" Fit="True"/>
+					<DataGridColumn Header="@[AccountName]" Content="{Bind AccountName}" Wrap="NoWrap" />
+				</DataGrid>
 			</Case>
 		</Switch>
 		<TextBox Grid.Row="4" Label="@[Memo]" Value="{Bind Item.Memo}" Multiline="True"/>

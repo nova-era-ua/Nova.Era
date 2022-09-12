@@ -25,6 +25,7 @@ if not exists(select * from a2sys.SysParams where [Name] = N'SideBarMode')
 	insert into a2sys.SysParams ([Name], StringValue) values (N'SideBarMode', N'Normal');
 go
 ------------------------------------------------
+set nocount on;
 if not exists(select * from a2sys.SysParams where [Name] = N'AppTitle')
 	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'Нова Ера');
 else
@@ -84,7 +85,12 @@ begin
 		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
 		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
 		(13,    1,  13, N'@[Purchases]',     N'purchase',    N'cart', null),
-		--(14,    1,  14, N'@[Manufacturing]', N'manufacturing',  N'wrench', null),
+
+		--(14,    1,  14, N'@[Manufacturing]', N'$manufacturing',  N'wrench', null),
+		--(1401,  14, 10, N'@[Dashboard]',     N'dashboard', N'dashboard-outline', null),
+		--(141,   14, 11, N'@[Documents]',     null, null, null),
+		--(1412, 141, 10, N'Специфікації',     N'spec', N'file-content', null),
+
 		(15,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
 		--(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
 		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
