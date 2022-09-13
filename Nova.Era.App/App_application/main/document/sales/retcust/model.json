@@ -7,15 +7,5 @@
       "template": "edit.template",
         "view": "edit.dialog"
     }
-  },
-  "commands": {
-    "apply": {
-        "type": "sql",
-        "procedure": "Document.Apply",
-    },
-    "unapply": {
-        "type": "sql",
-        "procedure": "Document.UnApply"
-    }
   }
 }

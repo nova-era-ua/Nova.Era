@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 12.09.2022 11:32:31
+generated: 13.09.2022 10:43:35
 */
 
 
@@ -6053,7 +6053,7 @@ begin
 
 	-- TItemRoleAcc
 	select [!TItemRoleAcc!LazyArray] = null, [Plan] = p.Code, Kind = ak.[Name], Account = a.Code,
-		[!TItemRole.Accounts!ParentId] = ira.[Role]
+		[!TItemRole.Accounts!ParentId] = ira.[Role], PlanName = p.[Name], AccountName = a.[Name]
 	from cat.ItemRoleAccounts ira
 		inner join cat.ItemRoles ir on ira.TenantId = ir.TenantId and ira.[Role] = ir.Id
 		inner join acc.Accounts p on ira.TenantId = p.TenantId and ira.[Plan] = p.Id
@@ -10297,7 +10297,8 @@ begin
 		where a.TenantId = @TenantId
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
-		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent, [InitExpand!!Expanded] = 1
+		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent, 
+		[InitExpand!!Expanded] = case when T.[Level] < 1 then 1 else 0 end
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
 
@@ -10531,7 +10532,8 @@ begin
 	)
 	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder,
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
-		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, [InitExpand!!Expanded] = 1
+		IsItem, IsAgent, IsWarehouse, IsBankAccount, IsCash, 
+		[InitExpand!!Expanded] = case when T.[Level] < 1 then 1 else 0 end
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
 	order by T.[Level], a.Code;
 end

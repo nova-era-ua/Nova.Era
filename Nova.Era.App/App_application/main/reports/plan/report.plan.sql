@@ -185,7 +185,7 @@ begin
 	order by Item;
 
 	-- cross part
-	select [!TCross!CrossArray] = null, [Wh!!Key] = t.Warehouse, Rem = sum(t.Qty),
+	select [!TCross!CrossArray] = null, [Wh!!Key] = isnull(t.Warehouse, 0), Rem = sum(t.Qty),
 		[!TRepData.WhCross!ParentId] = t.Item
 	from #tmp t
 	group by Item, Warehouse;

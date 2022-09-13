@@ -1,18 +1,26 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "doc",
-  "commands": {
-    "delete": {
-      "type": "sql",
-      "procedure": "Document.Delete"
-    },
-    "createonbase": {
-        "type": "sql",
-        "procedure": "Document.CreateOnBase"
-    },
-    "copy": {
-        "type": "sql",
-        "procedure": "Document.Copy"
+    "commands": {
+        "delete": {
+            "type": "sql",
+            "procedure": "Document.Delete"
+        },
+        "createonbase": {
+            "type": "sql",
+            "procedure": "Document.CreateOnBase"
+        },
+        "copy": {
+            "type": "sql",
+            "procedure": "Document.Copy"
+        },
+        "apply": {
+            "type": "sql",
+            "procedure": "Document.Apply"
+        },
+        "unapply": {
+            "type": "sql",
+            "procedure": "Document.UnApply"
+        }
     }
-  }
 }

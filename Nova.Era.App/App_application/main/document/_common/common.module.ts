@@ -119,14 +119,14 @@ function handleLinkApply(elem) {
 // #region commands
 async function apply() {
 	const ctrl: IController = this.$ctrl;
-	await ctrl.$invoke('apply', { Id: this.Document.Id });
+	await ctrl.$invoke('apply', { Id: this.Document.Id }, '/document/commands');
 	ctrl.$emitCaller('app.document.apply', { Id: this.Document.Id, Done: true });
 	ctrl.$requery();
 }
 
 async function unApply() {
 	const ctrl: IController = this.$ctrl;
-	await ctrl.$invoke('unApply', { Id: this.Document.Id });
+	await ctrl.$invoke('unApply', { Id: this.Document.Id }, '/document/commands');
 	ctrl.$emitCaller('app.document.apply', { Id: this.Document.Id, Done: false });
 	ctrl.$requery();
 }

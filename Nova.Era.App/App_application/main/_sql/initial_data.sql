@@ -99,25 +99,27 @@ begin
 	declare @df table(id nvarchar(16), [order] int, inout smallint, [url] nvarchar(255), category nvarchar(255), [name] nvarchar(255));
 	insert into @df (id, inout, [order], category, [url], [name]) values
 		-- Sales
-		(N'invoice',    null, 1, N'@[Sales]', N'/document/sales', N'Замовлення клієнта'),
-		(N'complcert',  null, 2, N'@[Sales]', N'/document/sales', N'Акт виконаних робіт'),
-		(N'waybillout', null, 3, N'@[Sales]', N'/document/sales', N'Продаж товарів/послуг'),
+		(N'invoice',    null, 10, N'@[Sales]', N'/document/sales', N'Замовлення клієнта'),
+		(N'complcert',  null, 11, N'@[Sales]', N'/document/sales', N'Акт виконаних робіт'),
+		(N'waybillout', null, 12, N'@[Sales]', N'/document/sales', N'Продаж товарів/послуг'),
+		(N'retcust',    null, 13, N'@[Sales]', N'/document/sales', N'Повернення від покупця'),
+		-- Purchase
+		(N'waybillin',  null, 20, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
+		(N'retsuppl',   null, 21, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
+		-- Invent
+		(N'movebill',   null, 30, N'@[KindStock]', N'/document/invent', N'Внутрішнє переміщення'),
+		(N'inventbill', null, 31, N'@[KindStock]', N'/document/invent', N'Інвентарізація'),
+		(N'writeoff',   null, 32, N'@[KindStock]', N'/document/invent', N'Акт списання'),
+		(N'writeon',    null, 33, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
+		-- Money
+		(N'payout',    -1,  40, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
+		(N'cashout',   -1,  41, N'@[Money]', N'/document/money', N'Витрата готівки'),
+		(N'payin',      1,  42, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
+		(N'cashin',     1,  43, N'@[Money]', N'/document/money', N'Надходження готівки'),
+		(N'cashmove', null, 44, N'@[Money]', N'/document/money', N'Прерахування коштів'),
+		(N'cashoff',  -1,   45, N'@[Money]', N'/document/money', N'Списання коштів'),
 		-- 
-		(N'waybillin',  null, 4, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
-		--
-		(N'movebill',   null, 5, N'@[KindStock]', N'/document/invent', N'Внутрішнє переміщення'),
-		(N'inventbill', null, 6, N'@[KindStock]', N'/document/invent', N'Інвентарізація'),
-		(N'writeoff',   null, 7, N'@[KindStock]', N'/document/invent', N'Акт списання'),
-		(N'writeon',    null, 8, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
-		--
-		(N'payout',    -1,  10, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
-		(N'cashout',   -1,  11, N'@[Money]', N'/document/money', N'Витрата готівки'),
-		(N'payin',      1,  12, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
-		(N'cashin',     1,  13, N'@[Money]', N'/document/money', N'Надходження готівки'),
-		(N'cashmove', null, 14, N'@[Money]', N'/document/money', N'Прерахування коштів'),
-		(N'cashoff',  -1,   15, N'@[Money]', N'/document/money', N'Списання коштів'),
-		-- 
-		(N'manufact',  null, 20, N'@[Manufacturing]', N'/manufacturing/document', N'Виробничий акт-звіт');
+		(N'manufact',  null, 60, N'@[Manufacturing]', N'/manufacturing/document', N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId

@@ -10,20 +10,17 @@
 		<Grid Rows="Auto,1*" Columns="1*" Height="100%" Padding="0" Gap="6" AlignItems="Top">
 			<Toolbar Grid.Row="1" Style="Light" Padding="0">
 				<Selector Value="{Bind Parent.Filter.Company}" DisplayProperty="Name" Width="15rem">
-					<Selector.AddOns>
 						<Hyperlink Icon="Search" 
 								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
 						<Hyperlink Icon="Clear" If="{Bind Parent.Filter.Company.Id}"
 								   Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
-					</Selector.AddOns>
 				</Selector>
-				<Selector Value="{Bind Parent.Filter.Warehouse}" DisplayProperty="Name" Width="15rem">
-					<Selector.AddOns>
-						<Hyperlink Icon="Search" 
-								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Warehouse}, Url='/catalog/warehouse/browse'}"/>
-						<Hyperlink Icon="Clear" If="{Bind Parent.Filter.Warehouse.Id}"
-								   Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Warehouse}}"/>
-					</Selector.AddOns>
+				<Selector Value="{Bind Parent.Filter.Warehouse}" DisplayProperty="Name" Width="15rem"
+						Placeholder="@[Placeholder.AllWarehouses]">
+					<Hyperlink Icon="Search" 
+							Command="{BindCmd Browse, Argument={Bind Parent.Filter.Warehouse}, Url='/catalog/warehouse/browse'}"/>
+					<Hyperlink Content="✕" If="{Bind Parent.Filter.Warehouse.Id}"
+							Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Warehouse}}"/>
 				</Selector>
 				<PeriodPicker ShowAllData="False"
 							  Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
@@ -33,7 +30,7 @@
 				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel}" />
 			</Toolbar>
 			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
-				<Sheet GridLines="Both" Columns="Auto,15rem,Auto,Auto+A,Auto+A">
+				<Sheet GridLines="Both" Columns="1rem,20rem,6rem,6rem+A,6rem+A,6rem,6rem,6rem,6rem,6rem+A,6rem+A" Width="1">
 					<Sheet.Header>
 						<SheetRow Style="Title">
 							<SheetCell ColSpan="4" Content="{Bind Report.Name}"></SheetCell>
@@ -69,7 +66,7 @@
 						</SheetRow>
 						<SheetRow Style="Header" Wrap="NoWrap">
 							<SheetCell>@[Article]</SheetCell>
-							<SheetCell>@[Name]</SheetCell>
+							<SheetCell MinWidth="25rem">@[Name]</SheetCell>
 							<SheetCell>@[UnitShort]</SheetCell>
 							<SheetCell>@[QtyS]</SheetCell>
 							<SheetCell>@[Sum]</SheetCell>
@@ -97,7 +94,7 @@
 					<SheetSection ItemsSource="{Bind RepData.Items}">
 						<SheetRow Align="Right" Wrap="NoWrap">
 							<SheetCell Content="{Bind Item.Article}" Align="Left"/>
-							<SheetCell Content="{Bind Item.Name}" Align="Left"/>
+							<SheetCell Content="{Bind Item.Name}" Align="Left" Wrap="Wrap"/>
 							<SheetCell Content="{Bind Item.Unit.Short}" Align="Center"/>
 							<SheetCell Content="{Bind StartQty, DataType=Number, HideZeros=True, NegativeRed=True}"/>
 							<SheetCell Content="{Bind StartSum, DataType=Currency, HideZeros=True, NegativeRed=True}"/>
