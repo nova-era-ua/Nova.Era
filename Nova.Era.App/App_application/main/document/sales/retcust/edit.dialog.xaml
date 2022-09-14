@@ -48,7 +48,7 @@
 			</Selector>
 
 			<Label Grid.Row="1" Grid.Col="3" Content="@[Warehouse]"/>
-			<SelectorSimple Grid.Row="1" Grid.Col="4" Value="{Bind Document.WhFrom}" Url="/catalog/warehouse"/>
+			<SelectorSimple Grid.Row="1" Grid.Col="4" Value="{Bind Document.WhTo}" Url="/catalog/warehouse"/>
 			<Label Grid.Row="2" Grid.Col="1" Content="@[Contract]"/>
 			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
 				<Selector.AddOns>

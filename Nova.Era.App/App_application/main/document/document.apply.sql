@@ -54,11 +54,11 @@ begin
 	insert into @trans(TrNo, RowNo, DtCt, Acc, CorrAcc, [Plan], [Detail], Item, RowMode, Wh, CashAcc, 
 		[Date], Agent, Company, RespCenter, Project, CostItem, [Contract],  CashFlowItem, Qty,[Sum], ESum, SumMode, CostSum, ResultSum)
 
-	select TrNo, RowNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], Detail, Item, RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
+	select TrNo, RowNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], Detail, Item, RowMode = DtRow, Wh = isnull(WhTo, WhFrom), CashAcc = CashAccTo,
 		[Date], Agent, Company, RespCenter, Project, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = DtSum, CostSum = 0, ResultSum = [Sum]
 		from TR
 	union all 
-	select TrNo, RowNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], Detail, Item, RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
+	select TrNo, RowNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], Detail, Item, RowMode = CtRow, Wh = isnull(WhFrom, WhTo), CashAcc = CashAccFrom,
 		[Date], Agent, Company, RespCenter, Project, CostItem, [Contract], CashFlowItem, [Qty], [Sum], ESum, SumMode = CtSum, CostSum = 0, ResultSum = [Sum]
 		from TR;
 
@@ -108,6 +108,7 @@ begin
 	order by TrNo, RowNo;
 end
 go
+------------------------------------------------
 create or alter procedure doc.[Document.Apply.Account.ByDoc]
 @TenantId int = 1,
 @UserId bigint,
@@ -151,11 +152,11 @@ begin
 		where d.TenantId = @TenantId and d.Id = @Id and ot.Operation = @Operation
 	)
 	insert into @trans
-	select TrNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], RowMode = DtRow, Wh = WhTo, CashAcc = CashAccTo,
+	select TrNo, DtCt = 1, Acc = Dt, CorrAcc = Ct, [Plan], RowMode = DtRow, Wh = isnull(WhTo, WhFrom), CashAcc = CashAccTo,
 		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, Project, [Sum]
 		from TR
 	union all 
-	select TrNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], RowMode = CtRow, Wh = WhFrom, CashAcc = CashAccFrom,
+	select TrNo, DtCt = -1, Acc = Ct, CorrAcc = Dt, [Plan], RowMode = CtRow, Wh = isnull(WhFrom, WhTo), CashAcc = CashAccFrom,
 		[Date], Agent, Company, RespCenter, CostItem, [Contract], CashFlowItem, Project, [Sum]
 		from TR;
 
@@ -204,28 +205,28 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	declare @journal table(
-		Document bigint, Detail bigint, Company bigint, WhFrom bigint, WhTo bigint, Agent bigint, [Contract] bigint,
-		Item bigint, Qty float, [Sum] money, Kind nvarchar(16), CostItem bigint, RespCenter bigint, Project bigint
-	);
-	insert into @journal(Document, Detail, Company, WhFrom, WhTo, Item, Qty, [Sum], Kind, CostItem, 
-		RespCenter, Agent, [Contract], Project)
-	select d.Id, dd.Id, d.Company, d.WhFrom, d.WhTo, dd.Item, dd.Qty, dd.[Sum], isnull(dd.Kind, N''),
-		CostItem = isnull(dd.CostItem, d.CostItem), 
-		RespCenter, d.Agent, d.[Contract], d.Project
-	from doc.DocDetails dd 
-		inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
-	where d.TenantId = @TenantId and d.Id = @Id;
 
-	-- in/out
-	insert into jrn.StockJournal(TenantId, Dir, 
-		Warehouse, Document, Detail, Company, Item, Qty, [Sum], CostItem, 
+	with TX as 
+	(
+		select Document = d.Id, Dir = 1, Detail = dd.Id, d.Company, Warehouse = isnull(d.WhTo, d.WhFrom), dd.Item, Qty = dd.Qty * js.Factor, [Sum] = dd.[Sum] * js.Factor, 
+			Kind = isnull(dd.Kind, N''), CostItem = isnull(dd.CostItem, d.CostItem), RespCenter, d.Agent, d.[Contract], d.Project
+		from doc.DocDetails dd 		
+			inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
+			inner join doc.OpStore js on js.TenantId = d.TenantId and js.Operation = d.Operation and js.IsIn = 1
+		where d.TenantId = @TenantId and d.Id = @Id
+		union all
+		select Document = d.Id, Dir = -1, Detail = dd.Id, d.Company, Warehouse = isnull(d.WhFrom, d.WhTo), dd.Item, Qty = dd.Qty * js.Factor, [Sum] = dd.[Sum] * js.Factor, 
+			Kind = isnull(dd.Kind, N''), CostItem = isnull(dd.CostItem, d.CostItem), RespCenter, d.Agent, d.[Contract], d.Project
+		from doc.DocDetails dd 		
+			inner join doc.Documents d on dd.TenantId = d.TenantId and dd.Document = d.Id
+			inner join doc.OpStore js on js.TenantId = d.TenantId and js.Operation = d.Operation and js.IsOut = 1
+		where d.TenantId = @TenantId and d.Id = @Id
+	)
+	insert into jrn.StockJournal(TenantId, Dir, Document, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem, 
 		RespCenter, Agent, [Contract], Project)
-	select @TenantId, Dir = case when js.IsOut = 1 then -1 when js.IsIn = 1 then 1 end, 
-		j.WhFrom, j.Document, j.Detail, j.Company, j.Item, j.Qty * js.Factor, 
-		j.[Sum] * js.Factor, j.CostItem, j.RespCenter, j.Agent, j.[Contract], j.Project
-	from @journal j inner join doc.OpStore js on js.Operation = @Operation and isnull(js.RowKind, N'') = j.Kind
-	where js.TenantId = @TenantId and js.Operation = @Operation and (js.IsOut = 1 or js.IsIn = 1);
+	select @TenantId, Dir, Document, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem,
+		RespCenter, Agent, [Contract], Project
+	from TX;
 end
 go
 ------------------------------------------------
@@ -243,13 +244,13 @@ begin
 
 	with T as
 	(
-		select InOut = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = d.CashAccTo, [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+		select InOut = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = isnull(d.CashAccTo, d.CashAccFrom), [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
 			d.CashFlowItem
 		from doc.Documents d
 			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
 		where d.TenantId = @TenantId and d.Id = @Id and oc.IsIn = 1
 		union all
-		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = d.CashAccFrom, [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = isnull(d.CashAccFrom, d.CashAccTo), [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
 			d.CashFlowItem
 		from doc.Documents d
 			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation

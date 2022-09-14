@@ -9,7 +9,7 @@ const template: Template = {
 		'TRoot.$IsStockArg'() { return { IsStock: 'T' }; },
 	},
 	defaults: {
-		'Document.WhFrom'(this: any) { return this.Default.Warehouse; },
+		'Document.WhTo'(this: any) { return this.Default.Warehouse; },
 	},
 	validators: {
 		'Document.WhTo': '@[Error.Required]'

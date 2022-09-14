@@ -9,7 +9,7 @@ define(["require", "exports"], function (require, exports) {
             'TRoot.$IsStockArg'() { return { IsStock: 'T' }; },
         },
         defaults: {
-            'Document.WhFrom'() { return this.Default.Warehouse; },
+            'Document.WhTo'() { return this.Default.Warehouse; },
         },
         validators: {
             'Document.WhTo': '@[Error.Required]'
