@@ -96,4 +96,23 @@ begin
 end
 go
 
+------------------------------------------------
+create or alter procedure cat.[PriceKind.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [PriceKinds!TPriceKind!Array] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name], pk.Memo
+	from cat.PriceKinds pk 
+	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or Memo like @fr)
+	order by pk.[Name];
+end
+go
 

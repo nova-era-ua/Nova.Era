@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 14.09.2022 23:11:29
+generated: 15.09.2022 14:09:12
 */
 
 
@@ -8,7 +8,7 @@ generated: 14.09.2022 23:11:29
 
 /*
 version: 10.0.7877
-generated: 12.09.2022 10:57:39
+generated: 15.09.2022 13:59:30
 */
 
 set nocount on;
@@ -9537,6 +9537,25 @@ begin
 end
 go
 
+------------------------------------------------
+create or alter procedure cat.[PriceKind.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	select top(100) [PriceKinds!TPriceKind!Array] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name], pk.Memo
+	from cat.PriceKinds pk 
+	where TenantId = @TenantId and Void = 0 and ([Name] like @fr or Memo like @fr)
+	order by pk.[Name];
+end
+go
 
 
 /* CASHFLOWITEM */
@@ -12145,13 +12164,13 @@ begin
 
 	with T as
 	(
-		select InOut = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = d.CashAccTo, [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+		select InOut = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = isnull(d.CashAccTo, d.CashAccFrom), [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
 			d.CashFlowItem
 		from doc.Documents d
 			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
 		where d.TenantId = @TenantId and d.Id = @Id and oc.IsIn = 1
 		union all
-		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = d.CashAccFrom, [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = isnull(d.CashAccFrom, d.CashAccTo), [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
 			d.CashFlowItem
 		from doc.Documents d
 			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation

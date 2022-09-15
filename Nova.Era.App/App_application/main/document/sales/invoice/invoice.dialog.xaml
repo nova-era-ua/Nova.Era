@@ -1,6 +1,6 @@
 ﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Size="Max"
 		ButtonOnTop="True" Title="Замовлення" SaveEvent="app.document.saved"
-		CanCloseDelegate="canClose">
+		CanCloseDelegate="canClose" Components="{Components ../../_components/doc.selectors}">
 	<Dialog.Buttons>
 		<Button Icon="SaveCloseOutline" Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
 		<Button If="{Bind !Document.Done}"
@@ -52,25 +52,14 @@
 			<Label Align="Right">від</Label>
 			<DatePicker Value="{Bind Document.Date}" Width="10rem"/>
 			<Label Grid.Row="1" Grid.Col="7" Align="Right">@[Company]</Label>
-			<Selector Grid.Row="1" Grid.Col="8" Value="{Bind Document.Company}" DisplayProperty="Name"
-					Fetch="/catalog/company/fetch">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
-			</Selector>
+			<SelectorSimple Grid.Row="1" Grid.Col="8" Value="{Bind Document.Company}"
+					Url="/catalog/company"/>
 		</Grid>
 		<Grid Grid.Row="2" Columns="Auto,1*,1rem,Auto,1*,1rem,Auto,1*">
 			<Label Grid.Row="1" Grid.Col="1">@[Customer]</Label>
-			<Selector Grid.Row="1" Grid.Col="2"
-					  Value="{Bind Document.Agent}" DisplayProperty="Name"
-					  Fetch="/catalog/agent/fetch">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
-			</Selector>
+			<SelectorSimple Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" Url="/catalog/agent" />
 			<Label Grid.Row="1" Grid.Col="4">@[Contract]</Label>
-			<Selector Grid.Row="1" Grid.Col="5" DisplayProperty="Name"
-					  Value="{Bind Document.Contract}">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Contract}, 
-					Data={Bind Document.$CompanyAgentArg},
-					Url='/catalog/contract/browse'}"/>
-			</Selector>
+			<Component Name="SelectContract"  Grid.Row="1" Grid.Col="5" Scope="{Bind Document}" />
 		</Grid>
 		<TabBar Grid.Row="3" Value="{Bind Root.$$TabNo}" Margin="0">
 			<TabBar.Description>
@@ -100,11 +89,7 @@
 					<Button Icon="Plus" Content="Додати рядок" Command="{BindCmd Append, Argument={Bind Document.StockRows}}"/>
 					<ToolbarAligner/>
 					<Label Content="@[PriceKind]" Margin="0,.5rem,0,0"/>
-					<Selector Value="{Bind Document.PriceKind}" DisplayProperty="Name">
-						<Selector.AddOns>
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
-						</Selector.AddOns>
-					</Selector>
+					<SelectorSimple Value="{Bind Document.PriceKind}" Url="/catalog/pricekind"/>
 				</Toolbar>
 				<Table Grid.Row="5" ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" 
 					   Width="100%" Height="100%"
@@ -125,10 +110,8 @@
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
-							<Selector.AddOns>
-								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browseprice',
-									Data ={Bind Root.$BrowseStockArg}}"/>
-							</Selector.AddOns>
+							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browseprice',
+								Data ={Bind Root.$BrowseStockArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>

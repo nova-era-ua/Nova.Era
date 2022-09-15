@@ -8,14 +8,20 @@
       "view": "index.view"
     }
   },
-  "dialogs": {
-    "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
+    "dialogs": {
+        "edit": {
+            "template": "edit.template",
+            "view": "edit.dialog"
+        },
+        "browse": {
+            "index": true,
+            "view": "browse.dialog"
+        }
     },
-    "browse": {
-      "index": true,
-      "view": "browse.dialog"
+    "commands": {
+        "fetch": {
+            "type": "sql",
+            "procedure": "PriceKind.Fetch"
+        }
     }
-  }
 }
