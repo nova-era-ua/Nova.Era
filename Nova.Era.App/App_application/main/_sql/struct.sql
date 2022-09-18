@@ -1244,3 +1244,58 @@ create table app.Settings
 	constraint FK_Settings_AccPlanPayments_Accounts foreign key (TenantId, AccPlanPayments) references acc.Accounts(TenantId, Id)
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Widgets')
+create table app.Widgets
+(
+	TenantId int not null,
+	Id nvarchar(64) not null,
+	[Name] nvarchar(255),
+	rowSpan int,
+	colSpan int,
+	[Url] nvarchar(255),
+	Memo nvarchar(255),
+	Icon nvarchar(32),
+	constraint PK_Widgets primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_Dashboards')
+	create sequence app.SQ_Dashboards as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Dashboards')
+create table app.Dashboards
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Dashboards_Id default(next value for app.SQ_Dashboards),
+	[User] bigint not null,
+	Kind nvarchar(16),
+	constraint PK_Dashboards primary key (TenantId, Id),
+	constraint FK_Dashboards_User_Users foreign key (TenantId, [User]) references appsec.Users(Tenant, Id),
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_DashboardItems')
+	create sequence app.SQ_DashboardItems as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'DashboardItems')
+create table app.DashboardItems
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_DashboardItems_Id default(next value for app.SQ_DashboardItems),
+	Dashboard bigint,
+	Widget nvarchar(64),
+	-- row, col, rowSpan, colSpan are required
+	[row] int, 
+	[col] int,
+	rowSpan int,
+	colSpan int,
+	constraint PK_DashboardItems primary key (TenantId, Id),
+	constraint FK_DashboardItems_Dashboard_Dashboards foreign key (TenantId, Dashboard) references app.Dashboards(TenantId, Id),
+	constraint FK_DashboardItems_Widget_Widgets foreign key (TenantId, Widget) references app.Widgets(TenantId, Id)
+);
+go

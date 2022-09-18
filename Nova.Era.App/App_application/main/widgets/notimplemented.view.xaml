@@ -1,0 +1,5 @@
+﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<EmptyPanel Icon="DashboardOutline" Margin="0">
+		Yet not implemented!
+	</EmptyPanel>
+</PartialBlock>

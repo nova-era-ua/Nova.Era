@@ -1,0 +1,12 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "cat",
+	"model": "",
+	"actions": {
+		"index": {
+			"index": true,
+			"view": "index.view",
+			"skipDataStack": true
+		}
+	}
+}

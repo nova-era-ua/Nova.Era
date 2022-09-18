@@ -1,11 +1,14 @@
 ﻿{
   "$schema": "../../@schemas/model-json-schema.json#",
-  "schema": "",
-  "model": "",
+  "schema": "app",
   "actions": {
     "index": {
       "template": "dashboard.template",
-      "view": "dashboard.view"
+        "view": "dashboard.view",
+        "model": "Dashboard",
+        "parameters": {
+            "Kind": "Root"
+        }
     }
   }
 }

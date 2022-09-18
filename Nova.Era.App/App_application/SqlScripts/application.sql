@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 15.09.2022 14:09:12
+generated: 18.09.2022 14:40:27
 */
 
 
@@ -4654,6 +4654,61 @@ create table app.Settings
 	constraint PK_Settings primary key (TenantId),
 	constraint FK_Settings_AccPlanRems_Accounts foreign key (TenantId, AccPlanRems) references acc.Accounts(TenantId, Id),
 	constraint FK_Settings_AccPlanPayments_Accounts foreign key (TenantId, AccPlanPayments) references acc.Accounts(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Widgets')
+create table app.Widgets
+(
+	TenantId int not null,
+	Id nvarchar(64) not null,
+	[Name] nvarchar(255),
+	rowSpan int,
+	colSpan int,
+	[Url] nvarchar(255),
+	Memo nvarchar(255),
+	Icon nvarchar(32),
+	constraint PK_Widgets primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_Dashboards')
+	create sequence app.SQ_Dashboards as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Dashboards')
+create table app.Dashboards
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Dashboards_Id default(next value for app.SQ_Dashboards),
+	[User] bigint not null,
+	Kind nvarchar(16),
+	constraint PK_Dashboards primary key (TenantId, Id),
+	constraint FK_Dashboards_User_Users foreign key (TenantId, [User]) references appsec.Users(Tenant, Id),
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_DashboardItems')
+	create sequence app.SQ_DashboardItems as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'DashboardItems')
+create table app.DashboardItems
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_DashboardItems_Id default(next value for app.SQ_DashboardItems),
+	Dashboard bigint,
+	Widget nvarchar(64),
+	-- row, col, rowSpan, colSpan are required
+	[row] int, 
+	[col] int,
+	rowSpan int,
+	colSpan int,
+	constraint PK_DashboardItems primary key (TenantId, Id),
+	constraint FK_DashboardItems_Dashboard_Dashboards foreign key (TenantId, Dashboard) references app.Dashboards(TenantId, Id),
+	constraint FK_DashboardItems_Widget_Widgets foreign key (TenantId, Widget) references app.Widgets(TenantId, Id)
 );
 go
 
@@ -10168,6 +10223,135 @@ end
 go
 
 
+/* DASHBOARD */
+------------------------------------------------
+create or alter procedure app.[Dashboard.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Kind nvarchar(16)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @id bigint;
+
+	select @id = Id from app.Dashboards 
+	where TenantId = @TenantId and [User] = @UserId and Kind = @Kind;
+	if @@rowcount = 0
+	begin
+		insert into app.Dashboards (TenantId, [User], [Kind]) values (@TenantId, @UserId, @Kind);
+		select @id = Id from app.Dashboards 
+		where TenantId = @TenantId and [User] = @UserId and Kind = @Kind;
+	end
+
+	select [Dashboard!TDashboard!Object] = null, [Id!!Id] = d.Id, Kind,
+		[Items!TDashboardItem!Array] = null, [Widgets!TWidget!LazyArray] = null
+	from app.Dashboards d 
+	where TenantId = @TenantId and [User] = @UserId and Kind = @Kind;
+
+	select [!TDashboardItem!Array] = null, [Id!!Id] = di.Id, di.[row], di.[col], di.rowSpan, di.colSpan,
+		di.Widget, w.[Url], [!TDashboard.Items!ParentId] = di.Dashboard
+	from app.DashboardItems di 
+	inner join app.Widgets w on di.TenantId = w.TenantId and di.Widget = w.Id
+	where di.TenantId = @TenantId and di.Dashboard = @id;
+
+	select [!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
+		[Widget] = w.Id
+	from app.Widgets w where 0 <> 0
+end
+go
+-------------------------------------------------
+create or alter procedure app.[Dashboard.Widgets]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Widgets!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
+		[Widget] = w.Id
+	from app.Widgets w order by [Name]
+end
+go
+-------------------------------------------------
+drop procedure if exists app.[Dashboard.Metadata];
+drop procedure if exists app.[Dashboard.Update];
+drop type if exists app.[Dashboard.TableType];
+drop type if exists app.[DashboardItem.TableType];
+go
+------------------------------------------------
+create type app.[Dashboard.TableType] as table 
+(
+	Id bigint null,
+	Kind nvarchar(16)
+);
+go
+------------------------------------------------
+create type app.[DashboardItem.TableType] as table
+(
+	Id bigint,
+	[row] int,
+	[col] int,
+	Widget nvarchar(64)
+);
+go
+-------------------------------------------------
+create or alter procedure app.[Dashboard.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @Dashboard app.[Dashboard.TableType];
+	declare @Items app.[DashboardItem.TableType];
+
+	select [Dashboard!Dashboard!Metadata] = null, * from @Dashboard;
+	select [Items!Dashboard.Items!Metadata] = null, * from @Items;
+end
+go
+-------------------------------------------------
+create or alter procedure app.[Dashboard.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Dashboard app.[Dashboard.TableType] readonly,
+@Items app.[DashboardItem.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @id bigint;
+	declare @kind nvarchar(16);
+
+	select @id = Id, @kind = Kind from @Dashboard;
+
+	/*
+	declare @xml nvarchar(max);
+	select @xml = (select * from @Items for xml auto);
+	throw 60000, @xml, 0;
+	*/
+	with T as (
+		select Id = i.Id, i.[row], i.col, w.rowSpan, w.colSpan, Widget = i.Widget
+			from @Items i inner join app.Widgets w on w.TenantId = @TenantId and w.Id = i.Widget
+	)
+	merge app.DashboardItems as t
+	using T as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set
+		t.[row] = s.[row],
+		t.[col] = s.[col]
+	when not matched by target then insert
+		(TenantId, Dashboard, Widget, [row], col, rowSpan, colSpan) values
+		(@TenantId, @id, s.Widget, s.[row], s.[col], s.rowSpan, s.colSpan)
+	when not matched by source and t.TenantId = @TenantId and t.Dashboard = @id then delete;
+	
+	exec app.[Dashboard.Load] @TenantId = @TenantId, @UserId = @UserId, @Kind = @kind;
+end
+go
+
 /* Accounting plan */
 ------------------------------------------------
 create or alter procedure acc.[Accounting.Account.Index]
@@ -14824,12 +15008,47 @@ begin
 	when not matched by source and t.TenantId = @TenantId then delete;
 end
 go
+-------------------------------------------------
+-- Widgets
+create or alter procedure ini.[Widgets.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
+
+	declare @widgets table(Id nvarchar(64), rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
+		Memo nvarchar(255), Icon nvarchar(32));
+		/*
+	insert into @widgets (Id, rowSpan, colSpan, [Name], [Url], Icon, Memo, ) values
+		(N'Widget1', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
+		(N'Widget2', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),
+		(N'Widget3', 1, 2, N'Widget 2x1', N'/widgets/widget3/index', null, null),
+		(N'Widget4', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null),
+		(N'Widget5', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
+		(N'Widget6', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),
+		(N'Widget7', 1, 2, N'Widget 2x1', N'/widgets/widget3/index', null, null),
+		(N'Widget8', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null);
+		*/
+	merge app.Widgets as t
+	using @widgets as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.rowSpan = s.rowSpan,
+		t.colSpan = s.colSpan,
+		t.[Url] = s.[Url],
+		t.Memo = s.Memo,
+		t.Icon = s.Icon
+	when not matched by target then insert
+		(TenantId, Id, [Name], rowSpan, colSpan, [Url], Memo, Icon) values
+		(@TenantId, s.Id, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon);
+end
+go
 ------------------------------------------------
 exec ini.[Cat.OnCreateTenant] @TenantId = 1;
 exec ini.[Forms.OnCreateTenant] @TenantId = 1;
 exec ini.[Rep.OnCreateTenant] @TenantId = 1;
+exec ini.[Widgets.OnCreateTenant] @TenantId = 1;
 go
-
 
 
 /*

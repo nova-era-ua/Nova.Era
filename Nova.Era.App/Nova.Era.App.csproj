@@ -102,10 +102,11 @@
     <Content Include="App_application\main\catalog\pricekind\pricekind.sql" />
     <Content Include="App_application\main\catalog\vendor\vendor.sql" />
     <Content Include="App_application\main\catalog\warehouse\warehouse.sql" />
-    <Content Include="App_application\main\dashboard\dashboard.view.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="App_application\main\dashboard\dashboard.view.xaml">
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
       <SubType>Designer</SubType>
-    </Content>
+    </Page>
+    <Content Include="App_application\main\dashboard\dashboard.sql" />
     <Content Include="App_application\main\document\document.commands.sql" />
     <Content Include="App_application\main\document\document.common.sql" />
     <Content Include="App_application\main\document\document.dialogs.sql" />
@@ -370,6 +371,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
+    <Content Include="App_application\main\dashboard\dashboard.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\accounting\bankacc\model.json" />
@@ -451,6 +455,7 @@
     <TypeScriptCompile Include="App_application\main\document\invent.index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\print\browse.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\plan\itemrems.template.ts" />
+    <TypeScriptCompile Include="App_application\main\sales\dashboard\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\sales\price\index.d.ts" />
     <TypeScriptCompile Include="App_application\main\sales\price\index.template.ts" />
     <Content Include="App_application\main\settings\dashboard\model.json" />
@@ -472,6 +477,10 @@
     <Content Include="App_application\manufacturing\dashboard\model.json" />
     <Content Include="App_application\manufacturing\spec\model.json" />
     <Content Include="App_application\main\app.json" />
+    <Content Include="App_application\main\widgets\widget1\model.json" />
+    <Content Include="App_application\main\widgets\widget2\model.json" />
+    <Content Include="App_application\main\widgets\widget3\model.json" />
+    <Content Include="App_application\main\widgets\widget4\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
@@ -1074,6 +1083,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\document\_components\doc.selectors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\widgets\notimplemented.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_application\main\widgets\widget4\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -210,10 +210,45 @@ begin
 	when not matched by source and t.TenantId = @TenantId then delete;
 end
 go
+-------------------------------------------------
+-- Widgets
+create or alter procedure ini.[Widgets.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
+
+	declare @widgets table(Id nvarchar(64), rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
+		Memo nvarchar(255), Icon nvarchar(32));
+		/*
+	insert into @widgets (Id, rowSpan, colSpan, [Name], [Url], Icon, Memo, ) values
+		(N'Widget1', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
+		(N'Widget2', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),
+		(N'Widget3', 1, 2, N'Widget 2x1', N'/widgets/widget3/index', null, null),
+		(N'Widget4', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null),
+		(N'Widget5', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
+		(N'Widget6', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),
+		(N'Widget7', 1, 2, N'Widget 2x1', N'/widgets/widget3/index', null, null),
+		(N'Widget8', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null);
+		*/
+	merge app.Widgets as t
+	using @widgets as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.rowSpan = s.rowSpan,
+		t.colSpan = s.colSpan,
+		t.[Url] = s.[Url],
+		t.Memo = s.Memo,
+		t.Icon = s.Icon
+	when not matched by target then insert
+		(TenantId, Id, [Name], rowSpan, colSpan, [Url], Memo, Icon) values
+		(@TenantId, s.Id, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon);
+end
+go
 ------------------------------------------------
 exec ini.[Cat.OnCreateTenant] @TenantId = 1;
 exec ini.[Forms.OnCreateTenant] @TenantId = 1;
 exec ini.[Rep.OnCreateTenant] @TenantId = 1;
+exec ini.[Widgets.OnCreateTenant] @TenantId = 1;
 go
-
 

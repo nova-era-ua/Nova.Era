@@ -1,0 +1,6 @@
+﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<StateCard Style="Green" Icon="Database" Text="Text" Header="Header"
+			   Width="100%" Padding="1rem" Height="100%">
+		Content
+	</StateCard>
+</PartialBlock>
