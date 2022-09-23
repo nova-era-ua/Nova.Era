@@ -222,9 +222,9 @@ begin
 			inner join doc.OpStore js on js.TenantId = d.TenantId and js.Operation = d.Operation and js.IsOut = 1
 		where d.TenantId = @TenantId and d.Id = @Id
 	)
-	insert into jrn.StockJournal(TenantId, Dir, Document, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem, 
+	insert into jrn.StockJournal(TenantId, Dir, Document, Operation, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem, 
 		RespCenter, Agent, [Contract], Project)
-	select @TenantId, Dir, Document, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem,
+	select @TenantId, Dir, Document, @Operation, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem,
 		RespCenter, Agent, [Contract], Project
 	from TX;
 end
@@ -256,8 +256,8 @@ begin
 			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
 		where d.TenantId = @TenantId and d.Id = @Id and oc.IsOut = 1
 	)
-	insert into jrn.CashJournal(TenantId, Document, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter, Project)
-	select TenantId = @TenantId, Document = @Id, [Date], InOut, [Sum], Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter, Project
+	insert into jrn.CashJournal(TenantId, Document, Operation, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter, Project)
+	select TenantId = @TenantId, Document = @Id, Operation = @Operation, [Date], InOut, [Sum], Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter, Project
 	from T;
 end
 go

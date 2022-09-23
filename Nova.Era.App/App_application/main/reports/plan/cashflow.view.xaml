@@ -1,4 +1,5 @@
-﻿<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+﻿<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		 Components="{Components ../_components/report.components}">
 	<CollectionView RunAt="Server" ItemsSource="{Bind RepData}">
 		<CollectionView.Filter>
 			<FilterDescription>
@@ -7,20 +8,7 @@
 			</FilterDescription>
 		</CollectionView.Filter>
 		<Grid Rows="Auto,1*" Columns="1*" Height="100%" Padding="0" Gap="6" AlignItems="Top">
-			<Toolbar Grid.Row="1" Style="Light" Padding="0">
-				<Selector Value="{Bind Parent.Filter.Company}" DisplayProperty="Name" Width="15rem">
-					<Selector.AddOns>
-						<Hyperlink Icon="Search" 
-								Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-					</Selector.AddOns>
-				</Selector>
-				<PeriodPicker ShowAllData="False"
-							  Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
-				<Button Icon="Reload" Command="{BindCmd Reload}" />
-				<Separator />
-				<Button Icon="Print" Command="{BindCmd Print}" />
-				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel, FileName={Bind Report.Name}}" />
-			</Toolbar>
+			<Component Grid.Row="1" Name="ToolbarSimple" Scope="{Bind Parent}"/>
 			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
 				<Sheet GridLines="Both" Wrap="NoWrap" Columns="16px,60px,150px,Auto,Auto+A,Auto,Auto,Auto+A">
 					<Sheet.Header>

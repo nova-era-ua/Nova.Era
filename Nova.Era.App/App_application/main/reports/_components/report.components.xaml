@@ -1,0 +1,20 @@
+﻿<ComponentDictionary xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<Toolbar x:Key="ToolbarSimple" Style="Light" Padding="0">
+		<Selector Value="{Bind Filter.Company}"  Placeholder="@[Placeholder.AllCompanies]"
+						  DisplayProperty="Name" Width="20rem" Fetch="/catalog/company/fetch">
+			<Hyperlink Icon="Search" 
+							Command="{BindCmd Browse, Argument={Bind Filter.Company}, Url='/catalog/company/browse'}"/>
+			<Hyperlink Content="✕" If="{Bind Filter.Company.Id}"
+								Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Filter.Company}}"/>
+		</Selector>
+		<PeriodPicker ShowAllData="False"
+							  Value="{Bind Filter.Period}" Display="NameDate"/>
+		<Button Icon="Reload" Command="{BindCmd Reload}" />
+		<Separator />
+		<Button Icon="Print" Command="{BindCmd Print}" />
+		<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel, FileName={Bind Root.Report.Name}}" />
+	</Toolbar>
+</ComponentDictionary>
+
+	

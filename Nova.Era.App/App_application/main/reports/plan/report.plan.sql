@@ -87,6 +87,7 @@ begin
 
 	select @Company = isnull(@Company, Company)
 	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
 
 	declare @plan bigint;
 	select @plan = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
@@ -111,7 +112,7 @@ begin
 		from jrn.Journal j
 			inner join @accs a on  j.TenantId = @TenantId and j.Account = a.id
 			left join cat.CashAccounts ca on ca.TenantId = j.TenantId and j.CashAccount = ca.Id
-		where j.TenantId = @TenantId and j.[Date] < @end and j.Company = @Company
+		where j.TenantId = @TenantId and j.[Date] < @end and (@comp is null or j.Company = @comp)
 		group by rollup(ca.IsCashAccount, j.CashAccount)
 	)
 	select [RepData!TRepData!Group] = null,

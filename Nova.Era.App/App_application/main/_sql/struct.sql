@@ -1019,6 +1019,7 @@ create table jrn.CashJournal
 		constraint DF_CashJournal_Id default(next value for jrn.SQ_CashJournal),
 	[Date] datetime not null,
 	Document bigint not null,
+	Operation bigint,
 	Detail bigint,
 	InOut smallint not null,
 	Company bigint not null,
@@ -1041,7 +1042,8 @@ create table jrn.CashJournal
 		constraint FK_CashJournal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id),
 		constraint FK_CashJournal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
 		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
-		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
+		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -1056,6 +1058,7 @@ create table jrn.StockJournal
 	Id bigint not null
 		constraint DF_StockJournal_Id default(next value for jrn.SQ_StockJournal),
 	Document bigint,
+	Operation bigint,
 	Detail bigint,
 	Company bigint null,
 	Agent bigint null,
@@ -1079,7 +1082,8 @@ create table jrn.StockJournal
 		constraint FK_StockJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
 		constraint FK_StockJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
 		constraint FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id),
-		constraint FK_StockJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
+		constraint FK_StockJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+		constraint FK_StockJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -1250,6 +1254,7 @@ create table app.Widgets
 (
 	TenantId int not null,
 	Id nvarchar(64) not null,
+	Kind nvarchar(16),
 	[Name] nvarchar(255),
 	rowSpan int,
 	colSpan int,

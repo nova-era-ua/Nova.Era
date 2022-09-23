@@ -219,6 +219,9 @@
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків
+@By.Stock=По журналу руху запасів
+@By.Cash=По журналу руху грошових коштів
+@By.Settle=По журналу взаєморозрахунків
 ;
 @ContractKind.Supplier = З постачальником
 @ContractKind.Customer = З покупцем

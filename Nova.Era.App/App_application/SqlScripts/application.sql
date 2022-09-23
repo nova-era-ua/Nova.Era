@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 18.09.2022 14:40:27
+generated: 23.09.2022 09:26:10
 */
 
 
@@ -8,7 +8,7 @@ generated: 18.09.2022 14:40:27
 
 /*
 version: 10.0.7877
-generated: 15.09.2022 13:59:30
+generated: 22.09.2022 14:32:51
 */
 
 set nocount on;
@@ -4431,6 +4431,7 @@ create table jrn.CashJournal
 		constraint DF_CashJournal_Id default(next value for jrn.SQ_CashJournal),
 	[Date] datetime not null,
 	Document bigint not null,
+	Operation bigint,
 	Detail bigint,
 	InOut smallint not null,
 	Company bigint not null,
@@ -4453,7 +4454,8 @@ create table jrn.CashJournal
 		constraint FK_CashJournal_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id),
 		constraint FK_CashJournal_CashFlowItem_CashFlowItems foreign key (TenantId, CashFlowItem) references cat.CashFlowItems(TenantId, Id),
 		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
-		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
+		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4468,6 +4470,7 @@ create table jrn.StockJournal
 	Id bigint not null
 		constraint DF_StockJournal_Id default(next value for jrn.SQ_StockJournal),
 	Document bigint,
+	Operation bigint,
 	Detail bigint,
 	Company bigint null,
 	Agent bigint null,
@@ -4491,7 +4494,8 @@ create table jrn.StockJournal
 		constraint FK_StockJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
 		constraint FK_StockJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
 		constraint FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id),
-		constraint FK_StockJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
+		constraint FK_StockJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+		constraint FK_StockJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4662,6 +4666,7 @@ create table app.Widgets
 (
 	TenantId int not null,
 	Id nvarchar(64) not null,
+	Kind nvarchar(16),
 	[Name] nvarchar(255),
 	rowSpan int,
 	colSpan int,
@@ -4836,6 +4841,17 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn'
 	alter table jrn.CashJournal add Project bigint,
 		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id);
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'StockJournal' and COLUMN_NAME=N'Operation')
+	alter table jrn.StockJournal add Operation bigint,
+		constraint FK_StockJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'CashJournal' and COLUMN_NAME=N'Operation')
+	alter table jrn.CashJournal add Operation bigint,
+		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id);
+go
+
 
 /*
 common
@@ -12326,9 +12342,9 @@ begin
 			inner join doc.OpStore js on js.TenantId = d.TenantId and js.Operation = d.Operation and js.IsOut = 1
 		where d.TenantId = @TenantId and d.Id = @Id
 	)
-	insert into jrn.StockJournal(TenantId, Dir, Document, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem, 
+	insert into jrn.StockJournal(TenantId, Dir, Document, Operation, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem, 
 		RespCenter, Agent, [Contract], Project)
-	select @TenantId, Dir, Document, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem,
+	select @TenantId, Dir, Document, @Operation, Warehouse, Detail, Company, Item, Qty, [Sum], CostItem,
 		RespCenter, Agent, [Contract], Project
 	from TX;
 end
@@ -12360,8 +12376,8 @@ begin
 			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
 		where d.TenantId = @TenantId and d.Id = @Id and oc.IsOut = 1
 	)
-	insert into jrn.CashJournal(TenantId, Document, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter, Project)
-	select TenantId = @TenantId, Document = @Id, [Date], InOut, [Sum], Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter, Project
+	insert into jrn.CashJournal(TenantId, Document, Operation, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter, Project)
+	select TenantId = @TenantId, Document = @Id, Operation = @Operation, [Date], InOut, [Sum], Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter, Project
 	from T;
 end
 go
@@ -13875,6 +13891,7 @@ begin
 
 	select @Company = isnull(@Company, Company)
 	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
 
 	declare @plan bigint;
 	select @plan = Account from rep.Reports where TenantId = @TenantId and Id = @Id;
@@ -13899,7 +13916,7 @@ begin
 		from jrn.Journal j
 			inner join @accs a on  j.TenantId = @TenantId and j.Account = a.id
 			left join cat.CashAccounts ca on ca.TenantId = j.TenantId and j.CashAccount = ca.Id
-		where j.TenantId = @TenantId and j.[Date] < @end and j.Company = @Company
+		where j.TenantId = @TenantId and j.[Date] < @end and (@comp is null or j.Company = @comp)
 		group by rollup(ca.IsCashAccount, j.CashAccount)
 	)
 	select [RepData!TRepData!Group] = null,
@@ -14822,10 +14839,13 @@ as
 begin
 	set nocount on;
 
-	declare @rt table(Id nvarchar(16), [Order] int, [Name] nvarchar(255), UseAccount bit, [UsePlan] bit);
-	insert into @rt (Id, [Order], [Name], UseAccount, [UsePlan]) values
-		(N'by.account', 10, N'@[By.Account]', 1, 0),
-		(N'by.plan',    20, N'@[By.Plan]',    0, 1)
+	declare @rt table(Id nvarchar(16), [Order] int, [Name] nvarchar(255), UseAccount bit, [UsePlan] bit, UseStock bit, UseCash bit);
+	insert into @rt (Id, [Order], [Name], UseAccount, [UsePlan], UseStock, UseCash) values
+		(N'by.account', 10, N'@[By.Account]', 1, 0, 0, 0),
+		(N'by.plan',    20, N'@[By.Plan]',    0, 1, 0, 0),
+		(N'by.stock',   30, N'@[By.Stock]',   0, 0, 1, 0),
+		(N'by.cash',    40, N'@[By.Cash]',    0, 0, 0, 0),
+		(N'by.settle',  50, N'@[By.Settle]',  0, 0, 0, 0);
 	merge rep.RepTypes as t
 	using @rt as s on t.Id = s.Id and t.TenantId = @TenantId
 	when matched then update set

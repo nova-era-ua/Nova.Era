@@ -44,43 +44,43 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="A2v10.Data.Interfaces, Version=10.0.7312.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\A2v10.Data.Interfaces.dll</HintPath>
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7892\lib\net48\A2v10.Data.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Infrastructure, Version=10.0.7890.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\A2v10.Infrastructure.dll</HintPath>
+    <Reference Include="A2v10.Infrastructure, Version=10.0.7892.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7892\lib\net48\A2v10.Infrastructure.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Messaging, Version=10.0.7890.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\A2v10.Messaging.dll</HintPath>
+    <Reference Include="A2v10.Messaging, Version=10.0.7892.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7892\lib\net48\A2v10.Messaging.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Pdf.Report, Version=10.0.7890.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Pdf.Report.10.0.7890\lib\net48\A2v10.Pdf.Report.dll</HintPath>
+    <Reference Include="A2v10.Pdf.Report, Version=10.0.7892.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Pdf.Report.10.0.7892\lib\net48\A2v10.Pdf.Report.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Reports, Version=10.0.7890.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\A2v10.Reports.dll</HintPath>
+    <Reference Include="A2v10.Reports, Version=10.0.7892.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7892\lib\net48\A2v10.Reports.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Web.Mvc, Version=10.0.7890.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\A2v10.Web.Mvc.dll</HintPath>
+    <Reference Include="A2v10.Web.Mvc, Version=10.0.7892.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7892\lib\net48\A2v10.Web.Mvc.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Workflow, Version=10.0.7890.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\A2v10.Workflow.dll</HintPath>
+    <Reference Include="A2v10.Workflow, Version=10.0.7892.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7892\lib\net48\A2v10.Workflow.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml, Version=10.0.7890.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\A2v10.Xaml.dll</HintPath>
+    <Reference Include="A2v10.Xaml, Version=10.0.7892.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7892\lib\net48\A2v10.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7890.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7892.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7892\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Report, Version=10.0.7890.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\A2v10.Xaml.Report.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Report, Version=10.0.7892.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Pdf.Report.10.0.7892\lib\net48\A2v10.Xaml.Report.dll</HintPath>
     </Reference>
     <Reference Include="HarfBuzzSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\HarfBuzzSharp.2.6.1.9\lib\net462\HarfBuzzSharp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7890\lib\net48\Microsoft.Web.Infrastructure.dll</HintPath>
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7892\lib\net48\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
-    <Reference Include="QuestPDF, Version=2022.8.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QuestPDF.2022.8.2\lib\net462\QuestPDF.dll</HintPath>
+    <Reference Include="QuestPDF, Version=2022.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuestPDF.2022.9.0\lib\net462\QuestPDF.dll</HintPath>
     </Reference>
     <Reference Include="SkiaSharp, Version=2.80.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.2.80.4\lib\net462\SkiaSharp.dll</HintPath>
@@ -213,12 +213,12 @@
     <Error Condition="!Exists('..\packages\SkiaSharp.2.80.4\build\net462\SkiaSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.2.80.4\build\net462\SkiaSharp.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.8.3\build\Microsoft.TypeScript.MSBuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.8.3\build\Microsoft.TypeScript.MSBuild.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.8.3\build\Microsoft.TypeScript.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.8.3\build\Microsoft.TypeScript.MSBuild.targets'))" />
-    <Error Condition="!Exists('..\packages\A2v10.Web.Runtime.10.0.7890\build\A2v10.Web.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.Web.Runtime.10.0.7890\build\A2v10.Web.Runtime.targets'))" />
+    <Error Condition="!Exists('..\packages\A2v10.Web.Runtime.10.0.7892\build\A2v10.Web.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.Web.Runtime.10.0.7892\build\A2v10.Web.Runtime.targets'))" />
   </Target>
   <Import Project="..\packages\HarfBuzzSharp.2.6.1.9\build\net462\HarfBuzzSharp.targets" Condition="Exists('..\packages\HarfBuzzSharp.2.6.1.9\build\net462\HarfBuzzSharp.targets')" />
   <Import Project="..\packages\SkiaSharp.2.80.4\build\net462\SkiaSharp.targets" Condition="Exists('..\packages\SkiaSharp.2.80.4\build\net462\SkiaSharp.targets')" />
   <Import Project="..\packages\Microsoft.TypeScript.MSBuild.4.8.3\build\Microsoft.TypeScript.MSBuild.targets" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.4.8.3\build\Microsoft.TypeScript.MSBuild.targets')" />
-  <Import Project="..\packages\A2v10.Web.Runtime.10.0.7890\build\A2v10.Web.Runtime.targets" Condition="Exists('..\packages\A2v10.Web.Runtime.10.0.7890\build\A2v10.Web.Runtime.targets')" />
+  <Import Project="..\packages\A2v10.Web.Runtime.10.0.7892\build\A2v10.Web.Runtime.targets" Condition="Exists('..\packages\A2v10.Web.Runtime.10.0.7892\build\A2v10.Web.Runtime.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

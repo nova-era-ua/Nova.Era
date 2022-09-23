@@ -14,12 +14,7 @@
 	-->
 	<Dashboard ItemsSource="{Bind Dashboard.Items}" Editable="True"
 			   EditMode="{Bind Root.$$EditMode}" CellWidth="MinMax(200px;20%)" CellHeight="136px" 
-			   ItemsList="{Bind Dashboard.$Widgets}" >
-		<!--
-		<Block>
-			<Span Content="{Bind}"/>
-		</Block>
-		-->
+			   ItemsList="{Bind Dashboard.$Widgets}" CssClass="test1">
 		<Include Source="{Bind Url}" Argument="{Bind Id}" Queued="True"/>
 		<Dashboard.ListTemplate>
 			<ListItem Padding="1rem"
@@ -28,20 +23,22 @@
 		<Dashboard.EndEditToolbar>
 			<Toolbar>
 				<Button Icon="Save" Command="{BindCmd Execute, CommandName=endEdit}" />
-				<TextBox Placeholder="@[Search]" Value="{Bind Dashboard.$$Text}" UpdateTrigger="Input"/>
+				<TextBox Placeholder="@[Search]" 
+						 Value="{Bind Dashboard.$$Text}" UpdateTrigger="Input" Width="15rem"/>
 				<ToolbarAligner />
-				<Button Icon="Close" Command="{BindCmd Execute, CommandName=cancelEdit}"/>
+				<Button Icon="Delete" Command="{BindCmd Execute, CommandName=cancelEdit}"/>
 			</Toolbar>
 		</Dashboard.EndEditToolbar>
 		<Dashboard.StartEditButton>
 			<Button Icon="GearOutline" Command="{BindCmd Execute, CommandName=startEdit}"/>
 		</Dashboard.StartEditButton>
 		<Dashboard.EmptyPanel>
-			<EmptyPanel Icon="SmileSad">
-				<Group>
-					<Span>There are no widgets. Add new widget now.</Span>
-					<Button Icon="GearOutline" Command="{BindCmd Execute, CommandName=startEdit}"/>
-				</Group>
+			<EmptyPanel Icon="InfoOutline">
+				<StackPanel Gap="2rem" AlignItems="Center">
+					<Span>Немає елементів для відображення.</Span>
+					<Button Content="Додати зараз" Width="15rem" Style="Primary"
+							Command="{BindCmd Execute, CommandName=startEdit}"/>
+				</StackPanel>
 			</EmptyPanel>
 		</Dashboard.EmptyPanel>
 	</Dashboard>

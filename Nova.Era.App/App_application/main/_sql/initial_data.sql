@@ -24,10 +24,13 @@ as
 begin
 	set nocount on;
 
-	declare @rt table(Id nvarchar(16), [Order] int, [Name] nvarchar(255), UseAccount bit, [UsePlan] bit);
-	insert into @rt (Id, [Order], [Name], UseAccount, [UsePlan]) values
-		(N'by.account', 10, N'@[By.Account]', 1, 0),
-		(N'by.plan',    20, N'@[By.Plan]',    0, 1)
+	declare @rt table(Id nvarchar(16), [Order] int, [Name] nvarchar(255), UseAccount bit, [UsePlan] bit, UseStock bit, UseCash bit);
+	insert into @rt (Id, [Order], [Name], UseAccount, [UsePlan], UseStock, UseCash) values
+		(N'by.account', 10, N'@[By.Account]', 1, 0, 0, 0),
+		(N'by.plan',    20, N'@[By.Plan]',    0, 1, 0, 0),
+		(N'by.stock',   30, N'@[By.Stock]',   0, 0, 1, 0),
+		(N'by.cash',    40, N'@[By.Cash]',    0, 0, 0, 0),
+		(N'by.settle',  50, N'@[By.Settle]',  0, 0, 0, 0);
 	merge rep.RepTypes as t
 	using @rt as s on t.Id = s.Id and t.TenantId = @TenantId
 	when matched then update set

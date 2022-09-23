@@ -20,7 +20,7 @@
   font-family: 'A2v10';
   font-display: fallback;
   src: url('/css/fonts/A2v10.eot');
-  src: url('/css/fonts/A2v10.eot?#iefix') format('eot'), url('/css/fonts/A2v10.woff?v=7884') format('woff'), url('/css/fonts/A2v10.ttf?v=7884') format('truetype'), url('/css/fonts/A2v10.svg#A2v10') format('svg');
+  src: url('/css/fonts/A2v10.eot?#iefix') format('eot'), url('/css/fonts/A2v10.woff?v=7891') format('woff'), url('/css/fonts/A2v10.ttf?v=7891') format('truetype'), url('/css/fonts/A2v10.svg#A2v10') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -7006,6 +7006,10 @@ table > colgroup col.blue {
   margin: 0 8px;
   padding: 0 8px;
   display: inline-block;
+}
+.a2-company-btn .dropdown .menu {
+  max-height: calc(100vh - 65px);
+  overflow: auto;
 }
 table.tree-grid {
   border-collapse: separate;

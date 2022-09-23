@@ -10,6 +10,7 @@
     },
     "cashflow": {
         "model": "Report.Plan.Cashflow",
+        "template": "../_common/simple.module",
         "view": "cashflow.view"
     },
     "itemrems": {
