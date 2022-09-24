@@ -52,7 +52,7 @@ begin
 	select [Widgets!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
 		[Widget] = w.Id, Icon, Memo, Params
 	from app.Widgets w 
-	where w.TenantId = @TenantId and Kind = @Kind
+	where w.TenantId = @TenantId and Kind = @kind
 	order by w.Id;
 end
 go
