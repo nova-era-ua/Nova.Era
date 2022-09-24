@@ -842,28 +842,26 @@ create table doc.OpCash
 	constraint FK_OpCash_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
-/*
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpSimple')
-	create sequence doc.SQ_OpSimple as bigint start with 1000 increment by 1;
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpSettle')
+	create sequence doc.SQ_OpSettle as bigint start with 100 increment by 1;
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpSimple')
-create table doc.OpSimple
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpSettle')
+create table doc.OpSettle
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_OpSimple_Id default(next value for doc.SQ_OpSimple),
+		constraint DF_OpSettle_Id default(next value for doc.SQ_OpSettle),
 	Operation bigint not null,
-	RowNo int,
-	RowKind nvarchar(16) not null,
-	[Uid] uniqueidentifier not null
-		constraint DF_OpSimple_Uid default(newid()),
-	constraint PK_OpSimple primary key (TenantId, Id, Operation),
-	constraint FK_OpSimple_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+	IsInc bit not null,
+	IsDec bit not null,
+	Factor smallint -- 1 normal, -1 storno
+		constraint CK_OpSettle_Factor check (Factor in (1, -1)),
+	constraint PK_OpSettle primary key (TenantId, Id, Operation),
+	constraint FK_OpSettle_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
-*/
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'ui' and TABLE_NAME=N'OpMenuLinks')
 create table ui.OpMenuLinks
@@ -1044,6 +1042,45 @@ create table jrn.CashJournal
 		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
 		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
 		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'jrn' and SEQUENCE_NAME = N'SQ_SettleJournal')
+	create sequence jrn.SQ_SettleJournal as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'SettleJournal')
+create table jrn.SettleJournal
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_SettleJournal_Id default(next value for jrn.SQ_SettleJournal),
+	[Date] datetime not null,
+	Document bigint not null,
+	Operation bigint,
+	Detail bigint,
+	IncDec smallint not null,
+	Company bigint not null,
+	Agent bigint null,
+	[Contract] bigint null,
+	RespCenter bigint null,
+	Project bigint,
+	[Sum] money not null
+		constraint DF_SettleJournal_Sum default(0),
+	[CSum] money not null
+		constraint DF_SettleJournal_CSum default(0),
+	[Currency] bigint,
+	_SumInc as (case when IncDec = 1 then [Sum] else 0 end),
+	_SumDec as (case when IncDec = -1 then [Sum] else 0 end),
+		constraint PK_SettleJournal primary key (TenantId, Id),
+		constraint FK_SettleJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_SettleJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+		constraint FK_SettleJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_SettleJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+		constraint FK_SettleJournal_Contract_Contracts foreign key (TenantId, Contract) references doc.Contracts(TenantId, Id),
+		constraint FK_SettleJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
+		constraint FK_SettleJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+		constraint FK_SettleJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------

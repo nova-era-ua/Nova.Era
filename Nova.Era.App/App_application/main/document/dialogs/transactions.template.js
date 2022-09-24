@@ -8,6 +8,7 @@ define(["require", "exports"], function (require, exports) {
             'TCashAcc.$Name'() { return this.Name || this.No; },
             'TCashAcc.$Title'() { return this.IsCash ? '@[CashAccount]' : '@[Account]'; },
             'TCashTrans.$Dir'() { return this.InOut == -1 ? 'Видаток' : 'Прибуток'; },
+            'TSettleTrans.$Dir'() { return this.IncDec == -1 ? 'Зменьшення' : 'Збільшення'; },
         }
     };
     exports.default = template;

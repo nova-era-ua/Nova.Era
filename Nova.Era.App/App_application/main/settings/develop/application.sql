@@ -87,6 +87,7 @@ begin
 	-- OPERATIONS
 	select [!TOperation!Array] = null, [Id!!Id] = o.[Uid],
 		o.[Name], o.[Memo], o.[Form], Autonum = an.[Uid], [Transactions!TOpTrans!Array] = null,
+		[Store!TOpStore!Array] = null, [Cash!TOpCash!Array] = null, [Settle!TOpSettle!Array] = null,
 		[PrintForms!TOpPrintForm!Array] = null, [Links!TOpLink!Array] = null,
 		[MenuLinks!TOpMenuLink!Array] = null, 
 		[!TApp.Operations!ParentId] = 1
@@ -104,6 +105,21 @@ begin
 		left join acc.Accounts ct on ot.TenantId = ct.TenantId and ot.[Ct] = ct.Id
 		left join acc.AccKinds dtack on ot.TenantId = dtack.TenantId and ot.DtAccKind = dtack.Id
 		left join acc.AccKinds ctack on ot.TenantId = ctack.TenantId and ot.CtAccKind = ctack.Id
+	where ot.TenantId = @TenantId and o.Void = 0;
+
+	select [!TOpStore!Array] = null, ot.RowNo, ot.RowKind, IsIn, IsOut, Factor, 
+		[!TOperation.Store!ParentId] = o.[Uid]
+	from doc.OpStore ot inner join doc.Operations o on ot.TenantId = o.TenantId and ot.Operation = o.Id
+	where ot.TenantId = @TenantId and o.Void = 0;
+
+	select [!TOpCash!Array] = null, IsIn, IsOut, Factor, 
+		[!TOperation.Cash!ParentId] = o.[Uid]
+	from doc.OpCash ot inner join doc.Operations o on ot.TenantId = o.TenantId and ot.Operation = o.Id
+	where ot.TenantId = @TenantId and o.Void = 0;
+
+	select [!TOpSettle!Array] = null, IsInc, IsDec, Factor, 
+		[!TOperation.Settle!ParentId] = o.[Uid]
+	from doc.OpSettle ot inner join doc.Operations o on ot.TenantId = o.TenantId and ot.Operation = o.Id
 	where ot.TenantId = @TenantId and o.Void = 0;
 
 	select [!TOpPrintForm!Array] = null, [PrintForm] = opf.PrintForm,
@@ -136,6 +152,9 @@ drop type if exists app.[Application.ItemRole.TableType];
 drop type if exists app.[Application.ItemRoleAcc.TableType];
 drop type if exists app.[Application.Operation.TableType];
 drop type if exists app.[Application.OpTrans.TableType];
+drop type if exists app.[Application.OpStore.TableType];
+drop type if exists app.[Application.OpCash.TableType];
+drop type if exists app.[Application.OpSettle.TableType];
 drop type if exists app.[Application.OpPrintForms.TableType];
 drop type if exists app.[Application.OpLink.TableType];
 drop type if exists app.[Application.OpMenuLink.TableType];
@@ -234,6 +253,35 @@ create type app.[Application.OpTrans.TableType] as table
 );
 go
 ------------------------------------------------
+create type app.[Application.OpStore.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	RowNo int,
+	RowKind nvarchar(16),
+	IsIn bit,
+	IsOut bit,
+	Factor smallint
+);
+go
+------------------------------------------------
+create type app.[Application.OpCash.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	IsIn bit,
+	IsOut bit,
+	Factor smallint
+);
+go
+------------------------------------------------
+create type app.[Application.OpSettle.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	IsInc bit,
+	IsDec bit,
+	Factor smallint
+);
+go
+------------------------------------------------
 create type app.[Application.OpPrintForms.TableType] as table
 (
 	[ParentId] uniqueidentifier,
@@ -280,6 +328,9 @@ begin
 	declare @ItemRoleAcc app.[Application.ItemRoleAcc.TableType];
 	declare @Operations app.[Application.Operation.TableType];
 	declare @OpTrans app.[Application.OpTrans.TableType];
+	declare @OpStore app.[Application.OpStore.TableType];
+	declare @OpCash app.[Application.OpCash.TableType];
+	declare @OpSettle app.[Application.OpSettle.TableType];
 	declare @OpPrintForms app.[Application.OpPrintForms.TableType];
 	declare @OpLinks app.[Application.OpLink.TableType];
 	declare @OpMenuLinks app.[Application.OpMenuLink.TableType];
@@ -292,6 +343,9 @@ begin
 	select [ItemRoleAcc!Application.ItemRoles.Accounts!Metadata] = null, * from @ItemRoleAcc;
 	select [Operations!Application.Operations!Metadata] = null, * from @Operations;
 	select [OpTrans!Application.Operations.Transactions!Metadata] = null, * from @OpTrans;
+	select [OpStore!Application.Operations.Store!Metadata] = null, * from @OpStore;
+	select [OpCash!Application.Operations.Cash!Metadata] = null, * from @OpCash;
+	select [OpSettle!Application.Operations.Settle!Metadata] = null, * from @OpSettle;
 	select [OpPrintForms!Application.Operations.PrintForms!Metadata] = null, * from @OpPrintForms;
 	select [OpLinks!Application.Operations.Links!Metadata] = null, * from @OpLinks;
 	select [OpMenuLinks!Application.Operations.MenuLinks!Metadata] = null, * from @OpMenuLinks;
@@ -309,6 +363,9 @@ create or alter procedure app.[Application.Upload.Update]
 @ItemRoleAcc app.[Application.ItemRoleAcc.TableType] readonly,
 @Operations app.[Application.Operation.TableType] readonly,
 @OpTrans app.[Application.OpTrans.TableType] readonly,
+@OpStore app.[Application.OpStore.TableType] readonly,
+@OpCash app.[Application.OpCash.TableType] readonly,
+@OpSettle app.[Application.OpSettle.TableType] readonly,
 @OpPrintForms app.[Application.OpPrintForms.TableType] readonly,
 @OpLinks app.[Application.OpLink.TableType] readonly,
 @OpMenuLinks app.[Application.OpMenuLink.TableType] readonly,
@@ -481,6 +538,34 @@ begin
 	select @TenantId, Operation, RowNo, RowKind, [Plan], Dt, Ct,
 		DtAccMode, DtAccKind, DtSum, DtRow, CtAccMode, CtAccKind, CtRow, CtSum
 	from T;
+
+	delete from doc.OpStore where TenantId = @TenantId;
+	with T as (
+		select [Operation] =  op.id, RowKind = isnull(s.RowKind, N''), s.RowNo, IsIn = isnull(IsIn, 0), IsOut = isnull(IsOut, 0), Factor
+		from  @OpStore s inner join @operationstable op on s.ParentId = op.[uid]
+	)
+	insert into doc.OpStore(TenantId, Operation, RowNo, RowKind, IsIn, IsOut, Factor)
+	select @TenantId, Operation, RowNo, RowKind, IsIn, IsOut, Factor
+	from T;
+
+	delete from doc.OpCash where TenantId = @TenantId;
+	with T as (
+		select [Operation] =  op.id, IsIn = isnull(IsIn, 0), IsOut = isnull(IsOut, 0), Factor
+		from  @OpCash s inner join @operationstable op on s.ParentId = op.[uid]
+	)
+	insert into doc.OpCash(TenantId, Operation, IsIn, IsOut, Factor)
+	select @TenantId, Operation, IsIn, IsOut, Factor
+	from T;
+
+	delete from doc.OpSettle where TenantId = @TenantId;
+	with T as (
+		select [Operation] =  op.id, IsInc = isnull(IsInc, 0), IsDec = isnull(IsDec, 0), Factor
+		from  @OpSettle s inner join @operationstable op on s.ParentId = op.[uid]
+	)
+	insert into doc.OpSettle(TenantId, Operation, IsInc, IsDec, Factor)
+	select @TenantId, Operation, IsInc, IsDec, Factor
+	from T;
+
 
 	delete from doc.OpPrintForms where TenantId = @TenantId;
 	with T as (

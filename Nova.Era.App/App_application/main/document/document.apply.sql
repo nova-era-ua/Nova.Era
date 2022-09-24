@@ -262,6 +262,36 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure doc.[Document.Apply.Settle]
+@TenantId int = 1,
+@UserId bigint,
+@Operation bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	delete from jrn.CashJournal where TenantId = @TenantId and Document = @Id;
+
+	with T as
+	(
+		select IncDec = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project
+		from doc.Documents d
+			inner join doc.OpSettle oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and d.Id = @Id and oc.IsInc = 1
+		union all
+		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project
+		from doc.Documents d
+			inner join doc.OpSettle oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and d.Id = @Id and oc.IsDec = 1
+	)
+	insert into jrn.SettleJournal(TenantId, Document, Operation, [Date], IncDec, [Sum], Company, Agent, [Contract], RespCenter, Project)
+	select TenantId = @TenantId, Document = @Id, Operation = @Operation, [Date], IncDec, [Sum], Company, Agent, [Contract], RespCenter, Project
+	from T;
+end
+go
+------------------------------------------------
 create or alter procedure doc.[Apply.WriteSupplierPrices]
 @TenantId int = 1,
 @UserId bigint, 
@@ -365,10 +395,11 @@ begin
 	if 1 = @done
 		throw 60000, N'UI:@[Error.Document.AlreadyApplied]', 0;
 
-	declare @stock bit; -- stock journal
-	declare @pay bit;   -- pay journal
-	declare @acc bit;   -- acc journal
-	declare @cash bit;  -- cash journal
+	declare @stock bit;  -- stock journal
+	declare @pay bit;    -- pay journal
+	declare @acc bit;    -- acc journal
+	declare @cash bit;   -- cash journal
+	declare @settle bit; -- settle journal
 
 	if exists(select * from doc.OpStore 
 			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
@@ -377,8 +408,11 @@ begin
 			where TenantId = @TenantId and Operation = @operation)
 		set @acc = 1;
 	if exists(select * from doc.OpCash 
-			where TenantId = @TenantId and Operation = @operation)
+			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
 		set @cash = 1;
+	if exists(select * from doc.OpSettle 
+			where TenantId = @TenantId and Operation = @operation and (IsInc = 1 or IsDec = 1))
+		set @settle = 1;
 
 	begin tran;
 		exec doc.[Document.Apply.CheckRems] @TenantId= @TenantId, @Id=@Id, @CheckRems = @CheckRems;
@@ -390,6 +424,9 @@ begin
 				@Operation = @operation, @Id = @Id;
 		if @cash = 1
 			exec doc.[Document.Apply.Cash] @TenantId = @TenantId, @UserId=@UserId,
+				@Operation = @operation, @Id = @Id;
+		if @settle = 1
+			exec doc.[Document.Apply.Settle] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;
 		if @wsp = 1
 			exec doc.[Apply.WriteSupplierPrices] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;

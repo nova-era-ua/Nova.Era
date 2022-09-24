@@ -246,24 +246,24 @@
 						</Table>
 						<Header Grid.Row="1" Grid.Col="3" Bold="False">Взаєморазрахунки</Header>
 						<Toolbar Grid.Row="2" Grid.Col="3" Style="Light" Padding="0">
-							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Store}}"/>
+							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Settle}}"/>
 						</Toolbar>
 						<Table Grid.Row="3" Grid.Col="3" Columns="Fit,Fit,Fit,Fit" CellSpacing="Medium" Margin="-6px"
-							Width="20rem" ItemsSource="{Bind Operation.Cash}">
+							Width="20rem" ItemsSource="{Bind Operation.Settle}">
 							<Table.Header>
 								<TableRow>
-									<TableCell>Прибуток</TableCell>
-									<TableCell>Видаток</TableCell>
+									<TableCell Wrap="NoWrap">Збільшення боргу</TableCell>
+									<TableCell Wrap="NoWrap">Зменьшення боргу</TableCell>
 									<TableCell>@[Storno]</TableCell>
 									<TableCell></TableCell>
 								</TableRow>
 							</Table.Header>
 							<TableRow>
 								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsIn}"/>
+									<CheckBox Value="{Bind IsInc}"/>
 								</TableCell>
 								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsOut}"/>
+									<CheckBox Value="{Bind IsDec}"/>
 								</TableCell>
 								<TableCell Align="Center">
 									<CheckBox Value="{Bind IsStorno}"/>

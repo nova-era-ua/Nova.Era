@@ -230,9 +230,9 @@ begin
 	insert into @widgets (Id, Kind, colSpan, rowSpan, [Name], [Url], Icon, Memo, Params) values
 		(1000, N'Root',       5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null),
 		--
-		(1001, N'Accounting', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null),
-		(1002, N'Root',       2, 1, N'Widget 2x1', N'/widgets/widget3/index', N'currency-uah', null, null);
+		(1001, N'Accounting', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null);
 		/*
+		(1002, N'Root',       2, 1, N'Widget 2x1', N'/widgets/widget3/index', N'currency-uah', null, null);
 		(N'Widget4', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null),
 		(N'Widget5', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
 		(N'Widget6', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),

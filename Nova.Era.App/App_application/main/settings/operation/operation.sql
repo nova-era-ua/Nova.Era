@@ -57,17 +57,10 @@ begin
 		o.DocumentUrl, [Form!TForm!RefId] = o.Form, [Autonum!TAutonum!RefId] = o.Autonum,
 		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
-		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null, [Cash!TOpCash!Array] = null
+		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null, 
+		[Cash!TOpCash!Array] = null, [Settle!TOpSettle!Array] = null
 	from doc.Operations o
 	where o.TenantId = @TenantId and o.Id=@Id;
-
-	/*
-	-- SIMPLE TRANSACTIONS
-	select [!TSTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
-		[!TOperation.STrans!ParentId] = os.Operation
-	from doc.OpSimple os 
-	where os.TenantId = @TenantId and os.Operation = @Id;
-	*/
 
 	-- ACCOUNT TRANSACTIONS
 	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
@@ -95,6 +88,11 @@ begin
 	where oc.TenantId = @TenantId and oc.Operation = @Id;
 
 	-- SETTLEMENT TRANSACTIONS
+	select [!TOpSettle!Array] = null, [Id!!Id] = Id,
+		os.IsInc, os.IsDec, IsStorno = cast(case when os.Factor = -1 then 1 else 0 end as bit), 
+		[!TOperation.Settle!ParentId] = os.Operation
+	from doc.OpSettle os
+	where os.TenantId = @TenantId and os.Operation = @Id;
 
 	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, [Type], [Category],
 		[Operation.Id!TOper!Id] = o.Id, [Operation.Name!TOper!Name] = o.[Name],
@@ -149,9 +147,11 @@ go
 -------------------------------------------------
 drop procedure if exists doc.[Operation.Metadata];
 drop procedure if exists doc.[Operation.Update];
+drop type if exists doc.[OpSimpleTrans.TableType];
 drop type if exists doc.[Operation.TableType];
 drop type if exists doc.[OpStore.TableType];
-drop type if exists doc.[OpSimpleTrans.TableType];
+drop type if exists doc.[OpCash.TableType];
+drop type if exists doc.[OpSettle.TableType];
 drop type if exists doc.[OpTrans.TableType];
 drop type if exists doc.[OpMenu.TableType]
 drop type if exists doc.[OpPrintForm.TableType]
@@ -204,11 +204,20 @@ as table(
 )
 go
 -------------------------------------------------
-create type doc.[OpSimpleTrans.TableType]
+create type doc.[OpCash.TableType]
 as table(
 	Id bigint,
 	IsIn bit,
 	IsOut bit,
+	IsStorno bit
+)
+go
+-------------------------------------------------
+create type doc.[OpSettle.TableType]
+as table(
+	Id bigint,
+	IsInc bit,
+	IsDec bit,
 	IsStorno bit
 )
 go
@@ -240,7 +249,8 @@ begin
 	set transaction isolation level read uncommitted;
 	declare @Operation doc.[Operation.TableType];
 	declare @OpStore doc.[OpStore.TableType];
-	declare @OpCash doc.[OpSimpleTrans.TableType];
+	declare @OpCash doc.[OpCash.TableType];
+	declare @OpSettle doc.[OpSettle.TableType];
 	declare @OpTrans doc.[OpTrans.TableType];
 	declare @OpMenu doc.[OpMenu.TableType];
 	declare @OpPrintForm doc.[OpPrintForm.TableType];
@@ -248,6 +258,7 @@ begin
 	select [Operation!Operation!Metadata] = null, * from @Operation;
 	select [Store!Operation.Store!Metadata] = null, * from @OpStore;
 	select [Cash!Operation.Cash!Metadata] = null, * from @OpCash;
+	select [Settle!Operation.Settle!Metadata] = null, * from @OpSettle;
 	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 	select [Menu!Menu!Metadata] = null, * from @OpMenu;
 	select [PrintForms!PrintForms!Metadata] = null, * from @OpPrintForm;
@@ -260,7 +271,8 @@ create or alter procedure doc.[Operation.Update]
 @UserId bigint,
 @Operation doc.[Operation.TableType] readonly,
 @Store doc.[OpStore.TableType] readonly,
-@Cash doc.[OpSimpleTrans.TableType] readonly,
+@Cash doc.[OpCash.TableType] readonly,
+@Settle doc.[OpSettle.TableType] readonly,
 @Trans doc.[OpTrans.TableType] readonly,
 @Menu doc.[OpMenu.TableType] readonly,
 @Links doc.[OpLink.TableType] readonly,
@@ -313,6 +325,18 @@ begin
 	when not matched by target then insert
 		(TenantId, Operation, IsIn, IsOut, Factor) values
 		(@TenantId, @Id, s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
+	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
+
+	merge doc.OpSettle as t
+	using @Settle as s
+	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
+	when matched then update set 
+		t.IsInc = s.IsInc,
+		t.IsDec = s.IsDec,
+		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
+	when not matched by target then insert
+		(TenantId, Operation, IsInc, IsDec, Factor) values
+		(@TenantId, @Id, s.IsInc, s.IsDec, case when s.IsStorno = 1 then -1 else 1 end)
 	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
 
 	merge doc.OpTrans as t

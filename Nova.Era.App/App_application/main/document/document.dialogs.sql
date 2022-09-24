@@ -100,6 +100,14 @@ begin
 	from jrn.CashJournal
 	where TenantId = @TenantId and [Document] = @Id;
 
+	-- settle
+	select [SettleTrans!TSettleTrans!Array] = null, [Id!!Id] = Id, IncDec, [Sum],
+		[Company!TCompany!RefId] = Company,[RespCenter!TRespCenter!RefId] = RespCenter,
+		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract],
+		[Project!TProject!RefId] = Project
+	from jrn.SettleJournal
+	where TenantId = @TenantId and [Document] = @Id;
+
 	-- maps
 	insert into @refs(comp, item, costitem, respcenter, agent, wh, [contract], cashacc, project)
 	select Company, Item, CostItem, RespCenter, Agent, Warehouse, [Contract], CashAccount, Project
