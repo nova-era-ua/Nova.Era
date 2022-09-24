@@ -26,14 +26,14 @@ begin
 	where TenantId = @TenantId and [User] = @UserId and Kind = @Kind;
 
 	select [!TDashboardItem!Array] = null, [Id!!Id] = di.Id, di.[row], di.[col], di.rowSpan, di.colSpan,
-		di.Widget, w.[Url], [!TDashboard.Items!ParentId] = di.Dashboard
+		di.Widget, w.[Url], [Params!!Json] = di.Params, [!TDashboard.Items!ParentId] = di.Dashboard
 	from app.DashboardItems di 
 	inner join app.Widgets w on di.TenantId = w.TenantId and di.Widget = w.Id
 	where di.TenantId = @TenantId and di.Dashboard = @id;
 
 	select [!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id
-	from app.Widgets w where 0 <> 0
+		[Widget] = w.Id, w.Icon, w.Memo, [Params]
+	from app.Widgets w where 0 <> 0;
 end
 go
 -------------------------------------------------
@@ -46,9 +46,14 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	declare @kind nvarchar(16);
+	select @kind = Kind from app.Dashboards where TenantId = @TenantId and Id = @Id;
+
 	select [Widgets!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id
-	from app.Widgets w order by [Name]
+		[Widget] = w.Id, Icon, Memo, Params
+	from app.Widgets w 
+	where w.TenantId = @TenantId and Kind = @Kind
+	order by w.Id;
 end
 go
 -------------------------------------------------
@@ -70,7 +75,8 @@ create type app.[DashboardItem.TableType] as table
 	Id bigint,
 	[row] int,
 	[col] int,
-	Widget nvarchar(64)
+	Widget bigint,
+	Params nvarchar(1023)
 );
 go
 -------------------------------------------------
@@ -109,7 +115,7 @@ begin
 	throw 60000, @xml, 0;
 	*/
 	with T as (
-		select Id = i.Id, i.[row], i.col, w.rowSpan, w.colSpan, Widget = i.Widget
+		select Id = i.Id, i.[row], i.col, w.rowSpan, w.colSpan, Widget = i.Widget, i.Params
 			from @Items i inner join app.Widgets w on w.TenantId = @TenantId and w.Id = i.Widget
 	)
 	merge app.DashboardItems as t
@@ -119,8 +125,8 @@ begin
 		t.[row] = s.[row],
 		t.[col] = s.[col]
 	when not matched by target then insert
-		(TenantId, Dashboard, Widget, [row], col, rowSpan, colSpan) values
-		(@TenantId, @id, s.Widget, s.[row], s.[col], s.rowSpan, s.colSpan)
+		(TenantId, Dashboard, Widget, [row], col, rowSpan, colSpan, Params) values
+		(@TenantId, @id, s.Widget, s.[row], s.[col], s.rowSpan, s.colSpan, s.Params)
 	when not matched by source and t.TenantId = @TenantId and t.Dashboard = @id then delete;
 	
 	exec app.[Dashboard.Load] @TenantId = @TenantId, @UserId = @UserId, @Kind = @kind;

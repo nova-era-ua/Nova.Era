@@ -102,6 +102,10 @@
     <Content Include="App_application\main\catalog\pricekind\pricekind.sql" />
     <Content Include="App_application\main\catalog\vendor\vendor.sql" />
     <Content Include="App_application\main\catalog\warehouse\warehouse.sql" />
+    <Content Include="App_application\main\accounting\widgets\cashflow.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <Generator>XamlIntelliSenseFileGenerator</Generator>
       <SubType>Designer</SubType>
@@ -398,6 +402,7 @@
     <None Include="App_application\main\accounting\service\model.json" />
     <Content Include="App_application\main\appstart\model.json" />
     <Content Include="App_application\main\catalog\autonum\model.json" />
+    <Content Include="App_application\main\accounting\widgets\model.json" />
     <None Include="App_application\main\catalog\account\model.json" />
     <Content Include="App_application\main\catalog\project\model.json" />
     <None Include="App_application\main\catalog\cashaccount\model.json" />

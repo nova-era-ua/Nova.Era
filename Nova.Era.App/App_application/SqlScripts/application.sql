@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 23.09.2022 09:26:10
+generated: 24.09.2022 08:57:00
 */
 
 
@@ -10273,8 +10273,8 @@ begin
 	where di.TenantId = @TenantId and di.Dashboard = @id;
 
 	select [!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id
-	from app.Widgets w where 0 <> 0
+		[Widget] = w.Id, w.Icon, w.Memo
+	from app.Widgets w where 0 <> 0;
 end
 go
 -------------------------------------------------
@@ -10287,9 +10287,14 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
+	declare @kind nvarchar(16);
+	select @kind = Kind from app.Dashboards where TenantId = @TenantId and Id = @Id;
+
 	select [Widgets!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id
-	from app.Widgets w order by [Name]
+		[Widget] = w.Id, Icon, Memo
+	from app.Widgets w 
+	where w.TenantId = @TenantId and Kind = @Kind
+	order by [Name];
 end
 go
 -------------------------------------------------
@@ -15036,13 +15041,14 @@ as
 begin
 	set nocount on;
 
-	declare @widgets table(Id nvarchar(64), rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
+	declare @widgets table(Kind nvarchar(16), Id nvarchar(64), rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
 		Memo nvarchar(255), Icon nvarchar(32));
+	insert into @widgets (Id, Kind, colSpan, rowSpan, [Name], [Url], Icon, Memo) values
+		(N'R.CF', N'Root',       5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів'),
+		--
+		(N'A.CF', N'Accounting', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів'),
+		(N'A.X1', N'Root',       2, 1, N'Widget 2x1', N'/widgets/widget3/index', null, null);
 		/*
-	insert into @widgets (Id, rowSpan, colSpan, [Name], [Url], Icon, Memo, ) values
-		(N'Widget1', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
-		(N'Widget2', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),
-		(N'Widget3', 1, 2, N'Widget 2x1', N'/widgets/widget3/index', null, null),
 		(N'Widget4', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null),
 		(N'Widget5', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
 		(N'Widget6', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),
@@ -15057,10 +15063,11 @@ begin
 		t.colSpan = s.colSpan,
 		t.[Url] = s.[Url],
 		t.Memo = s.Memo,
-		t.Icon = s.Icon
+		t.Icon = s.Icon,
+		t.Kind = s.Kind
 	when not matched by target then insert
-		(TenantId, Id, [Name], rowSpan, colSpan, [Url], Memo, Icon) values
-		(@TenantId, s.Id, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon);
+		(TenantId, Id, Kind, [Name], rowSpan, colSpan, [Url], Memo, Icon) values
+		(@TenantId, s.Id, s.Kind, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon);
 end
 go
 ------------------------------------------------

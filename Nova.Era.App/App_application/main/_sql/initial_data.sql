@@ -221,13 +221,18 @@ as
 begin
 	set nocount on;
 
-	declare @widgets table(Id nvarchar(64), rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
-		Memo nvarchar(255), Icon nvarchar(32));
+	-- 1000 accounting - 1000,
+	-- 2000 sales
+	-- 3000 purchase
+	-- 10000+ modules
+	declare @widgets table(Kind nvarchar(16), Id bigint, rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
+		Memo nvarchar(255), Icon nvarchar(32), Params nvarchar(1023));
+	insert into @widgets (Id, Kind, colSpan, rowSpan, [Name], [Url], Icon, Memo, Params) values
+		(1000, N'Root',       5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null),
+		--
+		(1001, N'Accounting', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null),
+		(1002, N'Root',       2, 1, N'Widget 2x1', N'/widgets/widget3/index', N'currency-uah', null, null);
 		/*
-	insert into @widgets (Id, rowSpan, colSpan, [Name], [Url], Icon, Memo, ) values
-		(N'Widget1', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
-		(N'Widget2', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),
-		(N'Widget3', 1, 2, N'Widget 2x1', N'/widgets/widget3/index', null, null),
 		(N'Widget4', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null),
 		(N'Widget5', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
 		(N'Widget6', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),
@@ -242,10 +247,12 @@ begin
 		t.colSpan = s.colSpan,
 		t.[Url] = s.[Url],
 		t.Memo = s.Memo,
-		t.Icon = s.Icon
+		t.Icon = s.Icon,
+		t.Kind = s.Kind,
+		t.Params = s.Params
 	when not matched by target then insert
-		(TenantId, Id, [Name], rowSpan, colSpan, [Url], Memo, Icon) values
-		(@TenantId, s.Id, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon);
+		(TenantId, Id, Kind, [Name], rowSpan, colSpan, [Url], Memo, Icon, Params) values
+		(@TenantId, s.Id, s.Kind, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon, s.Params);
 end
 go
 ------------------------------------------------

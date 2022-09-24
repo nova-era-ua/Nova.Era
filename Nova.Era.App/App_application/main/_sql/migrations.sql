@@ -132,4 +132,3 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn'
 	alter table jrn.CashJournal add Operation bigint,
 		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id);
 go
-

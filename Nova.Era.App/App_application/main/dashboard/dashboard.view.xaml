@@ -13,12 +13,12 @@
 	</Block>
 	-->
 	<Dashboard ItemsSource="{Bind Dashboard.Items}" Editable="True"
-			   EditMode="{Bind Root.$$EditMode}" CellWidth="MinMax(200px;20%)" CellHeight="136px" 
+			   EditMode="{Bind Root.$$EditMode}" CellWidth="85px" CellHeight="85px" 
 			   ItemsList="{Bind Dashboard.$Widgets}" CssClass="test1">
-		<Include Source="{Bind Url}" Argument="{Bind Id}" Queued="True"/>
+		<Include Source="{Bind Url}" Argument="{Bind Id}" Queued="True" Data="{Bind Params}"/>
 		<Dashboard.ListTemplate>
 			<ListItem Padding="1rem"
-				Icon="DashboardOutline" Header="{Bind Name}" Content="{Bind Url}"/>
+				Icon="{Bind Icon}" Header="{Bind Name}" Content="{Bind Memo}"/>
 		</Dashboard.ListTemplate>
 		<Dashboard.EndEditToolbar>
 			<Toolbar>

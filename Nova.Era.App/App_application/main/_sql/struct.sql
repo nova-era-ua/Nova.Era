@@ -1253,7 +1253,7 @@ if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' 
 create table app.Widgets
 (
 	TenantId int not null,
-	Id nvarchar(64) not null,
+	Id bigint not null,
 	Kind nvarchar(16),
 	[Name] nvarchar(255),
 	rowSpan int,
@@ -1261,6 +1261,7 @@ create table app.Widgets
 	[Url] nvarchar(255),
 	Memo nvarchar(255),
 	Icon nvarchar(32),
+	Params nvarchar(1023),
 	constraint PK_Widgets primary key (TenantId, Id)
 );
 go
@@ -1293,12 +1294,13 @@ create table app.DashboardItems
 	Id bigint not null
 		constraint DF_DashboardItems_Id default(next value for app.SQ_DashboardItems),
 	Dashboard bigint,
-	Widget nvarchar(64),
+	Widget bigint,
 	-- row, col, rowSpan, colSpan are required
 	[row] int, 
 	[col] int,
 	rowSpan int,
 	colSpan int,
+	Params nvarchar(1023),
 	constraint PK_DashboardItems primary key (TenantId, Id),
 	constraint FK_DashboardItems_Dashboard_Dashboards foreign key (TenantId, Dashboard) references app.Dashboards(TenantId, Id),
 	constraint FK_DashboardItems_Widget_Widgets foreign key (TenantId, Widget) references app.Widgets(TenantId, Id)
