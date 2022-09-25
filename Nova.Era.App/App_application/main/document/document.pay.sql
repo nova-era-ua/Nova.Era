@@ -174,7 +174,7 @@ begin
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[Contract!TContract!RefId] = d.[Contract], [CashFlowItem!TCashFlowItem!RefId] = d.CashFlowItem,
 		[RespCenter!TRespCenter!RefId] = d.RespCenter, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
-		[ParentDoc!TDocBase!RefId] = d.Parent,
+		[ParentDoc!TDocBase!RefId] = d.Parent, [BaseDoc!TDocBase!RefId] = d.Base,
 		[LinkedDocs!TDocBase!LazyArray] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;

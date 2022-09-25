@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 24.09.2022 08:57:00
+generated: 25.09.2022 21:40:58
 */
 
 
@@ -4254,28 +4254,26 @@ create table doc.OpCash
 	constraint FK_OpCash_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
-/*
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpSimple')
-	create sequence doc.SQ_OpSimple as bigint start with 1000 increment by 1;
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_OpSettle')
+	create sequence doc.SQ_OpSettle as bigint start with 100 increment by 1;
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpSimple')
-create table doc.OpSimple
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OpSettle')
+create table doc.OpSettle
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_OpSimple_Id default(next value for doc.SQ_OpSimple),
+		constraint DF_OpSettle_Id default(next value for doc.SQ_OpSettle),
 	Operation bigint not null,
-	RowNo int,
-	RowKind nvarchar(16) not null,
-	[Uid] uniqueidentifier not null
-		constraint DF_OpSimple_Uid default(newid()),
-	constraint PK_OpSimple primary key (TenantId, Id, Operation),
-	constraint FK_OpSimple_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+	IsInc bit not null,
+	IsDec bit not null,
+	Factor smallint -- 1 normal, -1 storno
+		constraint CK_OpSettle_Factor check (Factor in (1, -1)),
+	constraint PK_OpSettle primary key (TenantId, Id, Operation),
+	constraint FK_OpSettle_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
-*/
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'ui' and TABLE_NAME=N'OpMenuLinks')
 create table ui.OpMenuLinks
@@ -4456,6 +4454,45 @@ create table jrn.CashJournal
 		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
 		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
 		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'jrn' and SEQUENCE_NAME = N'SQ_SettleJournal')
+	create sequence jrn.SQ_SettleJournal as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'SettleJournal')
+create table jrn.SettleJournal
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_SettleJournal_Id default(next value for jrn.SQ_SettleJournal),
+	[Date] datetime not null,
+	Document bigint not null,
+	Operation bigint,
+	Detail bigint,
+	IncDec smallint not null,
+	Company bigint not null,
+	Agent bigint null,
+	[Contract] bigint null,
+	RespCenter bigint null,
+	Project bigint,
+	[Sum] money not null
+		constraint DF_SettleJournal_Sum default(0),
+	[CSum] money not null
+		constraint DF_SettleJournal_CSum default(0),
+	[Currency] bigint,
+	_SumInc as (case when IncDec = 1 then [Sum] else 0 end),
+	_SumDec as (case when IncDec = -1 then [Sum] else 0 end),
+		constraint PK_SettleJournal primary key (TenantId, Id),
+		constraint FK_SettleJournal_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+		constraint FK_SettleJournal_Detail_DocDetails foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id),
+		constraint FK_SettleJournal_Company_Companies foreign key (TenantId, Company) references cat.Companies(TenantId, Id),
+		constraint FK_SettleJournal_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+		constraint FK_SettleJournal_Contract_Contracts foreign key (TenantId, Contract) references doc.Contracts(TenantId, Id),
+		constraint FK_SettleJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
+		constraint FK_SettleJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+		constraint FK_SettleJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4665,7 +4702,7 @@ if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' 
 create table app.Widgets
 (
 	TenantId int not null,
-	Id nvarchar(64) not null,
+	Id bigint not null,
 	Kind nvarchar(16),
 	[Name] nvarchar(255),
 	rowSpan int,
@@ -4673,6 +4710,7 @@ create table app.Widgets
 	[Url] nvarchar(255),
 	Memo nvarchar(255),
 	Icon nvarchar(32),
+	Params nvarchar(1023),
 	constraint PK_Widgets primary key (TenantId, Id)
 );
 go
@@ -4705,12 +4743,13 @@ create table app.DashboardItems
 	Id bigint not null
 		constraint DF_DashboardItems_Id default(next value for app.SQ_DashboardItems),
 	Dashboard bigint,
-	Widget nvarchar(64),
+	Widget bigint,
 	-- row, col, rowSpan, colSpan are required
 	[row] int, 
 	[col] int,
 	rowSpan int,
 	colSpan int,
+	Params nvarchar(1023),
 	constraint PK_DashboardItems primary key (TenantId, Id),
 	constraint FK_DashboardItems_Dashboard_Dashboards foreign key (TenantId, Dashboard) references app.Dashboards(TenantId, Id),
 	constraint FK_DashboardItems_Widget_Widgets foreign key (TenantId, Widget) references app.Widgets(TenantId, Id)
@@ -4851,7 +4890,6 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn'
 	alter table jrn.CashJournal add Operation bigint,
 		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id);
 go
-
 
 /*
 common
@@ -10267,13 +10305,13 @@ begin
 	where TenantId = @TenantId and [User] = @UserId and Kind = @Kind;
 
 	select [!TDashboardItem!Array] = null, [Id!!Id] = di.Id, di.[row], di.[col], di.rowSpan, di.colSpan,
-		di.Widget, w.[Url], [!TDashboard.Items!ParentId] = di.Dashboard
+		di.Widget, w.[Url], [Params!!Json] = di.Params, [!TDashboard.Items!ParentId] = di.Dashboard
 	from app.DashboardItems di 
 	inner join app.Widgets w on di.TenantId = w.TenantId and di.Widget = w.Id
 	where di.TenantId = @TenantId and di.Dashboard = @id;
 
 	select [!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id, w.Icon, w.Memo
+		[Widget] = w.Id, w.Icon, w.Memo, [Params]
 	from app.Widgets w where 0 <> 0;
 end
 go
@@ -10291,10 +10329,10 @@ begin
 	select @kind = Kind from app.Dashboards where TenantId = @TenantId and Id = @Id;
 
 	select [Widgets!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id, Icon, Memo
+		[Widget] = w.Id, Icon, Memo, Params
 	from app.Widgets w 
-	where w.TenantId = @TenantId and Kind = @Kind
-	order by [Name];
+	where w.TenantId = @TenantId and Kind = @kind
+	order by w.Id;
 end
 go
 -------------------------------------------------
@@ -10316,7 +10354,8 @@ create type app.[DashboardItem.TableType] as table
 	Id bigint,
 	[row] int,
 	[col] int,
-	Widget nvarchar(64)
+	Widget bigint,
+	Params nvarchar(1023)
 );
 go
 -------------------------------------------------
@@ -10355,7 +10394,7 @@ begin
 	throw 60000, @xml, 0;
 	*/
 	with T as (
-		select Id = i.Id, i.[row], i.col, w.rowSpan, w.colSpan, Widget = i.Widget
+		select Id = i.Id, i.[row], i.col, w.rowSpan, w.colSpan, Widget = i.Widget, i.Params
 			from @Items i inner join app.Widgets w on w.TenantId = @TenantId and w.Id = i.Widget
 	)
 	merge app.DashboardItems as t
@@ -10365,8 +10404,8 @@ begin
 		t.[row] = s.[row],
 		t.[col] = s.[col]
 	when not matched by target then insert
-		(TenantId, Dashboard, Widget, [row], col, rowSpan, colSpan) values
-		(@TenantId, @id, s.Widget, s.[row], s.[col], s.rowSpan, s.colSpan)
+		(TenantId, Dashboard, Widget, [row], col, rowSpan, colSpan, Params) values
+		(@TenantId, @id, s.Widget, s.[row], s.[col], s.rowSpan, s.colSpan, s.Params)
 	when not matched by source and t.TenantId = @TenantId and t.Dashboard = @id then delete;
 	
 	exec app.[Dashboard.Load] @TenantId = @TenantId, @UserId = @UserId, @Kind = @kind;
@@ -10836,17 +10875,10 @@ begin
 		o.DocumentUrl, [Form!TForm!RefId] = o.Form, [Autonum!TAutonum!RefId] = o.Autonum,
 		--[STrans!TSTrans!Array] = null,
 		[OpLinks!TOpLink!Array] = null,
-		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null, [Cash!TOpCash!Array] = null
+		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null, 
+		[Cash!TOpCash!Array] = null, [Settle!TOpSettle!Array] = null
 	from doc.Operations o
 	where o.TenantId = @TenantId and o.Id=@Id;
-
-	/*
-	-- SIMPLE TRANSACTIONS
-	select [!TSTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
-		[!TOperation.STrans!ParentId] = os.Operation
-	from doc.OpSimple os 
-	where os.TenantId = @TenantId and os.Operation = @Id;
-	*/
 
 	-- ACCOUNT TRANSACTIONS
 	select [!TOpTrans!Array] = null, [Id!!Id] = Id, RowKind, [RowNo!!RowNumber] = RowNo,
@@ -10874,6 +10906,11 @@ begin
 	where oc.TenantId = @TenantId and oc.Operation = @Id;
 
 	-- SETTLEMENT TRANSACTIONS
+	select [!TOpSettle!Array] = null, [Id!!Id] = Id,
+		os.IsInc, os.IsDec, IsStorno = cast(case when os.Factor = -1 then 1 else 0 end as bit), 
+		[!TOperation.Settle!ParentId] = os.Operation
+	from doc.OpSettle os
+	where os.TenantId = @TenantId and os.Operation = @Id;
 
 	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, [Type], [Category],
 		[Operation.Id!TOper!Id] = o.Id, [Operation.Name!TOper!Name] = o.[Name],
@@ -10928,9 +10965,11 @@ go
 -------------------------------------------------
 drop procedure if exists doc.[Operation.Metadata];
 drop procedure if exists doc.[Operation.Update];
+drop type if exists doc.[OpSimpleTrans.TableType];
 drop type if exists doc.[Operation.TableType];
 drop type if exists doc.[OpStore.TableType];
-drop type if exists doc.[OpSimpleTrans.TableType];
+drop type if exists doc.[OpCash.TableType];
+drop type if exists doc.[OpSettle.TableType];
 drop type if exists doc.[OpTrans.TableType];
 drop type if exists doc.[OpMenu.TableType]
 drop type if exists doc.[OpPrintForm.TableType]
@@ -10983,11 +11022,20 @@ as table(
 )
 go
 -------------------------------------------------
-create type doc.[OpSimpleTrans.TableType]
+create type doc.[OpCash.TableType]
 as table(
 	Id bigint,
 	IsIn bit,
 	IsOut bit,
+	IsStorno bit
+)
+go
+-------------------------------------------------
+create type doc.[OpSettle.TableType]
+as table(
+	Id bigint,
+	IsInc bit,
+	IsDec bit,
 	IsStorno bit
 )
 go
@@ -11019,7 +11067,8 @@ begin
 	set transaction isolation level read uncommitted;
 	declare @Operation doc.[Operation.TableType];
 	declare @OpStore doc.[OpStore.TableType];
-	declare @OpCash doc.[OpSimpleTrans.TableType];
+	declare @OpCash doc.[OpCash.TableType];
+	declare @OpSettle doc.[OpSettle.TableType];
 	declare @OpTrans doc.[OpTrans.TableType];
 	declare @OpMenu doc.[OpMenu.TableType];
 	declare @OpPrintForm doc.[OpPrintForm.TableType];
@@ -11027,6 +11076,7 @@ begin
 	select [Operation!Operation!Metadata] = null, * from @Operation;
 	select [Store!Operation.Store!Metadata] = null, * from @OpStore;
 	select [Cash!Operation.Cash!Metadata] = null, * from @OpCash;
+	select [Settle!Operation.Settle!Metadata] = null, * from @OpSettle;
 	select [Trans!Operation.Trans!Metadata] = null, * from @OpTrans;
 	select [Menu!Menu!Metadata] = null, * from @OpMenu;
 	select [PrintForms!PrintForms!Metadata] = null, * from @OpPrintForm;
@@ -11039,7 +11089,8 @@ create or alter procedure doc.[Operation.Update]
 @UserId bigint,
 @Operation doc.[Operation.TableType] readonly,
 @Store doc.[OpStore.TableType] readonly,
-@Cash doc.[OpSimpleTrans.TableType] readonly,
+@Cash doc.[OpCash.TableType] readonly,
+@Settle doc.[OpSettle.TableType] readonly,
 @Trans doc.[OpTrans.TableType] readonly,
 @Menu doc.[OpMenu.TableType] readonly,
 @Links doc.[OpLink.TableType] readonly,
@@ -11092,6 +11143,18 @@ begin
 	when not matched by target then insert
 		(TenantId, Operation, IsIn, IsOut, Factor) values
 		(@TenantId, @Id, s.IsIn, s.IsOut, case when s.IsStorno = 1 then -1 else 1 end)
+	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
+
+	merge doc.OpSettle as t
+	using @Settle as s
+	on t.TenantId=@TenantId and t.Operation = @Id and t.Id = s.Id
+	when matched then update set 
+		t.IsInc = s.IsInc,
+		t.IsDec = s.IsDec,
+		t.Factor = case when s.IsStorno = 1 then -1 else 1 end
+	when not matched by target then insert
+		(TenantId, Operation, IsInc, IsDec, Factor) values
+		(@TenantId, @Id, s.IsInc, s.IsDec, case when s.IsStorno = 1 then -1 else 1 end)
 	when not matched by source and t.TenantId = @TenantId and t.Operation = @Id then delete;
 
 	merge doc.OpTrans as t
@@ -11228,8 +11291,8 @@ begin
 
 	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], d.[Done],
 		[OpName] = o.[Name], o.Form, o.DocumentUrl
-	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and d.Parent = p.Id
-	inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id
+	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and p.Id in (d.Parent, d.Base)
+		inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 end
 go
@@ -11506,7 +11569,7 @@ begin
 		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
-		[ParentDoc!TDocBase!RefId] = d.Parent,
+		[ParentDoc!TDocBase!RefId] = d.Parent, [BaseDoc!TDocBase!RefId] = d.Base,
 		[LinkedDocs!TDocBase!Array] = null,
 		[Extra!TDocExtra!Object] = null
 	from doc.Documents d
@@ -11978,7 +12041,7 @@ begin
 		[CashAccFrom!TCashAccount!RefId] = d.CashAccFrom, [CashAccTo!TCashAccount!RefId] = d.CashAccTo,
 		[Contract!TContract!RefId] = d.[Contract], [CashFlowItem!TCashFlowItem!RefId] = d.CashFlowItem,
 		[RespCenter!TRespCenter!RefId] = d.RespCenter, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
-		[ParentDoc!TDocBase!RefId] = d.Parent,
+		[ParentDoc!TDocBase!RefId] = d.Parent, [BaseDoc!TDocBase!RefId] = d.Base,
 		[LinkedDocs!TDocBase!LazyArray] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
@@ -12387,6 +12450,36 @@ begin
 end
 go
 ------------------------------------------------
+create or alter procedure doc.[Document.Apply.Settle]
+@TenantId int = 1,
+@UserId bigint,
+@Operation bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	delete from jrn.CashJournal where TenantId = @TenantId and Document = @Id;
+
+	with T as
+	(
+		select IncDec = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project
+		from doc.Documents d
+			inner join doc.OpSettle oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and d.Id = @Id and oc.IsInc = 1
+		union all
+		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project
+		from doc.Documents d
+			inner join doc.OpSettle oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and d.Id = @Id and oc.IsDec = 1
+	)
+	insert into jrn.SettleJournal(TenantId, Document, Operation, [Date], IncDec, [Sum], Company, Agent, [Contract], RespCenter, Project)
+	select TenantId = @TenantId, Document = @Id, Operation = @Operation, [Date], IncDec, [Sum], Company, Agent, [Contract], RespCenter, Project
+	from T;
+end
+go
+------------------------------------------------
 create or alter procedure doc.[Apply.WriteSupplierPrices]
 @TenantId int = 1,
 @UserId bigint, 
@@ -12490,10 +12583,11 @@ begin
 	if 1 = @done
 		throw 60000, N'UI:@[Error.Document.AlreadyApplied]', 0;
 
-	declare @stock bit; -- stock journal
-	declare @pay bit;   -- pay journal
-	declare @acc bit;   -- acc journal
-	declare @cash bit;  -- cash journal
+	declare @stock bit;  -- stock journal
+	declare @pay bit;    -- pay journal
+	declare @acc bit;    -- acc journal
+	declare @cash bit;   -- cash journal
+	declare @settle bit; -- settle journal
 
 	if exists(select * from doc.OpStore 
 			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
@@ -12502,8 +12596,11 @@ begin
 			where TenantId = @TenantId and Operation = @operation)
 		set @acc = 1;
 	if exists(select * from doc.OpCash 
-			where TenantId = @TenantId and Operation = @operation)
+			where TenantId = @TenantId and Operation = @operation and (IsIn = 1 or IsOut = 1))
 		set @cash = 1;
+	if exists(select * from doc.OpSettle 
+			where TenantId = @TenantId and Operation = @operation and (IsInc = 1 or IsDec = 1))
+		set @settle = 1;
 
 	begin tran;
 		exec doc.[Document.Apply.CheckRems] @TenantId= @TenantId, @Id=@Id, @CheckRems = @CheckRems;
@@ -12515,6 +12612,9 @@ begin
 				@Operation = @operation, @Id = @Id;
 		if @cash = 1
 			exec doc.[Document.Apply.Cash] @TenantId = @TenantId, @UserId=@UserId,
+				@Operation = @operation, @Id = @Id;
+		if @settle = 1
+			exec doc.[Document.Apply.Settle] @TenantId = @TenantId, @UserId=@UserId,
 				@Operation = @operation, @Id = @Id;
 		if @wsp = 1
 			exec doc.[Apply.WriteSupplierPrices] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
@@ -12625,6 +12725,14 @@ begin
 		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract],
 		[Project!TProject!RefId] = Project
 	from jrn.CashJournal
+	where TenantId = @TenantId and [Document] = @Id;
+
+	-- settle
+	select [SettleTrans!TSettleTrans!Array] = null, [Id!!Id] = Id, IncDec, [Sum],
+		[Company!TCompany!RefId] = Company,[RespCenter!TRespCenter!RefId] = RespCenter,
+		[Agent!TAgent!RefId] = Agent, [Contract!TContract!RefId] = [Contract],
+		[Project!TProject!RefId] = Project
+	from jrn.SettleJournal
 	where TenantId = @TenantId and [Document] = @Id;
 
 	-- maps
@@ -14289,6 +14397,7 @@ begin
 	-- OPERATIONS
 	select [!TOperation!Array] = null, [Id!!Id] = o.[Uid],
 		o.[Name], o.[Memo], o.[Form], Autonum = an.[Uid], [Transactions!TOpTrans!Array] = null,
+		[Store!TOpStore!Array] = null, [Cash!TOpCash!Array] = null, [Settle!TOpSettle!Array] = null,
 		[PrintForms!TOpPrintForm!Array] = null, [Links!TOpLink!Array] = null,
 		[MenuLinks!TOpMenuLink!Array] = null, 
 		[!TApp.Operations!ParentId] = 1
@@ -14306,6 +14415,21 @@ begin
 		left join acc.Accounts ct on ot.TenantId = ct.TenantId and ot.[Ct] = ct.Id
 		left join acc.AccKinds dtack on ot.TenantId = dtack.TenantId and ot.DtAccKind = dtack.Id
 		left join acc.AccKinds ctack on ot.TenantId = ctack.TenantId and ot.CtAccKind = ctack.Id
+	where ot.TenantId = @TenantId and o.Void = 0;
+
+	select [!TOpStore!Array] = null, ot.RowNo, ot.RowKind, IsIn, IsOut, Factor, 
+		[!TOperation.Store!ParentId] = o.[Uid]
+	from doc.OpStore ot inner join doc.Operations o on ot.TenantId = o.TenantId and ot.Operation = o.Id
+	where ot.TenantId = @TenantId and o.Void = 0;
+
+	select [!TOpCash!Array] = null, IsIn, IsOut, Factor, 
+		[!TOperation.Cash!ParentId] = o.[Uid]
+	from doc.OpCash ot inner join doc.Operations o on ot.TenantId = o.TenantId and ot.Operation = o.Id
+	where ot.TenantId = @TenantId and o.Void = 0;
+
+	select [!TOpSettle!Array] = null, IsInc, IsDec, Factor, 
+		[!TOperation.Settle!ParentId] = o.[Uid]
+	from doc.OpSettle ot inner join doc.Operations o on ot.TenantId = o.TenantId and ot.Operation = o.Id
 	where ot.TenantId = @TenantId and o.Void = 0;
 
 	select [!TOpPrintForm!Array] = null, [PrintForm] = opf.PrintForm,
@@ -14338,6 +14462,9 @@ drop type if exists app.[Application.ItemRole.TableType];
 drop type if exists app.[Application.ItemRoleAcc.TableType];
 drop type if exists app.[Application.Operation.TableType];
 drop type if exists app.[Application.OpTrans.TableType];
+drop type if exists app.[Application.OpStore.TableType];
+drop type if exists app.[Application.OpCash.TableType];
+drop type if exists app.[Application.OpSettle.TableType];
 drop type if exists app.[Application.OpPrintForms.TableType];
 drop type if exists app.[Application.OpLink.TableType];
 drop type if exists app.[Application.OpMenuLink.TableType];
@@ -14436,6 +14563,35 @@ create type app.[Application.OpTrans.TableType] as table
 );
 go
 ------------------------------------------------
+create type app.[Application.OpStore.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	RowNo int,
+	RowKind nvarchar(16),
+	IsIn bit,
+	IsOut bit,
+	Factor smallint
+);
+go
+------------------------------------------------
+create type app.[Application.OpCash.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	IsIn bit,
+	IsOut bit,
+	Factor smallint
+);
+go
+------------------------------------------------
+create type app.[Application.OpSettle.TableType] as table
+(
+	[ParentId] uniqueidentifier,
+	IsInc bit,
+	IsDec bit,
+	Factor smallint
+);
+go
+------------------------------------------------
 create type app.[Application.OpPrintForms.TableType] as table
 (
 	[ParentId] uniqueidentifier,
@@ -14482,6 +14638,9 @@ begin
 	declare @ItemRoleAcc app.[Application.ItemRoleAcc.TableType];
 	declare @Operations app.[Application.Operation.TableType];
 	declare @OpTrans app.[Application.OpTrans.TableType];
+	declare @OpStore app.[Application.OpStore.TableType];
+	declare @OpCash app.[Application.OpCash.TableType];
+	declare @OpSettle app.[Application.OpSettle.TableType];
 	declare @OpPrintForms app.[Application.OpPrintForms.TableType];
 	declare @OpLinks app.[Application.OpLink.TableType];
 	declare @OpMenuLinks app.[Application.OpMenuLink.TableType];
@@ -14494,6 +14653,9 @@ begin
 	select [ItemRoleAcc!Application.ItemRoles.Accounts!Metadata] = null, * from @ItemRoleAcc;
 	select [Operations!Application.Operations!Metadata] = null, * from @Operations;
 	select [OpTrans!Application.Operations.Transactions!Metadata] = null, * from @OpTrans;
+	select [OpStore!Application.Operations.Store!Metadata] = null, * from @OpStore;
+	select [OpCash!Application.Operations.Cash!Metadata] = null, * from @OpCash;
+	select [OpSettle!Application.Operations.Settle!Metadata] = null, * from @OpSettle;
 	select [OpPrintForms!Application.Operations.PrintForms!Metadata] = null, * from @OpPrintForms;
 	select [OpLinks!Application.Operations.Links!Metadata] = null, * from @OpLinks;
 	select [OpMenuLinks!Application.Operations.MenuLinks!Metadata] = null, * from @OpMenuLinks;
@@ -14511,6 +14673,9 @@ create or alter procedure app.[Application.Upload.Update]
 @ItemRoleAcc app.[Application.ItemRoleAcc.TableType] readonly,
 @Operations app.[Application.Operation.TableType] readonly,
 @OpTrans app.[Application.OpTrans.TableType] readonly,
+@OpStore app.[Application.OpStore.TableType] readonly,
+@OpCash app.[Application.OpCash.TableType] readonly,
+@OpSettle app.[Application.OpSettle.TableType] readonly,
 @OpPrintForms app.[Application.OpPrintForms.TableType] readonly,
 @OpLinks app.[Application.OpLink.TableType] readonly,
 @OpMenuLinks app.[Application.OpMenuLink.TableType] readonly,
@@ -14683,6 +14848,34 @@ begin
 	select @TenantId, Operation, RowNo, RowKind, [Plan], Dt, Ct,
 		DtAccMode, DtAccKind, DtSum, DtRow, CtAccMode, CtAccKind, CtRow, CtSum
 	from T;
+
+	delete from doc.OpStore where TenantId = @TenantId;
+	with T as (
+		select [Operation] =  op.id, RowKind = isnull(s.RowKind, N''), s.RowNo, IsIn = isnull(IsIn, 0), IsOut = isnull(IsOut, 0), Factor
+		from  @OpStore s inner join @operationstable op on s.ParentId = op.[uid]
+	)
+	insert into doc.OpStore(TenantId, Operation, RowNo, RowKind, IsIn, IsOut, Factor)
+	select @TenantId, Operation, RowNo, RowKind, IsIn, IsOut, Factor
+	from T;
+
+	delete from doc.OpCash where TenantId = @TenantId;
+	with T as (
+		select [Operation] =  op.id, IsIn = isnull(IsIn, 0), IsOut = isnull(IsOut, 0), Factor
+		from  @OpCash s inner join @operationstable op on s.ParentId = op.[uid]
+	)
+	insert into doc.OpCash(TenantId, Operation, IsIn, IsOut, Factor)
+	select @TenantId, Operation, IsIn, IsOut, Factor
+	from T;
+
+	delete from doc.OpSettle where TenantId = @TenantId;
+	with T as (
+		select [Operation] =  op.id, IsInc = isnull(IsInc, 0), IsDec = isnull(IsDec, 0), Factor
+		from  @OpSettle s inner join @operationstable op on s.ParentId = op.[uid]
+	)
+	insert into doc.OpSettle(TenantId, Operation, IsInc, IsDec, Factor)
+	select @TenantId, Operation, IsInc, IsDec, Factor
+	from T;
+
 
 	delete from doc.OpPrintForms where TenantId = @TenantId;
 	with T as (
@@ -15041,14 +15234,18 @@ as
 begin
 	set nocount on;
 
-	declare @widgets table(Kind nvarchar(16), Id nvarchar(64), rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
-		Memo nvarchar(255), Icon nvarchar(32));
-	insert into @widgets (Id, Kind, colSpan, rowSpan, [Name], [Url], Icon, Memo) values
-		(N'R.CF', N'Root',       5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів'),
+	-- 1000 accounting - 1000,
+	-- 2000 sales
+	-- 3000 purchase
+	-- 10000+ modules
+	declare @widgets table(Kind nvarchar(16), Id bigint, rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
+		Memo nvarchar(255), Icon nvarchar(32), Params nvarchar(1023));
+	insert into @widgets (Id, Kind, colSpan, rowSpan, [Name], [Url], Icon, Memo, Params) values
+		(1000, N'Root',       5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null),
 		--
-		(N'A.CF', N'Accounting', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів'),
-		(N'A.X1', N'Root',       2, 1, N'Widget 2x1', N'/widgets/widget3/index', null, null);
+		(1001, N'Accounting', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null);
 		/*
+		(1002, N'Root',       2, 1, N'Widget 2x1', N'/widgets/widget3/index', N'currency-uah', null, null);
 		(N'Widget4', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null),
 		(N'Widget5', 1, 1, N'Widget 1x1', N'/widgets/widget1/index', null, null),
 		(N'Widget6', 2, 1, N'Widget 1x2', N'/widgets/widget2/index', null, null),
@@ -15064,10 +15261,11 @@ begin
 		t.[Url] = s.[Url],
 		t.Memo = s.Memo,
 		t.Icon = s.Icon,
-		t.Kind = s.Kind
+		t.Kind = s.Kind,
+		t.Params = s.Params
 	when not matched by target then insert
-		(TenantId, Id, Kind, [Name], rowSpan, colSpan, [Url], Memo, Icon) values
-		(@TenantId, s.Id, s.Kind, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon);
+		(TenantId, Id, Kind, [Name], rowSpan, colSpan, [Url], Memo, Icon, Params) values
+		(@TenantId, s.Id, s.Kind, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon, s.Params);
 end
 go
 ------------------------------------------------

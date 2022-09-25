@@ -51,8 +51,8 @@ begin
 
 	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], d.[Done],
 		[OpName] = o.[Name], o.Form, o.DocumentUrl
-	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and d.Parent = p.Id
-	inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id
+	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and p.Id in (d.Parent, d.Base)
+		inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
 end
 go

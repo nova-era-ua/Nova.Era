@@ -171,7 +171,7 @@ begin
 		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
-		[ParentDoc!TDocBase!RefId] = d.Parent,
+		[ParentDoc!TDocBase!RefId] = d.Parent, [BaseDoc!TDocBase!RefId] = d.Base,
 		[LinkedDocs!TDocBase!Array] = null,
 		[Extra!TDocExtra!Object] = null
 	from doc.Documents d
