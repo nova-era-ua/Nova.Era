@@ -94,7 +94,7 @@ begin
 
 	select [!TLinkSum!MapObject] = null, [!!Key] = ok.Kind, [Sum] = sum(d.[Sum]),
 		[!TDocument.LinkSum!ParentId] = t.id
-	from @docs t inner join doc.Documents d on t.Id = d.Base
+	from @docs t inner join doc.Documents d on t.id = d.Base
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 		inner join doc.OperationKinds ok on ok.TenantId = o.TenantId and ok.Id = o.Kind
 	where d.Done = 1
