@@ -18,6 +18,13 @@
 				Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, 
 					Url='/document/print/browse', SaveRequired=True}"/>
 		<Button Content="@[Close]" Command="{BindCmd Close}" />
+		<Button Icon="Ellipsis" CssClass="btn-more" Render="Show">
+			<Button.DropDown>
+				<DropDownMenu>
+					<MenuItem Content="@[Delete]"/>
+				</DropDownMenu>
+			</Button.DropDown>
+		</Button>
 		<Separator />
 		<Label Content="@[Operation]"/>
 		<ComboBox ItemsSource="{Bind Operations}" Width="20rem"

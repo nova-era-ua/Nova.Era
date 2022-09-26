@@ -132,3 +132,16 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn'
 	alter table jrn.CashJournal add Operation bigint,
 		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id);
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations' and COLUMN_NAME=N'Kind')
+	alter table doc.Operations add [Kind] nvarchar(16),
+		constraint FK_Operations_Kind_OperationKinds foreign key (TenantId, Kind) references doc.OperationKinds(TenantId, Id);
+go
+------------------------------------------------
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations' and COLUMN_NAME=N'Agent')
+begin
+	alter table doc.Operations drop column Agent;
+	alter table doc.Operations drop column WarehouseFrom;
+	alter table doc.Operations drop column WarehouseTo;
+end
+go

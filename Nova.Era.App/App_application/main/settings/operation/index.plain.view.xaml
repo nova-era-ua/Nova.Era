@@ -19,6 +19,7 @@
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 			<DataGridColumn Header="@[Category]" Content="{Bind Form.Category}"/>
 			<DataGridColumn Header="@[Form]" Content="{Bind Form.Name}"/>
+			<DataGridColumn Header="@[OperationKind]" Content="{Bind Kind.Name}"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">

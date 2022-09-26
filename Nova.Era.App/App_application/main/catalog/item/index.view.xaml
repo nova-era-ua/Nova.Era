@@ -53,6 +53,8 @@
 			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}"
 					ItemsSource="{Bind Parent.ItemsSource}" FixedHeader="True" Sort="True"
 					DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Parent.ItemsSource}}">
+				<DataGridColumn Fit="True" ControlType="CheckBox" Editable="True"
+								Content="{Bind $checked}"/>
 				<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 				<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" 

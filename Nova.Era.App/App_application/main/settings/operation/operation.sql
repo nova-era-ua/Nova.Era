@@ -10,7 +10,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
-		[Form!TForm!RefId] = o.Form,
+		[Form!TForm!RefId] = o.Form, [Kind!TOpKind!RefId] = o.Kind,
 		[Journals!TOpJournal!Array] = null
 	from doc.Operations o
 		inner join doc.Forms df on o.TenantId = df.TenantId and o.Form = df.Id
@@ -19,6 +19,10 @@ begin
 
 	select [Forms!TForm!Array] = null, [Id!!Id] = f.Id, [Name!!Name] = f.[Name], f.Category
 	from doc.Forms f;
+
+	select [Kinds!TOpKind!Array] = null, [Id!!Id] = ok.Id, [Name]
+	from doc.OperationKinds ok
+	order by ok.[Order];
 end
 go
 -------------------------------------------------
@@ -55,7 +59,7 @@ begin
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
 		o.DocumentUrl, [Form!TForm!RefId] = o.Form, [Autonum!TAutonum!RefId] = o.Autonum,
-		--[STrans!TSTrans!Array] = null,
+		[Kind!TOpKind!RefId] = o.Kind,
 		[OpLinks!TOpLink!Array] = null,
 		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null, 
 		[Cash!TOpCash!Array] = null, [Settle!TOpSettle!Array] = null
@@ -142,6 +146,10 @@ begin
 	from acc.AccKinds ak
 	where ak.TenantId = @TenantId
 	order by ak.Id;
+
+	select [Kinds!TOpKind!Array] = null, [Id!!Id] = ok.Id, [Name]
+	from doc.OperationKinds ok
+	order by ok.[Order];
 end
 go
 -------------------------------------------------
@@ -166,7 +174,8 @@ as table(
 	[DocumentUrl] nvarchar(255),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	Autonum bigint
+	Autonum bigint,
+	Kind nvarchar(16)
 )
 go
 -------------------------------------------------
@@ -294,10 +303,11 @@ begin
 		t.[Memo] = s.[Memo],
 		t.[Form] = s.[Form],
 		t.[DocumentUrl] = s.[DocumentUrl],
-		t.Autonum = s.[Autonum]
+		t.Autonum = s.[Autonum],
+		t.Kind = s.Kind
 	when not matched by target then insert
-		(TenantId, [Name], Form, Memo, DocumentUrl, Autonum) values
-		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl, s.Autonum)
+		(TenantId, [Name], Form, Memo, DocumentUrl, Autonum, Kind) values
+		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl, s.Autonum, s.Kind)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 

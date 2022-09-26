@@ -712,6 +712,19 @@ create table doc.FormRowKinds
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationKinds')
+create table doc.OperationKinds
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Order] int,
+	Kind nvarchar(16),
+	Factor smallint,
+	[Name] nvarchar(255),
+		constraint PK_OperationKinds primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Operations')
 	create sequence doc.SQ_Operations as bigint start with 1000 increment by 1;
 go
@@ -726,18 +739,16 @@ create table doc.Operations
 		constraint DF_Operations_Void default(0),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	[Agent] nchar(1), -- TODO: Delete
 	Form nvarchar(16) not null,
 	[DocumentUrl] nvarchar(255) null,
-	[WarehouseFrom] nchar(1), -- TODO: Delete
-	[WarehouseTo] nchar(1), -- TODO: Delete
 	[Autonum] bigint,
+	[Kind] nvarchar(16),
 	[Uid] uniqueidentifier not null
 		constraint DF_Operations_Uid default(newid()),
 	constraint PK_Operations primary key (TenantId, Id),
 	constraint FK_Operations_Form_Forms foreign key (TenantId, Form) references doc.Forms(TenantId, Id),
-	constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id)
-
+	constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id),
+	constraint FK_Operations_Kind_OperationKinds foreign key (TenantId, Kind) references doc.OperationKinds(TenantId, Id)
 );
 go
 ------------------------------------------------

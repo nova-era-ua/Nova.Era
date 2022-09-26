@@ -42,6 +42,7 @@
 			"main/settings/operation/operation.sql",
 			"main/document/document.common.sql",
 			"main/document/document.stock.sql",
+			"main/document/document.order.sql",
 			"main/document/document.pay.sql",
 			"main/document/document.apply.sql",
 			"main/document/document.dialogs.sql",

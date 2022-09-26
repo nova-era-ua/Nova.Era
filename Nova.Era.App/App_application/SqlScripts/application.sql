@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 25.09.2022 21:40:58
+generated: 26.09.2022 12:40:42
 */
 
 
@@ -4124,6 +4124,19 @@ create table doc.FormRowKinds
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationKinds')
+create table doc.OperationKinds
+(
+	TenantId int not null,
+	Id nvarchar(16) not null,
+	[Order] int,
+	Kind nvarchar(16),
+	Factor smallint,
+	[Name] nvarchar(255),
+		constraint PK_OperationKinds primary key (TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_Operations')
 	create sequence doc.SQ_Operations as bigint start with 1000 increment by 1;
 go
@@ -4138,18 +4151,16 @@ create table doc.Operations
 		constraint DF_Operations_Void default(0),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	[Agent] nchar(1), -- TODO: Delete
 	Form nvarchar(16) not null,
 	[DocumentUrl] nvarchar(255) null,
-	[WarehouseFrom] nchar(1), -- TODO: Delete
-	[WarehouseTo] nchar(1), -- TODO: Delete
 	[Autonum] bigint,
+	[Kind] nvarchar(16),
 	[Uid] uniqueidentifier not null
 		constraint DF_Operations_Uid default(newid()),
 	constraint PK_Operations primary key (TenantId, Id),
 	constraint FK_Operations_Form_Forms foreign key (TenantId, Form) references doc.Forms(TenantId, Id),
-	constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id)
-
+	constraint FK_Operations_Autonum_Autonums foreign key (TenantId, Autonum) references doc.Autonums(TenantId, Id),
+	constraint FK_Operations_Kind_OperationKinds foreign key (TenantId, Kind) references doc.OperationKinds(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4890,7 +4901,19 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'jrn'
 	alter table jrn.CashJournal add Operation bigint,
 		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id);
 go
-
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations' and COLUMN_NAME=N'Kind')
+	alter table doc.Operations add [Kind] nvarchar(16),
+		constraint FK_Operations_Kind_OperationKinds foreign key (TenantId, Kind) references doc.OperationKinds(TenantId, Id);
+go
+------------------------------------------------
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations' and COLUMN_NAME=N'Agent')
+begin
+	alter table doc.Operations drop column Agent;
+	alter table doc.Operations drop column WarehouseFrom;
+	alter table doc.Operations drop column WarehouseTo;
+end
+go
 /*
 common
 */
@@ -5857,7 +5880,7 @@ begin
 		select Id = -1, 0, [Name] = N'@[NoGrouping]', 0, Icon=N'package-outline'
 		union all
 		-- hack = negative!
-		select Id = -@Group, 2, [Name] = N'@[WithoutGroup]', 0, Icon=N'ban'
+		select Id = -@Group, 2, [Name] = N'@[WithoutGroup]', 0, Icon=N'ban' where @Group is not null
 		union all
 		select Id, 1, [Name],
 			HasChildren= case when exists(
@@ -10873,7 +10896,7 @@ begin
 
 	select [Operation!TOperation!Object] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Memo,
 		o.DocumentUrl, [Form!TForm!RefId] = o.Form, [Autonum!TAutonum!RefId] = o.Autonum,
-		--[STrans!TSTrans!Array] = null,
+		[Kind!TOpKind!RefId] = o.Kind,
 		[OpLinks!TOpLink!Array] = null,
 		[Trans!TOpTrans!Array] = null, [Store!TOpStore!Array] = null, 
 		[Cash!TOpCash!Array] = null, [Settle!TOpSettle!Array] = null
@@ -10960,6 +10983,10 @@ begin
 	from acc.AccKinds ak
 	where ak.TenantId = @TenantId
 	order by ak.Id;
+
+	select [Kinds!TOpKind!Array] = null, [Id!!Id] = ok.Id, [Name]
+	from doc.OperationKinds ok
+	order by ok.[Order];
 end
 go
 -------------------------------------------------
@@ -10984,7 +11011,8 @@ as table(
 	[DocumentUrl] nvarchar(255),
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
-	Autonum bigint
+	Autonum bigint,
+	Kind nvarchar(16)
 )
 go
 -------------------------------------------------
@@ -11112,10 +11140,11 @@ begin
 		t.[Memo] = s.[Memo],
 		t.[Form] = s.[Form],
 		t.[DocumentUrl] = s.[DocumentUrl],
-		t.Autonum = s.[Autonum]
+		t.Autonum = s.[Autonum],
+		t.Kind = s.Kind
 	when not matched by target then insert
-		(TenantId, [Name], Form, Memo, DocumentUrl, Autonum) values
-		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl, s.Autonum)
+		(TenantId, [Name], Form, Memo, DocumentUrl, Autonum, Kind) values
+		(@TenantId, s.[Name], s.Form, s.Memo, s.DocumentUrl, s.Autonum, s.Kind)
 	output inserted.Id into @rtable(id);
 	select top(1) @Id = id from @rtable;
 
@@ -13058,7 +13087,7 @@ begin
 		select Id = -1, 0, [Name] = N'@[NoGrouping]', 0, Icon=N'package-outline'
 		union all
 		-- hack = negative!
-		select Id = -@Group, 2, [Name] = N'@[WithoutGroup]', 0, Icon=N'ban'
+		select Id = -@Group, 2, [Name] = N'@[WithoutGroup]', 0, Icon=N'ban' where @Group is not null
 		union all
 		select Id, 1, [Name],
 			HasChildren= case when exists(
@@ -15207,7 +15236,15 @@ begin
 		(@TenantId, s.id, s.[order], s.[name], category, [url], [report])
 	when not matched by source and t.TenantId = @TenantId then delete;
 
-
+end
+go
+-------------------------------------------------
+-- Contracts
+create or alter procedure ini.[Contract.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
 	-- contract kinds
 	declare @ck table(Id nvarchar(16), [Order] int, [Name] nvarchar(255));
 	insert into @ck(Id, [Order], [Name]) values
@@ -15223,6 +15260,34 @@ begin
 	when not matched by target then insert
 		(TenantId, Id, [Name], [Order]) values
 		(@TenantId, s.Id, s.[Name], s.[Order])
+	when not matched by source and t.TenantId = @TenantId then delete;
+end
+go
+-------------------------------------------------
+-- Operations
+create or alter procedure ini.[Operation.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
+
+	-- operation kinds
+	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16));
+	insert into @ok(Id, Factor, [Order], [Kind], [Name]) values
+	(N'Sale.Ship',      1, 1, N'Shipment', N'@[OperationKind.Shipment]'),
+	(N'Sale.RetCust',  -1, 2, N'Shipment', N'@[OperationKind.RetCust]'),
+	(N'Sale.PayCust',   1, 3, N'Payment',  N'@[OperationKind.PayCust]');
+
+	merge doc.OperationKinds as t
+	using @ok as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set 
+		t.Kind = s.Kind,
+		t.Factor = s.Factor,
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order]
+	when not matched by target then insert
+		(TenantId, Id, [Name], Kind, Factor, [Order]) values
+		(@TenantId, s.Id, s.[Name], s.Kind, s.Factor, s.[Order])
 	when not matched by source and t.TenantId = @TenantId then delete;
 end
 go
@@ -15273,6 +15338,8 @@ exec ini.[Cat.OnCreateTenant] @TenantId = 1;
 exec ini.[Forms.OnCreateTenant] @TenantId = 1;
 exec ini.[Rep.OnCreateTenant] @TenantId = 1;
 exec ini.[Widgets.OnCreateTenant] @TenantId = 1;
+exec ini.[Contract.OnCreateTenant] @TenantId = 1;
+exec ini.[Operation.OnCreateTenant] @TenantId = 1;
 go
 
 

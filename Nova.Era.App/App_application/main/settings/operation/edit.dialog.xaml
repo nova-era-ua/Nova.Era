@@ -17,8 +17,9 @@
 		<Selector Grid.Row="2" Grid.Col="4" Label="@[Autonums]" Style="ComboBox"
 				  ShowCaret="True" ShowClear="True" DisplayProperty="Name"
 			ItemsSource="{Bind Autonums}" Value="{Bind Operation.Autonum}"/>
-
-
+		<Selector Grid.Row="2" Grid.Col="1" Label="Вид операції" Style="ComboBox" ShowClear="True"
+				  ItemsSource="{Bind Kinds}" Value="{Bind Operation.Kind}" ShowCaret="True" DisplayProperty="Name">
+		</Selector>
 	</Grid>
 	<Block Margin="0, 1rem, 1rem, 1rem">
 		<TabBar Value="{Bind Root.$$Tab}" Margin="0">

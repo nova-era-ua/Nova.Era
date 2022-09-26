@@ -12,6 +12,7 @@
 @KindService=Послуга
 @KindAllRows=Всі рядки
 @KindPayment=Оплата
+@KindShipment=Відвантаження
 @Money=Грошові кошти
 @StockPurchases=Запаси та закупівлі
 @SalesMarketing=Продаж та маркетинг
@@ -106,6 +107,7 @@
 @PriceKinds=Види цін
 @PriceKind=Вид ціни
 @ContractKind=Вид договору
+@OperationKind=Вид операції
 @CashFlowItem=Стаття руху грошових коштів
 @CashFlowItems=Статті руху грошових коштів
 @CashFlowItemShort=Стаття РГК
@@ -226,6 +228,11 @@
 @ContractKind.Supplier = З постачальником
 @ContractKind.Customer = З покупцем
 @ContractKind.Other = Інший
+;
+;
+@OperationKind.Shipment=Відвантаження
+@OperationKind.RetCust=Повернення від покупця
+@OperationKind.PayCust=Оплата від покупця
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
 @Label.Cash.Account=Каса/Рахунок

@@ -1,12 +1,12 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "doc",
-  "model": "Document.Stock",
+  "model": "Document.Order",
   "actions": {
     "index": {
       "index": true,
-      "template": "../../document/stock.index.template",
-      "view": "../../document/stock.index.view",
+      "template": "../../document/order.index.template",
+      "view": "../../document/order.index.view",
       "parameters": {
         "Menu": "Sales.Order"
       }

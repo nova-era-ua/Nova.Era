@@ -381,6 +381,9 @@
     <Content Include="App_application\main\reports\_components\report.components.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\document\order.index.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\accounting\bankacc\model.json" />
@@ -454,6 +457,7 @@
     <TypeScriptCompile Include="App_application\main\document\invent\inventbill\inventbill.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\money\cashoff\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\sales\retcust\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\document\order.index.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accrespcost.template.ts" />
     <TypeScriptCompile Include="App_application\main\appinit\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\money\cashmove\edit.template.ts" />

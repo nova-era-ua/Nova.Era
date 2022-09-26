@@ -60,7 +60,7 @@ begin
 		select Id = -1, 0, [Name] = N'@[NoGrouping]', 0, Icon=N'package-outline'
 		union all
 		-- hack = negative!
-		select Id = -@Group, 2, [Name] = N'@[WithoutGroup]', 0, Icon=N'ban'
+		select Id = -@Group, 2, [Name] = N'@[WithoutGroup]', 0, Icon=N'ban' where @Group is not null
 		union all
 		select Id, 1, [Name],
 			HasChildren= case when exists(

@@ -194,7 +194,15 @@ begin
 		(@TenantId, s.id, s.[order], s.[name], category, [url], [report])
 	when not matched by source and t.TenantId = @TenantId then delete;
 
-
+end
+go
+-------------------------------------------------
+-- Contracts
+create or alter procedure ini.[Contract.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
 	-- contract kinds
 	declare @ck table(Id nvarchar(16), [Order] int, [Name] nvarchar(255));
 	insert into @ck(Id, [Order], [Name]) values
@@ -210,6 +218,34 @@ begin
 	when not matched by target then insert
 		(TenantId, Id, [Name], [Order]) values
 		(@TenantId, s.Id, s.[Name], s.[Order])
+	when not matched by source and t.TenantId = @TenantId then delete;
+end
+go
+-------------------------------------------------
+-- Operations
+create or alter procedure ini.[Operation.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
+
+	-- operation kinds
+	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16));
+	insert into @ok(Id, Factor, [Order], [Kind], [Name]) values
+	(N'Sale.Ship',      1, 1, N'Shipment', N'@[OperationKind.Shipment]'),
+	(N'Sale.RetCust',  -1, 2, N'Shipment', N'@[OperationKind.RetCust]'),
+	(N'Sale.PayCust',   1, 3, N'Payment',  N'@[OperationKind.PayCust]');
+
+	merge doc.OperationKinds as t
+	using @ok as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set 
+		t.Kind = s.Kind,
+		t.Factor = s.Factor,
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order]
+	when not matched by target then insert
+		(TenantId, Id, [Name], Kind, Factor, [Order]) values
+		(@TenantId, s.Id, s.[Name], s.Kind, s.Factor, s.[Order])
 	when not matched by source and t.TenantId = @TenantId then delete;
 end
 go
@@ -260,5 +296,7 @@ exec ini.[Cat.OnCreateTenant] @TenantId = 1;
 exec ini.[Forms.OnCreateTenant] @TenantId = 1;
 exec ini.[Rep.OnCreateTenant] @TenantId = 1;
 exec ini.[Widgets.OnCreateTenant] @TenantId = 1;
+exec ini.[Contract.OnCreateTenant] @TenantId = 1;
+exec ini.[Operation.OnCreateTenant] @TenantId = 1;
 go
 

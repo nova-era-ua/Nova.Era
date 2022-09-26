@@ -90,6 +90,9 @@ li.line-top:before {
 table.fixed-layout {
   table-layout: fixed;
 }
+.modal-footer .btn-more {
+  min-width: auto;
+}
 .dashboard {
   grid-gap: 6px;
 }

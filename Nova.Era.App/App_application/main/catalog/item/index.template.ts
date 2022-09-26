@@ -3,6 +3,7 @@
 const template: Template = {
 	properties: {
 		'TRoot.$SelectedElem': selectedElem,
+		'TRoot.$$Check': Boolean
 	},
 	events: {
 	},
