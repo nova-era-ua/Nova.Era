@@ -5,7 +5,7 @@
 	"actions": {
 		"cashflow": {
 			"view": "cashflow.view",
-			"skipDataStack": true
+			"skipDataStack": false
 		}
 	}
 }

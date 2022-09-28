@@ -232,9 +232,10 @@ begin
 	-- operation kinds
 	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16));
 	insert into @ok(Id, Factor, [Order], [Kind], [Name]) values
-	(N'Sale.Ship',      1, 1, N'Shipment', N'@[OperationKind.Shipment]'),
-	(N'Sale.RetCust',  -1, 2, N'Shipment', N'@[OperationKind.RetCust]'),
-	(N'Sale.PayCust',   1, 3, N'Payment',  N'@[OperationKind.PayCust]');
+	(N'Sale.Order',     0, 1, N'Order',    N'@[OperationKind.OrderCust]'),
+	(N'Sale.Ship',      1, 2, N'Shipment', N'@[OperationKind.Shipment]'),
+	(N'Sale.RetCust',  -1, 3, N'Shipment', N'@[OperationKind.RetCust]'),
+	(N'Sale.PayCust',   1, 4, N'Payment',  N'@[OperationKind.PayCust]');
 
 	merge doc.OperationKinds as t
 	using @ok as s on t.Id = s.Id and t.TenantId = @TenantId

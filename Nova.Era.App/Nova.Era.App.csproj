@@ -1095,7 +1095,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_application\main\document\_components\doc.selectors.xaml">
+    <Content Include="App_application\main\document\_components\doc.common.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

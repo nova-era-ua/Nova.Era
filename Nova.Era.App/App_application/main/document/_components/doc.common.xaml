@@ -1,0 +1,47 @@
+﻿<ComponentDictionary xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<SelectorSimple x:Key="SelectContract"  Value="{Bind Contract}" Url="/catalog/contract"
+							Data="{Bind $CompanyAgentArg}" ListSize="40rem,25rem">
+		<SelectorSimple.ItemsPanel>
+			<DataGrid XamlStyle="{StyleResource DataGridPanel}" HeadersVisibility="Column">
+				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+				<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Fit="True" Wrap="NoWrap" Align="Center"/>
+				<DataGridColumn Header="@[Number]" Content="{Bind SNo}" Fit="True" Wrap="NoWrap"/>
+				<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}"/>
+			</DataGrid>
+		</SelectorSimple.ItemsPanel>
+	</SelectorSimple>
+	<Group x:Key="TopBar">
+		<Button Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
+		<Button If="{Bind !Document.Done}"
+			Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
+		<Button If="{Bind Document.Done}"
+			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
+		<Button Content="Створити на підставі" Render="Show" Disabled="{Bind Document.$isNew}">
+			<Button.DropDown>
+				<DropDownMegaMenu ItemsSource="{Bind Document.Operation.Links}" GroupBy="Category">
+					<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=createOnBase, Argument={Bind}}"/>
+				</DropDownMegaMenu>
+			</Button.DropDown>
+		</Button>
+		<Button Content="@[Print]" Disabled="{Bind Document.$isNew}" Render="Show"
+				Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, 
+					Url='/document/print/browse', SaveRequired=True}"/>
+		<Button Content="@[Close]" Command="{BindCmd Close}" />
+		<Separator />
+		<Label Content="@[Operation]"/>
+		<ComboBox ItemsSource="{Bind Operations}" Width="20rem"
+					  Value="{Bind Document.Operation}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
+		<Button Icon="Ellipsis" CssClass="btn-more" Render="Show">
+			<Button.DropDown>
+				<DropDownMenu Direction="DownLeft">
+					<MenuItem Content="@[Delete]"/>
+				</DropDownMenu>
+			</Button.DropDown>
+		</Button>
+	</Group>
+</ComponentDictionary>
+
+	

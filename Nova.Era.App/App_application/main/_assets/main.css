@@ -46,6 +46,9 @@ li.line-top:before {
 .h-100 {
   height: 100%;
 }
+.no-scroll {
+  overflow: hidden!important;
+}
 .mr-1 {
   margin-right: 0.25rem;
 }
@@ -92,9 +95,6 @@ table.fixed-layout {
 }
 .modal-footer .btn-more {
   min-width: auto;
-}
-.dashboard {
-  grid-gap: 6px;
 }
 .control-group .input-group.static > span {
   overflow: hidden;

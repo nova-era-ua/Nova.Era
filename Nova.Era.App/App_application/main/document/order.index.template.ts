@@ -34,30 +34,29 @@ function createDraw(type) {
 			.range([d3.rgb("#FFC1B7"), d3.rgb('#ACEB54')]);
 
 		const line = g.append('svg')
-			.attr('width', '80px')
-			.attr('viewBox', '0 0 80 20');
-		/*
+			.attr('width', '100px')
+			.attr('viewBox', '0 0 100 22');
 		line.append('rect')
-			.attr('x', -2)
-			.attr('y', -4)
-			.attr('width', 104)
-			.attr('height', 28)
-			.attr('fill', "#f8f8f8");
-		*/
+			.attr('x', 0)
+			.attr('y', 0)
+			.attr('width', 100)
+			.attr('height', 22)
+			.attr('style', "fill:none;stroke:var(--neutralBkDarker);");
+
 
 		if (!val)
 			return;
 
 		line.append('rect')
-			.attr('x', 0)
-			.attr('y', 0)
-			.attr('width', scaleX(val))
+			.attr('x', 1)
+			.attr('y', 1)
+			.attr('width', scaleX(val) - 2)
 			.attr('fill', scaleColor(val))
 			.attr('height', 20);
 
 		line.append('text')
-			.attr('x', 78)
-			.attr('y', 15)
+			.attr('x', 95)
+			.attr('y', 16)
 			.attr('text-anchor', 'end')
 			.attr('fill', '#000')
 			.text(utils.currency.format(val));

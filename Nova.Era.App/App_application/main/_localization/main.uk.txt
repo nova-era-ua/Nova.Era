@@ -229,7 +229,7 @@
 @ContractKind.Customer = З покупцем
 @ContractKind.Other = Інший
 ;
-;
+@OperationKind.OrderCust=Замовлення покупця
 @OperationKind.Shipment=Відвантаження
 @OperationKind.RetCust=Повернення від покупця
 @OperationKind.PayCust=Оплата від покупця

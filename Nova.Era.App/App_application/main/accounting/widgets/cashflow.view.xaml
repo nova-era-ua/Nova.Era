@@ -1,9 +1,19 @@
 ﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
 	<StackPanel AlignItems="Center" JustifyItems="Center" CssClass="h-100">
-	<EmptyPanel Icon="DashboardOutline" Margin="0">
-		Yet not implemented!
-	</EmptyPanel>
+		<EmptyPanel Icon="DashboardOutline" Margin="0">
+			Yet not implemented!
+		</EmptyPanel>
 	</StackPanel>
-	<Button Absolute="2px,2px,Auto,Auto" Style="Outline"
-			Size="Mini" Icon="Ellipsis" Command="{BindCmd Dialog, Action=Show, Url='/accounting/widgets/cashflowsettings'}"/>
+	<Block Absolute="4px,4px,Auto,Auto">
+		<Button Style="Outline"
+			Size="Mini" Icon="Ellipsis">
+			<Button.DropDown>
+				<DropDownMenu Direction="DownLeft">
+					<MenuItem Content="2 x 2" Command="{BindCmd Dialog, Action=Show, Url='/accounting/widgets/cashflowsettings'}"/>
+					<MenuItem Content="3 x 2"/>
+					<MenuItem Content="Налаштування" Command="{BindCmd Dialog, Action=Show, Url='/accounting/widgets/cashflowsettings'}"/>
+				</DropDownMenu>
+			</Button.DropDown>
+		</Button>
+	</Block>
 </PartialBlock>
