@@ -921,6 +921,7 @@ create table doc.Documents
 	[Base] bigint,
 	OpLink bigint,
 	[Reconcile] nvarchar(16),
+	ReconcileFactor smallint,
 	Company bigint null,
 	Agent bigint null,
 	[Contract] bigint null,

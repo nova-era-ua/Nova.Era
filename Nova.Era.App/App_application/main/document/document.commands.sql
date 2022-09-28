@@ -14,8 +14,8 @@ begin
 
 	declare @rtable table(id bigint, op bigint);
 
-	declare @operation bigint, @parent bigint, @linktype nchar(1), @linkkind nvarchar(16);
-	select @parent = ol.Parent, @operation = ol.Operation, @linktype = okpr.LinkType, @linkkind = okch.Kind
+	declare @operation bigint, @parent bigint, @linktype nchar(1), @reconcile nvarchar(16), @factor smallint;
+	select @parent = ol.Parent, @operation = ol.Operation, @linktype = okpr.LinkType, @reconcile = okch.Kind, @factor = okch.Factor
 	from doc.OperationLinks ol 
 		inner join doc.Operations opr on ol.TenantId = opr.TenantId and ol.Parent = opr.Id
 		inner join doc.Operations och on ol.TenantId = och.TenantId and ol.Operation = och.Id
@@ -38,10 +38,10 @@ begin
 	end
 
 
-	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, Reconcile, OpLink, Company, Agent, [Contract], [RespCenter], 
+	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, Reconcile, ReconcileFactor, OpLink, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, UserCreated, Temp, [Sum])
 	output inserted.Id, inserted.Operation into @rtable(id, op)
-	select @TenantId, cast(getdate() as date), @operation, @ParentDoc, @BaseDoc, @linkkind, @LinkId, Company, Agent, [Contract], [RespCenter], 
+	select @TenantId, cast(getdate() as date), @operation, @ParentDoc, @BaseDoc, @reconcile, @factor, @LinkId, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, [Sum]
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
@@ -156,6 +156,8 @@ begin
 		begin tran;
 		delete from doc.DocDetails where TenantId = @TenantId and Document=@Id;
 		delete from doc.DocumentExtra where TenantId = @TenantId and Id=@Id;
+		update doc.Documents set Base = null where TenantId = @TenantId and Base = @Id;
+		update doc.Documents set Parent = null where TenantId = @TenantId and Parent = @Id;
 		delete from doc.Documents where TenantId = @TenantId and Id=@Id;
 		commit tran;
 	end

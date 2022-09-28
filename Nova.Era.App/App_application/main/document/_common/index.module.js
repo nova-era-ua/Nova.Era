@@ -68,7 +68,7 @@ define(["require", "exports"], function (require, exports) {
     }
     async function deleteDoc(doc) {
         const ctrl = this.$ctrl;
-        ctrl.$invoke('delete', { Id: doc.Id }, '/document/commands');
+        await ctrl.$invoke('delete', { Id: doc.Id }, '/document/commands');
         doc.$remove();
     }
     async function copyDoc(docs) {

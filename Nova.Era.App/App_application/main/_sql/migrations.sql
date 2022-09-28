@@ -153,3 +153,7 @@ go
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'Reconcile')
 	alter table doc.Documents add [Reconcile] nvarchar(16);
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'ReconcileFactor')
+	alter table doc.Documents add ReconcileFactor smallint;
+go

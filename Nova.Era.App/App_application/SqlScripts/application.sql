@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 28.09.2022 18:19:44
+generated: 28.09.2022 18:49:46
 */
 
 
@@ -12019,20 +12019,24 @@ begin
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
-		[LinkSum!TLinkSum!MapObject!Payment:Shipment] = null,
+		[Reconcile!TReconcile!Object] = null,
 		[!!RowCount] = t.rowcnt
 	from @docs t inner join 
 		doc.Documents d on d.TenantId = @TenantId and d.Id = t.id
 	order by t.rowno;
 
-	select [!TLinkSum!MapObject] = null, [!!Key] = ok.Kind, [Sum] = sum(d.[Sum]),
-		[!TDocument.LinkSum!ParentId] = t.id
-	from @docs t inner join doc.Documents d on t.id = d.Base
-		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
-		inner join doc.OperationKinds ok on ok.TenantId = o.TenantId and ok.Id = o.Kind
-	where d.Done = 1
-	group by ok.Kind, d.Base, t.id;
 
+	-- payments/shipment
+	select [!TReconcile!Object] = null, [!TDocument.Reconcile!ParentId] = [Base], [Payment], [Shipment] 
+	from (
+		select [Base], Kind, [Sum]
+		from jrn.Reconcile r 
+		inner join @docs t on r.TenantId = @TenantId and r.Base = t.id
+	) 
+	as s pivot (  
+		sum([Sum])  
+		for Kind in ([Payment], [Shipment])  
+	) as p;  
 
 	-- maps
 	with T as (select op from @docs group by op)

@@ -73,7 +73,7 @@ function handleApply(elem) {
 
 async function deleteDoc(doc: TDocument) {
 	const ctrl = this.$ctrl;
-	ctrl.$invoke('delete', { Id: doc.Id }, '/document/commands');
+	await ctrl.$invoke('delete', { Id: doc.Id }, '/document/commands');
 	doc.$remove();
 }
 

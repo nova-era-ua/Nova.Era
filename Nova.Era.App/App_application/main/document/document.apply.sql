@@ -393,7 +393,7 @@ begin
 	declare @sum money;
 
 	select @operation = d.Operation, @done = d.Done, @wsp = de.WriteSupplierPrices, 
-		@base = d.Base, @reconcile = Reconcile, @sum = [Sum]
+		@base = d.Base, @reconcile = Reconcile, @sum = [Sum] * d.ReconcileFactor
 	from doc.Documents d
 		left join doc.DocumentExtra de on d.TenantId = de.TenantId and d.Id = de.Id
 	where d.TenantId = @TenantId and d.Id=@Id;
