@@ -230,23 +230,24 @@ begin
 	set nocount on;
 
 	-- operation kinds
-	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16));
-	insert into @ok(Id, Factor, [Order], [Kind], [Name]) values
-	(N'Sale.Order',     0, 1, N'Order',    N'@[OperationKind.OrderCust]'),
-	(N'Sale.Ship',      1, 2, N'Shipment', N'@[OperationKind.Shipment]'),
-	(N'Sale.RetCust',  -1, 3, N'Shipment', N'@[OperationKind.RetCust]'),
-	(N'Sale.PayCust',   1, 4, N'Payment',  N'@[OperationKind.PayCust]');
+	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16), [Type] nchar(1));
+	insert into @ok(Id, Factor, [Order], [Type], [Kind], [Name]) values
+	(N'Sale.Order',     0, 1, N'B', N'Order',    N'@[OperationKind.OrderCust]'),
+	(N'Sale.Ship',      1, 2, N'P', N'Shipment', N'@[OperationKind.Shipment]'),
+	(N'Sale.RetCust',  -1, 3, N'P', N'Shipment', N'@[OperationKind.RetCust]'),
+	(N'Sale.PayCust',   1, 4, N'P', N'Payment',  N'@[OperationKind.PayCust]');
 
 	merge doc.OperationKinds as t
 	using @ok as s on t.Id = s.Id and t.TenantId = @TenantId
 	when matched then update set 
 		t.Kind = s.Kind,
+		t.LinkType = s.[Type],
 		t.Factor = s.Factor,
 		t.[Name] = s.[Name],
 		t.[Order] = s.[Order]
 	when not matched by target then insert
-		(TenantId, Id, [Name], Kind, Factor, [Order]) values
-		(@TenantId, s.Id, s.[Name], s.Kind, s.Factor, s.[Order])
+		(TenantId, Id, [Name], Kind, LinkType, Factor, [Order]) values
+		(@TenantId, s.Id, s.[Name], s.Kind, s.[Type], s.Factor, s.[Order])
 	when not matched by source and t.TenantId = @TenantId then delete;
 end
 go

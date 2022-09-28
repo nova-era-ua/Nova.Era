@@ -15,7 +15,7 @@ define(["require", "exports"], function (require, exports) {
     exports.default = utils.mergeTemplate(base, template);
     function createDraw(type) {
         return function (g, doc) {
-            let val = doc.LinkSum[type].Sum;
+            let val = doc.Reconcile[type];
             const scaleX = d3.scaleLinear()
                 .range([0, 100])
                 .domain([0, doc.Sum]);

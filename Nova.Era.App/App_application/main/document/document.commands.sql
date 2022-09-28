@@ -14,13 +14,34 @@ begin
 
 	declare @rtable table(id bigint, op bigint);
 
-	declare @operation bigint, @parent bigint;
-	select @parent = Parent, @operation = Operation from doc.OperationLinks where TenantId = @TenantId and Id=@LinkId
+	declare @operation bigint, @parent bigint, @linktype nchar(1), @linkkind nvarchar(16);
+	select @parent = ol.Parent, @operation = ol.Operation, @linktype = okpr.LinkType, @linkkind = okch.Kind
+	from doc.OperationLinks ol 
+		inner join doc.Operations opr on ol.TenantId = opr.TenantId and ol.Parent = opr.Id
+		inner join doc.Operations och on ol.TenantId = och.TenantId and ol.Operation = och.Id
+		left join doc.OperationKinds okpr on ol.TenantId = okpr.TenantId and opr.Kind = okpr.Id
+		left join doc.OperationKinds okch on ol.TenantId = okch.TenantId and och.Kind = okch.Id
+	where ol.TenantId = @TenantId and ol.Id = @LinkId;
 
-	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, OpLink, Company, Agent, [Contract], [RespCenter], 
+	declare @BaseDoc bigint;
+	declare @ParentDoc bigint;
+	if @linktype = N'P'
+	begin
+		-- base = base from parent
+		select @BaseDoc = Base, @ParentDoc = @Document from doc.Documents where TenantId = @TenantId and Id = @Document;
+	end
+	else if @linktype = N'B'
+	begin
+		-- base = parent
+		set @BaseDoc = @Document;
+		set @ParentDoc = @Document;
+	end
+
+
+	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, Reconcile, OpLink, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, UserCreated, Temp, [Sum])
 	output inserted.Id, inserted.Operation into @rtable(id, op)
-	select @TenantId, cast(getdate() as date), @operation, @Document, isnull(Base, @Document), @LinkId, Company, Agent, [Contract], [RespCenter], 
+	select @TenantId, cast(getdate() as date), @operation, @ParentDoc, @BaseDoc, @linkkind, @LinkId, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, [Sum]
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
@@ -88,6 +109,10 @@ begin
 	set xact_abort on;
 
 	declare @rtable table(id bigint);
+	declare @newid bigint;
+
+	begin tran;
+
 	insert into doc.Documents (TenantId, Temp, [Date],  Operation, [Sum],  SNo, Company, Agent, [Contract], Currency, 
 		WhFrom, WhTo, CashAccFrom, CashAccTo, RespCenter, ItemRole, CostItem, CashFlowItem, PriceKind, Notice, Memo, 
 		UserCreated)
@@ -97,7 +122,6 @@ begin
 		@UserId
 	from doc.Documents where TenantId = @TenantId and Id = @Id;
 	
-	declare @newid bigint;
 	select @newid = id from @rtable;
 
 	insert into doc.DocDetails (TenantId, Document, RowNo, Kind, Item, ItemRole, ItemRoleTo, Unit,
@@ -105,10 +129,12 @@ begin
 	select @TenantId, @newid, RowNo, Kind, Item, ItemRole, ItemRoleTo, Unit,
 		Qty, FQty, Price, [Sum], ESum, DSum, TSum, Memo, CostItem
 	from doc.DocDetails where TenantId = @TenantId and Document = @Id;
+	commit tran;
 
 	select [Document!TDocCopy!Object] = null, Id = @newid, o.DocumentUrl
 	from doc.Documents d inner join doc.Operations o on d.TenantId = @TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and d.Id = @newid;
+
 end
 go
 ------------------------------------------------

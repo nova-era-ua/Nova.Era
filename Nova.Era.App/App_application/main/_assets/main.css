@@ -43,12 +43,6 @@ li.line-top:before {
   display: list-item;
 }
 /*UTILS (like bootstrap) */
-.h-100 {
-  height: 100%;
-}
-.no-scroll {
-  overflow: hidden!important;
-}
 .mr-1 {
   margin-right: 0.25rem;
 }

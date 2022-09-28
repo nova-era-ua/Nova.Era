@@ -1,11 +1,11 @@
 ﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<StackPanel AlignItems="Center" JustifyItems="Center" CssClass="h-100">
+	<StackPanel AlignItems="Center" JustifyItems="Center" Height="100%">
 		<EmptyPanel Icon="DashboardOutline" Margin="0">
 			Yet not implemented!
 		</EmptyPanel>
 	</StackPanel>
 	<Block Absolute="4px,4px,Auto,Auto">
-		<Button Style="Outline"
+		<Button Style="Toolbar"
 			Size="Mini" Icon="Ellipsis">
 			<Button.DropDown>
 				<DropDownMenu Direction="DownLeft">

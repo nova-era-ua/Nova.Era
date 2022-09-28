@@ -16,14 +16,14 @@
 		<Panel Header="Підстава" Collapsible="True" If="{Bind Document.ParentDoc.Id}" Padding=".5rem">
 			<Slot Scope="{Bind Document.ParentDoc}">
 				<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"
-						Block="True" Wrap="PreWrap"
+						Wrap="PreWrap"
 						Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
 			</Slot>
 		</Panel>
 		<Panel Header="Зв'язані документи" Collapsible="True" Padding=".5rem" If="{Bind Document.LinkedDocs.length}">
 			<StackPanel ItemsSource="{Bind Document.LinkedDocs}" Gap=".5rem">
 				<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"
-						Block="True" Wrap="PreWrap"
+						Wrap="PreWrap"
 						Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
 			</StackPanel>
 		</Panel>

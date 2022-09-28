@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 26.09.2022 15:46:55
+generated: 28.09.2022 18:19:44
 */
 
 
@@ -4132,6 +4132,7 @@ create table doc.OperationKinds
 	[Order] int,
 	Kind nvarchar(16),
 	Factor smallint,
+	LinkType nchar(1), -- (B)ase, (P)arent
 	[Name] nvarchar(255),
 		constraint PK_OperationKinds primary key (TenantId, Id)
 );
@@ -4331,6 +4332,7 @@ create table doc.Documents
 	[Parent] bigint,
 	[Base] bigint,
 	OpLink bigint,
+	[Reconcile] nvarchar(16),
 	Company bigint null,
 	Agent bigint null,
 	[Contract] bigint null,
@@ -4425,6 +4427,28 @@ create table doc.DocDetails
 	constraint FK_DocDetails_ItemRoleTo_ItemRoles foreign key (TenantId, ItemRoleTo) references cat.ItemRoles(TenantId, Id),
 	constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
 	constraint FK_DocDetails_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'jrn' and SEQUENCE_NAME = N'SQ_Reconcile')
+	create sequence jrn.SQ_Reconcile as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'Reconcile')
+create table jrn.Reconcile
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Reconcile_Id default(next value for jrn.SQ_Reconcile),
+	Kind nvarchar(16) not null,
+	Base bigint not null,
+	Document bigint not null,
+	Detail bigint,
+	[Sum] money,
+	constraint PK_Reconcile primary key (TenantId, Id),
+	constraint FK_Reconcile_Base_Documents foreign key (TenantId, Base) references doc.Documents(TenantId, Id),
+	constraint FK_Reconcile_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
+	constraint FK_Reconcile_Detail_Documents foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4914,6 +4938,15 @@ begin
 	alter table doc.Operations drop column WarehouseTo;
 end
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationKinds' and COLUMN_NAME=N'LinkType')
+	alter table doc.OperationKinds add LinkType nchar(1);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'Reconcile')
+	alter table doc.Documents add [Reconcile] nvarchar(16);
+go
+
 /*
 common
 */
@@ -12877,7 +12910,9 @@ begin
 	delete from jrn.StockJournal where TenantId = @TenantId and Document = @Id;
 	delete from jrn.Journal where TenantId = @TenantId and Document = @Id;
 	delete from jrn.CashJournal where TenantId= @TenantId and Document = @Id;
+	delete from jrn.SettleJournal where TenantId = @TenantId and Document = @Id;
 	delete from jrn.SupplierPrices where TenantId = @TenantId and Document = @Id;
+	delete from jrn.Reconcile where TenantId = @TenantId and Document = @Id;
 	update doc.Documents set Done = 0, DateApplied = null
 		where TenantId = @TenantId and Id = @Id;
 	commit tran;
@@ -12898,8 +12933,12 @@ begin
 	declare @operation bigint;
 	declare @done bit;
 	declare @wsp bit;
+	declare @base bigint;
+	declare @reconcile nvarchar(16);
+	declare @sum money;
 
-	select @operation = d.Operation, @done = d.Done, @wsp = de.WriteSupplierPrices
+	select @operation = d.Operation, @done = d.Done, @wsp = de.WriteSupplierPrices, 
+		@base = d.Base, @reconcile = Reconcile, @sum = [Sum]
 	from doc.Documents d
 		left join doc.DocumentExtra de on d.TenantId = de.TenantId and d.Id = de.Id
 	where d.TenantId = @TenantId and d.Id=@Id;
@@ -12942,6 +12981,12 @@ begin
 				@Operation = @operation, @Id = @Id;
 		if @wsp = 1
 			exec doc.[Apply.WriteSupplierPrices] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
+		if @reconcile is not null
+		begin
+			insert into jrn.Reconcile (TenantId, Base, Document, Kind, [Sum])
+				values (@TenantId, @base, @Id, @reconcile, @sum);
+		end
+
 		update doc.Documents set Done = 1, DateApplied = getdate() 
 			where TenantId = @TenantId and Id = @Id;
 	commit tran;
@@ -13125,13 +13170,34 @@ begin
 
 	declare @rtable table(id bigint, op bigint);
 
-	declare @operation bigint, @parent bigint;
-	select @parent = Parent, @operation = Operation from doc.OperationLinks where TenantId = @TenantId and Id=@LinkId
+	declare @operation bigint, @parent bigint, @linktype nchar(1), @linkkind nvarchar(16);
+	select @parent = ol.Parent, @operation = ol.Operation, @linktype = okpr.LinkType, @linkkind = okch.Kind
+	from doc.OperationLinks ol 
+		inner join doc.Operations opr on ol.TenantId = opr.TenantId and ol.Parent = opr.Id
+		inner join doc.Operations och on ol.TenantId = och.TenantId and ol.Operation = och.Id
+		left join doc.OperationKinds okpr on ol.TenantId = okpr.TenantId and opr.Kind = okpr.Id
+		left join doc.OperationKinds okch on ol.TenantId = okch.TenantId and och.Kind = okch.Id
+	where ol.TenantId = @TenantId and ol.Id = @LinkId;
 
-	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, OpLink, Company, Agent, [Contract], [RespCenter], 
+	declare @BaseDoc bigint;
+	declare @ParentDoc bigint;
+	if @linktype = N'P'
+	begin
+		-- base = base from parent
+		select @BaseDoc = Base, @ParentDoc = @Document from doc.Documents where TenantId = @TenantId and Id = @Document;
+	end
+	else if @linktype = N'B'
+	begin
+		-- base = parent
+		set @BaseDoc = @Document;
+		set @ParentDoc = @Document;
+	end
+
+
+	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, Reconcile, OpLink, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, UserCreated, Temp, [Sum])
 	output inserted.Id, inserted.Operation into @rtable(id, op)
-	select @TenantId, cast(getdate() as date), @operation, @Document, isnull(Base, @Document), @LinkId, Company, Agent, [Contract], [RespCenter], 
+	select @TenantId, cast(getdate() as date), @operation, @ParentDoc, @BaseDoc, @linkkind, @LinkId, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, [Sum]
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
@@ -13199,6 +13265,10 @@ begin
 	set xact_abort on;
 
 	declare @rtable table(id bigint);
+	declare @newid bigint;
+
+	begin tran;
+
 	insert into doc.Documents (TenantId, Temp, [Date],  Operation, [Sum],  SNo, Company, Agent, [Contract], Currency, 
 		WhFrom, WhTo, CashAccFrom, CashAccTo, RespCenter, ItemRole, CostItem, CashFlowItem, PriceKind, Notice, Memo, 
 		UserCreated)
@@ -13208,7 +13278,6 @@ begin
 		@UserId
 	from doc.Documents where TenantId = @TenantId and Id = @Id;
 	
-	declare @newid bigint;
 	select @newid = id from @rtable;
 
 	insert into doc.DocDetails (TenantId, Document, RowNo, Kind, Item, ItemRole, ItemRoleTo, Unit,
@@ -13216,10 +13285,12 @@ begin
 	select @TenantId, @newid, RowNo, Kind, Item, ItemRole, ItemRoleTo, Unit,
 		Qty, FQty, Price, [Sum], ESum, DSum, TSum, Memo, CostItem
 	from doc.DocDetails where TenantId = @TenantId and Document = @Id;
+	commit tran;
 
 	select [Document!TDocCopy!Object] = null, Id = @newid, o.DocumentUrl
 	from doc.Documents d inner join doc.Operations o on d.TenantId = @TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and d.Id = @newid;
+
 end
 go
 ------------------------------------------------
@@ -15567,22 +15638,24 @@ begin
 	set nocount on;
 
 	-- operation kinds
-	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16));
-	insert into @ok(Id, Factor, [Order], [Kind], [Name]) values
-	(N'Sale.Ship',      1, 1, N'Shipment', N'@[OperationKind.Shipment]'),
-	(N'Sale.RetCust',  -1, 2, N'Shipment', N'@[OperationKind.RetCust]'),
-	(N'Sale.PayCust',   1, 3, N'Payment',  N'@[OperationKind.PayCust]');
+	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16), [Type] nchar(1));
+	insert into @ok(Id, Factor, [Order], [Type], [Kind], [Name]) values
+	(N'Sale.Order',     0, 1, N'B', N'Order',    N'@[OperationKind.OrderCust]'),
+	(N'Sale.Ship',      1, 2, N'P', N'Shipment', N'@[OperationKind.Shipment]'),
+	(N'Sale.RetCust',  -1, 3, N'P', N'Shipment', N'@[OperationKind.RetCust]'),
+	(N'Sale.PayCust',   1, 4, N'P', N'Payment',  N'@[OperationKind.PayCust]');
 
 	merge doc.OperationKinds as t
 	using @ok as s on t.Id = s.Id and t.TenantId = @TenantId
 	when matched then update set 
 		t.Kind = s.Kind,
+		t.LinkType = s.[Type],
 		t.Factor = s.Factor,
 		t.[Name] = s.[Name],
 		t.[Order] = s.[Order]
 	when not matched by target then insert
-		(TenantId, Id, [Name], Kind, Factor, [Order]) values
-		(@TenantId, s.Id, s.[Name], s.Kind, s.Factor, s.[Order])
+		(TenantId, Id, [Name], Kind, LinkType, Factor, [Order]) values
+		(@TenantId, s.Id, s.[Name], s.Kind, s.[Type], s.Factor, s.[Order])
 	when not matched by source and t.TenantId = @TenantId then delete;
 end
 go
