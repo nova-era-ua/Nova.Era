@@ -21,6 +21,14 @@
         "unapply": {
             "type": "sql",
             "procedure": "Document.UnApply"
+        },
+        "setbasedoc": {
+            "type": "sql",
+            "procedure": "Document.Base.Set"
+        },
+        "clearbasedoc": {
+            "type": "sql",
+            "procedure": "Document.Base.Clear"
         }
     }
 }

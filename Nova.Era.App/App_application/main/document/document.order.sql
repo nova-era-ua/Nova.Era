@@ -86,7 +86,7 @@ begin
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
-		[Reconcile!TReconcile!Object] = null,
+		[Bind!TBind!Object] = null,
 		[!!RowCount] = t.rowcnt
 	from @docs t inner join 
 		doc.Documents d on d.TenantId = @TenantId and d.Id = t.id
@@ -94,10 +94,10 @@ begin
 
 
 	-- payments/shipment
-	select [!TReconcile!Object] = null, [!TDocument.Reconcile!ParentId] = [Base], [Payment], [Shipment] 
+	select [!TBind!Object] = null, [!TDocument.Bind!ParentId] = [Base], [Payment], [Shipment] 
 	from (
-		select [Base], Kind, [Sum]
-		from jrn.Reconcile r 
+		select [Base], Kind = r.BindKind, [Sum] = [Sum] * r.BindFactor
+		from doc.Documents r 
 		inner join @docs t on r.TenantId = @TenantId and r.Base = t.id
 	) 
 	as s pivot (  
@@ -185,8 +185,7 @@ begin
 		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
-		[ParentDoc!TDocBase!RefId] = d.Parent, [BaseDoc!TDocBase!RefId] = d.Base,
-		[LinkedDocs!TDocBase!Array] = null,
+		[BindedDocs!TDocBase!Array] = null,
 		[Extra!TDocExtra!Object] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
@@ -261,6 +260,12 @@ begin
 	where pk.TenantId = @TenantId and pk.Id in (select PriceKind from T);
 
 	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
+
+	select [!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done], d.BindKind, d.BindFactor,
+		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.BindedDocs!ParentId] = d.Base
+	from doc.Documents d 
+		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
+	where d.TenantId = @TenantId and d.Temp = 0 and d.Base = @Id;
 
 	with T as (select item from @rows group by item)
 	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article, Barcode,

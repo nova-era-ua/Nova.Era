@@ -367,7 +367,6 @@ begin
 	delete from jrn.CashJournal where TenantId= @TenantId and Document = @Id;
 	delete from jrn.SettleJournal where TenantId = @TenantId and Document = @Id;
 	delete from jrn.SupplierPrices where TenantId = @TenantId and Document = @Id;
-	delete from jrn.Reconcile where TenantId = @TenantId and Document = @Id;
 	update doc.Documents set Done = 0, DateApplied = null
 		where TenantId = @TenantId and Id = @Id;
 	commit tran;
@@ -389,11 +388,9 @@ begin
 	declare @done bit;
 	declare @wsp bit;
 	declare @base bigint;
-	declare @reconcile nvarchar(16);
-	declare @sum money;
 
 	select @operation = d.Operation, @done = d.Done, @wsp = de.WriteSupplierPrices, 
-		@base = d.Base, @reconcile = Reconcile, @sum = [Sum] * d.ReconcileFactor
+		@base = d.Base
 	from doc.Documents d
 		left join doc.DocumentExtra de on d.TenantId = de.TenantId and d.Id = de.Id
 	where d.TenantId = @TenantId and d.Id=@Id;
@@ -436,11 +433,6 @@ begin
 				@Operation = @operation, @Id = @Id;
 		if @wsp = 1
 			exec doc.[Apply.WriteSupplierPrices] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
-		if @reconcile is not null
-		begin
-			insert into jrn.Reconcile (TenantId, Base, Document, Kind, [Sum])
-				values (@TenantId, @base, @Id, @reconcile, @sum);
-		end
 
 		update doc.Documents set Done = 1, DateApplied = getdate() 
 			where TenantId = @TenantId and Id = @Id;

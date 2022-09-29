@@ -235,7 +235,8 @@ begin
 	(N'Sale.Order',     0, 1, N'B', N'Order',    N'@[OperationKind.OrderCust]'),
 	(N'Sale.Ship',      1, 2, N'P', N'Shipment', N'@[OperationKind.Shipment]'),
 	(N'Sale.RetCust',  -1, 3, N'P', N'Shipment', N'@[OperationKind.RetCust]'),
-	(N'Sale.PayCust',   1, 4, N'P', N'Payment',  N'@[OperationKind.PayCust]');
+	(N'Sale.PayCust',   1, 4, N'P', N'Payment',  N'@[OperationKind.PayCust]'),
+	(N'Sale.RetPay',   -1, 5, N'P', N'Payment',  N'@[OperationKind.RetPay]');
 
 	merge doc.OperationKinds as t
 	using @ok as s on t.Id = s.Id and t.TenantId = @TenantId

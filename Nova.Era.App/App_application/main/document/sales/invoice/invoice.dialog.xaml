@@ -13,8 +13,8 @@
 			<Panel Padding=".5rem" Header="Інформація про покупця" Collapsible="True" Compact="True">
 				<Include Source="/catalog/agent/customerinfo" Argument="{Bind Document.Agent.Id}"/>
 			</Panel>
-			<Panel Header="Зв'язані документи2" Collapsible="True" Padding=".5rem" Compact="True" If="{Bind Document.LinkedDocs.length}">
-				<StackPanel ItemsSource="{Bind Document.LinkedDocs}" Gap=".5rem">
+			<Panel Header="Зв'язані документи" Collapsible="True" Padding=".5rem" Compact="True" If="{Bind Document.BindedDocs.length}">
+				<StackPanel ItemsSource="{Bind Document.BindedDocs}" Gap=".5rem">
 					<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}" Wrap="PreWrap"
 						Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
 				</StackPanel>

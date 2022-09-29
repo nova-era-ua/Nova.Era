@@ -11,7 +11,8 @@ define(["require", "exports"], function (require, exports) {
         },
         events: {
             'app.document.saved': handleSaved,
-            'app.document.apply': handleApply
+            'app.document.apply': handleApply,
+            'app.document.delete': handleDelete
         },
         commands: {
             create,
@@ -65,6 +66,12 @@ define(["require", "exports"], function (require, exports) {
         if (!found)
             return;
         found.Done = elem.Done;
+    }
+    function handleDelete(elem) {
+        let found = this.Documents.find(d => d.Id == elem.Id);
+        if (!found)
+            return;
+        found.$remove();
     }
     async function deleteDoc(doc) {
         const ctrl = this.$ctrl;

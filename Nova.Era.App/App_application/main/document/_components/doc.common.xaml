@@ -17,7 +17,8 @@
 			Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
 		<Button If="{Bind Document.Done}"
 			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
-		<Button Content="Створити на підставі" Render="Show" Disabled="{Bind Document.$isNew}">
+		<Button Content="Створити на підставі" Render="Show" If="{Bind !Document.Operation.Links.$isEmpty}"
+				Disabled="{Bind Document.$isNew}">
 			<Button.DropDown>
 				<DropDownMegaMenu ItemsSource="{Bind Document.Operation.Links}" GroupBy="Category">
 					<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=createOnBase, Argument={Bind}}"/>
@@ -37,7 +38,9 @@
 		<Button Icon="Ellipsis" CssClass="btn-more" Render="Show">
 			<Button.DropDown>
 				<DropDownMenu Direction="DownLeft">
-					<MenuItem Content="@[Delete]"/>
+					<MenuItem Content="@[Delete]" Command="{BindCmd Execute, CommandName=deleteSelf, Argument={Bind Document}}"/>
+					<Separator />
+					<MenuItem Content="@[Reload]" Command="{BindCmd Reload}"/>
 				</DropDownMenu>
 			</Button.DropDown>
 		</Button>

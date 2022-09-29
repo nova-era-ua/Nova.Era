@@ -157,3 +157,51 @@ begin
 	from cat.Projects p inner join TP t on p.TenantId = @TenantId and p.Id = t.project;
 end
 go
+------------------------------------------------
+create or alter procedure doc.[Document.Base.Select.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;	
+	declare @op bigint, @baseop bigint;
+
+	select @op = Operation from doc.Documents d
+	where d.TenantId = @TenantId and d.Id = @Id;
+
+	select @baseop = ol.Parent from doc.OperationLinks ol
+	inner join doc.Operations op on ol.TenantId = op.TenantId and ol.Parent = op.Id
+	inner join doc.OperationKinds pk on ol.TenantId = pk.TenantId and op.Kind = pk.Id
+	and pk.LinkType = N'B' and ol.Operation = @op;
+
+	declare @docs table (id bigint, agent bigint);
+	insert into @docs (id, agent) 
+	select Id, Agent from doc.Documents where TenantId = @TenantId and Operation = @baseop;
+
+	-- field set as TLinkedDoc
+	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[No], d.SNo, d.[Date], d.[Sum], d.[Memo],
+		d.Done, OpName = o.[Name], o.DocumentUrl, o.Form,
+		[Agent!TAgent!RefId] = d.Agent, [Bind!TBind!Object] = null
+	from doc.Documents d inner join @docs t on d.TenantId = @TenantId and d.Id = t.id
+	inner join doc.Operations o on o.TenantId = d.TenantId and d.Operation = o.Id;
+
+	with T as (
+		select agent from @docs group by agent
+	)
+	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from T inner join cat.Agents a on T.agent = a.Id and a.TenantId = @TenantId;
+
+	select [!TBind!Object] = null, [!TDocument.Bind!ParentId] = [Base], [Payment], [Shipment] 
+	from (
+		select [Base], Kind = r.BindKind, [Sum] = [Sum] * r.BindFactor
+		from doc.Documents r 
+		inner join @docs t on r.TenantId = @TenantId and r.Base = t.id
+	) 
+	as s pivot (  
+		sum([Sum])  
+		for Kind in ([Payment], [Shipment])  
+	) as p;  
+end
+go

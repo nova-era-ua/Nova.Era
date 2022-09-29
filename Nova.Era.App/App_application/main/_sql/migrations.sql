@@ -150,10 +150,20 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc'
 	alter table doc.OperationKinds add LinkType nchar(1);
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'Reconcile')
-	alter table doc.Documents add [Reconcile] nvarchar(16);
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'BindKind')
+begin
+	alter table doc.Documents add BindKind nvarchar(16);
+	alter table doc.Documents add BindFactor smallint;
+end
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'ReconcileFactor')
-	alter table doc.Documents add ReconcileFactor smallint;
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'ReconcileFactor')
+begin
+	alter table doc.Documents drop column ReconcileFactor;
+	alter table doc.Documents drop column [Reconcile];
+end
+go
+------------------------------------------------
+drop table if exists jrn.Reconcile;
+drop sequence if exists jrn.SQ_Reconcile;
 go

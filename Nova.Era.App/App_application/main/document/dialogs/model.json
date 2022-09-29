@@ -3,9 +3,15 @@
   "schema": "doc",
   "dialogs": {
     "transactions": {
-      "model": "Document.Transactions",
-      "template": "transactions.template",
-      "view": "transactions.dialog"
+        "model": "Document.Transactions",
+        "template": "transactions.template",
+        "view": "transactions.dialog"
+    },
+    "browseBase": {
+        "index": true,
+        "model": "Document.Base.Select",
+        "template": "browsebase.template",
+        "view": "browsebase.dialog"
     }
   }
 }

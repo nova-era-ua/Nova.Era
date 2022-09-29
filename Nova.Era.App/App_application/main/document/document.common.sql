@@ -43,13 +43,24 @@ begin
 	from cat.Companies c 
 	where c.TenantId = @TenantId and c.Id in (select Company from CA);
 
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.LinkedMaps] 
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 	select [LinkedDocs!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
 		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.LinkedDocs!ParentId] = d.Parent
 	from doc.Documents d 
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and d.Temp = 0 and d.Parent = @Id;
 
-	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], d.[Done],
+	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], p.[Done],
 		[OpName] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and p.Id in (d.Parent, d.Base)
 		inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id

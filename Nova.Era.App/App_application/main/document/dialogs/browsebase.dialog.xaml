@@ -1,0 +1,22 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		Title="@[Browse.Document]" Width="70rem" Padding="1rem">
+	<Dialog.Buttons>
+		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind Documents}}" />
+		<Button Content="@[Close]" Command="{BindCmd Close}" />
+	</Dialog.Buttons>
+	<DataGrid Grid.Row="2" ItemsSource="{Bind Documents}"  XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True"
+					Sort="False" Height="35rem"
+					DoubleClick="{BindCmd Select, Argument={Bind Documents}}">
+		<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+		<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
+		<DataGridColumn Header="@[No]" Content="{Bind No}" Wrap="NoWrap" Fit="True" Align="Right"/>
+		<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>
+		<DataGridColumn Header="Відвантаження/оплата" Fit="True">
+			<Block Width="140px">
+				<Html Content="{Bind $Bind}"/>
+			</Block>
+		</DataGridColumn>
+		<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Width="200"/>
+		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" Width="150"/>
+	</DataGrid>
+</Dialog>

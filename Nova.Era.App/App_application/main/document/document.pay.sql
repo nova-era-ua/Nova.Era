@@ -179,10 +179,16 @@ begin
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
 
-	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl
+	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl,
+		[Links!TOpLink!Array] = null
 	from doc.Operations o 
 		left join doc.Documents d on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.Id = @Id and d.TenantId = @TenantId;
+
+	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, ol.Category, ch.[Name], [!TOperation.Links!ParentId] = ol.Parent
+	from doc.OperationLinks ol 
+		inner join doc.Operations ch on ol.TenantId = ch.TenantId and ol.Operation = ch.Id
+	where ol.TenantId = @TenantId and ol.Parent = @Operation;
 
 	select [!TCashAccount!Map] = null, [Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.AccountNo,
 		Balance = rep.fn_getCashAccountRem(@TenantId, ca.Id, d.[Date])
@@ -197,6 +203,7 @@ begin
 
 
 	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
+	exec doc.[Document.LinkedMaps]  @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
 
 	select [!TDocParent!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], [OperationName] = o.[Name]
 	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and d.Parent = p.Id

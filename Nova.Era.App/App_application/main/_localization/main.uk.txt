@@ -206,6 +206,7 @@
 @Browse.Currency=Вибір валюти
 @Browse.Currencies=Вибір валют
 @Browse.Contract=Вибір договору
+@Browse.Document=Вибір документу
 @Browse.Group=Вибір групи
 @Browse.ItemRole=Вибір ролі в обліку
 @Browse.PriceKind=Вибір вида ціни
@@ -233,6 +234,7 @@
 @OperationKind.Shipment=Відвантаження
 @OperationKind.RetCust=Повернення від покупця
 @OperationKind.PayCust=Оплата від покупця
+@OperationKind.RetPay=Повернення оплати
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
 @Label.Cash.Account=Каса/Рахунок
@@ -260,9 +262,11 @@
 ;
 @Confirm.Delete.Folder=Ви дійсно бажаєте видалити папку?
 @Confirm.Delete.Element=Ви дійсно бажаєте видалити елемент?
+@Confirm.Delete.Document=Ви дійсно бажаєте видалити документ?
 @Confirm.Apply=Ви дійсно бажаєте провести документ?
 @Confirm.UnApply=Ви дійсно бажаєте скасувати проведення документу?
 @Confirm.Document.SaveModified=Документ було змінено. Зберегти зміни?
+@Confirm.Document.Unbind=Ви дійсно бажаєте видалити зв\'язок між документами?
 ;
 @Default.Company.Changed=Підприємство за замовчуванням змінено
 @Default.Warehouse.Changed=Склад за замовчуванням змінено

@@ -40,7 +40,8 @@ const template: Template = {
 		'Document.Company.change': companyChange,
 		'Document.Date.change': dateChange,
 		'app.document.saved': handleLinkSaved,
-		'app.document.apply': handleLinkApply
+		'app.document.apply': handleLinkApply,
+		'app.document.delete': handleLinkDelete
 	},
 	commands: {
 		apply: {
@@ -52,7 +53,17 @@ const template: Template = {
 			confirm: '@[Confirm.UnApply]'
 		},
 		createOnBase,
-		openLinked
+		openLinked,
+		setBaseDoc,
+		clearBaseDoc: {
+			exec: clearBaseDoc,
+			confirm: '@[Confirm.Document.Unbind]'
+		},
+		deleteSelf: {
+			exec: deleteSelf,
+			canExec(doc) { return !doc.Done; },
+			confirm: '@[Confirm.Delete.Document]'
+		}
 	},
 	delegates: {
 		canClose
@@ -114,6 +125,15 @@ function handleLinkApply(elem) {
 		this.$defer(() => this.$dirty = false);
 }
 
+function handleLinkDelete(elem) {
+	let wasDirty = this.$dirty;
+	let found = this.Document.LinkedDocs.find(e => e.Id === elem.Id);
+	if (found)
+		found.$remove();
+	if (!wasDirty)
+		this.$defer(() => this.$dirty = false);
+}
+
 // #endregion
 
 // #region commands
@@ -131,6 +151,12 @@ async function unApply() {
 	ctrl.$requery();
 }
 
+async function deleteSelf(doc) {
+	const ctrl: IController = this.$ctrl;
+	await ctrl.$invoke('delete', { Id: doc.Id }, '/document/commands');
+	ctrl.$emitCaller('app.document.delete', { Id: doc.Id });
+	ctrl.$modalClose(false);
+}
 
 async function createOnBase(link) {
 	const ctrl: IController = this.$ctrl;
@@ -148,6 +174,20 @@ async function openLinked(doc) {
 	let url = `${doc.DocumentUrl}/edit`;
 	await ctrl.$showDialog(url, { Id: doc.Id });
 }
+
+async function setBaseDoc() {
+	const ctrl: IController = this.$ctrl;
+	let result = await ctrl.$showDialog('/document/dialogs/browsebase', { Id: this.Document.Id });
+	await ctrl.$invoke('setBaseDoc', {Id: this.Document.Id, Base: result.Id}, '/document/commands')
+	this.Document.BaseDoc.$merge(result);
+}
+
+async function clearBaseDoc() {
+	const ctrl: IController = this.$ctrl;
+	let result = await ctrl.$invoke('clearbasedoc', { Id: this.Document.Id }, '/document/commands');
+	this.Document.BaseDoc.$empty();
+}
+
 // #endregion
 
 // #region delegates

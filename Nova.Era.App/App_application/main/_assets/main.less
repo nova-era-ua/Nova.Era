@@ -133,3 +133,26 @@ table.fixed-layout {
 	line-height:inherit;
 	white-space:nowrap;
 }
+
+.bind-doc {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	width: 100%;
+
+	.bind-item {
+		display: flex;
+		flex-direction: row;
+		gap: 6px;
+		align-items: baseline;
+	}
+
+	.bind-chart {
+		text-align: center;
+		padding: 1px 4px;
+		flex-grow: 2;
+		background: linear-gradient(to right, var(--color) 0% var(--pct), transparent var(--pct) 100%);
+		background-color:white;
+		border: 1px solid  var(--neutralBkDark);
+	}
+}

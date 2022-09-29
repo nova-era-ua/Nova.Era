@@ -920,8 +920,8 @@ create table doc.Documents
 	[Parent] bigint,
 	[Base] bigint,
 	OpLink bigint,
-	[Reconcile] nvarchar(16),
-	ReconcileFactor smallint,
+	BindKind nvarchar(16),
+	BindFactor smallint,
 	Company bigint null,
 	Agent bigint null,
 	[Contract] bigint null,
@@ -1016,28 +1016,6 @@ create table doc.DocDetails
 	constraint FK_DocDetails_ItemRoleTo_ItemRoles foreign key (TenantId, ItemRoleTo) references cat.ItemRoles(TenantId, Id),
 	constraint FK_DocDetails_Unit_Units foreign key (TenantId, Unit) references cat.Units(TenantId, Id),
 	constraint FK_DocDetails_CostItem_CostItems foreign key (TenantId, CostItem) references cat.CostItems(TenantId, Id)
-);
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'jrn' and SEQUENCE_NAME = N'SQ_Reconcile')
-	create sequence jrn.SQ_Reconcile as bigint start with 100 increment by 1;
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'Reconcile')
-create table jrn.Reconcile
-(
-	TenantId int not null,
-	Id bigint not null
-		constraint DF_Reconcile_Id default(next value for jrn.SQ_Reconcile),
-	Kind nvarchar(16) not null,
-	Base bigint not null,
-	Document bigint not null,
-	Detail bigint,
-	[Sum] money,
-	constraint PK_Reconcile primary key (TenantId, Id),
-	constraint FK_Reconcile_Base_Documents foreign key (TenantId, Base) references doc.Documents(TenantId, Id),
-	constraint FK_Reconcile_Document_Documents foreign key (TenantId, Document) references doc.Documents(TenantId, Id),
-	constraint FK_Reconcile_Detail_Documents foreign key (TenantId, Detail) references doc.DocDetails(TenantId, Id)
 );
 go
 ------------------------------------------------

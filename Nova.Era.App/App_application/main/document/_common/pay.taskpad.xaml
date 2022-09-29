@@ -4,6 +4,17 @@
 		<Block If="{Bind Document.Done}" Margin="1rem,0">
 			<Hyperlink Icon="Process" Content="@[Transactions]" Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, Url='/document/dialogs/transactions'}"/>
 		</Block>
+		<Panel Header="Замовлення" Collapsible="True" Padding=".5rem">
+			<Slot Scope="{Bind Document.BaseDoc}">
+				<StackPanel Orientation="Horizontal" Gap="6px" If="{Bind Id}">
+					<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"
+						   Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
+					<Hyperlink Content="✕" Command="{BindCmd Execute, CommandName=clearBaseDoc, Argument={Bind}}"/>
+				</StackPanel>
+				<Hyperlink Icon="Ban" Content="Замовлення не встановлено. Встановити зараз" If="{Bind !Id}"
+						   Command="{BindCmd Execute, CommandName=setBaseDoc, SaveRequired=True}"/>
+			</Slot>
+		</Panel>
 		<Panel Header="Підстава" Collapsible="True" If="{Bind Document.ParentDoc.Id}" Padding=".5rem">
 			<Slot Scope="{Bind Document.ParentDoc}">
 				<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"

@@ -14,8 +14,8 @@ begin
 
 	declare @rtable table(id bigint, op bigint);
 
-	declare @operation bigint, @parent bigint, @linktype nchar(1), @reconcile nvarchar(16), @factor smallint;
-	select @parent = ol.Parent, @operation = ol.Operation, @linktype = okpr.LinkType, @reconcile = okch.Kind, @factor = okch.Factor
+	declare @operation bigint, @parent bigint, @linktype nchar(1), @linkkind nvarchar(16), @factor smallint;
+	select @parent = ol.Parent, @operation = ol.Operation, @linktype = okpr.LinkType, @linkkind = okch.Kind, @factor = okch.Factor
 	from doc.OperationLinks ol 
 		inner join doc.Operations opr on ol.TenantId = opr.TenantId and ol.Parent = opr.Id
 		inner join doc.Operations och on ol.TenantId = och.TenantId and ol.Operation = och.Id
@@ -38,10 +38,10 @@ begin
 	end
 
 
-	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, Reconcile, ReconcileFactor, OpLink, Company, Agent, [Contract], [RespCenter], 
+	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, BindKind, BindFactor, OpLink, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, UserCreated, Temp, [Sum])
 	output inserted.Id, inserted.Operation into @rtable(id, op)
-	select @TenantId, cast(getdate() as date), @operation, @ParentDoc, @BaseDoc, @reconcile, @factor, @LinkId, Company, Agent, [Contract], [RespCenter], 
+	select @TenantId, cast(getdate() as date), @operation, @ParentDoc, @BaseDoc, @linkkind, @factor, @LinkId, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, [Sum]
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
@@ -147,6 +147,7 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 	set xact_abort on;
+
 	declare @done bit;
 	select @done = Done from doc.Documents where TenantId = @TenantId and Id=@Id;
 	if @done = 1
@@ -156,7 +157,7 @@ begin
 		begin tran;
 		delete from doc.DocDetails where TenantId = @TenantId and Document=@Id;
 		delete from doc.DocumentExtra where TenantId = @TenantId and Id=@Id;
-		update doc.Documents set Base = null where TenantId = @TenantId and Base = @Id;
+		update doc.Documents set Base = null, BindKind = null, BindFactor = null where TenantId = @TenantId and Base = @Id;
 		update doc.Documents set Parent = null where TenantId = @TenantId and Parent = @Id;
 		delete from doc.Documents where TenantId = @TenantId and Id=@Id;
 		commit tran;
@@ -175,11 +176,58 @@ create or alter procedure doc.[ItemRole.Rem.Get]
 as
 begin
 	set nocount on;
+	set transaction isolation level read uncommitted;
+
 	declare @elems a2sys.[Id.TableType];
 	insert into @elems (Id) values (@Item);
 
 	select [Result!TRem!Object] = null, r.Item, r.Rem, r.[Role]
 	from doc.fn_getItemsRems(@CheckRems, @TenantId, @elems, @Date, @Wh) r
 	where r.[Role] = @Role;
+end
+go
+-------------------------------------------------
+create or alter procedure doc.[Document.Base.Set]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint,
+@Base bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	-- assigns Base, BindKind, BindFactor
+
+	declare @parentOp bigint;
+	select @parentOp = Operation from doc.Documents where TenantId = @TenantId and Id = @Base;
+
+	declare @kind nvarchar(16), @factor smallint;
+	select @kind = ok.Kind, @factor = ok.Factor
+	from doc.Documents d inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
+		inner join doc.OperationKinds ok on ok.TenantId = o.TenantId and ok.Id = o.Kind
+		inner join doc.OperationLinks ol on ol.TenantId = o.TenantId and ol.Operation = d.Operation
+	where d.Id = @Id and ol.Parent = @parentOp;
+
+	if @kind is null or @factor is null
+		throw 60000, N'[Document.Base.Set]. Internal error', 0;
+
+	update doc.Documents set Base = @Base, BindKind = @kind, BindFactor = @factor
+	where TenantId = @TenantId and Id = @Id;
+end
+go
+
+-------------------------------------------------
+create or alter procedure doc.[Document.Base.Clear]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update doc.Documents set Base = null, BindKind = null, BindFactor = null 
+	where TenantId = @TenantId and Id = @Id;
 end
 go
