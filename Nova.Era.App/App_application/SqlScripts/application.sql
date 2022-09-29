@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 29.09.2022 14:44:41
+generated: 29.09.2022 22:36:45
 */
 
 
@@ -11341,6 +11341,17 @@ begin
 	from cat.Companies c 
 	where c.TenantId = @TenantId and c.Id in (select Company from CA);
 
+end
+go
+------------------------------------------------
+create or alter procedure doc.[Document.LinkedMaps] 
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 	select [LinkedDocs!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
 		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.LinkedDocs!ParentId] = d.Parent
 	from doc.Documents d 
@@ -11703,6 +11714,7 @@ begin
 	where pk.TenantId = @TenantId and pk.Id in (select PriceKind from T);
 
 	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
+	exec doc.[Document.LinkedMaps]  @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
 
 	with T as (select item from @rows group by item)
 	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article, Barcode,
@@ -12110,8 +12122,7 @@ begin
 		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
-		[ParentDoc!TDocBase!RefId] = d.Parent, [BaseDoc!TDocBase!RefId] = d.Base,
-		[LinkedDocs!TDocBase!Array] = null,
+		[BindedDocs!TDocBase!Array] = null,
 		[Extra!TDocExtra!Object] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
@@ -12186,6 +12197,12 @@ begin
 	where pk.TenantId = @TenantId and pk.Id in (select PriceKind from T);
 
 	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
+
+	select [!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done], d.BindKind, d.BindFactor,
+		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.BindedDocs!ParentId] = d.Base
+	from doc.Documents d 
+		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
+	where d.TenantId = @TenantId and d.Temp = 0 and d.Base = @Id;
 
 	with T as (select item from @rows group by item)
 	select [!TItem!Map] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], Article, Barcode,
@@ -12423,6 +12440,7 @@ begin
 
 
 	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
+	exec doc.[Document.LinkedMaps]  @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
 
 	select [!TDocParent!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], [OperationName] = o.[Name]
 	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and d.Parent = p.Id
@@ -13355,7 +13373,7 @@ begin
 		begin tran;
 		delete from doc.DocDetails where TenantId = @TenantId and Document=@Id;
 		delete from doc.DocumentExtra where TenantId = @TenantId and Id=@Id;
-		update doc.Documents set Base = null where TenantId = @TenantId and Base = @Id;
+		update doc.Documents set Base = null, BindKind = null, BindFactor = null where TenantId = @TenantId and Base = @Id;
 		update doc.Documents set Parent = null where TenantId = @TenantId and Parent = @Id;
 		delete from doc.Documents where TenantId = @TenantId and Id=@Id;
 		commit tran;
@@ -13415,6 +13433,20 @@ begin
 end
 go
 
+-------------------------------------------------
+create or alter procedure doc.[Document.Base.Clear]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update doc.Documents set Base = null, BindKind = null, BindFactor = null 
+	where TenantId = @TenantId and Id = @Id;
+end
+go
 ------------------------------------------------
 create or alter procedure doc.[Document.Print.Load]
 @TenantId int = 1,

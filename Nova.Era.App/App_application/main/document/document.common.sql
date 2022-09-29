@@ -54,7 +54,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	select [LinkedDocs!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
+	select [!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
 		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.LinkedDocs!ParentId] = d.Parent
 	from doc.Documents d 
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id

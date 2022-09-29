@@ -3,11 +3,11 @@ import { TRoot, TDocument, TDocuments, TMenu } from './index';
 
 const template: Template = {
 	options: {
-		persistSelect:['Documents']
+		persistSelect: ['Documents']
 	},
 	properties: {
 		'TDocument.$No'() { return this.SNo || this.No; },
-		'TDocument.$Mark'(this: TDocument) { return this.Done ? 'green' : undefined; },
+		'TDocument.$Mark'(this: TDocument) { return this.Done ? 'green' : undefined; }
 	},
 	events: {
 		'app.document.saved': handleSaved,

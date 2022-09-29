@@ -7,7 +7,7 @@ define(["require", "exports"], function (require, exports) {
         },
         properties: {
             'TDocument.$No'() { return this.SNo || this.No; },
-            'TDocument.$Mark'() { return this.Done ? 'green' : undefined; },
+            'TDocument.$Mark'() { return this.Done ? 'green' : undefined; }
         },
         events: {
             'app.document.saved': handleSaved,

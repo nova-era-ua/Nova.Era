@@ -88,23 +88,31 @@ define(["require", "exports"], function (require, exports) {
     function dateChange(doc, date) {
         doc.No = '';
     }
+    function chlidDocuments(doc) {
+        return [].concat(doc.LinkedDocs || [], doc.BindedDocs || [], doc.BaseDoc ? [doc.BaseDoc] : [], doc.ParentDoc ? [doc.ParentDoc] : []);
+    }
     function handleLinkSaved(elem) {
         let wasDirty = this.$dirty;
         let doc = elem.Document;
-        let found = this.Document.LinkedDocs.find(e => e.Id === doc.Id);
+        let chdocs = chlidDocuments(this.Document);
+        let found = chdocs.find(e => e.Id === doc.Id);
         if (found) {
             found.Sum = doc.Sum;
             found.Date = doc.Date;
             found.OpName = doc.Operation.Name;
         }
-        else
-            this.Document.LinkedDocs.$append(docToBaseDoc(doc));
+        else {
+            if (this.Document.LinkedDocs)
+                this.Document.LinkedDocs.$append(docToBaseDoc(doc));
+            if (this.Document.BindedDocs)
+                this.Document.BindedDocs.$append(docToBaseDoc(doc));
+        }
         if (!wasDirty)
             this.$defer(() => this.$dirty = false);
     }
     function handleLinkApply(elem) {
         let wasDirty = this.$dirty;
-        let found = this.Document.LinkedDocs.find(e => e.Id === elem.Id);
+        let found = chlidDocuments(this.Document).find(e => e.Id === elem.Id);
         if (found)
             found.Done = elem.Done;
         if (!wasDirty)
@@ -112,7 +120,7 @@ define(["require", "exports"], function (require, exports) {
     }
     function handleLinkDelete(elem) {
         let wasDirty = this.$dirty;
-        let found = this.Document.LinkedDocs.find(e => e.Id === elem.Id);
+        let found = chlidDocuments(this.Document).find(e => e.Id === elem.Id);
         if (found)
             found.$remove();
         if (!wasDirty)
