@@ -11,7 +11,16 @@ const template: Template = {
 	properties: {
 		'TDocument.$Warehouse'() { return this.WhFrom.Id ? this.WhFrom.Name : this.WhTo.Name; },
 		'TDocument.$Bind': bind.properties['TDocument.$Bind']
+	},
+	events: {
+		'app.document.link': handleLink
 	}
 };
 
 export default utils.mergeTemplate(base, template);
+
+function handleLink(elem) {
+	let doc = this.Documents.find(doc => doc.Id === elem.Id);
+	if (!doc) return;
+	doc.LinkedDocs.$copy(elem.LinkedDocs);
+}

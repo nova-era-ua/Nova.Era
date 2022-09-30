@@ -161,7 +161,8 @@ go
 create or alter procedure doc.[Document.Base.Select.Index]
 @TenantId int = 1,
 @UserId bigint,
-@Id bigint
+@Id bigint,
+@Agent bigint = null
 as
 begin
 	set nocount on;
@@ -183,9 +184,17 @@ begin
 	-- field set as TLinkedDoc
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[No], d.SNo, d.[Date], d.[Sum], d.[Memo],
 		d.Done, OpName = o.[Name], o.DocumentUrl, o.Form,
-		[Agent!TAgent!RefId] = d.Agent, [Bind!TBind!Object] = null
+		[Agent!TAgent!RefId] = d.Agent, [LinkedDocs!TDocBase!Array] = null
 	from doc.Documents d inner join @docs t on d.TenantId = @TenantId and d.Id = t.id
 	inner join doc.Operations o on o.TenantId = d.TenantId and d.Operation = o.Id;
+
+	-- arrays
+	-- from BASE!!!
+	select [!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done], d.BindKind, d.BindFactor,
+		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.LinkedDocs!ParentId] = d.Base
+	from @docs t inner join doc.Documents d on d.TenantId = @TenantId and t.id = d.Base
+		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
+	where d.TenantId = @TenantId and d.Temp = 0 and d.Base = t.id;
 
 	with T as (
 		select agent from @docs group by agent
@@ -193,6 +202,7 @@ begin
 	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
 	from T inner join cat.Agents a on T.agent = a.Id and a.TenantId = @TenantId;
 
+	/*
 	select [!TBind!Object] = null, [!TDocument.Bind!ParentId] = [Base], [Payment], [Shipment] 
 	from (
 		select [Base], Kind = r.BindKind, [Sum] = [Sum] * r.BindFactor
@@ -203,5 +213,6 @@ begin
 		sum([Sum])  
 		for Kind in ([Payment], [Shipment])  
 	) as p;  
+	*/
 end
 go

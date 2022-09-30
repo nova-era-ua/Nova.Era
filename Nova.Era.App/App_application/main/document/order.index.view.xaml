@@ -42,7 +42,7 @@
 			<DataGridColumn Header="@[Number]" Content="{Bind $No}" Role="Number" SortProperty="no"/>
 			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>
 			<DataGridColumn Header="Відвантаження/оплата" Fit="True">
-				<Block Width="140px">
+				<Block Width="200px">
 					<Html Content="{Bind $Bind}"/>
 				</Block>
 			</DataGridColumn>

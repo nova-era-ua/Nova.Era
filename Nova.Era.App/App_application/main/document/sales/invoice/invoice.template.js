@@ -15,6 +15,7 @@ define(["require", "exports"], function (require, exports) {
             'Document.PriceKind.change': priceKindChange,
             'Document.StockRows[].Item.change': itemChange,
             'Document.ServiceRows[].Item.change': itemChange,
+            'app.document.saved': handleLinkSaved
         },
         validators: {
             'Document.StockRows[].Price': '@[Error.Required]',
@@ -61,5 +62,10 @@ define(["require", "exports"], function (require, exports) {
     function itemChange(row, val) {
         base.events['Document.StockRows[].Item.change'].call(this, row, val);
         row.Price = val.Price;
+    }
+    function handleLinkSaved(elem) {
+        base.events['app.document.saved'].call(this, elem);
+        const ctrl = this.$ctrl;
+        ctrl.$emitCaller('app.document.link', this.Document);
     }
 });

@@ -66,8 +66,9 @@ const template: Template = {
 		}
 	},
 	delegates: {
-		canClose
-	}
+		canClose,
+		docToBaseDoc
+	},
 };
 
 export default template;
@@ -103,43 +104,51 @@ function dateChange(doc, date) {
 }
 
 function chlidDocuments(doc) {
-	return [].concat(doc.LinkedDocs || [], doc.BindedDocs || [],
-		doc.BaseDoc ? [doc.BaseDoc] : [], doc.ParentDoc ? [doc.ParentDoc] : []);
+	return [].concat(doc.LinkedDocs, doc.BaseDoc ? [doc.BaseDoc] : [], doc.ParentDoc ? [doc.ParentDoc] : []);
+}
+
+function setDocFromEvent(trg, src) {
+	trg.Sum = src.Sum;
+	trg.Date = src.Date;
+	trg.OpName = src.Operation.Name;
+	trg.BindKind = src.BindKind;
+	trg.BindFactor = src.BindFactor;
 }
 
 function handleLinkSaved(elem) {
+	let ctrl: IController = this.$ctrl;
 	let wasDirty = this.$dirty;
 	let doc = elem.Document;
 	let chdocs = chlidDocuments(this.Document);
 	let found = chdocs.find(e => e.Id === doc.Id);
-	if (found) {
-		found.Sum = doc.Sum;
-		found.Date = doc.Date;
-		found.OpName = doc.Operation.Name;
-	} else {
-		if (this.Document.LinkedDocs)
-			this.Document.LinkedDocs.$append(docToBaseDoc(doc));
-		if (this.Document.BindedDocs)
-			this.Document.BindedDocs.$append(docToBaseDoc(doc));
+	if (found)
+		setDocFromEvent(found, doc);
+	else {
+		this.Document.LinkedDocs.$append(docToBaseDoc(doc));
 	}
+	ctrl.$emitCaller('app.document.saved', elem);
 	if (!wasDirty)
 		this.$defer(() => this.$dirty = false);
 }
 
 function handleLinkApply(elem) {
+	let ctrl: IController = this.$ctrl;
 	let wasDirty = this.$dirty;
 	let found = chlidDocuments(this.Document).find(e => e.Id === elem.Id);
 	if (found)
 		found.Done = elem.Done;
+	ctrl.$emitCaller('app.document.apply', elem);
 	if (!wasDirty)
 		this.$defer(() => this.$dirty = false);
 }
 
 function handleLinkDelete(elem) {
+	let ctrl: IController = this.$ctrl;
 	let wasDirty = this.$dirty;
 	let found = chlidDocuments(this.Document).find(e => e.Id === elem.Id);
 	if (found)
 		found.$remove();
+	ctrl.$emitCaller('app.document.delete', elem);
 	if (!wasDirty)
 		this.$defer(() => this.$dirty = false);
 }

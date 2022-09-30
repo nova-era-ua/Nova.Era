@@ -53,6 +53,9 @@ define(["require", "exports"], function (require, exports) {
     }
     function handleSaved(savedRoot) {
         const savedDoc = savedRoot.Document;
+        let opid = savedDoc.Operation.Id;
+        if (!this.Operations.some(x => x.Id === opid))
+            return;
         let found = this.Documents.find(d => d.Id == savedDoc.Id);
         if (found)
             found.$merge(savedDoc);

@@ -82,17 +82,25 @@ begin
 	option (recompile);
 
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo, d.[No],
-		d.Notice, d.Done,
+		d.Notice, d.Done, d.BindKind, d.BindFactor,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
-		[Bind!TBind!Object] = null,
+		[LinkedDocs!TDocBase!Array] = null,
 		[!!RowCount] = t.rowcnt
 	from @docs t inner join 
 		doc.Documents d on d.TenantId = @TenantId and d.Id = t.id
 	order by t.rowno;
 
+	-- arrays
+	-- from BASE!!!
+	select [!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done], d.BindKind, d.BindFactor,
+		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.LinkedDocs!ParentId] = d.Base
+	from @docs t inner join doc.Documents d on d.TenantId = @TenantId and t.id = d.Base
+		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
+	where d.TenantId = @TenantId and d.Temp = 0 and d.Base = t.id;
 
+	/*
 	-- payments/shipment
 	select [!TBind!Object] = null, [!TDocument.Bind!ParentId] = [Base], [Payment], [Shipment] 
 	from (
@@ -104,6 +112,7 @@ begin
 		sum([Sum])  
 		for Kind in ([Payment], [Shipment])  
 	) as p;  
+	*/
 
 	-- maps
 	with T as (select op from @docs group by op)
@@ -177,7 +186,7 @@ begin
 
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.[No], d.Notice, d.[Sum], d.Done,
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.[No], d.Notice, d.[Sum], d.Done, d.BindKind, d.BindFactor, 
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
@@ -185,7 +194,7 @@ begin
 		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
-		[BindedDocs!TDocBase!Array] = null,
+		[LinkedDocs!TDocBase!Array] = null,
 		[Extra!TDocExtra!Object] = null
 	from doc.Documents d
 	where d.TenantId = @TenantId and d.Id = @Id;
@@ -261,8 +270,9 @@ begin
 
 	exec doc.[Document.MainMaps] @TenantId = @TenantId, @UserId=@UserId, @Id = @Id;
 
+	-- from BASE!!!
 	select [!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done], d.BindKind, d.BindFactor,
-		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.BindedDocs!ParentId] = d.Base
+		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.LinkedDocs!ParentId] = d.Base
 	from doc.Documents d 
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and d.Temp = 0 and d.Base = @Id;
@@ -296,5 +306,31 @@ begin
 	from doc.Documents d where TenantId = @TenantId and Id = @Id;
 end
 go
-
+------------------------------------------------
+create or alter procedure doc.[Document.Order.Metadata]
+as
+begin
+	set nocount on;
+	exec doc.[Document.Stock.Metadata];
+end
+go
  
+------------------------------------------------
+create or alter procedure doc.[Document.Order.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Document cat.[Document.Stock.TableType] readonly,
+@Extra cat.[Document.Extra.TableType] readonly,
+@StockRows cat.[Document.Stock.Row.TableType] readonly,
+@ServiceRows cat.[Document.Stock.Row.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	declare @id bigint;
+	exec doc.[Document.Stock.UpdateBase] @TenantId = @TenantId, @UserId = @UserId,
+		@Document = @Document, @Extra = @Extra,
+		@StockRows = @StockRows, @ServiceRows = @ServiceRows, @RetId = @id output;
+	exec doc.[Document.Order.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go

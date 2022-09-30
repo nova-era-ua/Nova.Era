@@ -54,13 +54,13 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	select [!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
+	select [!TDocBase!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done], d.BindKind, d.BindFactor,
 		[OpName] = o.[Name], [Form] = o.Form, o.DocumentUrl, [!TDocument.LinkedDocs!ParentId] = d.Parent
 	from doc.Documents d 
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 	where d.TenantId = @TenantId and d.Temp = 0 and d.Parent = @Id;
 
-	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], p.[Done],
+	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], p.[Done], p.BindKind, p.BindFactor,
 		[OpName] = o.[Name], o.Form, o.DocumentUrl
 	from doc.Documents p inner join doc.Documents d on d.TenantId = p.TenantId and p.Id in (d.Parent, d.Base)
 		inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id

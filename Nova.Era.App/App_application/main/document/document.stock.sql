@@ -82,7 +82,7 @@ begin
 	option (recompile);
 
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo, d.[No],
-		d.Notice, d.Done,
+		d.Notice, d.Done, d.BindKind, d.BindFactor,
 		[Operation!TOperation!RefId] = d.Operation, 
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
@@ -163,7 +163,7 @@ begin
 
 	select @docform = o.Form from doc.Operations o where o.TenantId = @TenantId and o.Id = @Operation;
 
-	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.[No], d.Notice, d.[Sum], d.Done,
+	select [Document!TDocument!Object] = null, [Id!!Id] = d.Id, [Date], d.Memo, d.SNo, d.[No], d.Notice, d.[Sum], d.Done, d.BindKind, d.BindFactor,
 		[Operation!TOperation!RefId] = d.Operation, [Agent!TAgent!RefId] = d.Agent,
 		[Company!TCompany!RefId] = d.Company, [WhFrom!TWarehouse!RefId] = d.WhFrom,
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
@@ -279,8 +279,11 @@ begin
 end
 go
 ------------------------------------------------
+drop procedure if exists doc.[Document.Stock.UpdateBase];
 drop procedure if exists doc.[Document.Stock.Metadata];
 drop procedure if exists doc.[Document.Stock.Update];
+drop procedure if exists doc.[Document.Order.Metadata];
+drop procedure if exists doc.[Document.Order.Update];
 drop procedure if exists doc.[Document.Rows.Merge];
 drop type if exists cat.[Document.Stock.TableType];
 drop type if exists cat.[Document.Stock.Row.TableType];
@@ -387,13 +390,14 @@ begin
 end
 go
 ------------------------------------------------
-create or alter procedure doc.[Document.Stock.Update]
+create or alter procedure doc.[Document.Stock.UpdateBase]
 @TenantId int = 1,
 @UserId bigint,
 @Document cat.[Document.Stock.TableType] readonly,
 @Extra cat.[Document.Extra.TableType] readonly,
 @StockRows cat.[Document.Stock.Row.TableType] readonly,
-@ServiceRows cat.[Document.Stock.Row.TableType] readonly
+@ServiceRows cat.[Document.Stock.Row.TableType] readonly,
+@RetId bigint output
 as
 begin
 	set nocount on;
@@ -463,7 +467,26 @@ begin
 	exec doc.[Document.Rows.Merge] @TenantId = @TenantId, @Id = @id, @Kind = N'Stock', @Rows = @StockRows;
 	exec doc.[Document.Rows.Merge] @TenantId = @TenantId, @Id = @id, @Kind = N'Service', @Rows = @ServiceRows;
 
-	exec doc.[Document.Stock.Load] @TenantId = @TenantId, 
-	@UserId = @UserId, @Id = @id;
+	set @RetId = @id;
+end
+go
+
+------------------------------------------------
+create or alter procedure doc.[Document.Stock.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Document cat.[Document.Stock.TableType] readonly,
+@Extra cat.[Document.Extra.TableType] readonly,
+@StockRows cat.[Document.Stock.Row.TableType] readonly,
+@ServiceRows cat.[Document.Stock.Row.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	declare @id bigint;
+	exec doc.[Document.Stock.UpdateBase] @TenantId = @TenantId, @UserId = @UserId,
+		@Document = @Document, @Extra = @Extra,
+		@StockRows = @StockRows, @ServiceRows = @ServiceRows, @RetId = @id output;
+	exec doc.[Document.Stock.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go
