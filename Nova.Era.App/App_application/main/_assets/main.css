@@ -97,23 +97,21 @@ table.fixed-layout {
   line-height: inherit;
   white-space: nowrap;
 }
-.bind-doc {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 100%;
+.bind-sum {
+  position: relative;
+  margin: -0.1rem 0.5rem;
+  padding: 0.1rem 0.5rem;
+  white-space: nowrap;
+  min-width: 84px;
+  background: linear-gradient(to right, var(--clr-bk) 0% var(--pct), transparent var(--pct) 100%);
+  background-color: rgba(224, 224, 224, 0.3);
 }
-.bind-doc .bind-item {
-  display: flex;
-  flex-direction: row;
-  gap: 6px;
-  align-items: baseline;
-}
-.bind-doc .bind-chart {
-  text-align: center;
-  padding: 1px 4px;
-  flex-grow: 2;
-  background: linear-gradient(to right, var(--color) 0% var(--pct), transparent var(--pct) 100%);
-  background-color: white;
-  border: 1px solid var(--neutralBkDark);
+.bind-sum:after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 2px;
+  background-color: var(--clr-brd);
+  width: var(--pct);
 }

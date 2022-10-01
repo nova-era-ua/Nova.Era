@@ -7,7 +7,8 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         properties: {
             'TDocument.$Warehouse'() { return this.WhFrom.Id ? this.WhFrom.Name : this.WhTo.Name; },
-            'TDocument.$Bind': bind.properties['TDocument.$Bind']
+            'TDocument.$PaymentHtml': bind.bindSum("Payment"),
+            'TDocument.$ShipmentHtml': bind.bindSum("Shipment")
         },
         events: {
             'app.document.link': handleLink
@@ -18,6 +19,7 @@ define(["require", "exports"], function (require, exports) {
         let doc = this.Documents.find(doc => doc.Id === elem.Id);
         if (!doc)
             return;
+        console.dir(elem.LinkedDocs);
         doc.LinkedDocs.$copy(elem.LinkedDocs);
     }
 });

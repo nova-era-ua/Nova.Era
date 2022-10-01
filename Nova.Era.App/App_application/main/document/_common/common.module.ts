@@ -13,7 +13,9 @@ function docToBaseDoc(doc) {
 		OpName: doc.Operation.Name,
 		Form: doc.Operation.Form,
 		DocumentUrl: doc.Operation.DocumentUrl,
-		Done: doc.Done
+		Done: doc.Done,
+		BindKind: doc.BindKind,
+		BindFactor: doc.BindFactor
 	};
 }
 
@@ -127,6 +129,7 @@ function handleLinkSaved(elem) {
 		this.Document.LinkedDocs.$append(docToBaseDoc(doc));
 	}
 	ctrl.$emitCaller('app.document.saved', elem);
+	ctrl.$emitCaller('app.document.link', this.Document);
 	if (!wasDirty)
 		this.$defer(() => this.$dirty = false);
 }
@@ -149,6 +152,7 @@ function handleLinkDelete(elem) {
 	if (found)
 		found.$remove();
 	ctrl.$emitCaller('app.document.delete', elem);
+	ctrl.$emitCaller('app.document.link', this.Document);
 	if (!wasDirty)
 		this.$defer(() => this.$dirty = false);
 }

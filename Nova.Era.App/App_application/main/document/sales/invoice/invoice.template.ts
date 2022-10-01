@@ -14,8 +14,7 @@ const template: Template = {
 		'Document.Contract.change': contractChange,
 		'Document.PriceKind.change': priceKindChange,
 		'Document.StockRows[].Item.change': itemChange,
-		'Document.ServiceRows[].Item.change': itemChange,
-		'app.document.saved':handleLinkSaved
+		'Document.ServiceRows[].Item.change': itemChange
 	},
 	validators: {
 		'Document.StockRows[].Price': '@[Error.Required]',
@@ -69,10 +68,4 @@ async function priceChange(doc) {
 function itemChange(row, val) {
 	base.events['Document.StockRows[].Item.change'].call(this, row, val);
 	row.Price = val.Price;
-}
-
-function handleLinkSaved(elem) {
-	base.events['app.document.saved'].call(this, elem);
-	const ctrl: IController = this.$ctrl;
-	ctrl.$emitCaller('app.document.link', this.Document);
 }

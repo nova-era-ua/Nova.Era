@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 30.09.2022 09:52:19
+generated: 01.10.2022 12:12:15
 */
 
 
@@ -11374,11 +11374,17 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
+	declare @docs table(id bigint);
+	insert into @docs(id) 
+	select Id from doc.Documents where TenantId = @TenantId and UserCreated = @UserId and Temp = 1;
+
 	delete from doc.DocDetails from
-		doc.DocDetails dd inner join doc.Documents d on dd.TenantId = d.TenantId and  dd.Document = d.Id
-			where d.TenantId = @TenantId and d.UserCreated = @UserId and d.Temp = 1 and [Date] < dateadd(day, 1, getdate());
-	delete from doc.Documents where TenantId = @TenantId and UserCreated = @UserId and Temp = 1
-		and [Date] < dateadd(day, 1, getdate());
+		doc.DocDetails dd inner join @docs d on dd.TenantId = @TenantId and dd.Document = d.id
+	update doc.Documents set Base = null, BindKind = null, BindFactor = null 
+	where TenantId = @TenantId and Base = (select id from @docs);
+	update doc.Documents set Parent = null where TenantId = @TenantId and Parent in (select id from @docs);
+
+	delete from doc.Documents where Id in (select id from @docs);
 end
 go
 -------------------------------------------------

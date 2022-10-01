@@ -2,12 +2,10 @@ define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const cu = require('std:utils').currency;
-    const template = {
-        properties: {
-            'TDocument.$Bind': docBind
-        }
+    const module = {
+        bindSum
     };
-    exports.default = template;
+    exports.default = module;
     function docBind() {
         let shipSum = this.LinkedDocs.reduce((p, c) => p + (c.BindKind === 'Shipment' ? c.Sum * c.BindFactor : 0), 0);
         let paySum = this.LinkedDocs.reduce((p, c) => p + (c.BindKind === 'Payment' ? c.Sum * c.BindFactor : 0), 0);
@@ -29,5 +27,21 @@ define(["require", "exports"], function (require, exports) {
 	</div>
 </div>
 `;
+    }
+    function bindSum(prop) {
+        return function () {
+            let sum = this.LinkedDocs.reduce((p, c) => p + (c.BindKind === prop ? c.Sum * c.BindFactor : 0), 0);
+            if (!sum)
+                return '';
+            let pct = Math.min(Math.round(sum * 100.0 / this.Sum), 100);
+            let color = pct < 100 ? '#c60000' : '#00c663';
+            let colorBack = pct < 100 ? '#c6000010' : '#00c66310';
+            let sumStr = cu.format(sum);
+            return `
+		<div class="bind-sum" style="--pct:${pct}%; --clr-brd:${color}; --clr-bk:${colorBack}">
+			<div>${sumStr}</div>
+		</div>
+	`;
+        };
     }
 });

@@ -14,10 +14,11 @@
 				<Include Source="/catalog/agent/customerinfo" Argument="{Bind Document.Agent.Id}"/>
 			</Panel>
 			<Panel Header="Зв'язані документи" Collapsible="True" Padding=".5rem" Compact="True" If="{Bind Document.LinkedDocs.length}">
-				<StackPanel ItemsSource="{Bind Document.LinkedDocs}" Gap=".5rem">
+				<List ItemsSource="{Bind Document.LinkedDocs}"  GroupBy="BindKind" Select="False"
+					  Compact="True">
 					<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}" Wrap="PreWrap"
 						Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
-				</StackPanel>
+				</List>
 			</Panel>
 		</Taskpad>
 	</Dialog.Taskpad>

@@ -33,6 +33,7 @@
 @Extra=Додатково
 @Storno=Сторно
 @Period=Період
+@Status=Статус
 @Warehouse=Склад
 @Warehouses=Склади
 @Department=Підрозділ

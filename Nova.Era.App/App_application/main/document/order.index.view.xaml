@@ -41,11 +41,20 @@
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
 			<DataGridColumn Header="@[Number]" Content="{Bind $No}" Role="Number" SortProperty="no"/>
 			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>
+			<DataGridColumn Header="@[Status]" />
+			<DataGridColumn Header="@[KindPayment]" Align="Right" Fit="True">
+				<Html Content="{Bind $PaymentHtml}"/>
+			</DataGridColumn>
+			<DataGridColumn Header="Відвантаження" Align="Right" Fit="True">
+				<Html Content="{Bind $ShipmentHtml}"/>
+			</DataGridColumn>
+			<!--
 			<DataGridColumn Header="Відвантаження/оплата" Fit="True">
 				<Block Width="200px">
 					<Html Content="{Bind $Bind}"/>
 				</Block>
 			</DataGridColumn>
+			-->
 			<DataGridColumn Header="@[Customer]" Sort="False">
 				<Span Content="{Bind Agent.Name}" MaxChars="50"/>
 			</DataGridColumn>
