@@ -122,7 +122,6 @@ begin
 	where o.TenantId = @TenantId and ml.Menu = @Menu
 	order by f.[Order];
 
-	-- filters
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, null, [!Order] = -1
 	union all
 	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], o.DocumentUrl, [!Order] = o.Id
@@ -131,6 +130,7 @@ begin
 	where o.TenantId = @TenantId and ml.Menu = @Menu
 	order by [!Order];
 
+	-- filters
 	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
 		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
 		[!Documents.Period.From!Filter] = @From, [!Documents.Period.To!Filter] = @To,

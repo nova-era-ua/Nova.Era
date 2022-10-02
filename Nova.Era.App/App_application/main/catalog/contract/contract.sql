@@ -278,7 +278,7 @@ begin
 	where ck.TenantId = @TenantId order by [Order];
 
 	-- declarations
-	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo, Done,
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company, [Operation!TOperation!RefId] = d.Operation
 	from doc.Documents d
 	where d.TenantId = @TenantId and 1 <> 1;
@@ -344,7 +344,7 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo, Done,
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company, [Operation!TOperation!RefId] = d.Operation,
 		[!!RowCount] = t.rowcnt
 	from @docs t inner join doc.Documents d on d.TenantId = @TenantId and d.Id = t.doc;

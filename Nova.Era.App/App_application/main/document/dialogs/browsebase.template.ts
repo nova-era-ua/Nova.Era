@@ -1,7 +1,14 @@
 ﻿
 // browse base document
 
-const bind: Template = require("document/_common/bind.module");
+const bind = require("document/_common/bind.module");
 
-export default bind;
+const template: Template = {
+	properties: {
+		'TDocument.$PaymentHtml': bind.bindSum("Payment"),
+		'TDocument.$ShipmentHtml': bind.bindSum("Shipment") 
+	}
+};
+
+export default template;
 

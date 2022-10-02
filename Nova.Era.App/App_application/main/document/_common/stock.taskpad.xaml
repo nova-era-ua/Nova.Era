@@ -15,8 +15,11 @@
 		</Block>
 		<Panel Header="Замовлення" Collapsible="True" Padding=".5rem">
 			<Slot Scope="{Bind Document.BaseDoc}">
-				<Hyperlink Icon="{Bind $Icon}" If="{Bind Id}" Content="{Bind $Name}"
-					   Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
+				<StackPanel Orientation="Horizontal" Gap="6px" If="{Bind Id}">
+					<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"
+						   Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
+					<Hyperlink Content="✕" Command="{BindCmd Execute, CommandName=clearBaseDoc, Argument={Bind}}"/>
+				</StackPanel>
 				<Hyperlink Icon="Ban" Content="Замовлення не встановлено. Встановити зараз" If="{Bind !Id}"
 						   Command="{BindCmd Execute, CommandName=setBaseDoc, SaveRequired=True}"/>
 			</Slot>

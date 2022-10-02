@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 01.10.2022 12:12:15
+generated: 02.10.2022 13:33:10
 */
 
 
@@ -8,7 +8,7 @@ generated: 01.10.2022 12:12:15
 
 /*
 version: 10.0.7877
-generated: 29.09.2022 08:29:58
+generated: 02.10.2022 13:16:01
 */
 
 set nocount on;
@@ -11595,7 +11595,6 @@ begin
 	where o.TenantId = @TenantId and ml.Menu = @Menu
 	order by f.[Order];
 
-	-- filters
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, null, [!Order] = -1
 	union all
 	select [Operations!TOperation!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.[Form], o.DocumentUrl, [!Order] = o.Id
@@ -11604,6 +11603,7 @@ begin
 	where o.TenantId = @TenantId and ml.Menu = @Menu
 	order by [!Order];
 
+	-- filters
 	select [!$System!] = null, [!Documents!Offset] = @Offset, [!Documents!PageSize] = @PageSize, 
 		[!Documents!SortOrder] = @Order, [!Documents!SortDir] = @Dir,
 		[!Documents.Period.From!Filter] = @From, [!Documents.Period.To!Filter] = @To,
@@ -13251,7 +13251,9 @@ begin
 
 	declare @docs table (id bigint, agent bigint);
 	insert into @docs (id, agent) 
-	select Id, Agent from doc.Documents where TenantId = @TenantId and Operation = @baseop;
+	select Id, Agent from doc.Documents d
+	where TenantId = @TenantId and Operation = @baseop and
+		(@Agent is null or d.Agent = @Agent);		
 
 	-- field set as TLinkedDoc
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[No], d.SNo, d.[Date], d.[Sum], d.[Memo],
@@ -13273,6 +13275,10 @@ begin
 	)
 	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
 	from T inner join cat.Agents a on T.agent = a.Id and a.TenantId = @TenantId;
+
+	-- filters
+	select [!$System!] = null,
+		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent);
 
 	/*
 	select [!TBind!Object] = null, [!TDocument.Bind!ParentId] = [Base], [Payment], [Shipment] 

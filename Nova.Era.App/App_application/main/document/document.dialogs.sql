@@ -179,7 +179,9 @@ begin
 
 	declare @docs table (id bigint, agent bigint);
 	insert into @docs (id, agent) 
-	select Id, Agent from doc.Documents where TenantId = @TenantId and Operation = @baseop;
+	select Id, Agent from doc.Documents d
+	where TenantId = @TenantId and Operation = @baseop and
+		(@Agent is null or d.Agent = @Agent);		
 
 	-- field set as TLinkedDoc
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[No], d.SNo, d.[Date], d.[Sum], d.[Memo],
@@ -201,6 +203,10 @@ begin
 	)
 	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
 	from T inner join cat.Agents a on T.agent = a.Id and a.TenantId = @TenantId;
+
+	-- filters
+	select [!$System!] = null,
+		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent);
 
 	/*
 	select [!TBind!Object] = null, [!TDocument.Bind!ParentId] = [Base], [Payment], [Shipment] 

@@ -119,42 +119,39 @@ function setDocFromEvent(trg, src) {
 
 function handleLinkSaved(elem) {
 	let ctrl: IController = this.$ctrl;
-	let wasDirty = this.$dirty;
-	let doc = elem.Document;
-	let chdocs = chlidDocuments(this.Document);
-	let found = chdocs.find(e => e.Id === doc.Id);
-	if (found)
-		setDocFromEvent(found, doc);
-	else {
-		this.Document.LinkedDocs.$append(docToBaseDoc(doc));
-	}
-	ctrl.$emitCaller('app.document.saved', elem);
-	ctrl.$emitCaller('app.document.link', this.Document);
-	if (!wasDirty)
-		this.$defer(() => this.$dirty = false);
+	ctrl.$nodirty(async () => {
+		let doc = elem.Document;
+		let chdocs = chlidDocuments(this.Document);
+		let found = chdocs.find(e => e.Id === doc.Id);
+		if (found)
+			setDocFromEvent(found, doc);
+		else {
+			this.Document.LinkedDocs.$append(docToBaseDoc(doc));
+		}
+		ctrl.$emitCaller('app.document.saved', elem);
+		ctrl.$emitCaller('app.document.link', this.Document);
+	});
 }
 
 function handleLinkApply(elem) {
 	let ctrl: IController = this.$ctrl;
-	let wasDirty = this.$dirty;
-	let found = chlidDocuments(this.Document).find(e => e.Id === elem.Id);
-	if (found)
-		found.Done = elem.Done;
-	ctrl.$emitCaller('app.document.apply', elem);
-	if (!wasDirty)
-		this.$defer(() => this.$dirty = false);
+	ctrl.$nodirty(async () => {
+		let found = chlidDocuments(this.Document).find(e => e.Id === elem.Id);
+		if (found)
+			found.Done = elem.Done;
+		ctrl.$emitCaller('app.document.apply', elem);
+	});
 }
 
 function handleLinkDelete(elem) {
 	let ctrl: IController = this.$ctrl;
-	let wasDirty = this.$dirty;
-	let found = chlidDocuments(this.Document).find(e => e.Id === elem.Id);
-	if (found)
-		found.$remove();
-	ctrl.$emitCaller('app.document.delete', elem);
-	ctrl.$emitCaller('app.document.link', this.Document);
-	if (!wasDirty)
-		this.$defer(() => this.$dirty = false);
+	ctrl.$nodirty(async () => {
+		let found = chlidDocuments(this.Document).find(e => e.Id === elem.Id);
+		if (found)
+			found.$remove();
+		ctrl.$emitCaller('app.document.delete', elem);
+		ctrl.$emitCaller('app.document.link', this.Document);
+	});
 }
 
 // #endregion
@@ -200,15 +197,24 @@ async function openLinked(doc) {
 
 async function setBaseDoc() {
 	const ctrl: IController = this.$ctrl;
-	let result = await ctrl.$showDialog('/document/dialogs/browsebase', { Id: this.Document.Id });
-	await ctrl.$invoke('setBaseDoc', {Id: this.Document.Id, Base: result.Id}, '/document/commands')
-	this.Document.BaseDoc.$merge(result);
+	if (!this.Document.Id) {
+		// esnure saved
+		this.$setDirty(true);
+		await ctrl.$save();
+	}
+	ctrl.$nodirty(async () => {
+		let result = await ctrl.$showDialog('/document/dialogs/browsebase', { Id: this.Document.Id }, { Agent: this.Document.Agent.Id });
+		await ctrl.$invoke('setBaseDoc', { Id: this.Document.Id, Base: result.Id }, '/document/commands')
+		this.Document.BaseDoc.$merge(result);
+	});
 }
 
 async function clearBaseDoc() {
 	const ctrl: IController = this.$ctrl;
-	let result = await ctrl.$invoke('clearbasedoc', { Id: this.Document.Id }, '/document/commands');
-	this.Document.BaseDoc.$empty();
+	ctrl.$nodirty(async () => {
+		let result = await ctrl.$invoke('clearbasedoc', { Id: this.Document.Id }, '/document/commands');
+		this.Document.BaseDoc.$empty();
+	});
 }
 
 // #endregion
