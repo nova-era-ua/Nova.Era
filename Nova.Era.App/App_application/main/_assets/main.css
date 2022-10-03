@@ -115,3 +115,14 @@ table.fixed-layout {
   background-color: var(--clr-brd);
   width: var(--pct);
 }
+.fs-dialog-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+.a2-pager {
+  padding: 1rem 0 0 0;
+}
+.modal-stack .modal-wrapper .with-placement .load-indicator {
+  top: 4px;
+}

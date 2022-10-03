@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 02.10.2022 13:33:10
+generated: 03.10.2022 13:38:35
 */
 
 
@@ -7546,7 +7546,7 @@ begin
 	where ck.TenantId = @TenantId order by [Order];
 
 	-- declarations
-	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo, Done,
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company, [Operation!TOperation!RefId] = d.Operation
 	from doc.Documents d
 	where d.TenantId = @TenantId and 1 <> 1;
@@ -7612,7 +7612,7 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo,
+	select [Documents!TDocument!Array] = null, [Id!!Id] = Id, [Date], [No], SNo, [Sum], Memo, Done,
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company, [Operation!TOperation!RefId] = d.Operation,
 		[!!RowCount] = t.rowcnt
 	from @docs t inner join doc.Documents d on d.TenantId = @TenantId and d.Id = t.doc;
@@ -10888,6 +10888,7 @@ begin
 
 	select [Kinds!TOpKind!Array] = null, [Id!!Id] = ok.Id, [Name]
 	from doc.OperationKinds ok
+	where ok.TenantId = @TenantId
 	order by ok.[Order];
 end
 go
@@ -11015,6 +11016,7 @@ begin
 
 	select [Kinds!TOpKind!Array] = null, [Id!!Id] = ok.Id, [Name]
 	from doc.OperationKinds ok
+	where ok.TenantId = @TenantId
 	order by ok.[Order];
 end
 go
