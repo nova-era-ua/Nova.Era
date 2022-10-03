@@ -22,6 +22,7 @@ begin
 
 	select [Kinds!TOpKind!Array] = null, [Id!!Id] = ok.Id, [Name]
 	from doc.OperationKinds ok
+	where ok.TenantId = @TenantId
 	order by ok.[Order];
 end
 go
