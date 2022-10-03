@@ -15,14 +15,14 @@
 						   Command="{BindCmd Execute, CommandName=setBaseDoc, SaveRequired=True}"/>
 			</Slot>
 		</Panel>
-		<Panel Header="Підстава" Collapsible="True" If="{Bind Document.ParentDoc.Id}" Padding=".5rem">
+		<Panel Header="Підстава" Collapsible="True" Compact="True" If="{Bind Document.ParentDoc.Id}" Padding=".5rem">
 			<Slot Scope="{Bind Document.ParentDoc}">
 				<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"
 						Wrap="PreWrap"
 						Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
 			</Slot>
 		</Panel>
-		<Panel Header="Зв'язані документи" Collapsible="True" Padding=".5rem" If="{Bind Document.LinkedDocs.length}">
+		<Panel Header="Зв'язані документи" Collapsible="True" Compact="True" Padding=".5rem" If="{Bind Document.LinkedDocs.length}">
 			<StackPanel ItemsSource="{Bind Document.LinkedDocs}" Gap=".5rem">
 				<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}"
 						Wrap="PreWrap"

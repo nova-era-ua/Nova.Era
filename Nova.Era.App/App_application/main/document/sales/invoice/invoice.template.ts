@@ -7,7 +7,8 @@ const template: Template = {
 	properties: {
 		'TRoot.$$Scan': String,
 		'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
-		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
+		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
+		'TDocBase.$BindKind': bindKindText
 	},
 	events: {
 		'Document.Date.change': dateChange,
@@ -26,6 +27,14 @@ const template: Template = {
 
 export default utils.mergeTemplate(base, template);
 
+
+function bindKindText() {
+	switch (this.BindKind) {
+		case 'Payment': return '@[KindPayment]';
+		case 'Shipment': return '@[KindShipment]';
+	}
+	return this.BindKind;
+}
 
 function contractChange(doc, contract) {
 	base.events['Document.Contract.change'].call(this, doc, contract);

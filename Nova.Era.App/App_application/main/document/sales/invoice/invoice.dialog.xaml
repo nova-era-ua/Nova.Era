@@ -15,7 +15,7 @@
 			</Panel>
 			<Panel Header="Зв'язані документи" Collapsible="True" Padding=".5rem" Compact="True" If="{Bind Document.LinkedDocs.length}">
 				<List ItemsSource="{Bind Document.LinkedDocs}"  GroupBy="BindKind" Select="False"
-					  Compact="True">
+					  CssClass="linked-list">
 					<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}" Wrap="PreWrap"
 						Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
 				</List>

@@ -159,14 +159,34 @@ table.fixed-layout {
 	top:1rem;
 	right:1rem;
 }
-// -- fix platform (8095+)
-////////////////////////
-.a2-pager {
-	padding: 1rem 0 0 0;
+
+.linked-list {
+	.a2-list-item {
+		padding: 4px 0;
+		border-width: 0;
+
+		&:hover {
+			background-color: transparent !important;
+		}
+
+		&.group {
+			border: 0;
+			background-color: transparent;
+			border-bottom: 1px solid var(--neutralBkDark);
+			&:hover {
+				background-color: transparent !important;
+			}
+		}
+	}
 }
 
-.modal-stack .modal-wrapper .with-placement {
-	.load-indicator {
-		top: 4px;
-	}
+// TODO: platform
+.panel {
+	border:1px solid var(--neutralBkDark);
+}
+
+.panel > .panel-header {
+	color: #999; /* label color */
+	background-color: var(--neutralBk);
+	border-bottom: 1px solid var(--neutralBkDark);
 }
