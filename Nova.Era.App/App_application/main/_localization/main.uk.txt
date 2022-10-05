@@ -13,6 +13,7 @@
 @KindAllRows=Всі рядки
 @KindPayment=Оплата
 @KindShipment=Відвантаження
+@KindReturn=Повернення
 @Money=Грошові кошти
 @StockPurchases=Запаси та закупівлі
 @SalesMarketing=Продаж та маркетинг
@@ -26,6 +27,7 @@
 @Operations=Операції
 @Transactions=Проводки
 @Orders=Замовлення
+@Order=Замовлення
 @Companies=Підприємства
 @Company=Підприємство
 @Other=Інше

@@ -1,13 +1,18 @@
 ﻿
 import { TRoot, TDocument, TDocuments, TMenu } from './index';
 
+const utils: Utils = require("std:utils");
+const dateUtils: UtilsDate = utils.date;
+
 const template: Template = {
 	options: {
 		persistSelect: ['Documents']
 	},
 	properties: {
 		'TDocument.$No'() { return this.SNo || this.No; },
-		'TDocument.$Mark'(this: TDocument) { return this.Done ? 'green' : undefined; }
+		'TDocument.$Mark'(this: TDocument) { return this.Done ? 'green' : undefined; },
+		'TDocBase.$ShortName': docBaseName,
+		'TDocBase.$EditUrl'() { return `${this.DocumentUrl}/edit` },
 	},
 	events: {
 		'app.document.saved': handleSaved,
@@ -34,6 +39,11 @@ const template: Template = {
 };
 
 export default template;
+
+
+function docBaseName() {
+	return this.Id ? `№${this.No} [${dateUtils.formatDate(this.Date)}]` : '';
+}
 
 async function create(this: TRoot, menu: TMenu) {
 	const ctrl = this.$ctrl;

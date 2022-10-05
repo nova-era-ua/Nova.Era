@@ -29,10 +29,10 @@ begin
 	set @Dir = lower(@Dir);
 
 	declare @docs table(rowno int identity(1, 1), id bigint, op bigint, agent bigint, 
-		comp bigint, whfrom bigint, whto bigint, rowcnt int);
+		comp bigint, whfrom bigint, whto bigint, base bigint, rowcnt int);
 
-	insert into @docs(id, op, agent, comp, whfrom, whto, rowcnt)
-	select d.Id, d.Operation, d.Agent, d.Company, d.WhFrom, d.WhTo,
+	insert into @docs(id, op, agent, comp, whfrom, whto, base, rowcnt)
+	select d.Id, d.Operation, d.Agent, d.Company, d.WhFrom, d.WhTo, d.Base,
 		count(*) over()
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
@@ -82,8 +82,8 @@ begin
 	option (recompile);
 
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo, d.[No],
-		d.Notice, d.Done, d.BindKind, d.BindFactor,
-		[Operation!TOperation!RefId] = d.Operation, 
+		d.Notice, d.Done, d.BindKind, d.BindFactor, [BaseDoc!TDocBase!RefId] = d.Base,
+		[Operation!TOperation!RefId] = d.Operation,
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
 		[!!RowCount] = t.rowcnt
@@ -112,6 +112,12 @@ begin
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c 
 		inner join T t on c.TenantId = @TenantId and c.Id = comp;
+
+	with T as (select base from @docs group by base)
+	select [!TDocBase!Map] = null, [Id!!Id] = p.Id, [Date] = p.[Date], p.[Sum], p.[Done], p.[No], p.BindKind, p.BindFactor,
+		[OpName] = o.[Name], o.Form, o.DocumentUrl
+	from doc.Documents p inner join T on p.TenantId = @TenantId and p.Id = T.base
+		inner join doc.Operations o on p.TenantId = o.TenantId and p.Operation = o.Id;
 
 	-- menu
 	select [Menu!TMenu!Array] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], FormId = f.Id, FormName = f.[Name],

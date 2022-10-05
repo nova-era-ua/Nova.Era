@@ -14,7 +14,7 @@
 				<Include Source="/catalog/agent/customerinfo" Argument="{Bind Document.Agent.Id}"/>
 			</Panel>
 			<Panel Header="Зв'язані документи" Collapsible="True" Padding=".5rem" Compact="True" If="{Bind Document.LinkedDocs.length}">
-				<List ItemsSource="{Bind Document.LinkedDocs}"  GroupBy="BindKind" Select="False"
+				<List ItemsSource="{Bind Document.LinkedDocs}"  GroupBy="$BindKind" Select="False"
 					  CssClass="linked-list">
 					<Hyperlink Icon="{Bind $Icon}" Content="{Bind $Name}" Wrap="PreWrap"
 						Command="{BindCmd Execute, CommandName=openLinked, Argument={Bind}}"/>
@@ -102,7 +102,7 @@
 						<TableRow>
 							<TableCell ColSpan="5"/>
 							<TableCell Content="Всього"/>
-							<TableCell Content="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>
+							<TableCell Content="{Bind Document.$StockSum, DataType=Currency}" Align="Right" Bold="True"/>
 							<TableCell />
 						</TableRow>
 					</Table.Footer>

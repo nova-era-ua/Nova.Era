@@ -9,7 +9,8 @@ const template: Template = {
 		'TOpTrans.$CtAccVisible'() { return this.Plan.Id && this.CtAccMode === ''; },
 		'TOpTrans.$DtRoleVisible'() { return this.Plan.Id && (this.DtAccMode !== ''); },
 		'TOpTrans.$CtRoleVisible'() { return this.Plan.Id && (this.CtAccMode !== ''); },
-		'TOpLink.$Types': opLinkTypes
+		'TOpLink.$Types': opLinkTypes,
+		'TOpLink.$Categories': opLinkCategories
 	},
 	validators: {
 		'Operation.Form': '@[Error.Required]',
@@ -36,5 +37,14 @@ function opLinkTypes() {
 	return [
 		{ Name: 'По сумі', Value: 'BySum' },
 		{ Name: 'По рядках', Value: 'ByRows' }
+	];
+}
+
+function opLinkCategories() {
+	return [
+		{ Name: 'Відвантаження', Value: 'Shipment' },
+		{ Name: 'Оплата', Value: 'Payment' },
+		{ Name: 'Повернення', Value: 'Return' },
+		{ Name: 'Повернення коштів', Value: 'RetMoney' }
 	];
 }

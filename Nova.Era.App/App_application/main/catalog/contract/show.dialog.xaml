@@ -31,7 +31,7 @@
 							<Button Icon="Reload" Command="{BindCmd Reload, Argument={Bind Contract.Documents}}"/>
 						</Toolbar>
 						<DataGrid ItemsSource="{Bind Parent.ItemsSource}" XamlStyle="{StyleResource DataGridSimple}" 
-								  FixedHeader="True" Sort="True">
+								  FixedHeader="True" Sort="True" Mark="{Bind $Mark}" MarkerStyle="Marker">
 							<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 							<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
 							<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>

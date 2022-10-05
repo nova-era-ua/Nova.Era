@@ -124,7 +124,8 @@ table.fixed-layout {
   padding: 4px 0;
   border-width: 0;
 }
-.linked-list .a2-list-item:hover {
+.linked-list .a2-list-item:hover,
+.linked-list .a2-list-item.active {
   background-color: transparent !important;
 }
 .linked-list .a2-list-item.group {

@@ -45,6 +45,10 @@
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Warehouse]" Content="{Bind $Warehouse}" Sort="False"/>
 			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
+			<DataGridColumn Header="@[Order]" Wrap="NoWrap" Fit="True">
+				<Hyperlink If="{Bind BaseDoc.Id}" Content="{Bind BaseDoc.$ShortName}"
+						   Command="{BindCmd Dialog, Action=Show, Argument={Bind BaseDoc}, Url={Bind BaseDoc.$EditUrl}}"/>
+			</DataGridColumn>
 			<DataGridColumn Header="@[Memo]" SortProperty="memo">
 				<Span Content="{Bind Memo}" MaxChars="60" Tip="{Bind Memo}"/>
 			</DataGridColumn>

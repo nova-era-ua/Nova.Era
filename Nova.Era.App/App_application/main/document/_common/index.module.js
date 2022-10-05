@@ -1,13 +1,17 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const utils = require("std:utils");
+    const dateUtils = utils.date;
     const template = {
         options: {
             persistSelect: ['Documents']
         },
         properties: {
             'TDocument.$No'() { return this.SNo || this.No; },
-            'TDocument.$Mark'() { return this.Done ? 'green' : undefined; }
+            'TDocument.$Mark'() { return this.Done ? 'green' : undefined; },
+            'TDocBase.$ShortName': docBaseName,
+            'TDocBase.$EditUrl'() { return `${this.DocumentUrl}/edit`; },
         },
         events: {
             'app.document.saved': handleSaved,
@@ -33,6 +37,9 @@ define(["require", "exports"], function (require, exports) {
         }
     };
     exports.default = template;
+    function docBaseName() {
+        return this.Id ? `№${this.No} [${dateUtils.formatDate(this.Date)}]` : '';
+    }
     async function create(menu) {
         const ctrl = this.$ctrl;
         let url = `${menu.DocumentUrl}/edit`;

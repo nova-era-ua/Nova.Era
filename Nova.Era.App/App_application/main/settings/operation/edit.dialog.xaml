@@ -303,7 +303,7 @@
 						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.OpLinks}}"/>
 					</Toolbar>
 					<Table CellSpacing="Medium" ItemsSource="{Bind Operation.OpLinks}" 
-						   Width="52rem" Columns="30rem,10rem,10rem,16px">
+						   Width="52rem" Columns="30rem,12rem,10rem,16px">
 						<Table.Header>
 							<TableRow>
 								<TableCell>@[Operation]</TableCell>
@@ -318,7 +318,9 @@
 									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Operation}, Url='/settings/operation/browse'}"/>
 								</Selector.AddOns>
 							</Selector>
-							<TextBox Value="{Bind Category}"/>
+							<ComboBox Value="{Bind Category}" ItemsSource="{Bind $Categories}">
+								<ComboBoxItem Content="{Bind Name}" Value="{Bind Value}"/>
+							</ComboBox>
 							<ComboBox Value="{Bind Type}" ItemsSource="{Bind $Types}">
 								<ComboBoxItem Content="{Bind Name}" Value="{Bind Value}"/>
 							</ComboBox>

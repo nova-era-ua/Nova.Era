@@ -20,7 +20,7 @@
 		<Button Content="Створити на підставі" Render="Show" If="{Bind !Document.Operation.Links.$isEmpty}"
 				Disabled="{Bind Document.$isNew}">
 			<Button.DropDown>
-				<DropDownMegaMenu ItemsSource="{Bind Document.Operation.Links}" GroupBy="Category">
+				<DropDownMegaMenu ItemsSource="{Bind Document.Operation.Links}" GroupBy="$Category">
 					<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=createOnBase, Argument={Bind}}"/>
 				</DropDownMegaMenu>
 			</Button.DropDown>

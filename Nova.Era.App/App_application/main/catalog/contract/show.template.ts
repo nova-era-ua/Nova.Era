@@ -2,7 +2,8 @@
 
 const template: Template = {
 	properties: {
-		'TRoot.$$Tab': String
+		'TRoot.$$Tab': String,
+		'TDocument.$Mark'() { return this.Done ? 'green' : undefined; },
 	},
 	commands: {
 		editDocument
@@ -17,5 +18,6 @@ async function editDocument(doc) {
 	if (!doc) return;
 	const ctrl = this.$ctrl;
 	let url = `${doc.Operation.DocumentUrl}/edit`
-	await ctrl.$showDialog(url, { Id: doc.Id });
+	let res = await ctrl.$showDialog(url, { Id: doc.Id });
+	doc.$merge(res);
 }
