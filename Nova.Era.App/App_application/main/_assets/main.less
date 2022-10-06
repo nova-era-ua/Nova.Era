@@ -107,7 +107,6 @@ li.line-top:before {
 	}
 }
 
-/*PLATFORM*/
 /* Collection View: overflow:hidden (Accounting/Plan)*/
 .inner-grid {
 	.cw {
@@ -122,16 +121,6 @@ table.fixed-layout {
 
 .modal-footer .btn-more {
 	min-width: auto;
-}
-
-// TODO: Platfrorm -> Page.TaskpadLeft
-
-.control-group .input-group.static > span {
-	overflow:hidden;
-	text-overflow:ellipsis;
-	display:inline;
-	line-height:inherit;
-	white-space:nowrap;
 }
 
 .bind-sum {
@@ -180,13 +169,14 @@ table.fixed-layout {
 	}
 }
 
-// TODO: platform (7898+)
-.panel {
-	border:1px solid var(--neutralBkDark);
+// TODO: platform
+
+// перенести
+.control-group.no-wrap .input-group.static > span.static-input {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inline;
+	line-height: inherit;
+	white-space: nowrap;
 }
 
-.panel > .panel-header {
-	color: #999; /* label color */
-	background-color: var(--neutralBk);
-	border-bottom: 1px solid var(--neutralBkDark);
-}

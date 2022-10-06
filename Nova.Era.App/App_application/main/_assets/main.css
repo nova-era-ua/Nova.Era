@@ -79,7 +79,6 @@ li.line-top:before {
 .descr-simple-list ul {
   margin: 0;
 }
-/*PLATFORM*/
 /* Collection View: overflow:hidden (Accounting/Plan)*/
 .inner-grid .cw {
   overflow: hidden;
@@ -89,13 +88,6 @@ table.fixed-layout {
 }
 .modal-footer .btn-more {
   min-width: auto;
-}
-.control-group .input-group.static > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline;
-  line-height: inherit;
-  white-space: nowrap;
 }
 .bind-sum {
   position: relative;
@@ -136,12 +128,10 @@ table.fixed-layout {
 .linked-list .a2-list-item.group:hover {
   background-color: transparent !important;
 }
-.panel {
-  border: 1px solid var(--neutralBkDark);
-}
-.panel > .panel-header {
-  color: #999;
-  /* label color */
-  background-color: var(--neutralBk);
-  border-bottom: 1px solid var(--neutralBkDark);
+.control-group.no-wrap .input-group.static > span.static-input {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline;
+  line-height: inherit;
+  white-space: nowrap;
 }

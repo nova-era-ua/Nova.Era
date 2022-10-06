@@ -13,7 +13,7 @@
 	</Block>
 	-->
 	<Dashboard ItemsSource="{Bind Dashboard.Items}" Editable="True"
-			   EditMode="{Bind Root.$$EditMode}" CellWidth="85px" CellHeight="85px" 
+			   EditMode="{Bind Root.$$EditMode}" CellWidth="96" CellHeight="96px" 
 			   ItemsList="{Bind Dashboard.$Widgets}">
 		<Include Source="{Bind Url}" Argument="{Bind Id}" Queued="True" Data="{Bind Params}"/>
 		<Dashboard.ListTemplate>

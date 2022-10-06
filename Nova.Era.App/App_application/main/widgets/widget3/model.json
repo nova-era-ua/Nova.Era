@@ -5,7 +5,7 @@
 	"actions": {
 		"index": {
 			"index": true,
-			"view": "../notimplemented.view",
+			"view": "index.view",
 			"skipDataStack": true
 		}
 	}

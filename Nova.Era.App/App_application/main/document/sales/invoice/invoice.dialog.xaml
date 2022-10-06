@@ -36,7 +36,7 @@
 		</Grid>
 		<Grid Grid.Row="2" Columns="Auto,1*,1rem,Auto,1*,1rem,Auto,1*">
 			<Label Grid.Row="1" Grid.Col="1">@[Customer]</Label>
-			<SelectorSimple Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" Url="/catalog/agent" />
+			<SelectorSimple Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" Url="/catalog/agent" TabIndex="1"/>
 			<Label Grid.Row="1" Grid.Col="4">@[Contract]</Label>
 			<Component Name="SelectContract"  Grid.Row="1" Grid.Col="5" Scope="{Bind Document}" />
 		</Grid>

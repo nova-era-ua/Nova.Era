@@ -1,0 +1,24 @@
+﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<StateCard Style="Red" Width="100%" Height="100%" Compact="True"
+			   Icon="Cart">
+		<StateCard.Text>
+			<Text>1 284.23 UAH</Text>
+		</StateCard.Text>
+		<StateCard.Footer>
+			<Text If="False">
+				<Span Bold="True">Bold</Span>
+				<Span Italic="True">Italic</Span>
+				<Span>Regular2</Span>
+			</Text>
+		</StateCard.Footer>
+		<StateCard.Header>
+			<Text>
+				<Span Bold="True">Bold</Span>
+				<Span Italic="True">Italic</Span>
+				<Span>Regular</Span>
+				<Break/>
+				<Span>Порівняно з попереднім</Span>
+			</Text>
+		</StateCard.Header>
+	</StateCard>
+</PartialBlock>
