@@ -91,14 +91,15 @@ begin
 		--(141,   14, 11, N'@[Documents]',     null, null, null),
 		--(1412, 141, 10, N'Специфікації',     N'spec', N'file-content', null),
 
-		(15,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
+		(50,    1,  50, N'@[Accounting]',    N'accounting',  N'calc', null),
 		--(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
 		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
 		(88,    1,  88, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
 		(90,    1,  90, N'@[Profile]',        N'profile',   N'user', null),
 		-- CRM
 		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		--(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
+		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
+		(1103,  11, 13, N'@[Contacts]',       N'contact',   N'address-card', null),
 		-- Sales
 		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
 		(120,    12, 11, N'@[Documents]',      null,  null, null),
@@ -133,12 +134,12 @@ begin
 		(1330,   13, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1331,   13, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Accounting
-		(1501,   15, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
-		(150,    15, 11, N'@[Documents]',      null, null, null),
+		(1501,   50, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
+		(150,    50, 11, N'@[Documents]',      null, null, null),
 		(1502,  150, 10, N'@[Bank]',           N'bank',   N'bank',  null),
 		(1503,  150, 11, N'@[CashAccount]',    N'cash',   N'currency-uah',  null),
-		(1504,   15, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
-		(153,    15, 15, N'@[Catalogs]',  null, null, null),
+		(1504,   50, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
+		(153,    50, 15, N'@[Catalogs]',  null, null, null),
 		(1505,  153, 10, N'@[BankAccounts]',   N'bankacc',   N'bank', null),
 		(1506,	153, 11, N'@[CashAccounts]',   N'cashacc',   N'currency-uah', null),
 		(1507,  153, 12, N'@[Agents]',         N'agent',     N'users', null),
@@ -146,9 +147,9 @@ begin
 		(1509,  153, 14, N'@[Contracts]',      N'contract',  N'user-image', null),
 		(1510,  153, 15, N'@[Projects]',       N'project',   N'log', null),
 		(1511,  153, 16, N'@[CatalogOther]',   N'catalog',   N'list', null),
-		(1512,   15, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
-		(1530,   15, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
-		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
+		(1512,   50, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
+		(1530,   50, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
+		(1531,   50, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
 		-- Settings
 		(880,   88, 10, N'@[Dashboard]',    'dashboard', 'dashboard-outline', N'border-bottom'),

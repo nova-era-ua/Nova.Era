@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 06.10.2022 14:35:28
+generated: 07.10.2022 16:23:50
 */
 
 
@@ -3451,6 +3451,9 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'app')
 	exec sp_executesql N'create schema app';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'crm')
+	exec sp_executesql N'create schema crm';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -3461,6 +3464,7 @@ grant execute on schema::rep to public;
 grant execute on schema::ini to public;
 grant execute on schema::ui to public;
 grant execute on schema::app to public;
+grant execute on schema::crm to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Blobs')
@@ -3909,13 +3913,45 @@ create table cat.Agents
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
-		constraint PK_Agents primary key (TenantId, Id),
 	[Partner] bit,
 	[Person] bit,
 	-- roles
 	IsSupplier bit,
-	IsCustomer bit
+	IsCustomer bit,
+		constraint PK_Agents primary key (TenantId, Id)
 );
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Contacts')
+	create sequence cat.SQ_Contacts as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Contacts')
+create table cat.Contacts
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Contacts_Id default(next value for cat.SQ_Contacts),
+	Void bit not null 
+		constraint DF_Contacts_Void default(0),
+	[Name] nvarchar(255),
+	[Position] nvarchar(255),
+	Gender nchar(1),
+	Birthday date,
+	Country nchar(3),
+	[Memo] nvarchar(255),
+	UserCreated bigint not null,
+	UtcDateCreated datetime not null 
+		constraint DF_Contacts_UtcDateCreated default(getutcdate()),
+	UserModified bigint not null,
+	UtcDateModified datetime not null,
+	ExternalId nvarchar(64) null,
+	constraint PK_Contacts primary key (TenantId, Id),
+	constraint FK_Contacts_Country_Countries foreign key (TenantId, Country) references cat.Countries(TenantId, Code),
+	constraint FK_Contacts_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
+	constraint FK_Contacts_UserModified_Users foreign key (TenantId, UserModified) references appsec.Users(Tenant, Id)
+);
+
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Warehouses')
@@ -3964,6 +4000,57 @@ create table cat.CashAccounts
 		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
 		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'crm' and SEQUENCE_NAME = N'SQ_LeadStages')
+	create sequence crm.SQ_LeadStages as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'crm' and TABLE_NAME=N'LeadStages')
+create table crm.LeadStages (
+	TenantId int not null,
+	[Id] bigint not null
+		constraint DF_LeadStages_Id default(next value for crm.SQ_LeadStages),
+	Void bit not null 
+		constraint DF_LeadStages_Void default(0),
+	[Order] int,
+	[Name] nvarchar(255),
+	[Color] nvarchar(32),
+	constraint PK_LeadStages primary key (TenantId, [Id])
+);
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'crm' and SEQUENCE_NAME = N'SQ_Leads')
+	create sequence crm.SQ_Leads as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'crm' and TABLE_NAME=N'Leads')
+create table crm.Leads (
+	TenantId int not null,
+	[Id] bigint not null
+		constraint DF_Leads_Id default(next value for crm.SQ_Leads),
+	Void bit not null 
+		constraint DF_Leads_Void default(0),
+	Stage bigint,
+	Contact bigint,
+	Agent bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	Amount money,
+	Currency bigint,
+	ExternalId nvarchar(64),
+	UserCreated bigint not null,
+	UtcDateCreated datetime not null 
+		constraint DF_Leads_UtcDateCreated default(getutcdate()),
+	UserModified bigint not null,
+	UtcDateModified datetime not null,
+	constraint PK_Leads primary key (TenantId, [Id]),
+	constraint FK_Leads_Stage_LeadStages foreign key (TenantId, Stage) references crm.LeadStages(TenantId, Id),
+	constraint FK_Leads_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
+	constraint FK_Leads_Contact_Contacts foreign key (TenantId, Contact) references cat.Contacts(TenantId, Id),
+	constraint FK_Leads_Agent_Agnets foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Leads_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
+	constraint FK_Leads_UserModified_Users foreign key (TenantId, UserModified) references appsec.Users(Tenant, Id)
 );
 go
 ------------------------------------------------
@@ -5240,14 +5327,15 @@ begin
 		--(141,   14, 11, N'@[Documents]',     null, null, null),
 		--(1412, 141, 10, N'Специфікації',     N'spec', N'file-content', null),
 
-		(15,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
+		(50,    1,  50, N'@[Accounting]',    N'accounting',  N'calc', null),
 		--(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
 		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
 		(88,    1,  88, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
 		(90,    1,  90, N'@[Profile]',        N'profile',   N'user', null),
 		-- CRM
 		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		--(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
+		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
+		(1103,  11, 13, N'@[Contacts]',       N'contact',   N'address-card', null),
 		-- Sales
 		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
 		(120,    12, 11, N'@[Documents]',      null,  null, null),
@@ -5282,12 +5370,12 @@ begin
 		(1330,   13, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		(1331,   13, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Accounting
-		(1501,   15, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
-		(150,    15, 11, N'@[Documents]',      null, null, null),
+		(1501,   50, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
+		(150,    50, 11, N'@[Documents]',      null, null, null),
 		(1502,  150, 10, N'@[Bank]',           N'bank',   N'bank',  null),
 		(1503,  150, 11, N'@[CashAccount]',    N'cash',   N'currency-uah',  null),
-		(1504,   15, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
-		(153,    15, 15, N'@[Catalogs]',  null, null, null),
+		(1504,   50, 12, N'@[AccountPlans]',   N'plan',      N'account',  N'border-top'),
+		(153,    50, 15, N'@[Catalogs]',  null, null, null),
 		(1505,  153, 10, N'@[BankAccounts]',   N'bankacc',   N'bank', null),
 		(1506,	153, 11, N'@[CashAccounts]',   N'cashacc',   N'currency-uah', null),
 		(1507,  153, 12, N'@[Agents]',         N'agent',     N'users', null),
@@ -5295,9 +5383,9 @@ begin
 		(1509,  153, 14, N'@[Contracts]',      N'contract',  N'user-image', null),
 		(1510,  153, 15, N'@[Projects]',       N'project',   N'log', null),
 		(1511,  153, 16, N'@[CatalogOther]',   N'catalog',   N'list', null),
-		(1512,   15, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
-		(1530,   15, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
-		(1531,   15, 41, N'@[Service]',        N'service',   N'gear-outline', null),
+		(1512,   50, 20, N'@[Journal]',        N'journal',   N'file-content',  N'border-top'),
+		(1530,   50, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
+		(1531,   50, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
 		-- Settings
 		(880,   88, 10, N'@[Dashboard]',    'dashboard', 'dashboard-outline', N'border-bottom'),
@@ -7675,6 +7763,239 @@ begin
 
 	-- maps
 	exec doc.[Contract.Maps] @TenantId, @cnts;
+
+end
+go
+
+-- Contact
+drop procedure if exists cat.[Contact.Maps];
+drop type if exists cat.[Contact.Index.TableType]
+go
+-------------------------------------------------
+create type cat.[Contact.Index.TableType] as table
+(
+	rowno int identity(1, 1), 
+	id bigint, 
+	rowcnt int
+);
+go
+-------------------------------------------------
+create or alter procedure cat.[Contact.Maps]
+@TenantId int = 1,
+@Elems cat.[Contact.Index.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	-- maps
+	/*
+	with T as (select agent from @Elems group by agent)
+	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from cat.Agents a 
+		inner join T t on a.TenantId = @TenantId and a.Id = agent;
+
+	with T as (select comp from @Elems group by comp)
+	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.Companies c 
+		inner join T t on c.TenantId = @TenantId and c.Id = comp;
+
+	with T as (select pkind from @Elems group by pkind)
+	select [!TPriceKind!Map] = null, [Id!!Id] = pk.Id, [Name!!Name] = pk.[Name]
+	from cat.PriceKinds pk 
+		inner join T t on pk.TenantId = @TenantId and pk.Id = pkind;
+
+	with T as (select kind from @Elems group by kind)
+	select [!TContactKind!Map] = null, [Id!!Id] = ck.Id, [Name!!Name] = ck.[Name]
+	from cat.ContactKinds ck 
+		inner join T t on ck.TenantId = @TenantId and ck.Id = kind;
+	*/
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Contact.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Offset int = 0,
+@PageSize int = 20,
+@Order nvarchar(255) = N'date',
+@Dir nvarchar(20) = N'asc',
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Fragment + N'%';
+
+	declare @cnts cat.[Contact.Index.TableType];
+
+	insert into @cnts(id, rowcnt)
+	select c.Id,
+		count(*) over()
+	from cat.Contacts c
+	where c.TenantId = @TenantId and c.Void = 0
+		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
+	order by 
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'name' then c.[Name]
+				when N'memo' then c.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'name' then c.[Name]
+				when N'memo' then c.[Memo]
+			end
+		end desc
+	offset @Offset rows fetch next @PageSize rows only
+	option (recompile);
+
+	select [Contacts!TContact!Array] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Memo],
+		c.Birthday, c.Gender, c.Position,
+		[!!RowCount] = t.rowcnt
+	from @cnts t inner join 
+		cat.Contacts c on c.TenantId = @TenantId and c.Id = t.id
+	order by t.rowno;
+
+	-- maps
+	exec cat.[Contact.Maps] @TenantId, @cnts;
+
+	select [!$System!] = null, [!Contacts!Offset] = @Offset, [!Contacts!PageSize] = @PageSize, 
+		[!Contacts!SortOrder] = @Order, [!Contacts!SortDir] = @Dir,
+		[!Contacts.Fragment!Filter] = @Fragment;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Contact.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Agent bigint = null,
+@Company bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Contact!TContact!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo,
+		c.Position, c.Birthday
+	from cat.Contacts c
+	where c.TenantId = @TenantId and c.Id = @Id;
+
+end
+go
+-------------------------------------------------
+drop procedure if exists cat.[Contact.Metadata];
+drop procedure if exists cat.[Contact.Update];
+drop type if exists cat.[Contact.TableType];
+go
+-------------------------------------------------
+create type cat.[Contact.TableType]
+as table(
+	Id bigint null,
+	[Name] nvarchar(255),
+	Memo nvarchar(255),
+	[Position] nvarchar(255),
+	Gender nchar(1),
+	Birthday date,
+	Country nchar(3)
+)
+go
+------------------------------------------------
+create or alter procedure cat.[Contact.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Contact cat.[Contact.TableType];
+	select [Contact!Contact!Metadata] = null, * from @Contact;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Contact.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Contact cat.[Contact.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @rtable table(id bigint);
+	declare @id bigint;
+
+	merge cat.Contacts as t
+	using @Contact as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Memo] = s.[Memo],
+		t.Position = s.Position,
+		t.UtcDateModified = getutcdate(),
+		t.UserModified = @UserId
+	when not matched by target then insert
+		(TenantId, [Name], Memo, Position, 
+			UserCreated, UserModified, UtcDateModified) values
+		(@TenantId, s.[Name], s.Memo, Position,
+		    @UserId, @UserId, getutcdate())
+	output inserted.Id into @rtable(id);
+	select top(1) @id = id from @rtable;
+	exec cat.[Contact.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+
+-------------------------------------------------
+create or alter procedure cat.[Contact.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	update cat.Contacts set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+
+-------------------------------------------------
+create or alter procedure cat.[Contact.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Agent bigint = null,
+@Company bigint = null,
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	set @Company = nullif(@Company, 0);
+	set @Agent = nullif(@Agent, 0);
+
+	declare @cnts cat.[Contact.Index.TableType];
+
+	insert into @cnts(id)
+	select top(100) c.Id	
+	from cat.Contacts c
+	where c.TenantId = @TenantId and c.Void = 0
+		and (c.[Name] like @fr or c.Memo like @fr);
+
+	select [Contacts!TContact!Array] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Memo],
+		c.Birthday, c.Gender, c.Position
+	from @cnts t inner join 
+		cat.Contacts c on c.TenantId = @TenantId and c.Id = t.id;
+	-- maps
+	exec cat.[Contact.Maps] @TenantId, @cnts;
 
 end
 go
@@ -13856,6 +14177,250 @@ begin
 	select @val = p.Price 
 	from doc.Prices p where p.[Date] <= @Date and PriceKind = @PriceKind and p.Item = @Item
 	return @val;
+end
+go
+
+-- Lead
+drop procedure if exists crm.[Lead.Maps];
+drop type if exists crm.[Lead.Index.TableType]
+go
+-------------------------------------------------
+create type crm.[Lead.Index.TableType] as table
+(
+	rowno int identity(1, 1), 
+	id bigint, 
+	agent bigint,
+	contact bigint,
+	currency bigint,
+	rowcnt int
+);
+go
+-------------------------------------------------
+create or alter procedure crm.[Lead.Maps]
+@TenantId int = 1,
+@Elems crm.[Lead.Index.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	-- maps
+	with T as (select agent from @Elems where agent is not null group by agent)
+	select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+	from cat.Agents a 
+		inner join T t on a.TenantId = @TenantId and a.Id = agent;
+
+	with T as (select contact from @Elems where contact is not null group by contact)
+	select [!TContact!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
+	from cat.Contacts c 
+		inner join T t on c.TenantId = @TenantId and c.Id = contact;
+
+	select [Stages!TStage!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color
+	from crm.LeadStages 
+	where TenantId = @TenantId and Void = 0 order by [Order];
+end
+go
+-------------------------------------------------
+create or alter procedure crm.[Lead.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Offset int = 0,
+@PageSize int = 20,
+@Order nvarchar(255) = N'name',
+@Dir nvarchar(20) = N'asc',
+@Fragment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	set @Order = lower(@Order);
+	set @Dir = lower(@Dir);
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Fragment + N'%';
+
+	declare @leads crm.[Lead.Index.TableType];
+
+	insert into @leads(id, agent, contact, currency, rowcnt)
+	select c.Id, c.Agent, c.Contact, c.Currency,
+		count(*) over()
+	from crm.Leads c
+	where c.TenantId = @TenantId and c.Void = 0
+		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
+	order by 
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'name' then c.[Name]
+				when N'memo' then c.[Memo]
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'name' then c.[Name]
+				when N'memo' then c.[Memo]
+			end
+		end desc
+	offset @Offset rows fetch next @PageSize rows only
+	option (recompile);
+
+	select [Leads!TLead!Array] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Memo],
+		[Agent!TAgent!RefId] = c.Agent, [Contact!TContact!RefId] = c.Contact, [Stage!TStage!RefId] = c.Stage,
+		c.Amount, [Currency!TCurrency!RefId] = c.Currency,
+		[!!RowCount] = t.rowcnt
+	from @leads t inner join 
+		crm.Leads c on c.TenantId = @TenantId and c.Id = t.id
+	order by t.rowno;
+
+	-- maps
+	exec crm.[Lead.Maps] @TenantId, @leads;
+
+	select [!$System!] = null, [!Leads!Offset] = @Offset, [!Leads!PageSize] = @PageSize, 
+		[!Leads!SortOrder] = @Order, [!Leads!SortDir] = @Dir,
+		[!Leads.Fragment!Filter] = @Fragment;
+end
+go
+-------------------------------------------------
+create or alter procedure crm.[Lead.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Lead!TLead!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo,
+		[Agent!TAgent!RefId] = c.Agent, [Contact!TContact!RefId] = c.Contact, [Stage!TStage!RefId] = c.Stage,
+		c.Amount, [Currency!TCurrency!RefId] = c.Currency
+	from crm.Leads c
+	where c.TenantId = @TenantId and c.Id = @Id;
+
+	declare @leads crm.[Lead.Index.TableType];
+	insert into @leads(agent, contact, currency) 
+	select Agent, Contact, Currency 
+	from crm.Leads where TenantId = @TenantId and Id = @Id;
+
+	-- maps
+	exec crm.[Lead.Maps] @TenantId, @leads;
+end
+go
+-------------------------------------------------
+drop procedure if exists crm.[Lead.Metadata];
+drop procedure if exists crm.[Lead.Update];
+drop type if exists crm.[Lead.TableType];
+go
+-------------------------------------------------
+create type crm.[Lead.TableType]
+as table(
+	Id bigint null,
+	[Name] nvarchar(255),
+	Memo nvarchar(255),
+	Contact bigint,
+	Agent bigint,
+	Amount money,
+	Currency bigint
+)
+go
+------------------------------------------------
+create or alter procedure crm.[Lead.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Lead crm.[Lead.TableType];
+	select [Lead!Lead!Metadata] = null, * from @Lead;
+end
+go
+------------------------------------------------
+create or alter procedure crm.[Lead.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Lead crm.[Lead.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @rtable table(id bigint);
+	declare @id bigint;
+
+	merge crm.Leads as t
+	using @Lead as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Memo] = s.[Memo],
+		t.Contact = s.Contact,
+		t.Agent = s.Agent,
+		t.Amount = s.Amount,
+		t.Currency = s.Currency,
+		t.UtcDateModified = getutcdate(),
+		t.UserModified = @UserId
+	when not matched by target then insert
+		(TenantId, [Name], Memo, Contact, Agent, Amount, Currency, 
+			UserCreated, UserModified, UtcDateModified) values
+		(@TenantId, s.[Name], s.Memo, s.Contact, s.Agent, s.Amount, s.Currency,
+		    @UserId, @UserId, getutcdate())
+	output inserted.Id into @rtable(id);
+	select top(1) @id = id from @rtable;
+	exec crm.[Lead.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+
+-------------------------------------------------
+create or alter procedure crm.[Lead.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	update crm.Leads set Void = 1 where TenantId = @TenantId and Id=@Id;
+end
+go
+
+-------------------------------------------------
+create or alter procedure crm.[Lead.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@Agent bigint = null,
+@Company bigint = null,
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+
+	set @Company = nullif(@Company, 0);
+	set @Agent = nullif(@Agent, 0);
+
+	declare @cnts crm.[Lead.Index.TableType];
+
+	/*
+	insert into @cnts(id, agent, comp, pkind, kind)
+	select top(100) c.Id, c.Agent, c.Company, c.PriceKind, c.Kind
+	from crm.Leads c
+	where c.TenantId = @TenantId and c.Void = 0
+		and (@Agent is null or c.Agent = @Agent)
+		and (@Company is null or c.Company = @Company)
+		and (c.[Name] like @fr or c.[SNo] like @fr or c.Memo like @fr);
+
+	select [Leads!TLead!Array] = null, [Id!!Id] = c.Id, c.[Date], [Name!!Name] = c.[Name], c.[Memo], c.SNo,
+		[Agent!TAgent!RefId] = c.Agent, [Company!TCompany!RefId] = c.Company,
+		[PriceKind!TPriceKind!RefId] = c.PriceKind,
+		[Kind!TLeadKind!RefId] = c.Kind
+	from @cnts t inner join 
+		crm.Leads c on c.TenantId = @TenantId and c.Id = t.id;
+	*/
+	-- maps
+	exec crm.[Lead.Maps] @TenantId, @cnts;
+
 end
 go
 

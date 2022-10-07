@@ -84,6 +84,7 @@
 @Agent=Контрагент
 @Persons=Фізичні особи
 @Person=Фізична особа
+@PersonName=Прізвище ім'я по-батькові
 @RespPerson=Відповідальна особа
 @Items=Об'єкти обліку
 @Item=Об'єкт обліку
@@ -94,6 +95,8 @@
 @CashAccount=Каса
 @Contracts=Договори
 @Contract=Договір
+@Contacts=Контакти
+@Contact=Контакт
 @Projects=Проекти
 @Project=Проект
 @Banks=Банки
@@ -127,6 +130,7 @@
 @Role=Роль
 @RoleTo=Нова роль
 @Purpose=Призначення
+@Position=Посада
 @AccKinds=Види рахунків в обліку
 @AccKind=Вид рахунку в обліку
 @AccKindShort=Вид рахунку
@@ -183,6 +187,7 @@
 @QuotUnit=Одиниця котирування
 @Color=Колір
 @Number=Номер
+@Stage=Стадія
 @NoContract=<Без договору>
 @NoRespCenter=<Не вказано центр відповідальності>
 @NoCostItem=<Не вказано статтю витрат>
@@ -222,6 +227,7 @@
 @Browse.Person=Вибір фізичної особи
 @Browse.Country=Вибір країни світу
 @Browse.Bank=Вибір банку
+@Browse.Contact=Вибір контакту
 ;
 @By.Account=По рахунку
 @By.Plan=По плану рахунків

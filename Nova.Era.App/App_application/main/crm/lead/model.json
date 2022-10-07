@@ -1,0 +1,18 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "crm",
+	"model": "Lead",
+	"actions": {
+		"index": {
+			"index": true,
+			"template": "index.template",
+			"view": "index.view"
+		}
+	},
+	"dialogs": {
+		"edit": {
+			"template": "edit.template",
+			"view": "edit.dialog"
+		}
+	}
+}

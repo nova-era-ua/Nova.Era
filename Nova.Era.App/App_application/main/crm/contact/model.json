@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "Contact",
+  "actions": {
+    "index": {
+        "index": true,
+        "template": "../../catalog/contact/index.template",
+        "view": "../../catalog/contact/index.view"
+    }
+  }
+}

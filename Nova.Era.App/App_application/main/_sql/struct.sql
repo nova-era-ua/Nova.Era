@@ -39,6 +39,9 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'app')
 	exec sp_executesql N'create schema app';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'crm')
+	exec sp_executesql N'create schema crm';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -49,6 +52,7 @@ grant execute on schema::rep to public;
 grant execute on schema::ini to public;
 grant execute on schema::ui to public;
 grant execute on schema::app to public;
+grant execute on schema::crm to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Blobs')
@@ -497,13 +501,45 @@ create table cat.Agents
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),
-		constraint PK_Agents primary key (TenantId, Id),
 	[Partner] bit,
 	[Person] bit,
 	-- roles
 	IsSupplier bit,
-	IsCustomer bit
+	IsCustomer bit,
+		constraint PK_Agents primary key (TenantId, Id)
 );
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Contacts')
+	create sequence cat.SQ_Contacts as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Contacts')
+create table cat.Contacts
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Contacts_Id default(next value for cat.SQ_Contacts),
+	Void bit not null 
+		constraint DF_Contacts_Void default(0),
+	[Name] nvarchar(255),
+	[Position] nvarchar(255),
+	Gender nchar(1),
+	Birthday date,
+	Country nchar(3),
+	[Memo] nvarchar(255),
+	UserCreated bigint not null,
+	UtcDateCreated datetime not null 
+		constraint DF_Contacts_UtcDateCreated default(getutcdate()),
+	UserModified bigint not null,
+	UtcDateModified datetime not null,
+	ExternalId nvarchar(64) null,
+	constraint PK_Contacts primary key (TenantId, Id),
+	constraint FK_Contacts_Country_Countries foreign key (TenantId, Country) references cat.Countries(TenantId, Code),
+	constraint FK_Contacts_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
+	constraint FK_Contacts_UserModified_Users foreign key (TenantId, UserModified) references appsec.Users(Tenant, Id)
+);
+
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Warehouses')
@@ -552,6 +588,57 @@ create table cat.CashAccounts
 		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
 		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'crm' and SEQUENCE_NAME = N'SQ_LeadStages')
+	create sequence crm.SQ_LeadStages as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'crm' and TABLE_NAME=N'LeadStages')
+create table crm.LeadStages (
+	TenantId int not null,
+	[Id] bigint not null
+		constraint DF_LeadStages_Id default(next value for crm.SQ_LeadStages),
+	Void bit not null 
+		constraint DF_LeadStages_Void default(0),
+	[Order] int,
+	[Name] nvarchar(255),
+	[Color] nvarchar(32),
+	constraint PK_LeadStages primary key (TenantId, [Id])
+);
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'crm' and SEQUENCE_NAME = N'SQ_Leads')
+	create sequence crm.SQ_Leads as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'crm' and TABLE_NAME=N'Leads')
+create table crm.Leads (
+	TenantId int not null,
+	[Id] bigint not null
+		constraint DF_Leads_Id default(next value for crm.SQ_Leads),
+	Void bit not null 
+		constraint DF_Leads_Void default(0),
+	Stage bigint,
+	Contact bigint,
+	Agent bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	Amount money,
+	Currency bigint,
+	ExternalId nvarchar(64),
+	UserCreated bigint not null,
+	UtcDateCreated datetime not null 
+		constraint DF_Leads_UtcDateCreated default(getutcdate()),
+	UserModified bigint not null,
+	UtcDateModified datetime not null,
+	constraint PK_Leads primary key (TenantId, [Id]),
+	constraint FK_Leads_Stage_LeadStages foreign key (TenantId, Stage) references crm.LeadStages(TenantId, Id),
+	constraint FK_Leads_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
+	constraint FK_Leads_Contact_Contacts foreign key (TenantId, Contact) references cat.Contacts(TenantId, Id),
+	constraint FK_Leads_Agent_Agnets foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
+	constraint FK_Leads_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
+	constraint FK_Leads_UserModified_Users foreign key (TenantId, UserModified) references appsec.Users(Tenant, Id)
 );
 go
 ------------------------------------------------
