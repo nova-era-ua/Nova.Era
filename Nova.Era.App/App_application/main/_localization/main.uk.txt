@@ -58,6 +58,7 @@
 @Customer=Покупець
 @Leads=Ліди
 @Lead=Лід
+@LeadStages=Стадії лідів 
 @Categories=Категорії
 @Category=Категорія
 @Defaults=Замовчування
@@ -139,6 +140,7 @@
 @CreateAccountPlan=Створити план рахунків
 @CreateAccount=Створити рахунок
 @ParentFolder=Знаходиться в папці
+@Created=Створений
 @NewFolder=Нова папка
 @NewItem=Новий
 @NewItemW=Нова
@@ -188,6 +190,7 @@
 @Color=Колір
 @Number=Номер
 @Stage=Стадія
+@Ordinal=Порядковий номер
 @NoContract=<Без договору>
 @NoRespCenter=<Не вказано центр відповідальності>
 @NoCostItem=<Не вказано статтю витрат>

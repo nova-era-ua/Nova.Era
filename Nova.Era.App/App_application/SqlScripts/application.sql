@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 07.10.2022 16:23:50
+generated: 08.10.2022 08:42:49
 */
 
 
@@ -14319,7 +14319,8 @@ as table(
 	Contact bigint,
 	Agent bigint,
 	Amount money,
-	Currency bigint
+	Currency bigint,
+	Stage bigint
 )
 go
 ------------------------------------------------
@@ -14351,6 +14352,7 @@ begin
 	when matched then update set
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
+		t.Stage = s.Stage,
 		t.Contact = s.Contact,
 		t.Agent = s.Agent,
 		t.Amount = s.Amount,
@@ -14358,9 +14360,9 @@ begin
 		t.UtcDateModified = getutcdate(),
 		t.UserModified = @UserId
 	when not matched by target then insert
-		(TenantId, [Name], Memo, Contact, Agent, Amount, Currency, 
+		(TenantId, [Name], Memo, Stage, Contact, Agent, Amount, Currency, 
 			UserCreated, UserModified, UtcDateModified) values
-		(@TenantId, s.[Name], s.Memo, s.Contact, s.Agent, s.Amount, s.Currency,
+		(@TenantId, s.[Name], s.Memo, s.Stage, s.Contact, s.Agent, s.Amount, s.Currency,
 		    @UserId, @UserId, getutcdate())
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;

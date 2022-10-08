@@ -86,6 +86,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Content>
     <Content Include="App_application\main\catalog\contact\contact.sql" />
+    <Content Include="App_application\main\catalog\crm\leadstage\leadstage.sql" />
     <Content Include="App_application\main\catalog\project\project.sql" />
     <Content Include="App_application\main\catalog\brand\brand.sql" />
     <Content Include="App_application\main\catalog\cashaccount\cashaccount.sql" />
@@ -124,6 +125,14 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\catalog\contact\browse.dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\crm\leadstage\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\crm\leadstage\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
@@ -446,6 +455,7 @@
     <Content Include="App_application\main\catalog\contact\model.json" />
     <None Include="App_application\main\catalog\contract\model.json" />
     <Content Include="App_application\main\catalog\respcenter\model.json" />
+    <Content Include="App_application\main\catalog\crm\leadstage\model.json" />
     <None Include="App_application\main\catalog\currency\model.json" />
     <Content Include="App_application\main\catalog\itemgroup\model.json" />
     <Content Include="App_application\main\catalog\itemcategory\model.json" />
@@ -475,6 +485,8 @@
     <TypeScriptCompile Include="App_application\main\catalog\autonum\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\contact\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\contact\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\project\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\contract\show.template.ts" />
@@ -531,6 +543,7 @@
     <Content Include="App_application\main\widgets\widget4\model.json" />
     <Content Include="App_application\main\crm\contact\model.json" />
     <Content Include="App_application\main\crm\lead\model.json" />
+    <Content Include="App_application\main\crm\catalog\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

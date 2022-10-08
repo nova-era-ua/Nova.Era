@@ -605,6 +605,7 @@ create table crm.LeadStages (
 	[Order] int,
 	[Name] nvarchar(255),
 	[Color] nvarchar(32),
+	[Memo] nvarchar(255),
 	constraint PK_LeadStages primary key (TenantId, [Id])
 );
 ------------------------------------------------

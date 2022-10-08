@@ -100,6 +100,8 @@ begin
 		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
 		(1103,  11, 13, N'@[Contacts]',       N'contact',   N'address-card', null),
+		(110,   11, 14, N'@[Catalogs]',       null,  null, null),
+		(1105, 110, 15, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		-- Sales
 		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
 		(120,    12, 11, N'@[Documents]',      null,  null, null),
@@ -195,19 +197,22 @@ begin
 	(202, N'Purchase',   12, N'@[Prices]', N'@[PriceKinds]',   N'/catalog/pricekind/index', N'list',  N''),
 
 	-- accounting
-	(300, N'Accounting', 10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
-	(301, N'Accounting', 11, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
+	(300, N'Accounting',  10, N'@[Accounting]', N'@[Banks]', N'/catalog/bank/index', N'list',  N''),
+	(301, N'Accounting',  11, N'@[Accounting]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
 	(305, N'Accounting',  12, N'@[Items]',     N'@[Units]',      N'/catalog/unit/index', N'list',  N''),
 	(306, N'Accounting',  13, N'@[Prices]',    N'@[PriceKinds]', N'/catalog/pricekind/index', N'list',  N''),
 
+	-- crm
+	(400, N'Crm',         10, N'@[Leads]',    N'@[LeadStages]',        N'/catalog/crm/leadstage/index', N'list',  N''),
+
 	-- settings
 	(900, N'Settings',  01, N'@[General]',   N'@[Countries]',   N'/catalog/country/index', N'list',  N''),
-	(901, N'Settings',  02, N'@[General]',   N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
+	(901, N'Settings',  02, N'@[General]', N'@[Currencies]', N'/catalog/currency/index', N'list',  N''),
+	(902, N'Settings',  03, N'@[General]',   N'@[RespCenters]', N'/catalog/respcenter/index', N'list',  N''),
 	(910, N'Settings',  10, N'@[Accounts]',  N'@[ItemRoles]',   N'/catalog/itemrole/index', N'list',  N''),
 	(911, N'Settings',  11, N'@[Accounts]',  N'@[AccKinds]',    N'/catalog/acckind/index', N'list',  N''),
 	(915, N'Settings',  12, N'@[Documents]', N'@[Autonums]',    N'/catalog/autonum/index', N'list',  N''),
 	(920, N'Settings',  21, N'@[Accounting]', N'@[Banks]',         N'/catalog/bank/index', N'list',  N''),
-	(921, N'Settings',  22, N'@[Accounting]', N'@[Currencies]',    N'/catalog/currency/index', N'list',  N''),
 	(922, N'Settings',  23, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
 	(923, N'Settings',  24, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
 	(931, N'Settings',  31, N'@[Items]',  N'@[Grouping.Item]',     N'/catalog/itemgroup/index', N'list',  N''),
@@ -215,7 +220,8 @@ begin
 	(933, N'Settings',  33, N'@[Items]',  N'@[Units]',             N'/catalog/unit/index', N'list',  N''),
 	(934, N'Settings',  34, N'@[Items]',  N'@[Brands]',            N'/catalog/brand/index', N'list',  N''),
 	(945, N'Settings',  35, N'@[Items]',  N'@[Vendors]',           N'/catalog/vendor/index', N'list',  N''),
-	(940, N'Settings',  40, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N'');
+	(940, N'Settings',  40, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N''),
+	(950, N'Settings',  50, N'@[Crm]',    N'@[LeadStages]',        N'/catalog/crm/leadstage/index', N'list',  N'');
 
 	merge a2ui.[Catalog] as t
 	using @cat as s on t.Id = s.Id

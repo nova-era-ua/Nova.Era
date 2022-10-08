@@ -44,8 +44,8 @@ create or alter procedure crm.[Lead.Index]
 @Id bigint = null,
 @Offset int = 0,
 @PageSize int = 20,
-@Order nvarchar(255) = N'name',
-@Dir nvarchar(20) = N'asc',
+@Order nvarchar(255) = N'date',
+@Dir nvarchar(20) = N'desc',
 @Fragment nvarchar(255) = null
 as
 begin
@@ -69,10 +69,20 @@ begin
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
+				when N'date' then c.[UtcDateCreated]
+			end
+		end asc,
+		case when @Dir = N'asc' then
+			case @Order 
 				when N'name' then c.[Name]
 				when N'memo' then c.[Memo]
 			end
 		end asc,
+		case when @Dir = N'desc' then
+			case @Order 
+				when N'date' then c.[UtcDateCreated]
+			end
+		end desc,
 		case when @Dir = N'desc' then
 			case @Order
 				when N'name' then c.[Name]
@@ -85,6 +95,7 @@ begin
 	select [Leads!TLead!Array] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Memo],
 		[Agent!TAgent!RefId] = c.Agent, [Contact!TContact!RefId] = c.Contact, [Stage!TStage!RefId] = c.Stage,
 		c.Amount, [Currency!TCurrency!RefId] = c.Currency,
+		[DateCreated!!Utc] = c.UtcDateCreated,
 		[!!RowCount] = t.rowcnt
 	from @leads t inner join 
 		crm.Leads c on c.TenantId = @TenantId and c.Id = t.id
@@ -110,7 +121,8 @@ begin
 
 	select [Lead!TLead!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo,
 		[Agent!TAgent!RefId] = c.Agent, [Contact!TContact!RefId] = c.Contact, [Stage!TStage!RefId] = c.Stage,
-		c.Amount, [Currency!TCurrency!RefId] = c.Currency
+		c.Amount, [Currency!TCurrency!RefId] = c.Currency,
+		[DateCreated!!Utc] = c.UtcDateCreated
 	from crm.Leads c
 	where c.TenantId = @TenantId and c.Id = @Id;
 

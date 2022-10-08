@@ -37,6 +37,7 @@
 			"main/catalog/project/project.sql",
 			"main/catalog/respcenter/respcenter.sql",
 			"main/catalog/autonum/autonum.sql",
+			"main/catalog/crm/leadstage/leadstage.sql",
 			"main/dashboard/dashboard.sql",
 			"main/accounting/plan/plan.sql",
 			"main/settings/accountplan/plan.sql",

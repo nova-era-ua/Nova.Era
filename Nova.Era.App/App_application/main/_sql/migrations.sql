@@ -167,3 +167,7 @@ go
 drop table if exists jrn.Reconcile;
 drop sequence if exists jrn.SQ_Reconcile;
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'crm' and TABLE_NAME=N'LeadStages' and COLUMN_NAME=N'Memo')
+	alter table crm.LeadStages add [Memo] nvarchar(255);
+go

@@ -24,6 +24,8 @@
 				DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Leads}, Url='/crm/lead/edit'}">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+			<DataGridColumn Header="@[Created]" Content="{Bind DateCreated, DataType=DateTime}" Role="Date"
+							SortProperty="Date"/>
 			<DataGridColumn Header="@[Stage]">
 				<TagLabel Content="{Bind Stage.Name}" Style="{Bind Stage.Color}"/>
 			</DataGridColumn>
