@@ -40,7 +40,7 @@
 			</DataGridColumn>
 			<DataGridColumn Header="@[Operation]" Content="{Bind Operation.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
-			<DataGridColumn Header="@[Label.Cash.Account]" Content="{Bind $CashAccount}" Sort="False" Wrap="NoWrap"/>
+			<DataGridColumn Header="@[Label.Cash.Account]" Content="{Bind $CashAccount}" Sort="False"/>
 			<DataGridColumn Header="@[Agent]" Sort="False">
 				<Span Content="{Bind Agent.Name}" MaxChars="50" Tip="{Bind Agent.Name}"/>
 			</DataGridColumn>

@@ -539,7 +539,16 @@ create table cat.Contacts
 	constraint FK_Contacts_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
 	constraint FK_Contacts_UserModified_Users foreign key (TenantId, UserModified) references appsec.Users(Tenant, Id)
 );
-
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'AgentContacts')
+create table cat.AgentContacts
+(
+	TenantId int not null,
+	Agent bigint,
+	Contact bigint,
+	constraint PK_AgentContacts primary key (TenantId, Agent, Contact)
+)
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Warehouses')

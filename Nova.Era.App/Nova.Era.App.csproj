@@ -544,6 +544,7 @@
     <Content Include="App_application\main\crm\contact\model.json" />
     <Content Include="App_application\main\crm\lead\model.json" />
     <Content Include="App_application\main\crm\catalog\model.json" />
+    <Content Include="App_application\main\crm\agent\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

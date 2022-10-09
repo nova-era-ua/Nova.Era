@@ -101,7 +101,8 @@ begin
 		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
 		(1103,  11, 13, N'@[Contacts]',       N'contact',   N'address-card', null),
 		(110,   11, 14, N'@[Catalogs]',       null,  null, null),
-		(1105, 110, 15, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1105, 110, 15, N'@[Agents]',         N'agent',     N'users', null),
+		(1106, 110, 16, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		-- Sales
 		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
 		(120,    12, 11, N'@[Documents]',      null,  null, null),

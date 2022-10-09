@@ -8,7 +8,29 @@
 	<Grid>
 		<TextBox Label="@[Name]" Value="{Bind Agent.Name}" Bold="True" TabIndex="1"/>
 		<TextBox Label="@[FullName]" Value="{Bind Agent.FullName}"/>
-		<TextBox Label="@[Memo]" Value="{Bind Agent.Memo}" UpdateTrigger="Input" Multiline="True"/>
+
+		<TabBar Value="{Bind Root.$$Tab}" Margin="0">
+			<TabButton Content="@[Contacts]" ActiveValue=""/>
+		</TabBar>
+		<Block>
+			<Switch Expression="{Bind Root.$$Tab}">
+				<Case Value="">
+					<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+						<Button Icon="Plus" Command="{BindCmd Execute, CommandName=addContact}"/>
+					</Toolbar>
+					<Table ItemsSource="{Bind Agent.Contacts}" Columns="Auto,Fit"
+						   Background="Paper" GridLines="Horizontal" Height="20rem" StickyHeaders="True">
+						<TableRow>
+							<Static Value="{Bind Name}"/>
+							<TableCell>
+								<Hyperlink Content="✕" Size="Small" Command="{BindCmd Remove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
+							</TableCell>
+						</TableRow>
+					</Table>
+				</Case>
+			</Switch>
+		</Block>
+		<TextBox  Label="@[Memo]" Value="{Bind Agent.Memo}" UpdateTrigger="Input" Multiline="True"/>
 	</Grid>
 </Dialog>
 

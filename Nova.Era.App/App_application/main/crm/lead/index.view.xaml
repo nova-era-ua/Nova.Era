@@ -30,7 +30,9 @@
 				<TagLabel Content="{Bind Stage.Name}" Style="{Bind Stage.Color}"/>
 			</DataGridColumn>
 			<DataGridColumn Header="@[Contact]" Content="{Bind Contact.Name}" Sort="False"/>
-			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
+			<DataGridColumn Header="@[Agent]" Sort="False">
+				<Span Content="{Bind Agent.Name}" MaxChars="50" Tip="{Bind Agent.Name}"/>
+			</DataGridColumn>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
