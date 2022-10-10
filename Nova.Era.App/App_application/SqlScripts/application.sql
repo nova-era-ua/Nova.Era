@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 09.10.2022 08:43:16
+generated: 10.10.2022 21:07:19
 */
 
 
@@ -3951,7 +3951,16 @@ create table cat.Contacts
 	constraint FK_Contacts_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
 	constraint FK_Contacts_UserModified_Users foreign key (TenantId, UserModified) references appsec.Users(Tenant, Id)
 );
-
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'AgentContacts')
+create table cat.AgentContacts
+(
+	TenantId int not null,
+	Agent bigint,
+	Contact bigint,
+	constraint PK_AgentContacts primary key (TenantId, Agent, Contact)
+)
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Warehouses')
@@ -5343,7 +5352,8 @@ begin
 		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
 		(1103,  11, 13, N'@[Contacts]',       N'contact',   N'address-card', null),
 		(110,   11, 14, N'@[Catalogs]',       null,  null, null),
-		(1105, 110, 15, N'@[CatalogOther]',   N'catalog',   N'list', null),
+		(1105, 110, 15, N'@[Agents]',         N'agent',     N'users', null),
+		(1106, 110, 16, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		-- Sales
 		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
 		(120,    12, 11, N'@[Documents]',      null,  null, null),
@@ -5412,10 +5422,11 @@ begin
 		(8828, 882, 17, N'@[Projects]',     N'project',   N'log', null),
 		(8829, 882, 18, N'@[Items]',        N'item',      N'package-outline', N'line-top'),
 		(8830, 882, 19, N'@[CatalogOther]', N'catalog',   N'list', null),
-		(883,   88, 13, N'@[Administration]', null, null, null),
-		(8831, 883, 16, N'@[Users]',        N'user',    N'user',  null),
-		(8850,  88, 20, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
-		(8851,  88, 23, N'Test',            N'test',      N'file', null),
+		(884,   88, 14, N'@[Administration]', null, null, N'line-top'),
+		(8841, 884, 20, N'@[Users]',        N'user',    N'user',  null),
+		(885,   88, 15, N'@[Integrations]', 'integration',N'queue', N'border-top'),
+		(8850,  88, 30, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
+		(8851,  88, 99, N'Test',            N'test',      N'file', null),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 
@@ -7175,15 +7186,24 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Agent!TAgent!Object] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
-		FullName, [Memo], IsSupplier, IsCustomer
+		FullName, [Memo], IsSupplier, IsCustomer,
+		[Contacts!TContact!Array] = null
 	from cat.Agents a
-	where TenantId = @TenantId and Id = @Id and [Partner] = 1;
+	where TenantId = @TenantId and Id = @Id;
+
+	select [!TContact!Array] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Birthday, c.Gender,
+		c.Position,
+		[!TAgent.Contacts!ParentId] = ac.Agent
+	from cat.Contacts c
+		inner join cat.AgentContacts ac on c.TenantId = ac.TenantId and c.Id = ac.Contact
+	where ac.TenantId = @TenantId and ac.Agent = @Id
 end
 go
 -------------------------------------------------
 drop procedure if exists cat.[Agent.Metadata];
 drop procedure if exists cat.[Agent.Update];
 drop type if exists cat.[Agent.TableType];
+drop type if exists cat.[Agent.Contact.TableType];
 go
 -------------------------------------------------
 create type cat.[Agent.TableType]
@@ -7197,24 +7217,40 @@ as table(
 )
 go
 ------------------------------------------------
+create type cat.[Agent.Contact.TableType]
+as table (
+	Id bigint null,
+	Position nvarchar(255)
+);
+go
+------------------------------------------------
 create or alter procedure cat.[Agent.Metadata]
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	declare @Agent cat.[Agent.TableType];
+	declare @Contacts cat.[Agent.Contact.TableType];
 	select [Agent!Agent!Metadata] = null, * from @Agent;
+	select [Contacts!Agent.Contacts!Metadata] = null, * from @Contacts;
 end
 go
 ------------------------------------------------
 create or alter procedure cat.[Agent.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Agent cat.[Agent.TableType] readonly
+@Agent cat.[Agent.TableType] readonly, 
+@Contacts cat.[Agent.Contact.TableType] readonly
 as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
+
+	/*
+	declare @xml nvarchar(max);
+	set @xml = (select * from @Contacts for xml auto);
+	throw 60000, @xml, 0;
+	*/
 
 	declare @rtable table(id bigint);
 	declare @id bigint;
@@ -7234,6 +7270,19 @@ begin
 		(@TenantId, s.[Name], s.FullName, s.Memo, s.IsCustomer, s.IsSupplier, 1)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
+
+	with CT as (
+		select * from cat.AgentContacts where TenantId=@TenantId and Agent = @id
+	)
+	merge CT as t
+	using @Contacts as s
+	on t.TenantId = @TenantId and t.Contact = s.Id
+	--when matched then update
+	when not matched by target then insert
+		(TenantId, Agent, Contact) values
+		(@TenantId, @id, s.Id)
+	when not matched by source then delete;
+
 	exec cat.[Agent.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go

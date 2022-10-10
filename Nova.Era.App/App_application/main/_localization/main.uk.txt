@@ -5,6 +5,7 @@
 @Manufacturing=Виробництво
 @Payroll=Зарплата
 @Settings=Налаштування
+@Integrations=Інтеграції
 @Administration=Администрування
 @KindStock=Запаси
 @Stock=Запас

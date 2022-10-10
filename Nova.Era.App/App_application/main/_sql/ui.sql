@@ -171,10 +171,11 @@ begin
 		(8828, 882, 17, N'@[Projects]',     N'project',   N'log', null),
 		(8829, 882, 18, N'@[Items]',        N'item',      N'package-outline', N'line-top'),
 		(8830, 882, 19, N'@[CatalogOther]', N'catalog',   N'list', null),
-		(883,   88, 13, N'@[Administration]', null, null, null),
-		(8831, 883, 16, N'@[Users]',        N'user',    N'user',  null),
-		(8850,  88, 20, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
-		(8851,  88, 23, N'Test',            N'test',      N'file', null),
+		(884,   88, 14, N'@[Administration]', null, null, N'line-top'),
+		(8841, 884, 20, N'@[Users]',        N'user',    N'user',  null),
+		(885,   88, 15, N'@[Integrations]', 'integration',N'queue', N'border-top'),
+		(8850,  88, 30, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
+		(8851,  88, 99, N'Test',            N'test',      N'file', null),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 

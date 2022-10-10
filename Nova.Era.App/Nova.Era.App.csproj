@@ -157,6 +157,7 @@
     </Content>
     <Content Include="App_application\main\settings\develop\application.sql" />
     <Content Include="App_application\main\settings\develop\develop.sql" />
+    <Content Include="App_application\main\settings\integration\integration.sql" />
     <Content Include="App_application\main\settings\operation\operation.sql" />
     <Content Include="App_application\main\settings\accountplan\plan.sql" />
     <Content Include="App_application\main\settings\policy\policy.sql" />
@@ -422,6 +423,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\settings\integration\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\accounting\bankacc\model.json" />
@@ -545,6 +550,7 @@
     <Content Include="App_application\main\crm\lead\model.json" />
     <Content Include="App_application\main\crm\catalog\model.json" />
     <Content Include="App_application\main\crm\agent\model.json" />
+    <Content Include="App_application\main\settings\integration\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
