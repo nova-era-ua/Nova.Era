@@ -1,5 +1,12 @@
-﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Padding="2rem">
-	<EmptyPanel Icon="SmileSad">
-		Yet not implemented
-	</EmptyPanel>
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Grid Height="100%" Columns="MinMax(20rem;25%),1px,1*" AlignItems="Stretch" Gap="6">
+		<List Grid.Col="1" AutoSelect="FirstItem" GroupBy="Category"
+			   ItemsSource="{Bind Integration}">
+			<ListItemSimple Content="{Bind Name}"
+				Icon="{Bind Icon}" />
+		</List>
+		<GridDivider Grid.Col="2"/>
+		<Include Grid.Col="3" FullHeight="True"
+			If="{Bind Integration.$hasSelected}" Source="{Bind Integration.$selected.Url}"/>
+	</Grid>
 </Page>

@@ -257,3 +257,28 @@ begin
 	where Menu = @Menu order by [Order];
 end
 go
+-------------------------------------------------
+-- Integrations
+begin
+	set nocount on;
+	declare @int table(Id int, [Name] nvarchar(255), [Order] int, 
+		Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
+	insert into @int (Id, [Order], [Category], [Name], [Url], Icon, Memo) values
+	-- delivery services
+	(1000, 1000, N'@[Int.Delivery]', N'Нова пошта',    N'/integration/delivery/novaposhta/index', N'list',  N'');
+
+	merge app.[Integrations] as t
+	using @int as s on t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.Category = s.Category,
+		t.Memo = s.Memo,
+		t.[Url] = s.[Url],
+		t.Icon = s.Icon
+	when not matched by target then insert
+		(Id, [Name], [Order], Category, Memo, [Url], Icon) values
+		(s.Id, s.[Name], [Order], Category, Memo, [Url], Icon)
+	when not matched by source then delete;
+end
+go

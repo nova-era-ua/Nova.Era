@@ -285,3 +285,5 @@
 @Default.Warehouse.Changed=Склад за замовчуванням змінено
 @Default.Period.Changed=Період за замовчуванням змінено
 @Default.RespCenter.Changed=Центр відповідальності змінено
+;
+@Int.Delivery=Служби доставки

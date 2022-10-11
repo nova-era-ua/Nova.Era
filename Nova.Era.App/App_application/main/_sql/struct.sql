@@ -1454,3 +1454,17 @@ create table app.DashboardItems
 	constraint FK_DashboardItems_Widget_Widgets foreign key (TenantId, Widget) references app.Widgets(TenantId, Id)
 );
 go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Integrations')
+create table app.[Integrations]
+(
+	Id int not null
+		constraint PK_Integrations primary key,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[Icon] nvarchar(16),
+	[Url] nvarchar(255),
+	[Order] int,
+	[Category] nvarchar(16)
+);
+go

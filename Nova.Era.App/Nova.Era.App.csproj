@@ -148,6 +148,7 @@
     <Content Include="App_application\main\document\document.apply.sql" />
     <Content Include="App_application\main\document\document.stock.sql" />
     <Content Include="App_application\main\document\print\print.sql" />
+    <Content Include="App_application\main\integration\delivery\novaposhta\novaposhta.sql" />
     <Content Include="App_application\main\profile\default\default.sql" />
     <Content Include="App_application\main\reports\account\report.account.sql" />
     <Content Include="App_application\main\reports\agent\report.agent.sql" />
@@ -427,6 +428,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\integration\delivery\novaposhta\default.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\accounting\bankacc\model.json" />
@@ -511,6 +516,7 @@
     <TypeScriptCompile Include="App_application\main\document\sales\retcust\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\order.index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\bind.module.ts" />
+    <TypeScriptCompile Include="App_application\main\integration\delivery\novaposhta\default.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accrespcost.template.ts" />
     <TypeScriptCompile Include="App_application\main\appinit\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\money\cashmove\edit.template.ts" />
@@ -551,6 +557,7 @@
     <Content Include="App_application\main\crm\catalog\model.json" />
     <Content Include="App_application\main\crm\agent\model.json" />
     <Content Include="App_application\main\settings\integration\model.json" />
+    <Content Include="App_application\main\integration\delivery\novaposhta\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

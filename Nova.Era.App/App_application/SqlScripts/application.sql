@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 10.10.2022 21:07:19
+generated: 11.10.2022 19:23:28
 */
 
 
@@ -16263,6 +16263,21 @@ begin
 	*/
 
 	select [Result!TResult!Object] = null, [Success] = 1;
+end
+go
+
+
+-- integration
+------------------------------------------------
+create or alter procedure app.[Integration.Index]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Model!TModel!Array] = null, [Id!!Id] = null
 end
 go
 

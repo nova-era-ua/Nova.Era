@@ -59,6 +59,7 @@
 			"main/reports/plan/report.plan.sql",
 			"main/settings/develop/develop.sql",
 			"main/settings/develop/application.sql",
+			"main/settings/integration/integration.sql",
 			"main/_sql/admin.sql",
 			"main/_sql/initial_catalog.sql",
 			"main/_sql/initial_data.sql",
