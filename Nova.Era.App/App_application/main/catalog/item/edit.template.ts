@@ -15,7 +15,8 @@ const template: Template = {
 		'Item.Unit': '@[Error.Required]'
 	},
 	commands: {
-		addHierarchy
+		addHierarchy,
+		generateBarcode
 	},
 	delegates: {
 		fetchUnit
@@ -43,4 +44,8 @@ async function addHierarchy(elems) {
 function fetchUnit(item, text) {
 	if (!text) return [];
 	return this.$ctrl.$invoke('fetch', {Text: text}, '/catalog/unit');
+}
+
+function generateBarcode(item) {
+	//item.Barcode = '2222332333';
 }

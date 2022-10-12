@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 11.10.2022 19:23:28
+generated: 12.10.2022 08:32:57
 */
 
 
@@ -4866,6 +4866,20 @@ create table app.DashboardItems
 	constraint FK_DashboardItems_Widget_Widgets foreign key (TenantId, Widget) references app.Widgets(TenantId, Id)
 );
 go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Integrations')
+create table app.[Integrations]
+(
+	Id int not null
+		constraint PK_Integrations primary key,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+	[Icon] nvarchar(16),
+	[Url] nvarchar(255),
+	[Order] int,
+	[Category] nvarchar(16)
+);
+go
 
 -- MIGRATIONS
 ------------------------------------------------
@@ -5506,6 +5520,31 @@ begin
 		[Name], [Memo], Icon, [Url], Category
 	from a2ui.[Catalog]
 	where Menu = @Menu order by [Order];
+end
+go
+-------------------------------------------------
+-- Integrations
+begin
+	set nocount on;
+	declare @int table(Id int, [Name] nvarchar(255), [Order] int, 
+		Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
+	insert into @int (Id, [Order], [Category], [Name], [Url], Icon, Memo) values
+	-- delivery services
+	(1000, 1000, N'@[Int.Delivery]', N'Нова пошта',    N'/integration/delivery/novaposhta/index', N'list',  N'');
+
+	merge app.[Integrations] as t
+	using @int as s on t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.Category = s.Category,
+		t.Memo = s.Memo,
+		t.[Url] = s.[Url],
+		t.Icon = s.Icon
+	when not matched by target then insert
+		(Id, [Name], [Order], Category, Memo, [Url], Icon) values
+		(s.Id, s.[Name], [Order], Category, Memo, [Url], Icon)
+	when not matched by source then delete;
 end
 go
 
@@ -6636,7 +6675,7 @@ begin
 		and (@GroupId = -1 or @GroupId = ite.Parent or (@GroupId < 0 and i.Id not in (
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@GroupId /*hack:negative*/
 		)))
-		and (@stock is null or ir.IsStock = @stock)
+		and (@stock is null or isnull(ir.IsStock, 0) = @stock)
 		and (@fr is null or i.[Name] like @fr or i.Memo like @fr or Article like @fr or ir.[Name] like @fr or Barcode like @fr)
 	group by i.Id, i.Unit, i.[Name], i.Article, i.Barcode, i.Memo, i.[Role], ir.[Name]
 	order by 
@@ -15524,6 +15563,7 @@ begin
 	delete from acc.Accounts where TenantId = @TenantId;
 	delete from doc.AutonumValues where TenantId = @TenantId;
 	delete from doc.Autonums where TenantId = @TenantId;
+	delete from cat.Units where TenantId = @TenantId;
 	commit tran;
 
 
@@ -15570,10 +15610,13 @@ begin
 		(@TenantId, 31, 10, 61, 301, 70),
 		(@TenantId, 32, 10, 62, 311, 70);
 
-	insert into cat.Items(TenantId, Id, [Name], [Role]) 
+	insert into cat.Units (TenantId, Id, Short, CodeUA, [Name])
+		select @TenantId, Id, Short, CodeUA, [Name] from cat.Units where TenantId = 0 and Id in (20, 27);
+
+	insert into cat.Items(TenantId, Id, [Name], [Role], Unit) 
 	values
-		(@TenantId, 20, N'Товар №1', 50),
-		(@TenantId, 21, N'Послуга №1', 51);
+		(@TenantId, 20, N'Товар №1', 50, 20),
+		(@TenantId, 21, N'Послуга №1', 51, 27);
 
 	insert into doc.Autonums(TenantId, Id, [Name], [Period], Pattern, [Uid]) 
 	values
@@ -16271,16 +16314,19 @@ go
 ------------------------------------------------
 create or alter procedure app.[Integration.Index]
 @TenantId int = 1,
-@UserId bigint
+@UserId bigint,
+@Mobile bit = 0
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Model!TModel!Array] = null, [Id!!Id] = null
+	select [Integration!TIntegration!Array] = null, [Id!!Id] = Id,
+		[Name], [Memo], Icon, [Url], Category
+	from app.Integrations
+	order by [Order]
 end
 go
-
 
 /*
 admin

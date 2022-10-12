@@ -56,8 +56,9 @@
 					<Badge Content="{Bind Document.ServiceRows.Count}" CssClass="badge-doc"/>
 				</Text>
 			</TabButton>
+			<TabButton Content="@[Delivery]" ActiveValue="delivery"/>
+			<TabButton Content="@[Tasks]" ActiveValue="tasks"/>
 			<!--
-			<TabButton Content="Доставка" ActiveValue="2"/>
 			<TabButton Content="Оплати" ActiveValue="3"/>
 			<TabButton Content="Додатково" ActiveValue="4"/>
 			-->
@@ -157,8 +158,10 @@
 					</Table.Footer>
 				</Table>
 			</Case>
+			<Case Value="delivery">
+			</Case>
 		</Switch>
-		<Grid Columns="Auto, 1*, Auto, 12rem" AlignItems="Top" Gap="1rem">
+		<Grid Grid.Row="6" Columns="Auto, 1*, Auto, 12rem" AlignItems="Top" Gap="1rem">
 			<Label Grid.Col="1" Content="@[Memo]" Grid.VAlign="Top"/>
 			<TextBox Grid.Col="2" Value="{Bind Document.Memo}" Multiline="True" Rows="3"/>
 			<Label Grid.Col="3" CssClass="grid-label">Всього по документу</Label>

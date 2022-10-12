@@ -47,8 +47,8 @@ async function priceKindChange(doc) {
 	if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty) return;
 
 	const ctrl: IController = this.$ctrl;
-	if (!await ctrl.$confirm('Тип ціни змінився. Оновити ціни в документі?'))
-		return;
+	//if (!await ctrl.$confirm('Тип ціни змінився. Оновити ціни в документі?'))
+		//return;
 	priceChange.call(this, doc);
 }
 

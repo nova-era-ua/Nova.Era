@@ -23,7 +23,11 @@
 				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 			</ComboBox>
 			<TextBox Grid.Row="3" Grid.Col="1" Label="@[Article]" Value="{Bind Item.Article}" UpdateTrigger="Input"/>
-			<TextBox Grid.Row="3" Grid.Col="2" Label="@[Barcode]" Value="{Bind Item.Barcode}" UpdateTrigger="Input"/>
+			<TextBox Grid.Row="3" Grid.Col="2" Label="@[Barcode]" Value="{Bind Item.Barcode}" UpdateTrigger="Input">
+				<TextBox.Link>
+					<Hyperlink Content="@[Generate]" Command="{BindCmd Execute, CommandName=generateBarcode, Argument={Bind Item}}"/>
+				</TextBox.Link>
+			</TextBox>
 		</Grid>
 		<TabBar Grid.Row="2" Value="{Bind Root.$$Tab}">
 			<TabButton Content="Групування" ActiveValue=""/>

@@ -43,8 +43,6 @@ define(["require", "exports"], function (require, exports) {
         if (doc.StockRows.$isEmpty && doc.ServiceRows.$isEmpty)
             return;
         const ctrl = this.$ctrl;
-        if (!await ctrl.$confirm('Тип ціни змінився. Оновити ціни в документі?'))
-            return;
         priceChange.call(this, doc);
     }
     async function priceChange(doc) {

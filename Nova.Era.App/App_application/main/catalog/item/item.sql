@@ -680,7 +680,7 @@ begin
 		and (@GroupId = -1 or @GroupId = ite.Parent or (@GroupId < 0 and i.Id not in (
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@GroupId /*hack:negative*/
 		)))
-		and (@stock is null or ir.IsStock = @stock)
+		and (@stock is null or isnull(ir.IsStock, 0) = @stock)
 		and (@fr is null or i.[Name] like @fr or i.Memo like @fr or Article like @fr or ir.[Name] like @fr or Barcode like @fr)
 	group by i.Id, i.Unit, i.[Name], i.Article, i.Barcode, i.Memo, i.[Role], ir.[Name]
 	order by 

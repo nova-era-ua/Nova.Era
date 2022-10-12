@@ -15,7 +15,8 @@ define(["require", "exports"], function (require, exports) {
             'Item.Unit': '@[Error.Required]'
         },
         commands: {
-            addHierarchy
+            addHierarchy,
+            generateBarcode
         },
         delegates: {
             fetchUnit
@@ -39,5 +40,7 @@ define(["require", "exports"], function (require, exports) {
         if (!text)
             return [];
         return this.$ctrl.$invoke('fetch', { Text: text }, '/catalog/unit');
+    }
+    function generateBarcode(item) {
     }
 });

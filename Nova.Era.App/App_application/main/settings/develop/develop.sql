@@ -38,6 +38,7 @@ begin
 	delete from acc.Accounts where TenantId = @TenantId;
 	delete from doc.AutonumValues where TenantId = @TenantId;
 	delete from doc.Autonums where TenantId = @TenantId;
+	delete from cat.Units where TenantId = @TenantId;
 	commit tran;
 
 
@@ -84,10 +85,13 @@ begin
 		(@TenantId, 31, 10, 61, 301, 70),
 		(@TenantId, 32, 10, 62, 311, 70);
 
-	insert into cat.Items(TenantId, Id, [Name], [Role]) 
+	insert into cat.Units (TenantId, Id, Short, CodeUA, [Name])
+		select @TenantId, Id, Short, CodeUA, [Name] from cat.Units where TenantId = 0 and Id in (20, 27);
+
+	insert into cat.Items(TenantId, Id, [Name], [Role], Unit) 
 	values
-		(@TenantId, 20, N'Товар №1', 50),
-		(@TenantId, 21, N'Послуга №1', 51);
+		(@TenantId, 20, N'Товар №1', 50, 20),
+		(@TenantId, 21, N'Послуга №1', 51, 27);
 
 	insert into doc.Autonums(TenantId, Id, [Name], [Period], Pattern, [Uid]) 
 	values

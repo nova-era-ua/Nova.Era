@@ -43,6 +43,7 @@
 @Departments=Підрозділи
 @WarehouseFrom=Склад звідки
 @WarehouseTo=Склад куди
+@Delivery=Доставка
 @Journal=Журнал
 @Journals=Журнали
 @Operation=Операція
@@ -50,6 +51,8 @@
 @CatalogOther=Інші довідники
 @Report=Звіт
 @Reports=Звіти
+@Task=Задача
+@Tasks=Задачі
 @Service=Сервіс
 @Planning=Планування
 @Prices=Ціни
@@ -70,6 +73,7 @@
 @WithoutGroup=<Не в групах>
 @ItemCategory=Категорії об'єктів обліку
 @HasPrice=Включати в прайс лист
+@Generate=Згенерувати
 ;
 @Id=Id
 @QtyS=К-ть
