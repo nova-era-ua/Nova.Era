@@ -32,7 +32,11 @@ define(["require", "exports"], function (require, exports) {
             'Document.ServiceRows[].Item.Article.change': articleChange,
             'Document.ServiceRows[].Item.Barcode.change': barcodeChange
         },
-        commands: {}
+        commands: {},
+        delegates: {
+            itemBrowsePrice,
+            itemBrowseService
+        }
     };
     exports.default = utils.mergeTemplate(base, template);
     function docSum() {
@@ -109,5 +113,17 @@ define(["require", "exports"], function (require, exports) {
             newrow.Item.$merge(itm);
             newrow.Qty = 1;
         }
+    }
+    function itemBrowsePrice(item, text) {
+        let ctrl = this.$ctrl;
+        let arg = this.$root.$BrowseStockArg;
+        arg.Text = text;
+        return ctrl.$invoke('fetchprice', arg, '/catalog/item');
+    }
+    function itemBrowseService(item, text) {
+        let ctrl = this.$ctrl;
+        let arg = this.$root.$BrowseServiceArg;
+        arg.Text = text;
+        return ctrl.$invoke('fetchprice', arg, '/catalog/item');
     }
 });

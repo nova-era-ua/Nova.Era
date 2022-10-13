@@ -33,10 +33,6 @@ const template: Template = {
 	},
 	commands: {
 		reloadRems
-	},
-	delegates: {
-		itemBrowsePrice,
-		itemBrowseService
 	}
 };
 
@@ -136,24 +132,6 @@ async function priceOrRemChange(doc) {
 		let rem = result.Rems.find(p => p.Item === row.Item.Id && p.Role === row.ItemRole.Id);
 		row.Rem = rem?.Rem || 0;
 	});
-}
-
-// #endregion
-
-// #region delegates
-
-function itemBrowsePrice(item, text) {
-	let ctrl: IController = this.$ctrl;
-	let arg = this.$root.$BrowseStockArg;
-	arg.Text = text;
-	return ctrl.$invoke('fetchprice', arg, '/catalog/item');
-}
-
-function itemBrowseService(item, text) {
-	let ctrl: IController = this.$ctrl;
-	let arg = this.$root.$BrowseServiceArg;
-	arg.Text = text;
-	return ctrl.$invoke('fetchprice', arg, '/catalog/item');
 }
 
 // #endregion

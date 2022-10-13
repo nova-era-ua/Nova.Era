@@ -37,6 +37,10 @@ const template: Template = {
 		'Document.ServiceRows[].Item.Barcode.change': barcodeChange
 	},
 	commands: {
+	},
+	delegates: {
+		itemBrowsePrice,
+		itemBrowseService
 	}
 };
 
@@ -124,6 +128,24 @@ async function scanBarcode(root, val) {
 		newrow.Item.$merge(itm);
 		newrow.Qty = 1;
 	}
+}
+
+// #endregion
+
+// #region delegates
+
+function itemBrowsePrice(item, text) {
+	let ctrl: IController = this.$ctrl;
+	let arg = this.$root.$BrowseStockArg;
+	arg.Text = text;
+	return ctrl.$invoke('fetchprice', arg, '/catalog/item');
+}
+
+function itemBrowseService(item, text) {
+	let ctrl: IController = this.$ctrl;
+	let arg = this.$root.$BrowseServiceArg;
+	arg.Text = text;
+	return ctrl.$invoke('fetchprice', arg, '/catalog/item');
 }
 
 // #endregion

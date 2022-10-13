@@ -11,6 +11,36 @@
 			</DataGrid>
 		</SelectorSimple.ItemsPanel>
 	</SelectorSimple>
+
+	<Selector x:Key="SelectStockItem" Value="{Bind Item}" DisplayProperty="Name" Delegate="itemBrowsePrice"
+								  ListSize="40rem,16rem">
+		<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browseprice', 
+								Data={Bind Root.$BrowseStockArg}}"/>
+		<Selector.ItemsPanel>
+			<DataGrid XamlStyle="{StyleResource DataGridPanel}" HeadersVisibility="Column">
+				<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+				<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap" Align="Center"/>
+				<DataGridColumn Header="@[Rem]" Content="{Bind Rem, DataType=Number, HideZeros=True, NegativeRed=True}" Align="Right" Role="Number"/>
+				<DataGridColumn Header="@[Price]" Content="{Bind Price, DataType=Currency, HideZeros=True}" Align="Right" Role="Number" Width="7rem"/>
+			</DataGrid>
+		</Selector.ItemsPanel>
+	</Selector>
+
+	<Selector x:Key="SelectServiceItem" Value="{Bind Item}" DisplayProperty="Name" 
+			Delegate="itemBrowseService" ListSize="40rem,16rem">
+		<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
+								Url='/catalog/item/browseprice', Data={Bind Root.$BrowseServiceArg}}"/>
+		<Selector.ItemsPanel>
+			<DataGrid XamlStyle="{StyleResource DataGridPanel}" HeadersVisibility="Column">
+				<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+				<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" Fit="True" Wrap="NoWrap" Align="Center"/>
+				<DataGridColumn Header="@[Price]" Content="{Bind Price, DataType=Currency, HideZeros=True}" Align="Right" Role="Number" Width="7rem"/>
+			</DataGrid>
+		</Selector.ItemsPanel>
+	</Selector>
+
 	<Group x:Key="TopBar">
 		<Button Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
 		<Button If="{Bind !Document.Done}"

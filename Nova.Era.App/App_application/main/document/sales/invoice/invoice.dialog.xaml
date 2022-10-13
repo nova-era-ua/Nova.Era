@@ -89,15 +89,14 @@
 					<TableRow>
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
-						<Selector Value="{Bind Item}" DisplayProperty="Name">
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, Url='/catalog/item/browseprice',
-								Data ={Bind Root.$BrowseStockArg}}"/>
-						</Selector>
+						<TableCell CssClass="ctrl">
+							<Component Name="SelectStockItem"/>
+						</TableCell>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
 						<TextBox Value="{Bind Sum, DataType=Currency}" Align="Right"/>
-						<Hyperlink Icon="Clear" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
+						<Hyperlink Content="✕" Command="{BindCmd Remove, Argument={Bind}}" Size="Small"/>
 					</TableRow>
 					<Table.Footer>
 						<TableRow>
@@ -115,9 +114,7 @@
 					<ToolbarAligner/>
 					<Label Content="@[PriceKind]" Margin="0,.5rem,0,0"/>
 					<Selector Value="{Bind Document.PriceKind}" DisplayProperty="Name">
-						<Selector.AddOns>
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
-						</Selector.AddOns>
+						<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.PriceKind}, Url='/catalog/pricekind/browse'}"/>
 					</Selector>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.ServiceRows}" 
@@ -138,10 +135,9 @@
 					<TableRow>
 						<TableCell Content="{Bind RowNo}"/>
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap"/>
-						<Selector Value="{Bind Item}" DisplayProperty="Name">
-							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
-								Url='/catalog/item/browseprice', Data={Bind Root.$BrowseServiceArg}}"/>
-						</Selector>
+						<TableCell CssClass="ctrl">
+							<Component Name="SelectServiceItem" />
+						</TableCell>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<TextBox Value="{Bind Qty, DataType=Number}" Align="Right"/>
 						<TextBox Value="{Bind Price, DataType=Currency}" Align="Right"/>
