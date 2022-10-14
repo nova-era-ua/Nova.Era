@@ -10,18 +10,21 @@
 		"browse": {
 			"index": true,
 			"model": "CashAccount.Simple",
+			"template": "browse.template",
 			"view": "browse.dialog"
 		},
 		"browseall": {
 			"index": true,
 			"model": "CashAccount.Simple",
-			"view": "browse.dialog",
-			"parameters": {
-				"Mode": "All"
-			}
+			"template": "browse.template",
+			"view": "browseall.dialog"
 		}
 	},
 	"commands": {
+		"fetchall": {
+			"type": "sql",
+			"procedure": "CashAccount.Fetch.Simple"
+		},
 		"getRem": {
 			"type": "sql",
 			"procedure": "CashAccount.GetRem"

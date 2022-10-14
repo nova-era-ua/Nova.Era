@@ -11,6 +11,7 @@ define(["require", "exports"], function (require, exports) {
             'TDocument.$No'() { return this.SNo || this.No; },
             'TDocument.$Mark'() { return this.Done ? 'green' : undefined; },
             'TDocBase.$ShortName': docBaseName,
+            'TDocBase.$Icon'() { return this.Done ? 'success-green' : 'warning-yellow'; },
             'TDocBase.$EditUrl'() { return `${this.DocumentUrl}/edit`; },
         },
         events: {

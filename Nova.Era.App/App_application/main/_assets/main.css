@@ -128,6 +128,15 @@ table.fixed-layout {
 .linked-list .a2-list-item.group:hover {
   background-color: transparent !important;
 }
+.hlink-in-grid {
+  gap: 0;
+}
+.nowrap-ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 1px;
+}
 .control-group.no-wrap .input-group.static > span.static-input {
   overflow: hidden;
   text-overflow: ellipsis;

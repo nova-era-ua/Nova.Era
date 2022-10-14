@@ -29,9 +29,7 @@
 			<Span />
 			<Label Content="@[Company]"></Label>
 			<Selector Label="" Value="{Bind Document.Company}" DisplayProperty="Name" Fetch="/catalog/company/fetch">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
-				</Selector.AddOns>
+				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Company}, Url='/catalog/company/browse'}"/>
 			</Selector>
 		</Grid>
 		<Grid Columns="Auto,22rem,Auto,22rem,1*, Auto,22rem" Gap="1rem">

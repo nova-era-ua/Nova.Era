@@ -8,7 +8,8 @@
       "template": "../../document/pay.index.template",
       "view": "../../document/pay.index.view",
       "parameters": {
-        "Menu": "Accounting.Cash"
+        "Menu": "Accounting.Cash",
+        "AccMode": "Cash"
       }
     }
   }

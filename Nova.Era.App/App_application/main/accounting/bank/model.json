@@ -7,9 +7,10 @@
       "index": true,
       "template": "../../document/pay.index.template",
       "view": "../../document/pay.index.view",
-      "parameters": {
-        "Menu": "Accounting.Bank"
-      }
+        "parameters": {
+            "Menu": "Accounting.Bank",
+            "AccMode": "Bank"
+        }
     }
   }
 }

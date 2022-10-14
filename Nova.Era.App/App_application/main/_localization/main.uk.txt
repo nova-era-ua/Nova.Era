@@ -219,6 +219,7 @@
 @Browse.Account=Вибір рахунку
 @Browse.BankAccount=Вибір рахунку в банку
 @Browse.CashAccount=Вибір каси
+@Browse.CashAccountAll=Вибір рахунку/каси
 @Browse.Currency=Вибір валюти
 @Browse.Currencies=Вибір валют
 @Browse.Contract=Вибір договору

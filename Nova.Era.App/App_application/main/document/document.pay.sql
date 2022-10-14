@@ -4,6 +4,7 @@ create or alter procedure doc.[Document.Pay.Index]
 @TenantId int = 1,
 @UserId bigint,
 @Menu nvarchar(255),
+@AccMode nvarchar(16) = N'All',
 @Offset int = 0,
 @PageSize int = 20,
 @Order nvarchar(255) = N'date',
@@ -136,6 +137,9 @@ begin
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
 	where o.TenantId = @TenantId and ml.Menu = @Menu
 	order by f.[Order];
+
+	-- params
+	select [Params!TParam!Object] = null, [Menu] = @Menu, AccMode = @AccMode;
 
 	-- filters
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, null, [!Order] = -1

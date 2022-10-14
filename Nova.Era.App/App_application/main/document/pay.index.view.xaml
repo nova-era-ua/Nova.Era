@@ -40,12 +40,12 @@
 			</DataGridColumn>
 			<DataGridColumn Header="@[Operation]" Content="{Bind Operation.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
-			<DataGridColumn Header="@[Label.Cash.Account]" Content="{Bind $CashAccount}" Sort="False"/>
+			<DataGridColumn Header="{Bind Root.$CashAccLabel}" Content="{Bind $CashAccount}" Sort="False"/>
 			<DataGridColumn Header="@[Agent]" Sort="False">
 				<Span Content="{Bind Agent.Name}" MaxChars="50" Tip="{Bind Agent.Name}"/>
 			</DataGridColumn>
 			<DataGridColumn Header="@[Order]" Wrap="NoWrap" Fit="True">
-				<Hyperlink If="{Bind BaseDoc.Id}" Content="{Bind BaseDoc.$ShortName}"
+				<Hyperlink CssClass="hlink-in-grid" Icon="{Bind BaseDoc.$Icon}" If="{Bind BaseDoc.Id}" Content="{Bind BaseDoc.$ShortName}"
 						   Command="{BindCmd Dialog, Action=Show, Argument={Bind BaseDoc}, Url={Bind BaseDoc.$EditUrl}}"/>
 			</DataGridColumn>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
@@ -73,8 +73,11 @@
 			<SelectorSimple Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
 					  Value="{Bind Parent.Filter.Agent}" Url="/catalog/agent" ShowClear="True"/>
 
-			<SelectorSimple Label="@[Label.Cash.Account]"  Placeholder="@[Placeholder.AllCashAccounts]"
-					  Value="{Bind Parent.Filter.CashAccount}" Url="/catalog/cashaccount" ShowClear="True"/>
+			<Selector Label="{Bind Root.$CashAccLabel}"  Placeholder="@[Placeholder.AllCashAccounts]"
+					  Value="{Bind Parent.Filter.CashAccount}" ShowClear="True" DisplayProperty="Name"
+					  Delegate="browseCashDelegate">
+				<Hyperlink Icon="Search" Command="{BindCmd Execute, CommandName=browseCashAccount, Argument={Bind Parent.Filter}}"/>
+			</Selector>
 
 		</Taskpad>
 	</Page.Taskpad>
