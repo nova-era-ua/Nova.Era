@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1014
-generated: 15.10.2022 08:51:38
+generated: 15.10.2022 16:00:22
 */
 
 
@@ -21,6 +21,7 @@ begin
 	exec ini.[Widgets.OnCreateTenant] @TenantId = @TenantId;
 	exec ini.[Contract.OnCreateTenant] @TenantId = @TenantId;
 	exec ini.[Operation.OnCreateTenant] @TenantId = @TenantId;
+	exec ini.[Crm.OnCreateTenant] @TenantId = @TenantId;
 end
 go
 -------------------------------------------------

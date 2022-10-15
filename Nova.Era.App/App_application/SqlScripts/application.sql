@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 15.10.2022 08:51:38
+generated: 15.10.2022 16:00:22
 */
 
 
@@ -3936,9 +3936,12 @@ create table cat.Contacts
 		constraint DF_Contacts_Void default(0),
 	[Name] nvarchar(255),
 	[Position] nvarchar(255),
-	Gender nchar(1),
+	Gender nchar(1), -- F/M/U
 	Birthday date,
 	Country nchar(3),
+	Email nvarchar(64),
+	Phone nvarchar(32),	
+	[Address] nvarchar(255), 
 	[Memo] nvarchar(255),
 	UserCreated bigint not null,
 	UtcDateCreated datetime not null 
@@ -4024,6 +4027,7 @@ create table crm.LeadStages (
 	Void bit not null 
 		constraint DF_LeadStages_Void default(0),
 	[Order] int,
+	[Kind] nchar(1), -- (I)nit, (P)rocess, [S]uccess, F(ail)
 	[Name] nvarchar(255),
 	[Color] nvarchar(32),
 	[Memo] nvarchar(255),
@@ -4174,7 +4178,7 @@ create table doc.FormsMenu
 	[Category] nvarchar(32),
 	[Order] int,
 	[Memo] nvarchar(255),
-		constraint PK_FormsMenu primary key (TenantId, Id)
+	constraint PK_FormsMenu primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4189,7 +4193,8 @@ create table doc.Forms
 	[Memo] nvarchar(255),
 	Category nvarchar(255),
 	InOut smallint,
-		constraint PK_Forms primary key (TenantId, Id)
+	HasState bit,
+	constraint PK_Forms primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4216,10 +4221,31 @@ create table doc.FormRowKinds
 	Form nvarchar(16) not null,
 	[Order] int,
 	[Name] nvarchar(255),
-		constraint PK_FormRowKinds primary key (TenantId, Form, Id),
-		constraint FK_FormRowKinds_Form_Forms foreign key (TenantId, [Form]) references doc.Forms(TenantId, Id)
+	constraint PK_FormRowKinds primary key (TenantId, Form, Id),
+	constraint FK_FormRowKinds_Form_Forms foreign key (TenantId, [Form]) references doc.Forms(TenantId, Id)
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_DocStates')
+	create sequence doc.SQ_DocStates as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocStates')
+create table doc.DocStates (
+	TenantId int not null,
+	[Id] bigint not null
+		constraint DF_DocStates_Id default(next value for doc.SQ_DocStates),
+	Form nvarchar(16) not null,
+	Void bit not null 
+		constraint DF_DocStates_Void default(0),
+	[Order] int,
+	[Kind] nchar(1), -- (I)nit, (P)rocess, [S]uccess, C(ancel)
+	[Name] nvarchar(255),
+	[Color] nvarchar(32),
+	[Memo] nvarchar(255),
+	constraint PK_DocStates primary key (TenantId, [Id]),
+	constraint FK_DocStates_Form_Forms foreign key (TenantId, [Form]) references doc.Forms(TenantId, Id)
+);
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationKinds')
 create table doc.OperationKinds
@@ -4429,6 +4455,7 @@ create table doc.Documents
 	[Parent] bigint,
 	[Base] bigint,
 	OpLink bigint,
+	[State] bigint,
 	BindKind nvarchar(16),
 	BindFactor smallint,
 	Company bigint null,
@@ -4470,7 +4497,8 @@ create table doc.Documents
 	constraint FK_Documents_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
 	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
 	constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id),
-	constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
+	constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+	constraint FK_Documents_State_DocStates foreign key (TenantId, [State]) references doc.DocStates(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -4883,19 +4911,6 @@ go
 
 -- MIGRATIONS
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Operations' and COLUMN_NAME=N'DocumentUrl')
-	alter table doc.Operations add DocumentUrl nvarchar(255) null;
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Forms' and COLUMN_NAME=N'Url')
-	alter table doc.Forms add [Url] nvarchar(255);
-go
-------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocDetails' and COLUMN_NAME=N'FQty')
-	alter table doc.DocDetails add FQty float not null
-		constraint DF_DocDetails_FQty default(0) with values;
-go
-------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Countries' and COLUMN_NAME=N'Alpha3')
 	alter table cat.Countries add [Alpha3] nchar(3);
 go
@@ -5054,6 +5069,29 @@ go
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'crm' and TABLE_NAME=N'LeadStages' and COLUMN_NAME=N'Memo')
 	alter table crm.LeadStages add [Memo] nvarchar(255);
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'crm' and TABLE_NAME=N'LeadStages' and COLUMN_NAME=N'Kind')
+	alter table crm.LeadStages add [Kind] nchar(1);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Contacts' and COLUMN_NAME=N'Email')
+begin
+	alter table cat.Contacts add Email nvarchar(64);
+	alter table cat.Contacts add Phone nvarchar(32);
+	alter table cat.Contacts add [Address] nvarchar(255);
+end
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Forms' and COLUMN_NAME=N'HasState')
+	alter table doc.Forms add HasState bit;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'Documents' and COLUMN_NAME=N'State')
+	alter table doc.Documents add [State] bigint,
+		constraint FK_Documents_State_DocStates foreign key (TenantId, [State]) references doc.DocStates(TenantId, Id);
+go
+
+
 
 /*
 common
@@ -5479,6 +5517,7 @@ begin
 	(910, N'Settings',  10, N'@[Accounts]',  N'@[ItemRoles]',   N'/catalog/itemrole/index', N'list',  N''),
 	(911, N'Settings',  11, N'@[Accounts]',  N'@[AccKinds]',    N'/catalog/acckind/index', N'list',  N''),
 	(915, N'Settings',  12, N'@[Documents]', N'@[Autonums]',    N'/catalog/autonum/index', N'list',  N''),
+	(916, N'Settings',  13, N'@[Documents]', N'@[DocStates]',   N'/catalog/docstate/index', N'list',  N''),
 	(920, N'Settings',  21, N'@[Accounting]', N'@[Banks]',         N'/catalog/bank/index', N'list',  N''),
 	(922, N'Settings',  23, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
 	(923, N'Settings',  24, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
@@ -7939,7 +7978,8 @@ begin
 		count(*) over()
 	from cat.Contacts c
 	where c.TenantId = @TenantId and c.Void = 0
-		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
+		and (@fr is null or c.[Name] like @fr or c.Memo like @fr or Email like @fr or 
+		Phone like @fr or [Address] like @fr)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -7952,19 +7992,29 @@ begin
 				when N'name' then c.[Name]
 				when N'memo' then c.[Memo]
 			end
+		end desc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'datecreated' then c.UtcDateCreated
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'datecreated' then c.UtcDateCreated
+			end
 		end desc
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
 	select [Contacts!TContact!Array] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Memo],
-		c.Birthday, c.Gender, c.Position,
-		[!!RowCount] = t.rowcnt
+		c.Birthday, c.Gender, c.Position, c.Phone, c.Email, c.[Address],
+		[!!RowCount] = t.rowcnt, [DateCreated!!UTC] = UtcDateCreated
 	from @cnts t inner join 
 		cat.Contacts c on c.TenantId = @TenantId and c.Id = t.id
 	order by t.rowno;
 
 	-- maps
-	exec cat.[Contact.Maps] @TenantId, @cnts;
+	--exec cat.[Contact.Maps] @TenantId, @cnts;
 
 	select [!$System!] = null, [!Contacts!Offset] = @Offset, [!Contacts!PageSize] = @PageSize, 
 		[!Contacts!SortOrder] = @Order, [!Contacts!SortDir] = @Dir,
@@ -7984,10 +8034,14 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Contact!TContact!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo,
-		c.Position, c.Birthday
+		c.Position, c.Birthday, c.Phone, c.Email, c.[Address],
+		[Leads!TLead!Array] = null
 	from cat.Contacts c
 	where c.TenantId = @TenantId and c.Id = @Id;
 
+	select [!TLead!Array] = null, [Id!!Id] = l.Id, [Name!!Name] = l.[Name],
+		[!TContact.Leads!ParentId] = l.Contact
+	from crm.Leads l where l.Contact = @Id;
 end
 go
 -------------------------------------------------
@@ -8004,7 +8058,10 @@ as table(
 	[Position] nvarchar(255),
 	Gender nchar(1),
 	Birthday date,
-	Country nchar(3)
+	Country nchar(3),
+	Email nvarchar(64),
+	Phone nvarchar(32),
+	[Address] nvarchar(255)
 )
 go
 ------------------------------------------------
@@ -8037,12 +8094,16 @@ begin
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
 		t.Position = s.Position,
+		t.Gender = s.Gender,
+		t.Phone = s.Phone,
+		t.Email = s.Email,
+		t.[Address] = s.[Address],
 		t.UtcDateModified = getutcdate(),
 		t.UserModified = @UserId
 	when not matched by target then insert
-		(TenantId, [Name], Memo, Position, 
+		(TenantId, [Name], Memo, Position, Gender, Email, Phone, [Address],
 			UserCreated, UserModified, UtcDateModified) values
-		(@TenantId, s.[Name], s.Memo, Position,
+		(@TenantId, s.[Name], s.Memo, Position, Gender, Email, Phone, [Address],
 		    @UserId, @UserId, getutcdate())
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
@@ -10778,6 +10839,103 @@ end
 go
 
 
+/* ACCOUNT KIND */
+drop procedure if exists doc.[DocState.Metadata];
+drop procedure if exists doc.[DocState.Update];
+drop type if exists doc.[DocState.TableType];
+go
+------------------------------------------------
+create type doc.[DocState.TableType] as table
+(
+	Id nvarchar(32),
+	[Name] nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure doc.[DocState.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id nvarchar(32) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Forms!TForm!Array] = null,
+		[Id!!Id] = f.Id, [Name!!Name] = f.[Name], f.Memo,
+		[States!TState!Array] = null
+	from doc.Forms f
+	where f.TenantId = @TenantId and f.HasState = 1
+	order by f.[Order];
+
+	select [!TState!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color,
+		[!TForm.States!ParentId] = ds.Form
+	from doc.DocStates ds
+	where ds.TenantId = @TenantId and ds.Void = 0
+	order by ds.[Order]
+end
+go
+------------------------------------------------
+create or alter procedure doc.[DocState.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id nvarchar(32) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Form!TForm!Object] = null, [Id!!Id] = an.Id, [Name!!Name] = an.[Name], an.Memo,
+		[States!TState!Array] = null
+	from doc.Forms an
+	where an.TenantId = @TenantId and an.Id = @Id;
+
+	select [!TState!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color,
+		[!TForm.States!ParentId] = ds.Form
+	from doc.DocStates ds
+	where ds.TenantId = @TenantId and ds.Void = 0 and ds.Form = @Id
+	order by ds.[Order]
+end
+go
+---------------------------------------------
+create or alter procedure doc.[DocState.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @DocState doc.[DocState.TableType];
+	select [DocState!DocState!Metadata] = null, * from @DocState;
+end
+go
+---------------------------------------------
+create or alter procedure doc.[DocState.Update]
+@TenantId int = 1,
+@UserId bigint,
+@DocState doc.[DocState.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+	
+	declare @output  table (op sysname, id bigint);
+	declare @id bigint;
+
+	merge doc.DocStates as t
+	using @DocState as s on (t.TenantId = @TenantId and t.Id = s.Id)
+	when matched then update set
+		t.[Name] = s.[Name]
+	when not matched by target then insert
+		(TenantId, [Name]) values
+		(@TenantId, [Name])
+	output $action, inserted.Id into @output (op, id);
+
+	select top(1) @id = id from @output;
+	exec doc.[DocState.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
+end
+go
+
 /* LeadStage */
 drop procedure if exists crm.[LeadStage.Metadata];
 drop procedure if exists crm.[LeadStage.Update];
@@ -10791,7 +10949,8 @@ create type crm.[LeadStage.TableType] as table
 	[Name] nvarchar(255),
 	[Color] nvarchar(32),
 	[Memo] nvarchar(255),
-	[Order] int
+	[Order] int,
+	[Kind] nchar(1)
 )
 go
 ------------------------------------------------
@@ -10806,7 +10965,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Stages!TStage!Array] = null,
-		[Id!!Id] = ls.Id, [Name!!Name] = ls.[Name], ls.Color, ls.[Order], ls.Memo
+		[Id!!Id] = ls.Id, [Name!!Name] = ls.[Name], ls.Color, ls.[Order], ls.Memo, ls.Kind
 	from crm.LeadStages ls
 	where ls.TenantId = @TenantId and ls.Void = 0
 	order by ls.[Order];
@@ -10823,7 +10982,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Stage!TStage!Object] = null,
-		[Id!!Id] = ls.Id, [Name!!Name] = ls.[Name], ls.Color, ls.[Order], ls.Memo
+		[Id!!Id] = ls.Id, [Name!!Name] = ls.[Name], ls.Color, ls.[Order], ls.Memo, ls.Kind
 	from crm.LeadStages ls
 	where ls.TenantId = @TenantId and ls.Id = @Id;
 
@@ -10863,10 +11022,11 @@ begin
 		t.[Name] = s.[Name], 
 		t.Color = s.Color,
 		t.Memo = s.Memo,
-		t.[Order] = s.[Order]
+		t.[Order] = s.[Order],
+		t.Kind = s.Kind
 	when not matched by target then insert
-		(TenantId, [Name], Color, Memo, [Order]) values
-		(@TenantId, s.[Name], s.Color, s.Memo, s.[Order])
+		(TenantId, [Name], Color, Memo, [Order], Kind) values
+		(@TenantId, s.[Name], s.Color, s.Memo, s.[Order],s.Kind)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -10884,6 +11044,10 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
+	if @Id < 100
+		throw 60000, N'UI:@[Error.Delete.System]', 0;
+	if exists(select * from crm.Leads where Stage = @Id)
+		throw 60000, N'UI:@[Error.Delete.Used]', 0;
 	update crm.LeadStages set Void = 1 where TenantId = @TenantId and Id=@Id;
 end
 go
@@ -11044,7 +11208,8 @@ begin
 			inner join T on T.Id = a.Parent and a.TenantId = @TenantId and a.Void = 0
 		where a.TenantId = @TenantId
 	)
-	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder, [InitExpand!!Expanded] = 1,
+	select [Accounts!TAccount!Tree] = null, [Id!!Id] = T.Id, a.Code, a.[Name], a.[Plan], a.IsFolder, 
+		[InitExpand!!Expanded] = case when T.[Level] < 1 then 1 else 0 end,
 		[Items!TAccount!Items] = null, [!TAccount.Items!ParentId] = T.Parent,
 		[Documents!TDocument!LazyArray] = null
 	from T inner join acc.Accounts a on a.Id = T.Id and a.TenantId = @TenantId
@@ -12353,7 +12518,8 @@ as table(
 	Project bigint,
 	CostItem bigint,
 	ItemRole bigint,
-	Memo nvarchar(255)
+	Memo nvarchar(255),
+	[State] bigint
 )
 go
 ------------------------------------------------
@@ -12490,12 +12656,13 @@ begin
 		t.ItemRole = s.ItemRole,
 		t.Memo = s.Memo,
 		t.SNo = s.SNo,
-		t.[No] = @no
+		t.[No] = @no,
+		t.[State] = s.[State]
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
-			PriceKind, RespCenter, Project, CostItem, ItemRole, Memo, SNo, [No], UserCreated) values
+			PriceKind, RespCenter, Project, CostItem, ItemRole, Memo, SNo, [No], [State], UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
-			s.PriceKind, s.RespCenter, s.Project, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, @UserId)
+			s.PriceKind, s.RespCenter, s.Project, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, s.[State], @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 
@@ -12888,7 +13055,8 @@ create or alter procedure doc.[Document.Order.Index]
 @Warehouse bigint = null,
 @Company bigint = null,
 @From date = null,
-@To date = null
+@To date = null,
+@State nvarchar(1) = N'W'
 as
 begin
 	set nocount on;
@@ -12912,12 +13080,14 @@ begin
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and d.Operation = ml.Operation
+		left join doc.DocStates ds on d.TenantId = ds.TenantId and d.[State] = ds.Id
 	where d.TenantId = @TenantId and d.Temp = 0 and ml.Menu = @Menu
 		and (d.[Date] >= @From and d.[Date] < @end)
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
 		and (@Company is null or d.Company = @Company)
 		and (@Warehouse is null or d.WhFrom = @Warehouse or d.WhTo = @Warehouse)
+		and (@State = N'A' or @State = N'W' and ds.Kind in (N'I', N'P') or @State = ds.Kind)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -12959,12 +13129,13 @@ begin
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo, d.[No],
 		d.Notice, d.Done, d.BindKind, d.BindFactor,
 		[Operation!TOperation!RefId] = d.Operation, 
+		[State.Id!TState!Id] = d.[State], [State.Name!TState!Name] = ds.[Name], [State.Color!TState!] = ds.Color,
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
 		[LinkedDocs!TDocBase!Array] = null,
 		[!!RowCount] = t.rowcnt
-	from @docs t inner join 
-		doc.Documents d on d.TenantId = @TenantId and d.Id = t.id
+	from @docs t inner join doc.Documents d on d.TenantId = @TenantId and d.Id = t.id
+		left join doc.DocStates ds on d.TenantId = ds.TenantId and d.[State] = ds.Id
 	order by t.rowno;
 
 	-- arrays
@@ -13035,7 +13206,8 @@ begin
 		[!Documents.Operation!Filter] = @Operation, 
 		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
 		[!Documents.Company.Id!Filter] = @Company, [!Documents.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
-		[!Documents.Warehouse.Id!Filter] = @Warehouse, [!Documents.Warehouse.Name!Filter] = cat.fn_GetWarehouseName(@TenantId, @Warehouse)
+		[!Documents.Warehouse.Id!Filter] = @Warehouse, [!Documents.Warehouse.Name!Filter] = cat.fn_GetWarehouseName(@TenantId, @Warehouse),
+		[!Documents.State!Filter] = @State
 end
 go
 ------------------------------------------------
@@ -13067,6 +13239,7 @@ begin
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
 		[PriceKind!TPriceKind!RefId] = d.PriceKind, [RespCenter!TRespCenter!RefId] = d.RespCenter,
 		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
+		[State!TState!RefId] = d.[State], 
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
 		[LinkedDocs!TDocBase!Array] = null,
@@ -13173,6 +13346,11 @@ begin
 	from doc.Operations o where TenantId = @TenantId and Form=@docform
 	order by Id;
 
+	select [States!TState!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color, Kind
+	from doc.DocStates 
+	where TenantId = @TenantId and Form = @docform
+	order by [Order];
+
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 
 	select [Params!TParam!Object] = null, [Operation] = @Operation, CheckRems = @CheckRems;
@@ -13189,7 +13367,6 @@ begin
 	exec doc.[Document.Stock.Metadata];
 end
 go
- 
 ------------------------------------------------
 create or alter procedure doc.[Document.Order.Update]
 @TenantId int = 1,
@@ -14110,6 +14287,22 @@ begin
 	where TenantId = @TenantId and Id = @Id;
 end
 go
+
+------------------------------------------------
+create or alter procedure doc.[Document.SetState]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint,
+@State bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	update doc.Documents set [State] = @State where TenantId = @TenantId and Id = @Id;
+end
+go
+
+
 ------------------------------------------------
 create or alter procedure doc.[Document.Print.Load]
 @TenantId int = 1,
@@ -14461,7 +14654,7 @@ begin
 	from cat.Contacts c 
 		inner join T t on c.TenantId = @TenantId and c.Id = contact;
 
-	select [Stages!TStage!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color
+	select [Stages!TStage!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color, Kind
 	from crm.LeadStages 
 	where TenantId = @TenantId and Void = 0 order by [Order];
 end
@@ -16559,30 +16752,31 @@ begin
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- forms
-	declare @df table(id nvarchar(16), [order] int, inout smallint, [url] nvarchar(255), category nvarchar(255), [name] nvarchar(255));
-	insert into @df (id, inout, [order], category, [url], [name]) values
+	declare @df table(id nvarchar(16), [order] int, inout smallint, [url] nvarchar(255), 
+		category nvarchar(255), [name] nvarchar(255), hasstate bit);
+	insert into @df (id, inout, [order], hasstate, category, [url], [name]) values
 		-- Sales
-		(N'invoice',    null, 10, N'@[Sales]', N'/document/sales', N'Замовлення клієнта'),
-		(N'complcert',  null, 11, N'@[Sales]', N'/document/sales', N'Акт виконаних робіт'),
-		(N'waybillout', null, 12, N'@[Sales]', N'/document/sales', N'Продаж товарів/послуг'),
-		(N'retcust',    null, 13, N'@[Sales]', N'/document/sales', N'Повернення від покупця'),
+		(N'invoice',    null, 10, 1, N'@[Sales]', N'/document/sales', N'Замовлення клієнта'),
+		(N'complcert',  null, 11, 0, N'@[Sales]', N'/document/sales', N'Акт виконаних робіт'),
+		(N'waybillout', null, 12, 0, N'@[Sales]', N'/document/sales', N'Продаж товарів/послуг'),
+		(N'retcust',    null, 13, 0, N'@[Sales]', N'/document/sales', N'Повернення від покупця'),
 		-- Purchase
-		(N'waybillin',  null, 20, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
-		(N'retsuppl',   null, 21, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
+		(N'waybillin',  null, 20, 0, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
+		(N'retsuppl',   null, 21, 0, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
 		-- Invent
-		(N'movebill',   null, 30, N'@[KindStock]', N'/document/invent', N'Внутрішнє переміщення'),
-		(N'inventbill', null, 31, N'@[KindStock]', N'/document/invent', N'Інвентарізація'),
-		(N'writeoff',   null, 32, N'@[KindStock]', N'/document/invent', N'Акт списання'),
-		(N'writeon',    null, 33, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
+		(N'movebill',   null, 30, 0, N'@[KindStock]', N'/document/invent', N'Внутрішнє переміщення'),
+		(N'inventbill', null, 31, 0, N'@[KindStock]', N'/document/invent', N'Інвентарізація'),
+		(N'writeoff',   null, 32, 0, N'@[KindStock]', N'/document/invent', N'Акт списання'),
+		(N'writeon',    null, 33, 0, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
 		-- Money
-		(N'payout',    -1,  40, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
-		(N'cashout',   -1,  41, N'@[Money]', N'/document/money', N'Витрата готівки'),
-		(N'payin',      1,  42, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
-		(N'cashin',     1,  43, N'@[Money]', N'/document/money', N'Надходження готівки'),
-		(N'cashmove', null, 44, N'@[Money]', N'/document/money', N'Прерахування коштів'),
-		(N'cashoff',  -1,   45, N'@[Money]', N'/document/money', N'Списання коштів'),
+		(N'payout',    -1,  40, 0, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
+		(N'cashout',   -1,  41, 0, N'@[Money]', N'/document/money', N'Витрата готівки'),
+		(N'payin',      1,  42, 0, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
+		(N'cashin',     1,  43, 0, N'@[Money]', N'/document/money', N'Надходження готівки'),
+		(N'cashmove', null, 44, 0, N'@[Money]', N'/document/money', N'Прерахування коштів'),
+		(N'cashoff',  -1,   45, 0, N'@[Money]', N'/document/money', N'Списання коштів'),
 		-- 
-		(N'manufact',  null, 60, N'@[Manufacturing]', N'/manufacturing/document', N'Виробничий акт-звіт');
+		(N'manufact',  null, 60, 0, N'@[Manufacturing]', N'/manufacturing/document', N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
@@ -16591,12 +16785,34 @@ begin
 		t.[Order] = s.[order],
 		t.InOut = s.inout,
 		t.[Url] = s.[url],
-		t.Category = s.category
+		t.Category = s.category,
+		t.HasState = s.hasstate
 	when not matched by target then insert
-		(TenantId, Id, [Order], [Name], InOut, Category, [Url]) values
-		(@TenantId, s.id, s.[order], s.[name], inout, category, [url])
+		(TenantId, Id, [Order], [Name], InOut, Category, [Url], HasState) values
+		(@TenantId, s.id, s.[order], s.[name], inout, category, [url], hasstate)
 	when not matched by source and t.TenantId = @TenantId then delete;
 
+	-- docstates
+	declare @st table(Id bigint, Form nvarchar(16), [Order] int, Kind nchar(1), [Name] nvarchar(255), Color nvarchar(32));
+	insert into @st(Id, Form, [Order], Kind, [Name], Color) values
+	(10, N'invoice', 10, N'I',  N'Новий', N'blue'),
+	(20, N'invoice', 20, N'P',  N'В обробці', N'gold'),
+	(30, N'invoice', 30, N'S',  N'Завершено', N'seagreen'),
+	(40, N'invoice', 40, N'C',  N'Скасовано', N'red');
+
+	merge doc.DocStates as t
+	using @st as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.Kind = s.Kind,
+		t.[Color] = s.[Color]
+	when not matched by target then insert
+		(TenantId, Id, [Order], [Name], Form, Kind, Color) values
+		(@TenantId, s.Id, s.[Order], s.[Name], s.Form, s.Kind, s.Color)
+	when not matched by source and t.TenantId = @TenantId then delete;
+
+	-- temp
 	update doc.Operations set DocumentUrl = f.[Url] + N'/' + f.Id
 	from doc.Operations o inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 
@@ -16754,13 +16970,42 @@ begin
 		(@TenantId, s.Id, s.Kind, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon, s.Params);
 end
 go
+-------------------------------------------------
+-- Crm
+create or alter procedure ini.[Crm.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
+
+	-- (I)nit, (P)rocess, [S]uccess, F(ail)
+	declare @ls table(Kind nchar(1), Id bigint, [Order] int, [Name] nvarchar(255), Color nvarchar(32));
+	insert into @ls (Kind, Id, [Order], [Name], [Color]) values
+		(N'I', 10, 10, N'Новий', N'blue'),
+		(N'P', 20, 20, N'В обробці', N'orange'),
+		(N'S', 30, 30, N'Успіх', N'seagreen'),
+		(N'F', 40, 40, N'Невдача', N'red');
+	merge crm.LeadStages as t
+	using @ls as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.Kind = s.Kind,
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.[Color] = s.[Color]
+	when not matched by target then insert
+		(TenantId, Id, Kind, [Name], [Order], [Color]) values
+		(@TenantId, s.Id, s.Kind, s.[Name], s.[Order], s.[Color]);
+end
+go
 ------------------------------------------------
+-- !CHECK startup_mt.sql!
 exec ini.[Cat.OnCreateTenant] @TenantId = 1;
 exec ini.[Forms.OnCreateTenant] @TenantId = 1;
 exec ini.[Rep.OnCreateTenant] @TenantId = 1;
 exec ini.[Widgets.OnCreateTenant] @TenantId = 1;
 exec ini.[Contract.OnCreateTenant] @TenantId = 1;
 exec ini.[Operation.OnCreateTenant] @TenantId = 1;
+exec ini.[Crm.OnCreateTenant] @TenantId = 1;
 go
 
 
