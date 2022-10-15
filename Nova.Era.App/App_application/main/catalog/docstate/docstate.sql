@@ -30,7 +30,7 @@ begin
 	select [!TState!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color,
 		[!TForm.States!ParentId] = ds.Form
 	from doc.DocStates ds
-	where ds.Void = 0
+	where ds.TenantId = @TenantId and ds.Void = 0
 	order by ds.[Order]
 end
 go
@@ -52,7 +52,7 @@ begin
 	select [!TState!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color,
 		[!TForm.States!ParentId] = ds.Form
 	from doc.DocStates ds
-	where ds.Void = 0 and ds.Form = @Id
+	where ds.TenantId = @TenantId and ds.Void = 0 and ds.Form = @Id
 	order by ds.[Order]
 end
 go

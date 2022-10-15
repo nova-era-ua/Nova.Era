@@ -38,7 +38,7 @@ begin
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and d.Operation = ml.Operation
-		left join doc.DocStates ds on d.[State] = ds.Id
+		left join doc.DocStates ds on d.TenantId = ds.TenantId and d.[State] = ds.Id
 	where d.TenantId = @TenantId and d.Temp = 0 and ml.Menu = @Menu
 		and (d.[Date] >= @From and d.[Date] < @end)
 		and (@Operation = -1 or d.Operation = @Operation)
