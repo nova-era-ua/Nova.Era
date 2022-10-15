@@ -24,7 +24,17 @@
 				DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Contacts}, Url='/catalog/contact/edit'}">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+			<DataGridColumn Header="@[Phone]" Fit="True" Wrap="NoWrap">
+				<Span Content="{Bind Phone, Mask='+38 (0##) ###-####'}"/>
+			</DataGridColumn>
+			<DataGridColumn Header="@[Email]" Sort="False"
+							Fit="True" Wrap="NoWrap">
+				<Hyperlink Content="{Bind Email}" If="{Bind Email}"
+						   Command="{BindCmd MailTo, Argument={Bind Email}}"/>
+			</DataGridColumn>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
+			<DataGridColumn Header="@[Created]"
+							Content="{Bind DateCreated, DataType=DateTime}"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
 					<Button Icon="Edit" Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/contact/edit'}"/>

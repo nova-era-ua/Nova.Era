@@ -314,7 +314,8 @@ as table(
 	Project bigint,
 	CostItem bigint,
 	ItemRole bigint,
-	Memo nvarchar(255)
+	Memo nvarchar(255),
+	[State] bigint
 )
 go
 ------------------------------------------------
@@ -451,12 +452,13 @@ begin
 		t.ItemRole = s.ItemRole,
 		t.Memo = s.Memo,
 		t.SNo = s.SNo,
-		t.[No] = @no
+		t.[No] = @no,
+		t.[State] = s.[State]
 	when not matched by target then insert
 		(TenantId, Operation, [Date], [Sum], Company, Agent, WhFrom, WhTo, [Contract], 
-			PriceKind, RespCenter, Project, CostItem, ItemRole, Memo, SNo, [No], UserCreated) values
+			PriceKind, RespCenter, Project, CostItem, ItemRole, Memo, SNo, [No], [State], UserCreated) values
 		(@TenantId, s.Operation, s.[Date], s.[Sum], s.Company, s.Agent, WhFrom, s.WhTo, s.[Contract], 
-			s.PriceKind, s.RespCenter, s.Project, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, @UserId)
+			s.PriceKind, s.RespCenter, s.Project, s.CostItem, s.ItemRole, s.Memo, s.SNo, @no, s.[State], @UserId)
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
 

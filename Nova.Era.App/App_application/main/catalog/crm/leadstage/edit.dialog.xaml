@@ -7,8 +7,14 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid Columns="1*,1*" Rows="Auto,Auto,Auto,1*,Auto">
-		<TextBox Grid.Row="2" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Stage.Name}" 
+		<TextBox Grid.Row="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Stage.Name}" 
 				 Bold="True" TabIndex="1" UpdateTrigger="Input"/>
+		<Static Label="@[Type]" Value="{Bind Stage.$Kind}" Grid.Row="2" If="{Bind Stage.$IsOnce}"/>
+		<ComboBox Grid.Row="2" Label="@[Type]" Value="{Bind Stage.Kind}"
+				  If="{Bind !Stage.$IsOnce}">
+			<ComboBoxItem Content="В обробці" Value="P"/>
+			<ComboBoxItem Content="Невдача" Value="F"/>
+		</ComboBox>
 		<ComboBox Grid.Row="3" Grid.Col="1" Label="@[Color]" Value="{Bind Stage.Color}">
 			<ComboBoxItem Content="Default" Value=""/>
 			<ComboBoxItem Content="Green" Value="green"/>
@@ -27,9 +33,9 @@
 			<ComboBoxItem Content="Оливковий" Value="olive"/>
 			<ComboBoxItem Content="Teal" Value="teal"/>
 		</ComboBox>
-		<TextBox Grid.Row="4" Label="@[Ordinal]" Value="{Bind Stage.Order}" Number="True" Align="Right"/>
 		<TagLabel Grid.Row="3" Grid.Col="2" Style="{Bind Stage.Color}" Content="{Bind Stage.Name}" 
 				  Padding=".475rem" CssClass="min-height-30"/>
+		<TextBox Grid.Row="4" Label="@[Ordinal]" Value="{Bind Stage.Order}" Number="True" Align="Right"/>
 		<TextBox Grid.Row="5" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind Stage.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>

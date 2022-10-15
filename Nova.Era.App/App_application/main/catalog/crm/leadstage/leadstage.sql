@@ -11,7 +11,8 @@ create type crm.[LeadStage.TableType] as table
 	[Name] nvarchar(255),
 	[Color] nvarchar(32),
 	[Memo] nvarchar(255),
-	[Order] int
+	[Order] int,
+	[Kind] nchar(1)
 )
 go
 ------------------------------------------------
@@ -26,7 +27,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Stages!TStage!Array] = null,
-		[Id!!Id] = ls.Id, [Name!!Name] = ls.[Name], ls.Color, ls.[Order], ls.Memo
+		[Id!!Id] = ls.Id, [Name!!Name] = ls.[Name], ls.Color, ls.[Order], ls.Memo, ls.Kind
 	from crm.LeadStages ls
 	where ls.TenantId = @TenantId and ls.Void = 0
 	order by ls.[Order];
@@ -43,7 +44,7 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Stage!TStage!Object] = null,
-		[Id!!Id] = ls.Id, [Name!!Name] = ls.[Name], ls.Color, ls.[Order], ls.Memo
+		[Id!!Id] = ls.Id, [Name!!Name] = ls.[Name], ls.Color, ls.[Order], ls.Memo, ls.Kind
 	from crm.LeadStages ls
 	where ls.TenantId = @TenantId and ls.Id = @Id;
 
@@ -83,10 +84,11 @@ begin
 		t.[Name] = s.[Name], 
 		t.Color = s.Color,
 		t.Memo = s.Memo,
-		t.[Order] = s.[Order]
+		t.[Order] = s.[Order],
+		t.Kind = s.Kind
 	when not matched by target then insert
-		(TenantId, [Name], Color, Memo, [Order]) values
-		(@TenantId, s.[Name], s.Color, s.Memo, s.[Order])
+		(TenantId, [Name], Color, Memo, [Order], Kind) values
+		(@TenantId, s.[Name], s.Color, s.Memo, s.[Order],s.Kind)
 	output $action, inserted.Id into @output (op, id);
 
 	select top(1) @id = id from @output;
@@ -104,6 +106,10 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
+	if @Id < 100
+		throw 60000, N'UI:@[Error.Delete.System]', 0;
+	if exists(select * from crm.Leads where Stage = @Id)
+		throw 60000, N'UI:@[Error.Delete.Used]', 0;
 	update crm.LeadStages set Void = 1 where TenantId = @TenantId and Id=@Id;
 end
 go

@@ -19,6 +19,7 @@
 			<DataGridColumn Header="@[Name]">
 				<TagLabel Content="{Bind Name}" Style="{Bind Color}" Padding=".125rem, 1rem"/>
 			</DataGridColumn>
+			<DataGridColumn Header="@[Type]" Content="{Bind $Kind}" Wrap="NoWrap" Fit="True"/>
 			<DataGridColumn Header="@[Ordinal]" Content="{Bind Order}" Role="Id"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 			<DataGridColumn Fit="True">

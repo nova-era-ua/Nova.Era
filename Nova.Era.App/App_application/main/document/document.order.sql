@@ -13,7 +13,8 @@ create or alter procedure doc.[Document.Order.Index]
 @Warehouse bigint = null,
 @Company bigint = null,
 @From date = null,
-@To date = null
+@To date = null,
+@State nvarchar(1) = N'W'
 as
 begin
 	set nocount on;
@@ -37,12 +38,14 @@ begin
 	from doc.Documents d
 		inner join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and d.Operation = ml.Operation
+		left join doc.DocStates ds on d.[State] = ds.Id
 	where d.TenantId = @TenantId and d.Temp = 0 and ml.Menu = @Menu
 		and (d.[Date] >= @From and d.[Date] < @end)
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
 		and (@Company is null or d.Company = @Company)
 		and (@Warehouse is null or d.WhFrom = @Warehouse or d.WhTo = @Warehouse)
+		and (@State = N'A' or @State = N'W' and ds.Kind in (N'I', N'P') or @State = ds.Kind)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -84,12 +87,13 @@ begin
 	select [Documents!TDocument!Array] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Memo], d.SNo, d.[No],
 		d.Notice, d.Done, d.BindKind, d.BindFactor,
 		[Operation!TOperation!RefId] = d.Operation, 
+		[State.Id!TState!Id] = d.[State], [State.Name!TState!Name] = ds.[Name], [State.Color!TState!] = ds.Color,
 		[Agent!TAgent!RefId] = d.Agent, [Company!TCompany!RefId] = d.Company,
 		[WhFrom!TWarehouse!RefId] = d.WhFrom, [WhTo!TWarehouse!RefId] = d.WhTo,
 		[LinkedDocs!TDocBase!Array] = null,
 		[!!RowCount] = t.rowcnt
-	from @docs t inner join 
-		doc.Documents d on d.TenantId = @TenantId and d.Id = t.id
+	from @docs t inner join doc.Documents d on d.TenantId = @TenantId and d.Id = t.id
+		left join doc.DocStates ds on d.TenantId = ds.TenantId and d.[State] = ds.Id
 	order by t.rowno;
 
 	-- arrays
@@ -160,7 +164,8 @@ begin
 		[!Documents.Operation!Filter] = @Operation, 
 		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
 		[!Documents.Company.Id!Filter] = @Company, [!Documents.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
-		[!Documents.Warehouse.Id!Filter] = @Warehouse, [!Documents.Warehouse.Name!Filter] = cat.fn_GetWarehouseName(@TenantId, @Warehouse)
+		[!Documents.Warehouse.Id!Filter] = @Warehouse, [!Documents.Warehouse.Name!Filter] = cat.fn_GetWarehouseName(@TenantId, @Warehouse),
+		[!Documents.State!Filter] = @State
 end
 go
 ------------------------------------------------
@@ -192,6 +197,7 @@ begin
 		[WhTo!TWarehouse!RefId] = d.WhTo, [Contract!TContract!RefId] = d.[Contract], 
 		[PriceKind!TPriceKind!RefId] = d.PriceKind, [RespCenter!TRespCenter!RefId] = d.RespCenter,
 		[CostItem!TCostItem!RefId] = d.CostItem, [ItemRole!TItemRole!RefId] = d.ItemRole, [Project!TProject!RefId] = d.Project,
+		[State!TState!RefId] = d.[State], 
 		[StockRows!TRow!Array] = null,
 		[ServiceRows!TRow!Array] = null,
 		[LinkedDocs!TDocBase!Array] = null,
@@ -298,6 +304,11 @@ begin
 	from doc.Operations o where TenantId = @TenantId and Form=@docform
 	order by Id;
 
+	select [States!TState!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color, Kind
+	from doc.DocStates 
+	where TenantId = @TenantId and Form = @docform
+	order by [Order];
+
 	exec usr.[Default.Load] @TenantId = @TenantId, @UserId = @UserId;
 
 	select [Params!TParam!Object] = null, [Operation] = @Operation, CheckRems = @CheckRems;
@@ -314,7 +325,6 @@ begin
 	exec doc.[Document.Stock.Metadata];
 end
 go
- 
 ------------------------------------------------
 create or alter procedure doc.[Document.Order.Update]
 @TenantId int = 1,

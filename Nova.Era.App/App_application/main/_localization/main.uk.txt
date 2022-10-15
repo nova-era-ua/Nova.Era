@@ -31,6 +31,7 @@
 @Order=Замовлення
 @Companies=Підприємства
 @Company=Підприємство
+@Type=Тип
 @Other=Інше
 @AccPolicy=Налаштування обліку
 @Extra=Додатково
@@ -132,11 +133,13 @@
 @ItemRole=Роль в обліку
 @Autonums=Автонумерація
 @Autonum=Автонумерація
+@DocStates=Статуси документів
 @Roles=Ролі
 @Role=Роль
 @RoleTo=Нова роль
 @Purpose=Призначення
 @Position=Посада
+@Address=Адреса
 @AccKinds=Види рахунків в обліку
 @AccKind=Вид рахунку в обліку
 @AccKindShort=Вид рахунку
@@ -264,11 +267,13 @@
 @Error.Currency.DuplicateCode=Валюта з таким кодом вже існує
 @Error.Country.Len3=Код має мати довжину 3 літери
 @Error.Country.Len2=Код має мати довжину 2 літери
+@Error.Email=Неправильний e-mail
 ;
 @Error.Delete.Folder=Неможливо видалити папку.\nМожна видаляти тількі порожні папки.
+@Error.Delete.System=Неможливо видалити системний об'єкт.
 @Error.UnitCodeUA=Код має складатися з цифр та мати довжину 4 символа.
 @Error.Document.AlreadyApplied=Документ вже проведено в обліку.
-@Error.Delete.Used=Неможливо видалити елемент, він використовується в обліку.
+@Error.Delete.Used=Неможливо видалити елемент, він використовується в системі.
 @Error.InsufficientAmount=Недостатня кількість на залишку
 @Error.Barcode.NotFound=Штрихкод не знайдено
 @Error.BankAccount.Len=Код рахунку має буде довжиною 29 символів

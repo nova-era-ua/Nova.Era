@@ -524,9 +524,12 @@ create table cat.Contacts
 		constraint DF_Contacts_Void default(0),
 	[Name] nvarchar(255),
 	[Position] nvarchar(255),
-	Gender nchar(1),
+	Gender nchar(1), -- F/M/U
 	Birthday date,
 	Country nchar(3),
+	Email nvarchar(64),
+	Phone nvarchar(32),	
+	[Address] nvarchar(255), 
 	[Memo] nvarchar(255),
 	UserCreated bigint not null,
 	UtcDateCreated datetime not null 
@@ -612,6 +615,7 @@ create table crm.LeadStages (
 	Void bit not null 
 		constraint DF_LeadStages_Void default(0),
 	[Order] int,
+	[Kind] nchar(1), -- (I)nit, (P)rocess, [S]uccess, F(ail)
 	[Name] nvarchar(255),
 	[Color] nvarchar(32),
 	[Memo] nvarchar(255),
@@ -762,7 +766,7 @@ create table doc.FormsMenu
 	[Category] nvarchar(32),
 	[Order] int,
 	[Memo] nvarchar(255),
-		constraint PK_FormsMenu primary key (TenantId, Id)
+	constraint PK_FormsMenu primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -777,7 +781,8 @@ create table doc.Forms
 	[Memo] nvarchar(255),
 	Category nvarchar(255),
 	InOut smallint,
-		constraint PK_Forms primary key (TenantId, Id)
+	HasState bit,
+	constraint PK_Forms primary key (TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -804,10 +809,31 @@ create table doc.FormRowKinds
 	Form nvarchar(16) not null,
 	[Order] int,
 	[Name] nvarchar(255),
-		constraint PK_FormRowKinds primary key (TenantId, Form, Id),
-		constraint FK_FormRowKinds_Form_Forms foreign key (TenantId, [Form]) references doc.Forms(TenantId, Id)
+	constraint PK_FormRowKinds primary key (TenantId, Form, Id),
+	constraint FK_FormRowKinds_Form_Forms foreign key (TenantId, [Form]) references doc.Forms(TenantId, Id)
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'doc' and SEQUENCE_NAME = N'SQ_DocStates')
+	create sequence doc.SQ_DocStates as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'DocStates')
+create table doc.DocStates (
+	TenantId int not null,
+	[Id] bigint not null
+		constraint DF_DocStates_Id default(next value for doc.SQ_DocStates),
+	Form nvarchar(16) not null,
+	Void bit not null 
+		constraint DF_DocStates_Void default(0),
+	[Order] int,
+	[Kind] nchar(1), -- (I)nit, (P)rocess, [S]uccess, C(ancel)
+	[Name] nvarchar(255),
+	[Color] nvarchar(32),
+	[Memo] nvarchar(255),
+	constraint PK_DocStates primary key (TenantId, [Id]),
+	constraint FK_DocStates_Form_Forms foreign key (TenantId, [Form]) references doc.Forms(TenantId, Id)
+);
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'doc' and TABLE_NAME=N'OperationKinds')
 create table doc.OperationKinds
@@ -1017,6 +1043,7 @@ create table doc.Documents
 	[Parent] bigint,
 	[Base] bigint,
 	OpLink bigint,
+	[State] bigint,
 	BindKind nvarchar(16),
 	BindFactor smallint,
 	Company bigint null,
@@ -1058,7 +1085,8 @@ create table doc.Documents
 	constraint FK_Documents_PriceKind_PriceKinds foreign key (TenantId, PriceKind) references cat.PriceKinds(TenantId, Id),
 	constraint FK_Documents_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
 	constraint FK_Documents_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id),
-	constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
+	constraint FK_Documents_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
+	constraint FK_Documents_State_DocStates foreign key (TenantId, [State]) references doc.DocStates(TenantId, Id)
 );
 go
 ------------------------------------------------

@@ -11,7 +11,8 @@ define(["require", "exports"], function (require, exports) {
             'TDocument.$ShipmentHtml': bind.bindSum("Shipment")
         },
         events: {
-            'app.document.link': handleLink
+            'app.document.link': handleLink,
+            'app.document.state': handleState
         }
     };
     exports.default = utils.mergeTemplate(base, template);
@@ -19,7 +20,12 @@ define(["require", "exports"], function (require, exports) {
         let doc = this.Documents.find(doc => doc.Id === elem.Id);
         if (!doc)
             return;
-        console.dir(elem.LinkedDocs);
         doc.LinkedDocs.$copy(elem.LinkedDocs);
+    }
+    function handleState(elem) {
+        let doc = this.Documents.find(doc => doc.Id === elem.Id);
+        if (!doc)
+            return;
+        doc.State = elem.State;
     }
 });

@@ -13,6 +13,7 @@ begin
 	exec ini.[Widgets.OnCreateTenant] @TenantId = @TenantId;
 	exec ini.[Contract.OnCreateTenant] @TenantId = @TenantId;
 	exec ini.[Operation.OnCreateTenant] @TenantId = @TenantId;
+	exec ini.[Crm.OnCreateTenant] @TenantId = @TenantId;
 end
 go
 -------------------------------------------------

@@ -32,7 +32,7 @@ begin
 	from cat.Contacts c 
 		inner join T t on c.TenantId = @TenantId and c.Id = contact;
 
-	select [Stages!TStage!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color
+	select [Stages!TStage!Map] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Color, Kind
 	from crm.LeadStages 
 	where TenantId = @TenantId and Void = 0 order by [Order];
 end

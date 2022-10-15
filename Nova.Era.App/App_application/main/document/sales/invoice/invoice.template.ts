@@ -16,11 +16,15 @@ const template: Template = {
 		'Document.StockRows[].Item.change': itemChange,
 		'Document.ServiceRows[].Item.change': itemChange
 	},
+	defaults: {
+		'Document.State'(this:any) { return this.States.find(x => x.Kind === 'I'); }
+	},
 	validators: {
 		'Document.StockRows[].Price': '@[Error.Required]',
 		'Document.ServiceRows[].Price': '@[Error.Required]'
 	},
 	commands: {
+		setState
 	}
 };
 
@@ -68,4 +72,15 @@ async function priceChange(doc) {
 function itemChange(row, val) {
 	base.events['Document.StockRows[].Item.change'].call(this, row, val);
 	row.Price = val.Price;
+}
+
+async function setState(state) {
+	const ctrl: IController = this.$ctrl;
+	if (this.Document.Done) {
+		await ctrl.$invoke('setState', { Id: this.Document.Id, State: state.Id });
+		this.Document.State = state;
+		ctrl.$emitCaller('app.document.state', this.Document);
+	}
+	else
+		this.Document.State = state;
 }

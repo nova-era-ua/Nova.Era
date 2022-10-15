@@ -99,30 +99,31 @@ begin
 	when not matched by source and t.TenantId = @TenantId then delete;
 
 	-- forms
-	declare @df table(id nvarchar(16), [order] int, inout smallint, [url] nvarchar(255), category nvarchar(255), [name] nvarchar(255));
-	insert into @df (id, inout, [order], category, [url], [name]) values
+	declare @df table(id nvarchar(16), [order] int, inout smallint, [url] nvarchar(255), 
+		category nvarchar(255), [name] nvarchar(255), hasstate bit);
+	insert into @df (id, inout, [order], hasstate, category, [url], [name]) values
 		-- Sales
-		(N'invoice',    null, 10, N'@[Sales]', N'/document/sales', N'Замовлення клієнта'),
-		(N'complcert',  null, 11, N'@[Sales]', N'/document/sales', N'Акт виконаних робіт'),
-		(N'waybillout', null, 12, N'@[Sales]', N'/document/sales', N'Продаж товарів/послуг'),
-		(N'retcust',    null, 13, N'@[Sales]', N'/document/sales', N'Повернення від покупця'),
+		(N'invoice',    null, 10, 1, N'@[Sales]', N'/document/sales', N'Замовлення клієнта'),
+		(N'complcert',  null, 11, 0, N'@[Sales]', N'/document/sales', N'Акт виконаних робіт'),
+		(N'waybillout', null, 12, 0, N'@[Sales]', N'/document/sales', N'Продаж товарів/послуг'),
+		(N'retcust',    null, 13, 0, N'@[Sales]', N'/document/sales', N'Повернення від покупця'),
 		-- Purchase
-		(N'waybillin',  null, 20, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
-		(N'retsuppl',   null, 21, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
+		(N'waybillin',  null, 20, 0, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
+		(N'retsuppl',   null, 21, 0, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
 		-- Invent
-		(N'movebill',   null, 30, N'@[KindStock]', N'/document/invent', N'Внутрішнє переміщення'),
-		(N'inventbill', null, 31, N'@[KindStock]', N'/document/invent', N'Інвентарізація'),
-		(N'writeoff',   null, 32, N'@[KindStock]', N'/document/invent', N'Акт списання'),
-		(N'writeon',    null, 33, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
+		(N'movebill',   null, 30, 0, N'@[KindStock]', N'/document/invent', N'Внутрішнє переміщення'),
+		(N'inventbill', null, 31, 0, N'@[KindStock]', N'/document/invent', N'Інвентарізація'),
+		(N'writeoff',   null, 32, 0, N'@[KindStock]', N'/document/invent', N'Акт списання'),
+		(N'writeon',    null, 33, 0, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
 		-- Money
-		(N'payout',    -1,  40, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
-		(N'cashout',   -1,  41, N'@[Money]', N'/document/money', N'Витрата готівки'),
-		(N'payin',      1,  42, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
-		(N'cashin',     1,  43, N'@[Money]', N'/document/money', N'Надходження готівки'),
-		(N'cashmove', null, 44, N'@[Money]', N'/document/money', N'Прерахування коштів'),
-		(N'cashoff',  -1,   45, N'@[Money]', N'/document/money', N'Списання коштів'),
+		(N'payout',    -1,  40, 0, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
+		(N'cashout',   -1,  41, 0, N'@[Money]', N'/document/money', N'Витрата готівки'),
+		(N'payin',      1,  42, 0, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
+		(N'cashin',     1,  43, 0, N'@[Money]', N'/document/money', N'Надходження готівки'),
+		(N'cashmove', null, 44, 0, N'@[Money]', N'/document/money', N'Прерахування коштів'),
+		(N'cashoff',  -1,   45, 0, N'@[Money]', N'/document/money', N'Списання коштів'),
 		-- 
-		(N'manufact',  null, 60, N'@[Manufacturing]', N'/manufacturing/document', N'Виробничий акт-звіт');
+		(N'manufact',  null, 60, 0, N'@[Manufacturing]', N'/manufacturing/document', N'Виробничий акт-звіт');
 
 	merge doc.Forms as t
 	using @df as s on t.Id = s.id and t.TenantId = @TenantId
@@ -131,12 +132,34 @@ begin
 		t.[Order] = s.[order],
 		t.InOut = s.inout,
 		t.[Url] = s.[url],
-		t.Category = s.category
+		t.Category = s.category,
+		t.HasState = s.hasstate
 	when not matched by target then insert
-		(TenantId, Id, [Order], [Name], InOut, Category, [Url]) values
-		(@TenantId, s.id, s.[order], s.[name], inout, category, [url])
+		(TenantId, Id, [Order], [Name], InOut, Category, [Url], HasState) values
+		(@TenantId, s.id, s.[order], s.[name], inout, category, [url], hasstate)
 	when not matched by source and t.TenantId = @TenantId then delete;
 
+	-- docstates
+	declare @st table(Id bigint, Form nvarchar(16), [Order] int, Kind nchar(1), [Name] nvarchar(255), Color nvarchar(32));
+	insert into @st(Id, Form, [Order], Kind, [Name], Color) values
+	(10, N'invoice', 10, N'I',  N'Новий', N'blue'),
+	(20, N'invoice', 20, N'P',  N'В обробці', N'gold'),
+	(30, N'invoice', 30, N'S',  N'Завершено', N'seagreen'),
+	(40, N'invoice', 40, N'C',  N'Скасовано', N'red');
+
+	merge doc.DocStates as t
+	using @st as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.Kind = s.Kind,
+		t.[Color] = s.[Color]
+	when not matched by target then insert
+		(TenantId, Id, [Order], [Name], Form, Kind, Color) values
+		(@TenantId, s.Id, s.[Order], s.[Name], s.Form, s.Kind, s.Color)
+	when not matched by source and t.TenantId = @TenantId then delete;
+
+	-- temp
 	update doc.Operations set DocumentUrl = f.[Url] + N'/' + f.Id
 	from doc.Operations o inner join doc.Forms f on o.TenantId = f.TenantId and o.Form = f.Id
 
@@ -294,12 +317,41 @@ begin
 		(@TenantId, s.Id, s.Kind, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon, s.Params);
 end
 go
+-------------------------------------------------
+-- Crm
+create or alter procedure ini.[Crm.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
+
+	-- (I)nit, (P)rocess, [S]uccess, F(ail)
+	declare @ls table(Kind nchar(1), Id bigint, [Order] int, [Name] nvarchar(255), Color nvarchar(32));
+	insert into @ls (Kind, Id, [Order], [Name], [Color]) values
+		(N'I', 10, 10, N'Новий', N'blue'),
+		(N'P', 20, 20, N'В обробці', N'orange'),
+		(N'S', 30, 30, N'Успіх', N'seagreen'),
+		(N'F', 40, 40, N'Невдача', N'red');
+	merge crm.LeadStages as t
+	using @ls as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.Kind = s.Kind,
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.[Color] = s.[Color]
+	when not matched by target then insert
+		(TenantId, Id, Kind, [Name], [Order], [Color]) values
+		(@TenantId, s.Id, s.Kind, s.[Name], s.[Order], s.[Color]);
+end
+go
 ------------------------------------------------
+-- !CHECK startup_mt.sql!
 exec ini.[Cat.OnCreateTenant] @TenantId = 1;
 exec ini.[Forms.OnCreateTenant] @TenantId = 1;
 exec ini.[Rep.OnCreateTenant] @TenantId = 1;
 exec ini.[Widgets.OnCreateTenant] @TenantId = 1;
 exec ini.[Contract.OnCreateTenant] @TenantId = 1;
 exec ini.[Operation.OnCreateTenant] @TenantId = 1;
+exec ini.[Crm.OnCreateTenant] @TenantId = 1;
 go
 

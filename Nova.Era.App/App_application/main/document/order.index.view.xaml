@@ -8,6 +8,7 @@
 					<FilterItem Property="Agent" DataType="Object"/>
 					<FilterItem Property="Company" DataType="Object"/>
 					<FilterItem Property="Warehouse" DataType="Object"/>
+					<FilterItem Property="State" DataType="String"/>
 				</FilterDescription>
 			</CollectionView.Filter>
 		</CollectionView>
@@ -41,7 +42,9 @@
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
 			<DataGridColumn Header="@[Number]" Content="{Bind $No}" Role="Number" SortProperty="no"/>
 			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>
-			<DataGridColumn Header="@[Status]" />
+			<DataGridColumn Header="@[Status]" Fit="True" Wrap="NoWrap" Sort="False">
+				<TagLabel Content="{Bind State.Name}" Style="{Bind State.Color}"/>
+			</DataGridColumn>
 			<DataGridColumn Header="@[KindPayment]" Align="Right" Fit="True">
 				<Html Content="{Bind $PaymentHtml}"/>
 			</DataGridColumn>
@@ -49,11 +52,11 @@
 				<Html Content="{Bind $ShipmentHtml}"/>
 			</DataGridColumn>
 			<DataGridColumn Header="@[Customer]" Sort="False">
-				<Span Content="{Bind Agent.Name}" MaxChars="50"/>
+				<Span Content="{Bind Agent.Name}" MaxChars="50" Tip="{Bind Agent.Name}"/>
 			</DataGridColumn>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Memo]" SortProperty="memo">
-				<Span Content="{Bind Memo}" MaxChars="60" Tip="{Bind Memo}"/>
+				<Span Content="{Bind Memo}" MaxChars="50" Tip="{Bind Memo}"/>
 			</DataGridColumn>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">
@@ -66,19 +69,27 @@
 	</Grid>
 	<Page.Taskpad>
 		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
-			<PeriodPicker Label="@[Period]" Display="Name" Placement="BottomRight"
+			<Panel Header="@[Filters]" Style="Transparent" Collapsible="True">
+				<PeriodPicker Label="@[Period]" Display="Name" Placement="BottomRight"
 				Value="{Bind Parent.Filter.Period}"
 				Description="{Bind Parent.Filter.Period.Name}"/>
-			<ComboBox Label="@[Operations]"
-				ItemsSource="{Bind Operations}" Value="{Bind Parent.Filter.Operation}">
-				<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
-			</ComboBox>
-			<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+				<ComboBox Label="@[Status]" Value="{Bind Parent.Filter.State}">
+					<ComboBoxItem Content="В обробці" Value="W"/>
+					<ComboBoxItem Content="Завершено" Value="S"/>
+					<ComboBoxItem Content="Скасовано" Value="C"/>
+					<ComboBoxItem Content="Всі" Value="A"/>
+				</ComboBox>
+				<ComboBox Label="@[Operations]"
+					ItemsSource="{Bind Operations}" Value="{Bind Parent.Filter.Operation}">
+					<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
+				</ComboBox>
+				<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
 					  Value="{Bind Parent.Filter.Company}" Url="/catalog/company" ShowClear="True"/>
-			<SelectorSimple Label="@[Warehouse]" Placeholder="@[Placeholder.AllWarehouses]"
+				<SelectorSimple Label="@[Warehouse]" Placeholder="@[Placeholder.AllWarehouses]"
 					  Value="{Bind Parent.Filter.Warehouse}" Url="/catalog/warehouse" ShowClear="True"/>
-			<SelectorSimple Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
+				<SelectorSimple Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
 					  Value="{Bind Parent.Filter.Agent}" Url="/catalog/agent" ShowClear="True"/>
+			</Panel>
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

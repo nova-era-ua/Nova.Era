@@ -11,7 +11,7 @@ define(["require", "exports"], function (require, exports) {
             'Lead.Stage': '@[Error.Required]'
         },
         defaults: {
-            'Lead.Stage'() { return this.Stages.length > 0 ? this.Stages[0] : null; }
+            'Lead.Stage'() { return this.Stages.find(x => x.Kind === 'I'); }
         }
     };
     exports.default = template;

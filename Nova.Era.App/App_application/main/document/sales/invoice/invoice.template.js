@@ -16,11 +16,16 @@ define(["require", "exports"], function (require, exports) {
             'Document.StockRows[].Item.change': itemChange,
             'Document.ServiceRows[].Item.change': itemChange
         },
+        defaults: {
+            'Document.State'() { return this.States.find(x => x.Kind === 'I'); }
+        },
         validators: {
             'Document.StockRows[].Price': '@[Error.Required]',
             'Document.ServiceRows[].Price': '@[Error.Required]'
         },
-        commands: {}
+        commands: {
+            setState
+        }
     };
     exports.default = utils.mergeTemplate(base, template);
     function contractChange(doc, contract) {
@@ -59,5 +64,15 @@ define(["require", "exports"], function (require, exports) {
     function itemChange(row, val) {
         base.events['Document.StockRows[].Item.change'].call(this, row, val);
         row.Price = val.Price;
+    }
+    async function setState(state) {
+        const ctrl = this.$ctrl;
+        if (this.Document.Done) {
+            await ctrl.$invoke('setState', { Id: this.Document.Id, State: state.Id });
+            this.Document.State = state;
+            ctrl.$emitCaller('app.document.state', this.Document);
+        }
+        else
+            this.Document.State = state;
     }
 });

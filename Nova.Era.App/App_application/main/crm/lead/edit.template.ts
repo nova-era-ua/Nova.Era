@@ -11,7 +11,7 @@ const template: Template = {
 		'Lead.Stage': '@[Error.Required]'
 	},
 	defaults: {
-		'Lead.Stage'(this: any) { return this.Stages.length > 0 ? this.Stages[0] : null; }
+		'Lead.Stage'(this: any) { return this.Stages.find(x => x.Kind === 'I'); }
 	}
 };
 

@@ -79,6 +79,7 @@
     <Content Include="App_application\%40sql\platform\source\a2v10ui.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10ui_simple.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10workflow.sql" />
+    <Content Include="App_application\main\catalog\docstate\docstate.sql" />
     <Content Include="App_application\main\catalog\autonum\autonum.sql" />
     <Content Include="App_application\main\catalog\agent\agent.sql" />
     <Content Include="App_application\main\catalog\agent\index.view.xaml">
@@ -136,6 +137,14 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\catalog\cashaccount\browseall.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\docstate\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\docstate\index.view.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
@@ -460,6 +469,7 @@
     <Content Include="App_application\main\accounting\widgets\model.json" />
     <None Include="App_application\main\catalog\account\model.json" />
     <Content Include="App_application\main\catalog\project\model.json" />
+    <Content Include="App_application\main\catalog\docstate\model.json" />
     <None Include="App_application\main\catalog\cashaccount\model.json" />
     <None Include="App_application\main\catalog\bankaccount\model.json" />
     <None Include="App_application\main\catalog\bank\model.json" />
@@ -496,10 +506,12 @@
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
     <TypeScriptCompile Include="App_application\main\appstart\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\docstate\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\autonum\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\cashaccount\browse.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\contact\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\contact\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\_stage.module.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\project\edit.template.ts" />

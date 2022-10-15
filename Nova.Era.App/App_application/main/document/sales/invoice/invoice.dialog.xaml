@@ -2,7 +2,53 @@
 		ButtonOnTop="True" Title="Замовлення" SaveEvent="app.document.saved"
 		CanCloseDelegate="canClose" Components="{Components ../../_components/doc.common}">
 	<Dialog.Buttons>
-		<Component Name="TopBar"/>
+		<Button Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
+		<Button If="{Bind !Document.Done}"
+			Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
+		<Button If="{Bind Document.Done}"
+			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
+		<Button Content="Створити на підставі" Render="Show" If="{Bind !Document.Operation.Links.$isEmpty}"
+				Disabled="{Bind Document.$isNew}">
+			<Button.DropDown>
+				<DropDownMegaMenu ItemsSource="{Bind Document.Operation.Links}" GroupBy="$Category">
+					<MenuItem Content="{Bind Name}" Command="{BindCmd Execute, CommandName=createOnBase, Argument={Bind}}"/>
+				</DropDownMegaMenu>
+			</Button.DropDown>
+		</Button>
+		<Button Content="@[Print]" Disabled="{Bind Document.$isNew}" Render="Show"
+				Command="{BindCmd Dialog, Action=Show, Argument={Bind Document}, 
+					Url='/document/print/browse', SaveRequired=True}"/>
+		<Button Content="@[Close]" Command="{BindCmd Close}" />
+		<Separator />
+		<StackPanel Orientation="Horizontal" Gap=".5rem" Margin="0,1rem">
+			<TagLabel CssClass="tag-label-lg"
+				Content="{Bind Document.State.Name}" Style="{Bind Document.State.Color}"/>
+			<Popover Icon="Edit" Render="Show" Placement="BottomRight"
+					 Background="White">
+				<Popup CssClass="gap-1">
+					<Repeater ItemsSource="{Bind States}">
+						<Hyperlink Block="True" Command="{BindCmd Execute, CommandName=setState, Argument={Bind}}">
+							<TagLabel CssClass="tag-label-lg" Block="True"
+								Content="{Bind Name}" Style="{Bind Color}"/>
+						</Hyperlink>
+					</Repeater>
+				</Popup>
+			</Popover>
+		</StackPanel>
+		<Label Content="@[Operation]"/>
+		<ComboBox ItemsSource="{Bind Operations}" Width="20rem"
+					  Value="{Bind Document.Operation}">
+			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+		</ComboBox>
+		<Button Icon="Ellipsis" CssClass="btn-more" Render="Show">
+			<Button.DropDown>
+				<DropDownMenu Direction="DownLeft">
+					<MenuItem Content="@[Delete]" Command="{BindCmd Execute, CommandName=deleteSelf, Argument={Bind Document}}"/>
+					<Separator />
+					<MenuItem Content="@[Reload]" Command="{BindCmd Reload}"/>
+				</DropDownMenu>
+			</Button.DropDown>
+		</Button>
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
 		<Taskpad Width="20rem" Collapsible="False" Padding="1rem" Background="WhiteSmoke">

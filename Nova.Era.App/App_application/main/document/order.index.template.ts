@@ -14,7 +14,8 @@ const template: Template = {
 		'TDocument.$ShipmentHtml': bind.bindSum("Shipment") 
 	},
 	events: {
-		'app.document.link': handleLink
+		'app.document.link': handleLink,
+		'app.document.state': handleState
 	}
 };
 
@@ -23,6 +24,11 @@ export default utils.mergeTemplate(base, template);
 function handleLink(elem) {
 	let doc = this.Documents.find(doc => doc.Id === elem.Id);
 	if (!doc) return;
-	console.dir(elem.LinkedDocs);
 	doc.LinkedDocs.$copy(elem.LinkedDocs);
+}
+
+function handleState(elem) {
+	let doc = this.Documents.find(doc => doc.Id === elem.Id);
+	if (!doc) return;
+	doc.State = elem.State;
 }

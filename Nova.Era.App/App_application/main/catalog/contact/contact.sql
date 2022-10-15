@@ -70,7 +70,8 @@ begin
 		count(*) over()
 	from cat.Contacts c
 	where c.TenantId = @TenantId and c.Void = 0
-		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
+		and (@fr is null or c.[Name] like @fr or c.Memo like @fr or Email like @fr or 
+		Phone like @fr or [Address] like @fr)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -83,19 +84,29 @@ begin
 				when N'name' then c.[Name]
 				when N'memo' then c.[Memo]
 			end
+		end desc,
+		case when @Dir = N'asc' then
+			case @Order 
+				when N'datecreated' then c.UtcDateCreated
+			end
+		end asc,
+		case when @Dir = N'desc' then
+			case @Order
+				when N'datecreated' then c.UtcDateCreated
+			end
 		end desc
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
 	select [Contacts!TContact!Array] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.[Memo],
-		c.Birthday, c.Gender, c.Position,
-		[!!RowCount] = t.rowcnt
+		c.Birthday, c.Gender, c.Position, c.Phone, c.Email, c.[Address],
+		[!!RowCount] = t.rowcnt, [DateCreated!!UTC] = UtcDateCreated
 	from @cnts t inner join 
 		cat.Contacts c on c.TenantId = @TenantId and c.Id = t.id
 	order by t.rowno;
 
 	-- maps
-	exec cat.[Contact.Maps] @TenantId, @cnts;
+	--exec cat.[Contact.Maps] @TenantId, @cnts;
 
 	select [!$System!] = null, [!Contacts!Offset] = @Offset, [!Contacts!PageSize] = @PageSize, 
 		[!Contacts!SortOrder] = @Order, [!Contacts!SortDir] = @Dir,
@@ -115,10 +126,14 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Contact!TContact!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo,
-		c.Position, c.Birthday
+		c.Position, c.Birthday, c.Phone, c.Email, c.[Address],
+		[Leads!TLead!Array] = null
 	from cat.Contacts c
 	where c.TenantId = @TenantId and c.Id = @Id;
 
+	select [!TLead!Array] = null, [Id!!Id] = l.Id, [Name!!Name] = l.[Name],
+		[!TContact.Leads!ParentId] = l.Contact
+	from crm.Leads l where l.Contact = @Id;
 end
 go
 -------------------------------------------------
@@ -135,7 +150,10 @@ as table(
 	[Position] nvarchar(255),
 	Gender nchar(1),
 	Birthday date,
-	Country nchar(3)
+	Country nchar(3),
+	Email nvarchar(64),
+	Phone nvarchar(32),
+	[Address] nvarchar(255)
 )
 go
 ------------------------------------------------
@@ -168,12 +186,16 @@ begin
 		t.[Name] = s.[Name],
 		t.[Memo] = s.[Memo],
 		t.Position = s.Position,
+		t.Gender = s.Gender,
+		t.Phone = s.Phone,
+		t.Email = s.Email,
+		t.[Address] = s.[Address],
 		t.UtcDateModified = getutcdate(),
 		t.UserModified = @UserId
 	when not matched by target then insert
-		(TenantId, [Name], Memo, Position, 
+		(TenantId, [Name], Memo, Position, Gender, Email, Phone, [Address],
 			UserCreated, UserModified, UtcDateModified) values
-		(@TenantId, s.[Name], s.Memo, Position,
+		(@TenantId, s.[Name], s.Memo, Position, Gender, Email, Phone, [Address],
 		    @UserId, @UserId, getutcdate())
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;

@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1021
-generated: 14.10.2022 08:09:45
+generated: 15.10.2022 08:51:38
 */
 
 
@@ -8898,7 +8898,7 @@ create or alter procedure cat.[CashAccount.Simple.Index]
 @UserId bigint,
 @Company bigint = null,
 @Id bigint = null,
-@Mode nvarchar(16) = N'Cash',
+@Mode nvarchar(16) = N'All',
 @Date date = null
 as
 begin
@@ -8913,18 +8913,21 @@ begin
 		group by CashAccount
 	)
 	select [CashAccounts!TCashAccount!Array] = null,
-		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, TB.Balance,
+		[Id!!Id] = ca.Id, [Name!!Name] = isnull(ca.[Name], ca.AccountNo),  ca.AccountNo, ca.Memo, TB.Balance,
 		[ItemRole!TItemRole!RefId] = ca.ItemRole
 	from cat.CashAccounts ca
 		left join TB on ca.Id = TB.CashAccount
-	where ca.TenantId = @TenantId and ca.Company = @Company and 
-		(@Mode = N'All' or @Mode = N'Cash' and ca.IsCashAccount = 1 or @Mode = N'Bank' and ca.IsCashAccount = 0);
+	where ca.TenantId = @TenantId and (@Company is null or ca.Company = @Company) and 
+		(@Mode = N'All' or @Mode = N'Cash' and ca.IsCashAccount = 1 or @Mode = N'Bank' and ca.IsCashAccount = 0)
+	order by ca.IsCashAccount, ca.[Name];
 
-	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money';
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;
+
+	select [Params!TParam!Object] = null, [Mode] = @Mode;
 end
 go
 ------------------------------------------------
@@ -9046,6 +9049,35 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	select [Result!TResult!Object] = null, Balance = rep.fn_getCashAccountRem(@TenantId, @Id, @Date)
+end
+go
+
+------------------------------------------------
+create or alter procedure cat.[CashAccount.Fetch.Simple]
+@TenantId int = 1,
+@UserId bigint,
+@Company bigint = null,
+@Mode nvarchar(16) = N'All',
+@Text nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @fr nvarchar(255);
+	set @fr = N'%' + @Text + N'%';
+	select [CashAccounts!TCashAccount!Array] = null,
+		[Id!!Id] = ca.Id, [Name!!Name] = isnull(ca.[Name], ca.AccountNo),  ca.AccountNo, ca.Memo,
+		[ItemRole!TItemRole!RefId] = ca.ItemRole
+	from cat.CashAccounts ca
+	where ca.TenantId = @TenantId and (@Company is null or ca.Company = @Company) and 
+		(@Mode = N'All' or @Mode = N'Cash' and ca.IsCashAccount = 1 or @Mode = N'Bank' and ca.IsCashAccount = 0) and
+		([Name] like @fr or AccountNo like @fr or ca.Memo like @fr)
+	order by ca.IsCashAccount, ca.[Name];
+
+	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
+	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money';
+
 end
 go
 
@@ -12509,6 +12541,7 @@ create or alter procedure doc.[Document.Pay.Index]
 @TenantId int = 1,
 @UserId bigint,
 @Menu nvarchar(255),
+@AccMode nvarchar(16) = N'All',
 @Offset int = 0,
 @PageSize int = 20,
 @Order nvarchar(255) = N'date',
@@ -12641,6 +12674,9 @@ begin
 		inner join ui.OpMenuLinks ml on o.TenantId = ml.TenantId and o.Id = ml.Operation
 	where o.TenantId = @TenantId and ml.Menu = @Menu
 	order by f.[Order];
+
+	-- params
+	select [Params!TParam!Object] = null, [Menu] = @Menu, AccMode = @AccMode;
 
 	-- filters
 	select [Operations!TOperation!Array] = null, [Id!!Id] = -1, [Name!!Name] = N'@[Filter.AllOperations]', null, null, [!Order] = -1

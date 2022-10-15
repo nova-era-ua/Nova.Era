@@ -231,3 +231,18 @@ begin
 	where TenantId = @TenantId and Id = @Id;
 end
 go
+
+------------------------------------------------
+create or alter procedure doc.[Document.SetState]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint,
+@State bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	update doc.Documents set [State] = @State where TenantId = @TenantId and Id = @Id;
+end
+go
+

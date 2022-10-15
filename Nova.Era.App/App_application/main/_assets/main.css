@@ -43,6 +43,14 @@ li.line-top:before {
   display: list-item;
 }
 /*UTILS (like bootstrap) */
+.tag-label-lg {
+  padding: 4px 16px;
+}
+.gap-1 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .mr-1 {
   margin-right: 0.25rem;
 }

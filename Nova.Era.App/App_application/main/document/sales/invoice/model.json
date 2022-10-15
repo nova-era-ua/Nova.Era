@@ -20,6 +20,10 @@
         "unapply": {
             "type": "sql",
             "procedure": "Document.UnApply"
+        },
+        "setState": {
+            "type": "sql",
+            "procedure": "Document.SetState"
         }
     }
 }
