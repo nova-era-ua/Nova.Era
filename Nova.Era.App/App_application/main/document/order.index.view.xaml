@@ -41,7 +41,7 @@
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
 			<DataGridColumn Header="@[Number]" Content="{Bind $No}" Role="Number" SortProperty="no"/>
-			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number"/>
+			<DataGridColumn Header="@[Sum]" Content="{Bind Sum, DataType=Currency}" Role="Number" Bold="True"/>
 			<DataGridColumn Header="@[Status]" Fit="True" Wrap="NoWrap" Sort="False">
 				<TagLabel Content="{Bind State.Name}" Style="{Bind State.Color}"/>
 			</DataGridColumn>

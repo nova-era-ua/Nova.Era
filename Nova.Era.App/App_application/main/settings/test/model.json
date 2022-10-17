@@ -8,5 +8,11 @@
 			"template": "index.template",
 			"view": "index.view"
 		}
+	},
+	"commands": {
+		"testApi": {
+			"type": "javascript",
+			"file": "testapi.server"
+		}
 	}
 }

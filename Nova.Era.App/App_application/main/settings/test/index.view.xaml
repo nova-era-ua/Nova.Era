@@ -3,8 +3,10 @@
 	<Grid Rows="Auto,1*">
 		<Toolbar>
 			<Button Icon="Plus" Command="{BindCmd Execute, CommandName=addElement, Argument={Bind Accounts.$selected}}"/>
+			<Button Icon="TaskComplete" Command="{BindCmd 
+				Command=Invoke, Url='/settings/test/testApi', Argument='0'}" />
 		</Toolbar>
-	<TreeGrid ItemsSource="{Bind Accounts}" ItemsProperty="Items" 
+		<TreeGrid ItemsSource="{Bind Accounts}" ItemsProperty="Items" 
 			  Striped="True" Hover="True" Width="Auto" GridLines="Both"
 			  FolderStyle="Bold" StickyHeaders="True" Height="100%" MinWidth="900px"
 			  DoubleClick="{BindCmd Reload}">
