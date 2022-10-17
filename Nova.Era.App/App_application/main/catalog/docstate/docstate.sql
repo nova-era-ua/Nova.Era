@@ -1,6 +1,7 @@
 ﻿/* ACCOUNT KIND */
 drop procedure if exists doc.[DocState.Item.Metadata];
 drop procedure if exists doc.[DocState.Item.Update];
+drop procedure if exists doc.[DocState.Update]; -- temp
 drop type if exists doc.[DocState.TableType];
 go
 ------------------------------------------------
