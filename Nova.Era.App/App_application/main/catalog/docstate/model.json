@@ -4,14 +4,20 @@
   "model": "DocState",
   "actions": {
     "index": {
-      "index": true,
+        "index": true,
+      "template": "index.template",
       "view": "index.view"
     }
   },
   "dialogs": {
     "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
+        "template": "edit.template",
+        "view": "edit.dialog"
+    },
+    "edititem": {
+        "model": "DocState.Item",
+        "template": "edititem.template",
+        "view": "edititem.dialog"
     }
   }
 }

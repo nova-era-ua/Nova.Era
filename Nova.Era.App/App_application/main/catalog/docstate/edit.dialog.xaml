@@ -1,11 +1,42 @@
 ﻿<!-- Edit DocStates-->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="Статуси документів" Overflow="True" Size="Medium">
+		Title="{Bind Form.Name}" Overflow="True" Width="50rem"
+		AlwaysOk="True">
 	<Dialog.Buttons>
-		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+		<Button Content="@[Close]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<EmptyPanel>
-		Yet not implemented
-	</EmptyPanel>
+	<Grid>
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<Button Icon="Plus" Content="@[Create]"
+					Command="{BindCmd Dialog, Action=Append, Argument={Bind Form.States}, Url=/catalog/docstate/edititem, Data={Bind Form.$CreateArg}}"/>
+			<Button Icon="Edit"
+					Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Form.States}, Url=/catalog/docstate/edititem}"/>
+			<Button Icon="Delete"
+					Command="{BindCmd DbRemoveSelected, Argument={Bind Form.States}, Confirm='@[Confirm.Delete.Element]'}"/>
+			<Separator />
+			<Button Icon="Reload" Command="{BindCmd Reload}"/>
+		</Toolbar>
+		<DataGrid XamlStyle="{StyleResource DataGridSimple}" 
+					ItemsSource="{Bind Form.States}"
+					FixedHeader="True" Height="20rem"
+					DoubleClick="{BindCmd Dialog, Action=EditSelected, 
+						Argument={Bind Form.States}, Url='/catalog/docstate/edititem'}">
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Name]">
+				<TagLabel Content="{Bind Name}" Style="{Bind Color}" Padding=".125rem, 1rem"/>
+			</DataGridColumn>
+			<DataGridColumn Header="@[Type]" Content="{Bind $Kind}" Wrap="NoWrap" Fit="True"/>
+			<DataGridColumn Header="@[Ordinal]" Content="{Bind Order}" Role="Id"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
+			<DataGridColumn Fit="True">
+				<CommandBar Visibility="Hover">
+					<Button Icon="Edit" 
+						   Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/catalog/docstate/edititem'}"/>
+					<Button Icon="Delete"
+						   Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}" />
+				</CommandBar>
+			</DataGridColumn>
+		</DataGrid>
+	</Grid>
 </Dialog>
 

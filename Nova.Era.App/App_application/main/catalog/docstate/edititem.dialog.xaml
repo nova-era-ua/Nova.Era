@@ -1,0 +1,42 @@
+﻿<!-- Edit DocState Item -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="{Bind State.$Id, Format='@[State] [{0}]'}" Overflow="True"
+		Width="30rem">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid Columns="1*,1*" Rows="Auto,Auto,Auto,1*,Auto">
+		<TextBox Grid.Row="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind State.Name}" 
+				 Bold="True" TabIndex="1" UpdateTrigger="Input"/>
+		<Static Label="@[Type]" Value="{Bind State.$Kind}" Grid.Row="2" If="{Bind State.$IsOnce}"/>
+		<ComboBox Grid.Row="2" Label="@[Type]" Value="{Bind State.Kind}"
+				  If="{Bind !State.$IsOnce}">
+			<ComboBoxItem Content="В обробці" Value="P"/>
+			<ComboBoxItem Content="Скасовано" Value="C"/>
+		</ComboBox>
+		<ComboBox Grid.Row="3" Grid.Col="1" Label="@[Color]" Value="{Bind State.Color}">
+			<ComboBoxItem Content="Default" Value=""/>
+			<ComboBoxItem Content="Green" Value="green"/>
+			<ComboBoxItem Content="Orange" Value="orange"/>
+			<ComboBoxItem Content="Cyan" Value="cyan"/>
+			<ComboBoxItem Content="Червоний" Value="red"/>
+			<ComboBoxItem Content="Purlple" Value="purple"/>
+			<ComboBoxItem Content="Pink" Value="pink"/>
+			<ComboBoxItem Content="Gold" Value="gold"/>
+			<ComboBoxItem Content="Синій" Value="blue"/>
+			<ComboBoxItem Content="Salmon" Value="salmon"/>
+			<ComboBoxItem Content="Seagreen" Value="seagreen"/>
+			<ComboBoxItem Content="Tan" Value="tan"/>
+			<ComboBoxItem Content="Magenta" Value="magenta"/>
+			<ComboBoxItem Content="LightGray" Value="lightgray"/>
+			<ComboBoxItem Content="Оливковий" Value="olive"/>
+			<ComboBoxItem Content="Teal" Value="teal"/>
+		</ComboBox>
+		<TagLabel Grid.Row="3" Grid.Col="2" Style="{Bind State.Color}" Content="{Bind State.Name}" 
+				  Padding=".475rem" CssClass="min-height-30"/>
+		<TextBox Grid.Row="4" Label="@[Ordinal]" Value="{Bind State.Order}" Number="True" Align="Right"/>
+		<TextBox Grid.Row="5" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind State.Memo}" Multiline="True"/>
+	</Grid>
+</Dialog>
+

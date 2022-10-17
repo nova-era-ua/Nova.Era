@@ -2,14 +2,14 @@
 	<Grid Height="100%" Rows="Auto,1*" Padding="0">
 		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Edit"
-					Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Forms}, Url=/catalog/docstate/edit}"/>
+					Command="{BindCmd Execute, CommandName=editSelected, Argument={Bind Forms}}"/>
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}" 
 					ItemsSource="{Bind Forms}"
 					FixedHeader="True"
-					DoubleClick="{BindCmd Dialog, Action=EditSelected, 
-						Argument={Bind Forms}, Url='/catalog/docstate/edit'}">
+					DoubleClick="{BindCmd Execute, CommandName=editSelected, 
+						Argument={Bind Forms}}">
 			<DataGridColumn Header="#" Content="{Bind Id}" Wrap="NoWrap" Fit="True"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 			<DataGridColumn Header="@[DocStates]">

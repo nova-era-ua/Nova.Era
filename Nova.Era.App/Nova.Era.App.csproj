@@ -148,6 +148,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\catalog\docstate\edititem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\docstate\edititem.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <Generator>XamlIntelliSenseFileGenerator</Generator>
       <SubType>Designer</SubType>
@@ -506,6 +514,8 @@
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
     <TypeScriptCompile Include="App_application\%40types\server.d.ts" />
     <TypeScriptCompile Include="App_application\main\appstart\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\docstate\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\docstate\edititem.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\docstate\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\autonum\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\cashaccount\browse.template.ts" />
@@ -514,6 +524,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\_stage.module.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\docstate\_state.module.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\project\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\contract\show.template.ts" />
