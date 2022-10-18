@@ -1,6 +1,6 @@
 ﻿/*
-version: 10.1.1021
-generated: 17.10.2022 17:55:53
+version: 10.1.1028
+generated: 18.10.2022 20:00:08
 */
 
 
@@ -10842,6 +10842,7 @@ go
 /* ACCOUNT KIND */
 drop procedure if exists doc.[DocState.Item.Metadata];
 drop procedure if exists doc.[DocState.Item.Update];
+drop procedure if exists doc.[DocState.Update]; -- temp
 drop type if exists doc.[DocState.TableType];
 go
 ------------------------------------------------
@@ -16606,6 +16607,18 @@ begin
 end
 go
 
+create or alter procedure app.[Dashboard.SalesMonth.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null -- widget id
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Sales!TSale!Array] = null, [Id!!Id] = 0;
+end
+go
 /*
 admin
 */
@@ -16993,8 +17006,9 @@ begin
 		Memo nvarchar(255), Icon nvarchar(32), Params nvarchar(1023));
 	insert into @widgets (Id, Kind, colSpan, rowSpan, [Name], [Url], Icon, Memo, Params) values
 		(1000, N'Root',       5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null),
+		(1001, N'Root',       2, 1, N'Продажі',       N'/sales/widgets/salesmonth',    N'cart',         N'Продажі за місяць', null),
 		--
-		(1001, N'Accounting', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null);
+		(2001, N'Accounting', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null);
 		/*
 		(1002, N'Root',       2, 1, N'Widget 2x1', N'/widgets/widget3/index', N'currency-uah', null, null);
 		(N'Widget4', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null),

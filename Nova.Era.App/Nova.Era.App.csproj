@@ -177,6 +177,7 @@
     <Content Include="App_application\main\reports\stock\report.stock.sql">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\sales\widgets\widgets.sql" />
     <Content Include="App_application\main\settings\develop\application.sql" />
     <Content Include="App_application\main\settings\develop\develop.sql" />
     <Content Include="App_application\main\settings\integration\integration.sql" />
@@ -453,6 +454,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\sales\widgets\salesmonth.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\accounting\bankacc\model.json" />
@@ -586,6 +591,7 @@
     <Content Include="App_application\main\crm\agent\model.json" />
     <Content Include="App_application\main\settings\integration\model.json" />
     <Content Include="App_application\main\integration\delivery\novaposhta\model.json" />
+    <Content Include="App_application\main\sales\widgets\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
@@ -713,6 +719,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\company\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\plan\turnover.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\_common\simple.module.ts" />
+    <TypeScriptCompile Include="App_application\main\sales\widgets\salesmonth.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\develop\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\operation\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\operation\edit.template.ts" />

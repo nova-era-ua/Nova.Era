@@ -1,7 +1,7 @@
 ﻿[
 	{
 		"$schema": "@schemas/sql-json-schema.json#",
-		"version": "10.1.1021",
+		"version": "10.1.1028",
 		"outputFile": "SqlScripts/application.sql",
 		"inputFiles": [
 			"@sql/platform/a2v10platform.sql",
@@ -61,6 +61,7 @@
 			"main/settings/develop/develop.sql",
 			"main/settings/develop/application.sql",
 			"main/settings/integration/integration.sql",
+			"main/sales/widgets/widgets.sql",
 			"main/_sql/admin.sql",
 			"main/_sql/initial_catalog.sql",
 			"main/_sql/initial_data.sql",
@@ -68,7 +69,7 @@
 		]
 	},
 	{
-		"version": "10.1.1021",
+		"version": "10.1.1028",
 		"outputFile": "SqlScripts/catalog.sql",
 		"inputFiles": [
 			"main/_sql/common/security_common.sql",
@@ -77,7 +78,7 @@
 		]
 	},
 	{
-		"version": "10.1.1014",
+		"version": "10.1.1028",
 		"outputFile": "SqlScripts/multitenant.sql",
 		"inputFiles": [
 			"main/_sql/startup_mt.sql"

@@ -1,0 +1,13 @@
+﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<StateCard Icon="Cart" Width="100%" Height="100%" Compact="True" Style="Cyan"
+			   Header="Продажі за місяць">
+		<StateCard.Text>
+			1 112.00 UAH
+		</StateCard.Text>
+		<StateCard.Footer>
+			<Text>
+				<Badge Content="{Bind Root.$Today, Format='+ {0} UAH'}"></Badge> за сьогодні
+			</Text>
+		</StateCard.Footer>
+	</StateCard>
+</PartialBlock>

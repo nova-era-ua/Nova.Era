@@ -1,0 +1,13 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "app",
+	"model": "",
+	"actions": {
+		"salesmonth": {
+			"view": "salesmonth.view",
+			"model": "Dashboard.SalesMonth",
+			"template": "salesmonth.template",
+			"skipDataStack": false
+		}
+	}
+}
