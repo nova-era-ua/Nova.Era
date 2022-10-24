@@ -131,6 +131,7 @@
     <Content Include="css\site.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="img\logo\np_logo.png" />
     <Content Include="localization\default.de.txt" />
     <Content Include="localization\default.en.txt" />
     <Content Include="localization\default.pl.txt" />
@@ -180,9 +181,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="App_application\%40types\platform.d.ts" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="img\logo\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
