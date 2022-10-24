@@ -5,7 +5,26 @@
 	"actions": {
 		"index": {
 			"index": true,
+			"template": "index.template",
 			"view": "index.view"
+		}
+	},
+	"dialogs": {
+		"browse": {
+			"model": "Integration.Browse",
+			"index": true,
+			"template": "browse.template",
+			"view": "browse.dialog"
+		}
+	},
+	"commands": {
+		"delete": {
+			"type": "sql",
+			"procedure": "Integration.Delete"
+		},
+		"add": {
+			"type": "sql",
+			"procedure": "Integration.Add"
 		}
 	}
 }

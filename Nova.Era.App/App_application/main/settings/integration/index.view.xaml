@@ -1,12 +1,30 @@
 ﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<Grid Height="100%" Columns="MinMax(20rem;25%),1px,1*" AlignItems="Stretch" Gap="6">
-		<List Grid.Col="1" AutoSelect="FirstItem" GroupBy="Category"
-			   ItemsSource="{Bind Integration}">
-			<ListItemSimple Content="{Bind Name}"
-				Icon="{Bind Icon}" />
-		</List>
-		<GridDivider Grid.Col="2"/>
-		<Include Grid.Col="3" FullHeight="True"
-			If="{Bind Integration.$hasSelected}" Source="{Bind Integration.$selected.Url}"/>
+	<Grid Height="100%" Rows="Auto,1*" AlignItems="Stretch">
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<Button Icon="Add" Content="@[Add]" 
+					Command="{BindCmd Execute, CommandName=addIntegration}"/>
+			<Separator />
+			<Button Icon="Reload" Command="{BindCmd Reload}" />
+		</Toolbar>
+		<StackPanel ItemsSource="{Bind Sources}" Orientation="Vertical" If="{Bind !Sources.$isEmpty}">
+			<Header Content="{Bind $Category}" CssClass="int-list-group"/>
+			<StackPanel ItemsSource="{Bind Integrations}" Orientation="Horizontal"
+						Gap="1rem" Wrap="Wrap" Padding="1rem, 0">
+				<Hyperlink Command="{BindCmd Dialog, Action=Show, Argument={Bind}, 
+					Url={Bind SetupUrl}}" CssClass="{Bind $HlinkClass}">
+				<StackPanel AlignItems="Center" Padding="1rem" >
+					<Html Content="{Bind $Image}"/>
+					<Span Content="{Bind Name}" CssClass="int-list-label"/>
+				</StackPanel>
+				</Hyperlink>
+			</StackPanel>
+		</StackPanel>
+		<EmptyPanel If="{Bind Sources.$isEmpty}" Icon="InfoOutline">
+			<StackPanel Gap="2rem" AlignItems="Center">
+				<Span>Жодної інтеграції ще не додано.</Span>
+				<Button Content="Додати зараз" Width="15rem" Style="Primary"
+							Command="{BindCmd Execute, CommandName=addIntegration}"/>
+			</StackPanel>
+		</EmptyPanel>
 	</Grid>
 </Page>

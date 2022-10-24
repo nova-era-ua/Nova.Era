@@ -34,12 +34,14 @@
 			"schema": "app",
 			"model": "Application.Export",
 			"type": "json",
-			"outputFileName": "application.json"
+			"zip":  true,
+			"outputFileName": "application.zip"
 		},
 		"upload": {
 			"schema": "app",
 			"type": "parse",
 			"parse": "json",
+			"zip": true,
 			"model": "Application.Upload"
 		}
 	}

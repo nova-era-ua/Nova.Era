@@ -1,6 +1,7 @@
 ﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
 		Title="{Bind Contract.Id, Format='@[Contract] [{0}]'}" Placement="FullScreen">
-	<Grid Height="100%" Rows="Auto,1*" Padding="1rem">
+	<Grid Height="100%" Columns="MinMax(200px;20%),1px,1*" Rows="Auto,1*" 
+		  Gap="1rem" Padding="1rem">
 		<!--
 		<Toolbar Style="Light" Grid.Row="1" Padding="0">
 			<! - -
@@ -10,13 +11,23 @@
 			<Button Icon="Clear" Content="@[Close]" Command="{BindCmd Close}"/>
 		</Toolbar>
 		-->
-		<TabBar Grid.Row="1" Value="{Bind Root.$$Tab}" Margin="0,0,1rem,0">
+		<Grid Grid.Col="1" Grid.Row="1" Grid.RowSpan="2" Grid.VAlign="Top">
+			<Header Content="@[Contract]" Size="Large" Bold="False" Margin=".5rem,0,0,0"/>
+			<Static Value="{Bind Contract.SNo}" Label="@[Number]" Width="15rem"/>
+			<Static Value="{Bind Contract.Name}" Label="@[Name]"/>
+			<Static Value="{Bind Contract.Agent.Name}" Label="@[Agent]"/>
+			<Line />
+			<Button Content="@[Edit]" Width="10rem"
+					Command="{BindCmd Dialog, Action=Edit, Argument={Bind Contract}, Url='/catalog/contract/edit'}"/>
+		</Grid>
+		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
+		<TabBar Grid.Row="1" Grid.Col="3" Value="{Bind Root.$$Tab}" Margin="0,0,1rem,0">
 			<!--
 			<TabButton Content="Інформація" ActiveValue=""/>
 			-->
 			<TabButton Content="Документи" ActiveValue=""/>
 		</TabBar>
-		<Switch Expression="{Bind Root.$$Tab}" Grid.Row="2">
+		<Switch Expression="{Bind Root.$$Tab}" Grid.Row="2" Grid.Col="3">
 			<Case Value="">
 				<CollectionView RunAt="Server" ItemsSource="{Bind Contract.Documents}">
 					<CollectionView.Filter>

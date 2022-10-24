@@ -8,7 +8,12 @@
 	<Grid Columns="1*,1*" Gap="1rem">
 		<TextBox Grid.ColSpan="2" Label="@[PersonName]" Value="{Bind Contact.Name}" TabIndex="1"/>
 		<TextBox Grid.ColSpan="2" Label="@[Position]" Value="{Bind Contact.Position}"/>
-		<TextBox Label="@[Phone]" Value="{Bind Contact.Phone, Mask='+38 (0##) ###-####'}"/>
+		<TextBox Label="@[Phone]" Value="{Bind Contact.Phone, Mask='+38 (0##) ###-####'}">
+			<TextBox.Link>
+				<Hyperlink Size="Small" If="{Bind Contact.$HasPhone}"
+					Content="Зателефонувати" Command="{BindCmd CallPhone, Argument={Bind Contact.Phone}}"/>
+			</TextBox.Link>
+		</TextBox>
 		<TextBox Label="@[Email]" Value="{Bind Contact.Email}">
 			<TextBox.Link>
 				<Hyperlink Size="Small" If="{Bind Contact.$HasEmail}"

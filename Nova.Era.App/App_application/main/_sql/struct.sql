@@ -1483,16 +1483,41 @@ create table app.DashboardItems
 );
 go
 -------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Integrations')
-create table app.[Integrations]
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'IntegrationSources')
+create table app.IntegrationSources
 (
 	Id int not null
-		constraint PK_Integrations primary key,
+		constraint PK_IntegrationSources primary key,
 	[Name] nvarchar(255),
 	[Memo] nvarchar(255),
 	[Icon] nvarchar(16),
-	[Url] nvarchar(255),
-	[Order] int,
-	[Category] nvarchar(16)
+	[Key] nvarchar(16),
+	[Logo] nvarchar(255),
+	[SetupUrl] nvarchar(255),
+	[DocumentUrl] nvarchar(255),
+	[Order] int
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_Integrations')
+	create sequence app.SQ_Integrations as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Integrations')
+create table app.[Integrations]
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Integrations_Id default(next value for app.SQ_Integrations),
+	Source int not null,
+	Active bit not null
+		constraint DF_Integrations_Active default(1),
+	[Key] nvarchar(16),
+	[Name] nvarchar(255),
+	Memo nvarchar(255),
+	-- Integration params
+	ApiKey nvarchar(255),
+	constraint PK_Integrations primary key (TenantId, Id),
+	constraint FK_Integrations_Source_IntegrationSources foreign key (Source) references app.IntegrationSources(Id),
 );
 go

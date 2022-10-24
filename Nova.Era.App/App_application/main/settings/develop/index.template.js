@@ -17,7 +17,7 @@ define(["require", "exports"], function (require, exports) {
     }
     async function upload() {
         const ctrl = this.$ctrl;
-        let result = await ctrl.$upload('/settings/develop/upload', 'application/json');
+        let result = await ctrl.$upload('/settings/develop/upload', 'application/zip');
         ctrl.$toast('Застосунок завантажено успішно', "success");
     }
     async function appList() {

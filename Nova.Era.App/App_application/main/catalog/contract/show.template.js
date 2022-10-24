@@ -8,7 +8,8 @@ define(["require", "exports"], function (require, exports) {
         },
         commands: {
             editDocument
-        }
+        },
+        events: {}
     };
     exports.default = template;
     async function editDocument(doc) {

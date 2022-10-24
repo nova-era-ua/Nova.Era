@@ -1,0 +1,33 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		Width="40rem" Placement="SideBarRight" ButtonOnTop="True"
+		SaveEvent="app.element.save">
+	<Dialog.Buttons>
+		<Button Style="Primary" Content="@[SaveAndClose]" 
+				Command="{BindCmd SaveAndClose, ValidRequired=True}"/>
+		<Button Content="@[Close]" Command="{BindCmd Close}"/>
+		<Separator />
+		<Button Icon="Ellipsis" CssClass="btn-more" Render="Show">
+			<Button.DropDown>
+				<DropDownMenu Direction="DownLeft">
+					<MenuItem Content="@[Delete]"
+						Command="{BindCmd Execute, CommandName=deleteMe, Confirm='@[Confirm.Delete.Element]'}"/>
+					</DropDownMenu>
+			</Button.DropDown>
+		</Button>
+	</Dialog.Buttons>
+	<Grid Gap="1rem">
+		<StackPanel Orientation="Horizontal" AlignItems="Center">
+			<Header Content="{Bind Integration.SourceName}" Size="Large"
+				Bold="False"/>
+			<Separator />
+			<Html Content="{Bind Integration.$Image}" />
+		</StackPanel>
+		<TextBox Label="@[Name]" Value="{Bind Integration.Name}" TabIndex="1"/>
+		<TextBox Label="API Key" Value="{Bind Integration.ApiKey}"/>
+		<CheckBox Label="@[Active]" Value="{Bind Integration.Active}"/>
+		<Button Style="Orange" Content="Перевірити з'єднання" 
+				Command="{BindCmd Invoke, Url='/integration/delivery/novaposhta/checkconnect', 
+				Argument={Bind Integration}, SaveRequired=True}" Width="20rem"/>
+		<TextBox Label="@[Memo]" Value="{Bind Integration.Memo}" Multiline="True" />
+	</Grid>
+</Dialog>

@@ -13,15 +13,12 @@
 			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
 		</ComboBox>
 		<TextBox Grid.ColSpan="3" Label="@[Name]" Value="{Bind Contract.Name}"/>
-		<Selector Grid.ColSpan="3" Label="@[Company]" Value="{Bind Contract.Company}" DisplayProperty="Name">
-			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Contract.Company}, Url='/catalog/company/browse'}"/>
-		</Selector>
-		<Selector Grid.ColSpan="3" Label="@[Agent]" Value="{Bind Contract.Agent}" DisplayProperty="Name">
-			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Contract.Agent}, Url='/catalog/agent/browse'}"/>
-		</Selector>
-		<Selector Grid.ColSpan="2" Label="@[PriceKind]" Value="{Bind Contract.PriceKind}" DisplayProperty="Name">
-			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Contract.PriceKind}, Url='/catalog/pricekind/browse'}"/>
-		</Selector>
+		<SelectorSimple Grid.ColSpan="3" Label="@[Company]" Value="{Bind Contract.Company}" 
+						Url="/catalog/company"/>
+		<SelectorSimple Grid.ColSpan="3" Label="@[Agent]" Value="{Bind Contract.Agent}"
+						Url="/catalog/agent"/>
+		<SelectorSimple Grid.ColSpan="2" Label="@[PriceKind]" Value="{Bind Contract.PriceKind}" 
+						Url="/catalog/pricekind"/>
 		<TextBox Grid.ColSpan="3" Label="@[Memo]" Value="{Bind Contract.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
 </Dialog>

@@ -51,14 +51,14 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="A2v10.Xaml, Version=10.0.7900.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7900\lib\net48\A2v10.Xaml.dll</HintPath>
+    <Reference Include="A2v10.Xaml, Version=10.0.7901.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7901\lib\net48\A2v10.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7900.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7900\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7901.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7901\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Report, Version=10.0.7900.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7900\lib\net48\A2v10.Xaml.Report.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Report, Version=10.0.7901.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7901\lib\net48\A2v10.Xaml.Report.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -450,11 +450,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\integration\delivery\novaposhta\default.view.xaml">
+    <Content Include="App_application\main\sales\widgets\salesmonth.view.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\sales\widgets\salesmonth.view.xaml">
+    <Content Include="App_application\main\settings\test\indexcw.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\integration\delivery\novaposhta\setup.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\settings\integration\browse.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
@@ -549,7 +556,7 @@
     <TypeScriptCompile Include="App_application\main\document\sales\retcust\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\order.index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\bind.module.ts" />
-    <TypeScriptCompile Include="App_application\main\integration\delivery\novaposhta\default.template.ts" />
+    <Content Include="App_application\main\integration\delivery\novaposhta\checkconnect.server.js" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accrespcost.template.ts" />
     <TypeScriptCompile Include="App_application\main\appinit\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\money\cashmove\edit.template.ts" />
@@ -721,6 +728,9 @@
     <TypeScriptCompile Include="App_application\main\reports\_common\simple.module.ts" />
     <TypeScriptCompile Include="App_application\main\sales\widgets\salesmonth.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\develop\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\integration\delivery\novaposhta\setup.template.ts" />
+    <TypeScriptCompile Include="App_application\main\settings\integration\browse.template.ts" />
+    <TypeScriptCompile Include="App_application\main\settings\integration\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\operation\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\operation\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\accountplan\edit.d.ts" />
@@ -730,6 +740,7 @@
     <TypeScriptCompile Include="App_application\main\settings\accountplan\plan.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\policy\page.template.ts" />
     <Content Include="App_application\main\settings\test\testapi.server.js" />
+    <TypeScriptCompile Include="App_application\main\settings\test\indexcw.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\test\index.template.ts" />
     <TypeScriptCompile Include="App_application\manufacturing\dashboard\test1.template.ts" />
   </ItemGroup>
@@ -1239,8 +1250,8 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.targets'))" />
-    <Error Condition="!Exists('..\packages\A2v10.App.Runtime.10.0.7900\build\A2v10.App.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.App.Runtime.10.0.7900\build\A2v10.App.Runtime.targets'))" />
+    <Error Condition="!Exists('..\packages\A2v10.App.Runtime.10.0.7901\build\A2v10.App.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.App.Runtime.10.0.7901\build\A2v10.App.Runtime.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.targets" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.targets')" />
-  <Import Project="..\packages\A2v10.App.Runtime.10.0.7900\build\A2v10.App.Runtime.targets" Condition="Exists('..\packages\A2v10.App.Runtime.10.0.7900\build\A2v10.App.Runtime.targets')" />
+  <Import Project="..\packages\A2v10.App.Runtime.10.0.7901\build\A2v10.App.Runtime.targets" Condition="Exists('..\packages\A2v10.App.Runtime.10.0.7901\build\A2v10.App.Runtime.targets')" />
 </Project>

@@ -25,7 +25,8 @@
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 			<DataGridColumn Header="@[Phone]" Fit="True" Wrap="NoWrap">
-				<Span Content="{Bind Phone, Mask='+38 (0##) ###-####'}"/>
+				<Hyperlink Content="{Bind Phone, Mask='+38 (0##) ###-####'}" If="{Bind Phone}"
+						   Command="{BindCmd CallPhone, Argument={Bind Phone}}"/>
 			</DataGridColumn>
 			<DataGridColumn Header="@[Email]" Sort="False"
 							Fit="True" Wrap="NoWrap">

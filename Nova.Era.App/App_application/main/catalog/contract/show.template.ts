@@ -7,12 +7,13 @@ const template: Template = {
 	},
 	commands: {
 		editDocument
+	},
+	events: {
+
 	}
 };
 
 export default template;
-
-
 
 async function editDocument(doc) {
 	if (!doc) return;

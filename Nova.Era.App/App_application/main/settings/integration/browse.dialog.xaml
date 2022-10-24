@@ -1,0 +1,20 @@
+﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		Width="30rem" Placement="SideBarRight" ButtonOnTop="True">
+	<Dialog.Buttons>
+		<Button Content="@[Select]" Style="Primary" 
+				Command="{BindCmd Select, Argument={Bind Sources}}"/>
+		<Separator />
+		<Button Content="@[Close]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid Gap="1rem">
+		<TextBox Label="@[Name]" Value="{Bind Root.$Name}" 
+				 Placeholder="{Bind Root.$SelectedName}" UpdateTrigger="Input"/>
+		<List ItemsSource="{Bind Sources}" GroupBy="$Category" Margin="-1px, 0, 0, 0"
+			  DoubleClick="{BindCmd Select, Argument={Bind Sources} }">
+			<StackPanel Orientation="Horizontal" AlignItems="Center" Gap="1rem">
+				<Html Content="{Bind $Image}"/>
+				<Header Content="{Bind Name}" Bold="False"/>
+			</StackPanel>
+		</List>
+	</Grid>
+</Dialog>

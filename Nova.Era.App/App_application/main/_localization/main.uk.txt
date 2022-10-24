@@ -32,6 +32,7 @@
 @Companies=Підприємства
 @Company=Підприємство
 @Type=Тип
+@Active=Активний
 @Other=Інше
 @AccPolicy=Налаштування обліку
 @Extra=Додатково

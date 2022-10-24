@@ -1,11 +1,17 @@
 ﻿{
-  "$schema": "../../@schemas/model-json-schema.json#",
-  "schema": "int",
-  "actions": {
-    "index": {
-        "model": "",
-        "template": "default.template",
-        "view": "default.view"
-    }
-  }
+	"$schema": "../../../../@schemas/model-json-schema.json#",
+	"schema": "app",
+	"dialogs": {
+		"setup": {
+			"model": "Integration",
+			"template": "setup.template",
+			"view": "setup.dialog"
+		}
+	},
+	"commands": {
+		"checkconnect": {
+			"type": "javascript",
+			"file": "checkconnect.server"
+		}
+	}
 }

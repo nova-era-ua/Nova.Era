@@ -262,24 +262,29 @@ go
 -- Integrations
 begin
 	set nocount on;
-	declare @int table(Id int, [Name] nvarchar(255), [Order] int, 
-		Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
-	insert into @int (Id, [Order], [Category], [Name], [Url], Icon, Memo) values
+	declare @int table(Id int, [Key] nvarchar(16), [Name] nvarchar(255), [Order] int, 
+		Category nvarchar(32), [Memo] nvarchar(255), [SetupUrl] nvarchar(255), DocumentUrl nvarchar(255),
+		Icon nvarchar(16), Logo nvarchar(255));
+	insert into @int (Id, [Key], [Order], [Category], [Name], [SetupUrl], DocumentUrl, Icon, Logo, Memo) values
 	-- delivery services
-	(1000, 1000, N'@[Int.Delivery]', N'Нова пошта',    N'/integration/delivery/novaposhta/index', N'list',  N'');
+	(1000, N'Delivery', 1000, N'@[Int.Delivery]', N'Нова пошта',    
+		N'/integration/delivery/novaposhta/setup', N'/integration/delivery/novaposhta/document', 
+		N'list',  N'/img/logo/np_logo.png', N'');
 
-	merge app.[Integrations] as t
+	merge app.[IntegrationSources] as t
 	using @int as s on t.Id = s.Id
 	when matched then update set
 		t.[Name] = s.[Name],
+		t.[Key] = s.[Key],
 		t.[Order] = s.[Order],
-		t.Category = s.Category,
 		t.Memo = s.Memo,
-		t.[Url] = s.[Url],
+		t.[SetupUrl] = s.[SetupUrl],
+		t.DocumentUrl = s.DocumentUrl,
+		t.Logo = s.Logo,
 		t.Icon = s.Icon
 	when not matched by target then insert
-		(Id, [Name], [Order], Category, Memo, [Url], Icon) values
-		(s.Id, s.[Name], [Order], Category, Memo, [Url], Icon)
+		(Id,  [Key], [Name], [Order], Memo, [SetupUrl], DocumentUrl, Icon, Logo) values
+		(s.Id, [Key], s.[Name], [Order], Memo, [SetupUrl], DocumentUrl, Icon, Logo)
 	when not matched by source then delete;
 end
 go

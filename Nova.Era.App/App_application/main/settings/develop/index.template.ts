@@ -18,7 +18,7 @@ async function createTest() {
 
 async function upload() {
 	const ctrl: IController = this.$ctrl;
-	let result = await ctrl.$upload('/settings/develop/upload', 'application/json')
+	let result = await ctrl.$upload('/settings/develop/upload', 'application/zip')
 	//alert(JSON.stringify(result));
 	ctrl.$toast('Застосунок завантажено успішно', CommonStyle.success);
 }
