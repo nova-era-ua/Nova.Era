@@ -16,7 +16,8 @@ define(["require", "exports"], function (require, exports) {
         },
         commands: {
             addHierarchy,
-            generateBarcode
+            generateBarcode,
+            addVariant
         },
         delegates: {
             fetchUnit
@@ -42,5 +43,14 @@ define(["require", "exports"], function (require, exports) {
         return this.$ctrl.$invoke('fetch', { Text: text }, '/catalog/unit');
     }
     function generateBarcode(item) {
+    }
+    async function addVariant(item) {
+        const ctrl = this.$ctrl;
+        if (!item.Id) {
+            this.$setDirty(true);
+            await ctrl.$save();
+        }
+        let vars = await ctrl.$showDialog('/catalog/item/variant', { Id: item.Id });
+        console.dir(vars);
     }
 });

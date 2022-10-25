@@ -14,6 +14,8 @@ const template: Template = {
 		'TDocBase.$ShortName': docBaseName,
 		'TDocBase.$Icon'() { return this.Done ? 'success-green' : 'warning-yellow'; },
 		'TDocBase.$EditUrl'() { return `${this.DocumentUrl}/edit` },
+		// TODO (in platform)
+		'TDocumentArray.$hasChecked'() { return this.$checked && this.$checked.length; }
 	},
 	events: {
 		'app.document.saved': handleSaved,

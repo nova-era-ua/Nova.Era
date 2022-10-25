@@ -21,7 +21,7 @@
 		</StackPanel>
 		<EmptyPanel If="{Bind Sources.$isEmpty}" Icon="InfoOutline">
 			<StackPanel Gap="2rem" AlignItems="Center">
-				<Span>Жодної інтеграції ще не додано.</Span>
+				<Span>Жодної інтеграції ще не додано</Span>
 				<Button Content="Додати зараз" Width="15rem" Style="Primary"
 							Command="{BindCmd Execute, CommandName=addIntegration}"/>
 			</StackPanel>

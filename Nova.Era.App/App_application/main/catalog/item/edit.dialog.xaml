@@ -31,6 +31,7 @@
 		</Grid>
 		<TabBar Grid.Row="2" Value="{Bind Root.$$Tab}">
 			<TabButton Content="Групування" ActiveValue=""/>
+			<TabButton Content="Варіанти" ActiveValue="variant"/>
 			<TabButton Content="Додатково" ActiveValue="other"/>
 			<TabButton Content="Рахунки в обліку" ActiveValue="acc"/>
 		</TabBar>
@@ -83,6 +84,15 @@
 						<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item.Country}, Url='/catalog/country/browse'}"/>
 					</Selector>
 				</Grid>
+			</Case>
+			<Case Value="variant">
+				<EmptyPanel Icon="InfoOutline" Margin="0">
+					<Text>
+						Жодних варіантів ще не створено. 
+						<Hyperlink Content="Створити зараз"
+								Command="{BindCmd Execute, CommandName=addVariant, Argument={Bind Item}}"/>
+					</Text>
+				</EmptyPanel>
 			</Case>
 			<Case Value="acc">
 				<DataGrid ItemsSource="{Bind Item.Role.Accounts}" GroupBy="PlanName"

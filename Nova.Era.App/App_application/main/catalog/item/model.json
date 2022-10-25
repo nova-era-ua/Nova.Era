@@ -18,6 +18,10 @@
 			"template": "edit.template",
 			"view": "edit.dialog"
 		},
+		"show": {
+			"model": "Item",
+			"view": "show.dialog"
+		},
 		"browse": {
 			"index": true,
 			"model": "Item.Browse",
@@ -32,6 +36,11 @@
 			"index": true,
 			"model": "Item.Browse.Price",
 			"view": "browserems.dialog"
+		},
+		"variant": {
+			"model": "Item.Variant",
+			"template": "variant.template",
+			"view": "variant.dialog"
 		}
 	},
 	"commands": {

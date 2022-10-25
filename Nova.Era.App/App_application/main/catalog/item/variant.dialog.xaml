@@ -1,0 +1,37 @@
+﻿<!-- ItemVariants -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="@[Variant.Item]" 
+		Size="Default" Overflow="True">
+	<Dialog.Buttons>
+		<Button Content="@[Create]" Command="{BindCmd SaveAndClose}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid Columns="1*">
+		<Table CellSpacing="Medium" ItemsSource="{Bind Item.$Variants}"
+			   StickyHeaders="True">
+			<Table.Header>
+				<TableRow>
+					<TableCell />
+					<ComboBox Grid.Col="1" ItemsSource="{Bind Options}" Value="{Bind Item.Option1}"
+				  DisplayProperty="Name" />
+					<ComboBox Grid.Col="2" ItemsSource="{Bind Options}" Value="{Bind Item.Option2}"
+				  DisplayProperty="Name" />
+					<ComboBox Grid.Col="3">
+					</ComboBox>
+				</TableRow>
+			</Table.Header>
+			<TableRow>
+				<TableCell Align="Right">
+					<CheckBox Value="{Bind Checked}"/>
+				</TableCell>
+				<TableCell Content="{Bind Name1}" CssClass="variant-cell"/>
+				<TableCell Content="{Bind Name2}" CssClass="variant-cell"/>
+			</TableRow>
+			
+		</Table>
+		<Code Grid.Row="2" Grid.ColSpan="3" Multiline="True" Height="20rem"
+			  Content="{Bind Item.$Variants}">
+		</Code>
+	</Grid>
+</Dialog>
+

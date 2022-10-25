@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 24.10.2022 12:57:33
+generated: 25.10.2022 07:59:45
 */
 
 
@@ -16770,6 +16770,9 @@ begin
 	insert into app.Integrations(TenantId, [Source], [Key], [Name])
 	output inserted.Id into @rtable(id)
 	values (@TenantId, @Id, @Key, @Name);
+	select @newid = id from @rtable;
+
+	exec app.[Integration.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @newid;
 end
 go
 

@@ -31,6 +31,13 @@
 			<Separator />
 			<Button Icon="Print" Command="{BindCmd Dialog, Action=ShowSelected, Argument={Bind Documents}, Url='/document/print/browse'}" />
 			<Button Icon="Copy" Command="{BindCmd Execute, CommandName=copy, Argument={Bind Documents}}" />
+			<Button If="{Bind Documents.$hasChecked}" Icon="CheckboxChecked" Content="Відмічені">
+				<Button.DropDown>
+					<DropDownMenu>
+						<MenuItem Content="Встановити статус"/>
+					</DropDownMenu>
+				</Button.DropDown>
+			</Button>
 			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>
@@ -38,6 +45,7 @@
 				XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True" Striped="True"
 				DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"
 				  Mark="{Bind $Mark}" MarkerStyle="Marker">
+			<DataGridColumn Fit="True" Content="{Bind $checked}" ControlType="CheckBox" Editable="True"/>
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
 			<DataGridColumn Header="@[Number]" Content="{Bind $No}" Role="Number" SortProperty="no"/>

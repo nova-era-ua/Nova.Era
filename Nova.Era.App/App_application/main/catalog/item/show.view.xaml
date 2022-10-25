@@ -1,7 +1,0 @@
-﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Title="{Bind Item.Name}">
-	<Grid Rows="Auto,Auto,1*">
-		<Toolbar  XamlStyle="{StyleResource ToolbarLight}">
-			<Button Icon="Close" Content="@[Close]" Command="{BindCmd Close}"/>
-		</Toolbar>
-	</Grid>
-</Page>

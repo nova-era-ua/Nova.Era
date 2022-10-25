@@ -71,6 +71,7 @@
 @Filters=Фільтри
 @Grouping=Групування
 @Grouping.Item=Групування об'єктів обліку
+@Variant.Item=Варіанти об'єкту обліку
 @NoGrouping=<Без групування>
 @WithoutGroup=<Не в групах>
 @ItemCategory=Категорії об'єктів обліку

@@ -16,7 +16,8 @@ const template: Template = {
 	},
 	commands: {
 		addHierarchy,
-		generateBarcode
+		generateBarcode,
+		addVariant
 	},
 	delegates: {
 		fetchUnit
@@ -48,4 +49,15 @@ function fetchUnit(item, text) {
 
 function generateBarcode(item) {
 	//item.Barcode = '2222332333';
+}
+
+async function addVariant(item) {
+	const ctrl: IController = this.$ctrl;
+	if (!item.Id) {
+		// esnure saved
+		this.$setDirty(true);
+		await ctrl.$save();
+	}
+	let vars = await ctrl.$showDialog('/catalog/item/variant', { Id: item.Id });
+	console.dir(vars);
 }

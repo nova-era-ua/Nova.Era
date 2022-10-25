@@ -408,10 +408,10 @@ create table cat.Items
 		constraint DF_Items_Id default(next value for cat.SQ_Items),
 	Void bit not null 
 		constraint DF_Items_Void default(0),
-	[Role] bigint not null,
+	[Role] bigint not null, -- references cat.ItemRoles
 	Article nvarchar(32),
 	Barcode nvarchar(32),
-	Unit bigint, /* base, references cat.Units */
+	Unit bigint, -- base, references cat.Units
 	[Name] nvarchar(255),
 	[FullName] nvarchar(255),
 	[Memo] nvarchar(255),

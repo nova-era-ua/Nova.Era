@@ -156,6 +156,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\catalog\item\variant.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <Generator>XamlIntelliSenseFileGenerator</Generator>
       <SubType>Designer</SubType>
@@ -537,6 +541,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\docstate\_state.module.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\item\variant.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\project\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\contract\show.template.ts" />
@@ -1115,7 +1120,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_application\main\catalog\item\show.view.xaml">
+    <Content Include="App_application\main\catalog\item\show.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
