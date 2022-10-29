@@ -13,7 +13,6 @@ define(["require", "exports"], function (require, exports) {
             'TDocBase.$ShortName': docBaseName,
             'TDocBase.$Icon'() { return this.Done ? 'success-green' : 'warning-yellow'; },
             'TDocBase.$EditUrl'() { return `${this.DocumentUrl}/edit`; },
-            'TDocumentArray.$hasChecked'() { return this.$checked && this.$checked.length; }
         },
         events: {
             'app.document.saved': handleSaved,

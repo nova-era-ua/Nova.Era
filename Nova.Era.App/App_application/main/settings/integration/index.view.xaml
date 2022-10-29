@@ -13,7 +13,7 @@
 				<Hyperlink Command="{BindCmd Dialog, Action=Show, Argument={Bind}, 
 					Url={Bind SetupUrl}}" CssClass="{Bind $HlinkClass}">
 				<StackPanel AlignItems="Center" Padding="1rem" >
-					<Html Content="{Bind $Image}"/>
+					<SiteImage Url="{Bind Logo}" Width="50"/>
 					<Span Content="{Bind Name}" CssClass="int-list-label"/>
 				</StackPanel>
 				</Hyperlink>

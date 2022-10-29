@@ -8,6 +8,7 @@
 		<add key="appPath" value="~/App_application" />
 		<add key="appKey" value="sample" />
 		<add key="configuration" value="debug" />
+		<add key="availableLocales" value="uk-UA, en-US" />
 	</appSettings>
 
 	<system.web>

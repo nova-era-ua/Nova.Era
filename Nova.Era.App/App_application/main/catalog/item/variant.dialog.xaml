@@ -13,11 +13,11 @@
 				<TableRow>
 					<TableCell />
 					<ComboBox Grid.Col="1" ItemsSource="{Bind Options}" Value="{Bind Item.Option1}"
-				  DisplayProperty="Name" />
+				  DisplayProperty="Name"/>
 					<ComboBox Grid.Col="2" ItemsSource="{Bind Options}" Value="{Bind Item.Option2}"
-				  DisplayProperty="Name" />
-					<ComboBox Grid.Col="3">
-					</ComboBox>
+				  DisplayProperty="Name"/>
+					<ComboBox Grid.Col="3"/>
+
 				</TableRow>
 			</Table.Header>
 			<TableRow>

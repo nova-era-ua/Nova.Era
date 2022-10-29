@@ -1,7 +1,6 @@
 ﻿
 const template: Template = {
 	properties: {
-		'TIntegration.$Image': image,
 		'TIntegration.$HlinkClass'() { return !this.Active ? 'not-active' : ''; },
 		'TSource.$Category': category,
 		'TRoot.$Integrations': allIntegrations
@@ -27,10 +26,6 @@ function category() {
 
 function allIntegrations() {
 	return this.Sources.reduce((p, c) => p.concat(c.Integrations), []);
-}
-
-function image() {
-	return `<img src="${this.Logo}" width="50px">`;
 }
 
 async function addIntegration() {

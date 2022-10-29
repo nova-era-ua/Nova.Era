@@ -31,13 +31,16 @@
 			<Separator />
 			<Button Icon="Print" Command="{BindCmd Dialog, Action=ShowSelected, Argument={Bind Documents}, Url='/document/print/browse'}" />
 			<Button Icon="Copy" Command="{BindCmd Execute, CommandName=copy, Argument={Bind Documents}}" />
-			<Button If="{Bind Documents.$hasChecked}" Icon="CheckboxChecked" Content="Відмічені">
-				<Button.DropDown>
-					<DropDownMenu>
-						<MenuItem Content="Встановити статус"/>
-					</DropDownMenu>
-				</Button.DropDown>
-			</Button>
+			<Group If="{Bind Documents.$hasChecked}">
+				<Separator />
+				<Button Icon="CheckboxChecked" Content="Відмічені">
+					<Button.DropDown>
+						<DropDownMenu>
+							<MenuItem Content="Встановити статус"/>
+						</DropDownMenu>
+					</Button.DropDown>
+				</Button>
+			</Group>
 			<Separator />
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>

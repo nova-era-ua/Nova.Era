@@ -1,11 +1,13 @@
 ﻿
+const tu: UtilsText = require('std:utils').text;
+
 const template: Template = {
 	properties: {
-		'TRoot.$Name': String,
-		'TRoot.$SelectedName'() { return this.Sources.$selected ? this.Sources.$selected.Name : ''; },
-		'TSource.$Image': image,
 		'TSource.$Category': category,
-		'TSource.IntName'() { return this.$root.$Name || this.Name; }
+		'TSource.IntName': intName
+	},
+	delegates: {
+		filter
 	}
 };
 
@@ -19,7 +21,11 @@ function category() {
 	return this.Key;
 }
 
-function image() {
-	return `<img src="${this.Logo}" height="40px">`;
+function intName() {
+	let arr = this.$root.Sources;
+	return arr.$selected ? arr.$selected.Name : '';
 }
 
+function filter(elem, filter) {
+	return tu.containsText(elem, "Name", filter.Text);
+}

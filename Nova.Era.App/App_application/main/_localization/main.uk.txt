@@ -300,3 +300,6 @@
 @Default.RespCenter.Changed=Центр відповідальності змінено
 ;
 @Int.Delivery=Служби доставки
+
+; @Analysts=Aналітика
+; @Analytics=Аналітика

@@ -3,7 +3,6 @@ define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
         properties: {
-            'TIntegration.$Image': image,
             'TIntegration.$HlinkClass'() { return !this.Active ? 'not-active' : ''; },
             'TSource.$Category': category,
             'TRoot.$Integrations': allIntegrations
@@ -25,9 +24,6 @@ define(["require", "exports"], function (require, exports) {
     }
     function allIntegrations() {
         return this.Sources.reduce((p, c) => p.concat(c.Integrations), []);
-    }
-    function image() {
-        return `<img src="${this.Logo}" width="50px">`;
     }
     async function addIntegration() {
         let ctrl = this.$ctrl;

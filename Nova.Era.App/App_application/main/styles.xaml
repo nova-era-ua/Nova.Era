@@ -1,9 +1,9 @@
-﻿<!-- Common styles -->
+﻿ <!-- Common styles -->
 <Styles xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<Style x:Key="DataGridSimple">
 		<Setter Property="Style" Value="Light"/>
-		<Setter Property="Striped" Value="True"/>
+		<Setter Property="Striped" Value="False"/>
 		<Setter Property="Hover" Value="True"/>
 		<Setter Property="GridLines" Value="Horizontal" />
 		<Setter Property="UserSelect" Value="True"/>
