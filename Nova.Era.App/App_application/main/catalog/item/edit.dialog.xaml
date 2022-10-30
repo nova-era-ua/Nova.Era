@@ -88,8 +88,8 @@
 			<Case Value="variant">
 				<EmptyPanel Icon="InfoOutline" Margin="0">
 					<Text>
-						Жодних варіантів ще не створено. 
-						<Hyperlink Content="Створити зараз"
+						Жодних варіантів ще не створено.
+						<Hyperlink Content="@[CreateNow]" Block="False"
 								Command="{BindCmd Execute, CommandName=addVariant, Argument={Bind Item}}"/>
 					</Text>
 				</EmptyPanel>

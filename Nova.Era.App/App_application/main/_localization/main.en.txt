@@ -118,7 +118,7 @@
 @Currencies=Currencies
 @PriceLists=Price Lists
 @PriceList=Price List
-@PriceDoc=Встановлення цін
+@PriceDoc=Set Prices
 @PriceKinds=Price Kinds
 @PriceKind=Price Kind
 @ContractKind=Contract Kind
@@ -142,10 +142,11 @@
 @Purpose=Purpose
 @Position=Position
 @Address=Address
-@AccKinds=Види рахунків в обліку
-@AccKind=Вид рахунку в обліку
-@AccKindShort=Вид рахунку
+@AccKinds=Account Kinds
+@AccKind=Account Kind
+@AccKindShort=Account Kind
 @CreateFolder=Create Folder
+@CreateNow=Create now
 @CreateSection=Create Section
 @CreateAccountPlan=Create Account Plan
 @CreateAccount=Create Account
@@ -156,23 +157,22 @@
 @NewItemW=New
 @Short=Short
 @Total=Total
-@Analysts=Analytics
 @SearchResult=[Search Result]
 @OperationProperties=Operation Properties
 @Import=Import
-@DownloadFromNBU=Завантажити з сайта НБУ
+@DownloadFromNBU=Dounload from NBU site
 @AddFromCatalog=Add From Catalog
-@BanksDownloaded=Завантажено банків
+@BanksDownloaded=Banks loaded
 @PaymentPurpose=Payment Purpose
 @CashFunds=Cash Funds
 @NonCashFunds=Non Cash Funds 
 @Country.Origin=Origin
 @Autonum.Code=Autonumber Code
 ; Documents
-@Document.WaybillOut=Продаж товарів/послуг
-@Document.MoveBill=Внутрішнє переміщення
-@Document.WriteOff=Акт списання ТМЦ
-@Document.WriteOn=Акт оприбуткування ТМЦ
+@Document.WaybillOut=Waybill Out
+@Document.MoveBill=Move Bill
+@Document.WriteOff=Write Off Bill
+@Document.WriteOn=Write On Bill
 ; Actions
 @Add=Add
 @Open=Open
@@ -203,7 +203,7 @@
 @State=State
 @Ordinal=Ordinal
 @NoContract=<No Contract>
-@NoRespCenter=<Не вказано центр відповідальності>
+@NoRespCenter=<No Responsibility centers>
 @NoCostItem=<No Cost Item>
 ;
 @Filter.AllOperations=<All Operations>
@@ -233,9 +233,9 @@
 @Browse.Group=Browse Group
 @Browse.ItemRole=Browse Item Role
 @Browse.PriceKind=Browse Price Kind
-@Browse.CashFlowItem=Вибір статті руху грошових коштів
-@Browse.RespCenter=Вибір центру відповідальності
-@Browse.CostItem=Вибір статті витрат
+@Browse.CashFlowItem=Browse Cashflow Item
+@Browse.RespCenter=Browse Responsibility center
+@Browse.CostItem=Browse Cost Item
 @Browse.Operation=Browse Operation
 @Browse.Vendor=Browse Vendor
 @Browse.Brand=Browse Brand
@@ -245,58 +245,56 @@
 @Browse.Contact=Browse Contact
 ;
 @By.Account=By Account
-@By.Plan=По плану рахунків
+@By.Plan=By Account Plan
 @By.Stock=By Stock Journal
-@By.Cash=По журналу руху грошових коштів
-@By.Settle=По журналу взаєморозрахунків
+@By.Cash=By Chash Journal
+@By.Settle=By Settlement Journal
 ;
-@ContractKind.Supplier = З постачальником
-@ContractKind.Customer = З покупцем
+@ContractKind.Supplier = With Supplier
+@ContractKind.Customer = With Customer
 @ContractKind.Other = Other
 ;
-@OperationKind.OrderCust=Замовлення покупця
+@OperationKind.OrderCust=Invoice
 @OperationKind.Shipment=Shipment
-@OperationKind.RetCust=Повернення від покупця
-@OperationKind.PayCust=Оплата від покупця
-@OperationKind.RetPay=Повернення оплати
+@OperationKind.RetCust=Return from Customer
+@OperationKind.PayCust=Payment from Customer
+@OperationKind.RetPay=Return Payment
 ;
 @Label.Unit.CodeUA=Code (UA)
-@Label.Cash.Account=Каса/Рахунок
+@Label.Cash.Account=Cash/Account
 ;
 @Flag.WriteSupplierPrices=Write Supplier Prices
 ; 
-@Error.Required=Обов\'язкове поле
-@Error.Currency.Len=Код має мати довжину 3 літери
-@Error.Currency.DuplicateCode=Валюта з таким кодом вже існує
-@Error.Country.Len3=Код має мати довжину 3 літери
-@Error.Country.Len2=Код має мати довжину 2 літери
-@Error.Email=Неправильний e-mail
+@Error.Required=Field is required
+@Error.Currency.Len=The code must be 3 characters long
+@Error.Currency.DuplicateCode=Duplicate Currency Code
+@Error.Country.Len3=The code must be 3 characters long
+@Error.Country.Len2=The code must be 2 characters long
+@Error.Email=Invalid e-mail
 ;
-@Error.Delete.Folder=Неможливо видалити папку.\nМожна видаляти тількі порожні папки.
-@Error.Delete.System=Неможливо видалити системний об'єкт.
-@Error.UnitCodeUA=Код має складатися з цифр та мати довжину 4 символа.
-@Error.Document.AlreadyApplied=Документ вже проведено в обліку.
-@Error.Delete.Used=Неможливо видалити елемент, він використовується в системі.
-@Error.InsufficientAmount=Недостатня кількість на залишку
-@Error.Barcode.NotFound=Штрихкод не знайдено
-@Error.BankAccount.Len=Код рахунку має буде довжиною 29 символів
-@Error.BankAccount.IBAN=Код банку не співпадає с IBAN
+@Error.Delete.Folder=Unable to delete system folder.\nOnly empty folders can be deleted.
+@Error.Delete.System=Unable to delete system object.
+@Error.UnitCodeUA=The code must consist of numbers and be 4 characters long.
+@Error.Document.AlreadyApplied=The document has already been applied.
+@Error.Delete.Used=The item cannot be deleted, it is in use.
+@Error.InsufficientAmount=Insufficient quantity
+@Error.Barcode.NotFound=Barcode not found
+@Error.BankAccount.Len=The code must be 29 characters long
+@Error.BankAccount.IBAN=The bank code does not match the IBAN
 ;
-@Description.QuickScan=Cканер має буте налаштовано<br>з префіксом <kbd>F7</kbd><br>та суффіксом <kbd>Enter</kbd>
+@Description.QuickScan=The scanner must be configured<br>with the prefix <kbd>F7</kbd><br>and the suffix <kbd>Enter</kbd>
 ;
-@SearchItemsPlaceholder=Пощук за назвою, артикулом, приміткою
+@Confirm.Delete.Folder=Do you want to delete the folder?
+@Confirm.Delete.Element=Do you want to delete the element?
+@Confirm.Delete.Document=Do you want to delete the document?
+@Confirm.Apply=Do you want to apply the document?
+@Confirm.UnApply=Do you want to unaplly the document?
+@Confirm.Document.SaveModified=The document has been modified. Save changes?
+@Confirm.Document.Unbind=Do you want to unlkin the documents?
 ;
-@Confirm.Delete.Folder=Ви дійсно бажаєте видалити папку?
-@Confirm.Delete.Element=Ви дійсно бажаєте видалити елемент?
-@Confirm.Delete.Document=Ви дійсно бажаєте видалити документ?
-@Confirm.Apply=Ви дійсно бажаєте провести документ?
-@Confirm.UnApply=Ви дійсно бажаєте скасувати проведення документу?
-@Confirm.Document.SaveModified=Документ було змінено. Зберегти зміни?
-@Confirm.Document.Unbind=Ви дійсно бажаєте видалити зв\'язок між документами?
-;
-@Default.Company.Changed=Підприємство за замовчуванням змінено
-@Default.Warehouse.Changed=Склад за замовчуванням змінено
-@Default.Period.Changed=Період за замовчуванням змінено
-@Default.RespCenter.Changed=Центр відповідальності змінено
+@Default.Company.Changed=The default company has been changed
+@Default.Warehouse.Changed=The default warehouse has been changed
+@Default.Period.Changed=The default period has been changed
+@Default.RespCenter.Changed=The default responsibility center has been changed
 ;
 @Int.Delivery=Delivery Services

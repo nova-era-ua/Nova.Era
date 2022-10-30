@@ -31,8 +31,10 @@
 			</TreeView.ContextMenu>
 		</TreeView>
 		<EmptyPanel If="{Bind Groups.$isEmpty}" Icon="InfoOutline">
-			<Text>Жодного групування ще не створено.
-				<Hyperlink Content="Створити зараз" Command="{BindCmd Execute, CommandName=addHierarchy}"/>
+			<Text>
+				Жодного групування ще не створено.
+				<Hyperlink Content="@[CreateNow]" Block="False"
+						   Command="{BindCmd Execute, CommandName=addHierarchy}"/>
 			</Text>
 		</EmptyPanel>
 	</Grid>

@@ -13,7 +13,7 @@
 		<CheckBox Grid.Row="3" Label="@[Group]" Value="{Bind Account.IsFolder}" />
 		<Block Grid.Row="4" If="{Bind !Account.IsFolder}">
 			<TabBar Value="{Bind Root.$TabMode}">
-				<TabButton Content="@[Analysts]"/>
+				<TabButton Content="@[Analytics]"/>
 			</TabBar>
 			<Grid Padding="0, 0, 1rem, 0">
 				<CheckBox Grid.Row="1" Grid.Col="1" Label="@[Agent]" Value="{Bind Account.IsAgent}"/>

@@ -146,6 +146,7 @@
 @AccKind=Вид рахунку в обліку
 @AccKindShort=Вид рахунку
 @CreateFolder=Створити папку
+@CreateNow=Створити зараз
 @CreateSection=Створити розділ
 @CreateAccountPlan=Створити план рахунків
 @CreateAccount=Створити рахунок
@@ -156,7 +157,6 @@
 @NewItemW=Нова
 @Short=Скорочення
 @Total=Всього
-@Analysts=Aналітика
 @SearchResult=[Результат пошуку]
 @OperationProperties=Властивості операції
 @Import=Імпортувати
@@ -284,8 +284,6 @@
 ;
 @Description.QuickScan=Cканер має буте налаштовано<br>з префіксом <kbd>F7</kbd><br>та суффіксом <kbd>Enter</kbd>
 ;
-@SearchItemsPlaceholder=Пощук за назвою, артикулом, приміткою
-;
 @Confirm.Delete.Folder=Ви дійсно бажаєте видалити папку?
 @Confirm.Delete.Element=Ви дійсно бажаєте видалити елемент?
 @Confirm.Delete.Document=Ви дійсно бажаєте видалити документ?
@@ -300,6 +298,3 @@
 @Default.RespCenter.Changed=Центр відповідальності змінено
 ;
 @Int.Delivery=Служби доставки
-
-; @Analysts=Aналітика
-; @Analytics=Аналітика
