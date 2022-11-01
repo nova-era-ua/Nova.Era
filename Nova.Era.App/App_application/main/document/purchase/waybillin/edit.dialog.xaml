@@ -78,8 +78,9 @@
 								<MenuItem Content="За сумою" Command="{BindCmd Execute, CommandName=distributeBySum}"/>
 							</DropDownMenu>
 						</Button.DropDown>
-						
 					</Button>
+					<Label Content="@[PriceKind]" Margin="0,.5rem,0,0"/>
+					<SelectorSimple Value="{Bind Document.PriceKind}" Url="/catalog/pricekind"/>
 				</Toolbar>
 				<Table ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" Width="100%"
 						StickyHeaders="True" Height="100%">
@@ -114,7 +115,7 @@
 						<TextBox Value="{Bind Item.Article}" Align="Center" Wrap="NoWrap" Width="11rem"/>
 						<Selector Value="{Bind Item}" DisplayProperty="Name">
 							<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Item}, 
-								Url='/catalog/item/browse', Data={Bind Root.$IsStockArg}}"/>
+								Url='/catalog/item/browseprice', Data={Bind Root.$BrowseStockArg}}"/>
 						</Selector>
 						<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 						<ComboBox ItemsSource="{Bind Root.$ItemRolesStock}" Value="{Bind ItemRole}" Width="7rem">

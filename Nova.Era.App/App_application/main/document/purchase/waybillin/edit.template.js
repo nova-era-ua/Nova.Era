@@ -7,7 +7,9 @@ define(["require", "exports"], function (require, exports) {
         properties: {
             'TRoot.$ItemRolesSvc'() { return this.ItemRoles.filter(r => r.Kind === 'Item' && !r.IsStock); },
             'TRoot.$ItemRolesStock'() { return this.ItemRoles.filter(r => r.Kind === 'Item' && r.IsStock); },
-            'TRoot.$IsStockArg'() { return { IsStock: 'T' }; },
+            'TRoot.$IsStockArg'() { return { IsStock: 'T', PriceKind: this.Dic }; },
+            'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
+            'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
             'TRoot.$IsNoStockArg'() { return { IsStock: 'V' }; }
         },
         defaults: {
@@ -19,6 +21,7 @@ define(["require", "exports"], function (require, exports) {
             'Document.$StockESum': validStockESum
         },
         events: {
+            'Document.StockRows[].Item.change': itemChange,
             'Document.ServiceRows[].Item.change': itemChange,
             'Document.ServiceRows[].ItemRole.change': itemRoleChange,
             'Document.Extra.IncludeServiceInCost.change': flagIncludeChange
@@ -29,8 +32,9 @@ define(["require", "exports"], function (require, exports) {
     };
     exports.default = utils.mergeTemplate(base, template);
     function itemChange(row, val) {
-        base.events['Document.ServiceRows[].Item.change'].call(this, row, val);
+        base.events['Document.StockRows[].Item.change'].call(this, row, val);
         row.CostItem = val.Role.CostItem;
+        row.Price = val.Price;
     }
     function itemRoleChange(row, val) {
         row.CostItem = val.CostItem;
