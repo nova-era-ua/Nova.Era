@@ -3,13 +3,21 @@ define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
         properties: {
-            'TItem.$Variants': variants
+            'TRoot.$Options2': options2,
+            'TRoot.$Opt2Disabled'() { return !this.Item.Option1.Id; },
+            'TItem.Variants': variants
         },
         defaults: {},
         validators: {},
         commands: {}
     };
     exports.default = template;
+    function options2() {
+        let id1 = this.Item.Option1.Id;
+        if (!id1)
+            return [];
+        return this.Options.filter(x => x.Id !== id1);
+    }
     function variants() {
         let arr = [];
         this.Option1.Values.forEach(v1 => {

@@ -1,23 +1,26 @@
 ﻿<!-- ItemVariants -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
 		Title="@[Variant.Item]" 
-		Size="Default" Overflow="True">
+		Size="Default" Overflow="True" Width="Auto">
 	<Dialog.Buttons>
+		<Button Style="Cyan" Content="Налаштувати варіанти"/>
+		<Separator />
 		<Button Content="@[Create]" Command="{BindCmd SaveAndClose}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid Columns="1*">
-		<Table CellSpacing="Medium" ItemsSource="{Bind Item.$Variants}"
-			   StickyHeaders="True">
+			<Static Grid.Row="1"  Label="@[Item]" Value="{Bind Item.Name}"/>
+			<Table Grid.Row="2" CellSpacing="Medium" ItemsSource="{Bind Item.Variants}"
+			   StickyHeaders="True" Columns="27px,1px,1px,Auto" Margin="-6px">
 			<Table.Header>
 				<TableRow>
-					<TableCell />
-					<ComboBox Grid.Col="1" ItemsSource="{Bind Options}" Value="{Bind Item.Option1}"
-				  DisplayProperty="Name"/>
-					<ComboBox Grid.Col="2" ItemsSource="{Bind Options}" Value="{Bind Item.Option2}"
-				  DisplayProperty="Name"/>
-					<ComboBox Grid.Col="3"/>
-
+					<Block Width="27px"/>
+					<ComboBox ItemsSource="{Bind Options}" Value="{Bind Item.Option1}"
+						DisplayProperty="Name" Width="10rem"/>
+					<ComboBox ItemsSource="{Bind Root.$Options2}" Value="{Bind Item.Option2}"
+							DisplayProperty="Name"  Width="10rem" Disabled="{Bind Root.$Opt2Disabled}"/>
+					<ComboBox ItemsSource="{Bind Options}" Value="{Bind Item.Option3}"
+							DisplayProperty="Name"  Width="10rem"/>
 				</TableRow>
 			</Table.Header>
 			<TableRow>
@@ -29,8 +32,8 @@
 			</TableRow>
 			
 		</Table>
-		<Code Grid.Row="2" Grid.ColSpan="3" Multiline="True" Height="20rem"
-			  Content="{Bind Item.$Variants}">
+		<Code Grid.Row="3" Grid.ColSpan="3" Multiline="True" Height="20rem"
+			  Content="{Bind Item.Variants}">
 		</Code>
 	</Grid>
 </Dialog>
