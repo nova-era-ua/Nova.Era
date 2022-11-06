@@ -98,7 +98,6 @@
     <Content Include="App_application\main\catalog\respcenter\respcenter.sql" />
     <Content Include="App_application\main\catalog\costitem\costitem.sql" />
     <Content Include="App_application\main\catalog\itemgroup\groupitem.sql" />
-    <Content Include="App_application\main\catalog\itemcategory\pricelist.sql" />
     <Content Include="App_application\main\catalog\acckind\acckind.sql" />
     <Content Include="App_application\main\catalog\itemrole\itemrole.sql" />
     <Content Include="App_application\main\catalog\cashflowitem\cashflowitem.sql" />
@@ -157,6 +156,10 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\catalog\item\variant.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\taxes\index.view.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
@@ -514,6 +517,7 @@
     <Content Include="App_application\main\catalog\country\model.json" />
     <Content Include="App_application\main\catalog\person\model.json" />
     <None Include="App_application\main\catalog\pricekind\model.json" />
+    <Content Include="App_application\main\catalog\taxes\model.json" />
     <None Include="App_application\main\catalog\warehouse\model.json" />
     <None Include="App_application\main\catalog\company\model.json" />
     <None Include="App_application\main\catalog\vendor\model.json" />

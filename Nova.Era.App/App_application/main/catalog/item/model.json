@@ -37,8 +37,8 @@
 			"model": "Item.Browse.Price",
 			"view": "browserems.dialog"
 		},
-		"variant": {
-			"model": "Item.Variant",
+		"createvariant": {
+			"model": "Item.Variant.Create",
 			"template": "variant.template",
 			"view": "variant.dialog"
 		}

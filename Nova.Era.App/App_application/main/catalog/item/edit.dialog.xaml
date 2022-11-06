@@ -86,13 +86,21 @@
 				</Grid>
 			</Case>
 			<Case Value="variant">
-				<EmptyPanel Icon="InfoOutline" Margin="0">
-					<Text>
-						Жодних варіантів ще не створено.
-						<Hyperlink Content="@[CreateNow]" Block="False"
+				<DataGrid ItemsSource="{Bind Item.Variants}" FixedHeader="True"
+						  GridLines="Horizontal">
+					<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+					<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+					<DataGrid.EmptyPanel>
+						<EmptyPanel Icon="InfoOutline" Margin="0">
+							<Text>
+								Жодних варіантів ще не створено.
+								<Hyperlink Content="@[CreateNow]" Block="False"
 								Command="{BindCmd Execute, CommandName=addVariant, Argument={Bind Item}}"/>
-					</Text>
-				</EmptyPanel>
+							</Text>
+						</EmptyPanel>
+					</DataGrid.EmptyPanel>
+				</DataGrid>
+				
 			</Case>
 			<Case Value="acc">
 				<DataGrid ItemsSource="{Bind Item.Role.Accounts}" GroupBy="PlanName"

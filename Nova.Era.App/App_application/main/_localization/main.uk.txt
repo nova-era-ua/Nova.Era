@@ -36,6 +36,7 @@
 @Other=Інше
 @AccPolicy=Налаштування обліку
 @Extra=Додатково
+@Taxes=Податки
 @Storno=Сторно
 @Period=Період
 @Status=Статус

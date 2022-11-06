@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 04.11.2022 09:36:52
+generated: 06.11.2022 10:31:58
 */
 
 
@@ -5546,6 +5546,7 @@ begin
 	(920, N'Settings',  21, N'@[Accounting]', N'@[Banks]',         N'/catalog/bank/index', N'list',  N''),
 	(922, N'Settings',  23, N'@[Accounting]', N'@[CostItems]',     N'/catalog/costitem/index', N'list',  N''),
 	(923, N'Settings',  24, N'@[Accounting]', N'@[CashFlowItems]', N'/catalog/cashflowitem/index', N'list',  N''),
+	(924, N'Settings',  25, N'@[Accounting]', N'@[Taxes]',         N'/catalog/taxes/index', N'list',  N''),
 	(931, N'Settings',  31, N'@[Items]',  N'@[Grouping.Item]',     N'/catalog/itemgroup/index', N'list',  N''),
 	(932, N'Settings',  32, N'@[Items]',  N'@[Categories]',        N'/catalog/itemcategory/index', N'list',  N''),
 	(933, N'Settings',  33, N'@[Items]',  N'@[Units]',             N'/catalog/unit/index', N'list',  N''),

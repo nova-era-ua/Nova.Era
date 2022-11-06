@@ -36,6 +36,7 @@
 @Other=Other
 @AccPolicy=Accounting Policy
 @Extra=Extra
+@Taxes=Taxes
 @Storno=Storno
 @Period=Period
 @Status=Status

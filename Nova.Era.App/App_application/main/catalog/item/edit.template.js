@@ -4,7 +4,8 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         properties: {
             'TRoot.$$Tab': String,
-            'TItem.$Title'() { return `@[Item] [${this.Id ? this.Id : '@[NewItem]'}]`; }
+            'TItem.$Title'() { return `@[Item] [${this.Id ? this.Id : '@[NewItem]'}]`; },
+            'TItem.$HasVariants'() { return this.Variants.length > 0; }
         },
         defaults: {
             'Item.Role'() { return this.ItemRoles.$isEmpty ? undefined : this.ItemRoles[0]; }
@@ -50,7 +51,7 @@ define(["require", "exports"], function (require, exports) {
             this.$setDirty(true);
             await ctrl.$save();
         }
-        let vars = await ctrl.$showDialog('/catalog/item/variant', { Id: item.Id });
+        let vars = await ctrl.$showDialog('/catalog/item/createvariant', { Id: item.Id });
         console.dir(vars);
     }
 });

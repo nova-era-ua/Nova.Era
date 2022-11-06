@@ -5,7 +5,8 @@ define(["require", "exports"], function (require, exports) {
     const template = {
         properties: {
             'TRoot.$SelectedElem': selectedElem,
-            'TRoot.$$Check': Boolean
+            'TRoot.$$Check': Boolean,
+            'TItem.$HasVariants'() { return this.Variants.length > 0; }
         },
         events: {},
         commands: {

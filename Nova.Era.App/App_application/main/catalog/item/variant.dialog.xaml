@@ -1,40 +1,71 @@
 ﻿<!-- ItemVariants -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
 		Title="@[Variant.Item]" 
-		Size="Default" Overflow="True" Width="Auto">
+		Size="Default" Width="Auto">
 	<Dialog.Buttons>
 		<Button Style="Cyan" Content="Налаштувати варіанти"/>
 		<Separator />
 		<Button Content="@[Create]" Command="{BindCmd SaveAndClose}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid Columns="1*">
-			<Static Grid.Row="1"  Label="@[Item]" Value="{Bind Item.Name}"/>
-			<Table Grid.Row="2" CellSpacing="Medium" ItemsSource="{Bind Item.Variants}"
-			   StickyHeaders="True" Columns="27px,1px,1px,Auto" Margin="-6px">
+	<Grid Columns="20rem,1px,1*" Rows="Auto,1*" AlignItems="Top" Height="40rem"
+		  Gap="1rem">
+		<Header Grid.ColSpan="3" Content="{Bind Item.Name}" Bold="False"/>
+		<StackPanel Grid.Col="1" Grid.Row="2" Orientation="Vertical" Gap="1rem">
+			<ComboBox ItemsSource="{Bind Options}" Value="{Bind Item.Option1}"
+					DisplayProperty="Name" Width="100%"/>
+			<Table ItemsSource="{Bind Item.Option1.Values}" CellSpacing="Medium"
+				   Margin="-6px,-6px,-6px,1rem" Columns="Fit,Auto">
+				<TableRow>
+					<TableCell Align="Center">
+						<CheckBox Value="{Bind Checked}"/>
+					</TableCell>
+					<TableCell Content="{Bind Name}" CssClass="variant-cell"/>
+				</TableRow>
+			</Table>
+			<Group If="{Bind Root.$Opt2Visible}">
+				<ComboBox ItemsSource="{Bind Root.$Options2}" Value="{Bind Item.Option2}"
+						DisplayProperty="Name" />
+				<Table ItemsSource="{Bind Item.Option2.Values}" CellSpacing="Medium"
+					   Margin="-6px,-6px,-6px,1rem" Columns="Fit,Auto">
+					<TableRow>
+						<TableCell Align="Center">
+							<CheckBox Value="{Bind Checked}"/>
+						</TableCell>
+						<TableCell Content="{Bind Name}" CssClass="variant-cell"/>
+					</TableRow>
+				</Table>
+			</Group>
+			<Group If="{Bind Root.$Opt3Visible}">
+				<ComboBox ItemsSource="{Bind Root.$Options3}" Value="{Bind Item.Option3}"
+						DisplayProperty="Name" />
+				<Table ItemsSource="{Bind Item.Option3.Values}" CellSpacing="Medium"
+					   Margin="-6px,-6px,-6px,1rem" Columns="Fit,Auto">
+					<TableRow>
+						<TableCell Align="Center">
+							<CheckBox Value="{Bind Checked}"/>
+						</TableCell>
+						<TableCell Content="{Bind Name}" CssClass="variant-cell"/>
+					</TableRow>
+				</Table>
+			</Group>
+		</StackPanel>
+		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
+		<Table Grid.Col="3" Grid.Row="2" CellSpacing="Medium" ItemsSource="{Bind Item.Variants}"
+			   Columns="10rem,10rem,10rem" Margin="-6px">
 			<Table.Header>
 				<TableRow>
-					<Block Width="27px"/>
-					<ComboBox ItemsSource="{Bind Options}" Value="{Bind Item.Option1}"
-						DisplayProperty="Name" Width="10rem"/>
-					<ComboBox ItemsSource="{Bind Root.$Options2}" Value="{Bind Item.Option2}"
-							DisplayProperty="Name"  Width="10rem" Disabled="{Bind Root.$Opt2Disabled}"/>
-					<ComboBox ItemsSource="{Bind Options}" Value="{Bind Item.Option3}"
-							DisplayProperty="Name"  Width="10rem"/>
+					<TableCell Content="{Bind Root.Item.Option1.Name}" Bold="True"/>
+					<TableCell Content="{Bind Root.Item.Option2.Name}" Bold="True"/>
+					<TableCell Content="{Bind Root.Item.Option3.Name}" Bold="True"/>
 				</TableRow>
 			</Table.Header>
 			<TableRow>
-				<TableCell Align="Right">
-					<CheckBox Value="{Bind Checked}"/>
-				</TableCell>
 				<TableCell Content="{Bind Name1}" CssClass="variant-cell"/>
 				<TableCell Content="{Bind Name2}" CssClass="variant-cell"/>
+				<TableCell Content="{Bind Name3}" CssClass="variant-cell"/>
 			</TableRow>
-			
 		</Table>
-		<Code Grid.Row="3" Grid.ColSpan="3" Multiline="True" Height="20rem"
-			  Content="{Bind Item.Variants}">
-		</Code>
 	</Grid>
 </Dialog>
 
