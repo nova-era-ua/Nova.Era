@@ -88,13 +88,11 @@
 				<DataGrid.RowDetails>
 					<DataGridRowDetails
 							Visible="{Bind $HasVariants}" Activate="Always">
-						<Table ItemsSource="{Bind Variants}" Background="Cyan"
-							   GridLines="Horizontal" Width="100%">
-							<TableRow>
-								<TableCell Content="{Bind Id}"/>
-								<TableCell Content="{Bind Name}"></TableCell>
-							</TableRow>
-						</Table>
+						<DataGrid ItemsSource="{Bind Variants}"
+							   GridLines="Horizontal" Margin="0,0,0,2rem">
+							<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+							<DataGridColumn Header="Name" Content="{Bind Name}"/>
+						</DataGrid>
 					</DataGridRowDetails>
 				</DataGrid.RowDetails>
 			</DataGrid>

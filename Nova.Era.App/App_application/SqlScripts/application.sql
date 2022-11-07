@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 06.11.2022 10:31:58
+generated: 07.11.2022 23:55:36
 */
 
 
@@ -8,7 +8,7 @@ generated: 06.11.2022 10:31:58
 
 /*
 version: 10.0.7877
-generated: 30.10.2022 08:34:51
+generated: 07.11.2022 13:21:24
 */
 
 set nocount on;
@@ -6149,9 +6149,14 @@ begin
 	-- Elements definition
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
 		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role],
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Variants!TVariant!Array] = null
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
+	where 0 <> 0;
+
+	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], [!TItem.Variants!ParentId] = v.Parent
+	from cat.Items v 
 	where 0 <> 0;
 
 	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock
@@ -6213,7 +6218,7 @@ begin
 		count(*) over()
 	from cat.Items i
 		left join cat.ItemTreeElems ite on i.TenantId = ite.TenantId and i.Id = ite.Item
-	where i.TenantId = @TenantId and i.Void = 0
+	where i.TenantId = @TenantId and i.Void = 0 and i.IsVariant = 0
 		and (@Id = -1 or @Id = ite.Parent or (@Id < 0 and i.Id not in (
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
 		)))
@@ -6253,10 +6258,16 @@ begin
 	select [Elements!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
 		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Variants!TVariant!Array] = null,
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	order by t.rowno;
+
+	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name],
+		[!TItem.Variants!ParentId] = v.Parent
+	from cat.Items v inner join @items t on v.TenantId = @TenantId and v.Parent = t.id
+	order by v.Id;
 
 	with R([role]) as (select [role] from @items group by [role])
 	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock
@@ -6391,7 +6402,8 @@ begin
 		[Role!TItemRole!RefId] = i.[Role],
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
 		[Brand!TBrand!RefId] = i.Brand, [Vendor!TVendor!RefId] = i.Vendor,
-		[Country!TCountry!RefId] = i.Country
+		[Country!TCountry!RefId] = i.Country,
+		[Variants!TVariant!Array] = null
 	from cat.Items i 
 		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId and i.Id=@Id and i.Void = 0;
@@ -6427,6 +6439,10 @@ begin
 		[Path] = cat.fn_GetItemBreadcrumbs(@TenantId, iti.Parent, null)
 	from cat.ItemTreeElems iti 
 	where TenantId = @TenantId  and iti.Item = @Id;
+
+	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], [!TItem.Variants!ParentId] = v.Parent
+	from cat.Items v 
+	where v.TenantId = @TenantId and v.Parent = @Id and v.Void = 0;
 
 	-- TItemRoleAcc
 	select [!TItemRoleAcc!LazyArray] = null, [Plan] = p.Code, Kind = ak.[Name], Account = a.Code,
@@ -14535,7 +14551,7 @@ begin
 
 	-- Prices definition
 	select [!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, ParentItemId = i.Parent,
 		[Values!TPriceValue!Array] = null
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
@@ -14609,7 +14625,7 @@ begin
 	option (recompile);
 
 	select [Prices!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, ParentItemId = i.Parent,
 		[Values!TPriceValue!Array] = null,
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id

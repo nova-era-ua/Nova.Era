@@ -87,9 +87,14 @@
 			</Case>
 			<Case Value="variant">
 				<DataGrid ItemsSource="{Bind Item.Variants}" FixedHeader="True"
-						  GridLines="Horizontal">
+						  XamlStyle="{StyleResource DataGridSimple}">
 					<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 					<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+					<DataGridColumn Fit="True">
+						<CommandBar Visibility="Hover">
+							<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editVariant, Argument={Bind}}"/>
+						</CommandBar>
+					</DataGridColumn>
 					<DataGrid.EmptyPanel>
 						<EmptyPanel Icon="InfoOutline" Margin="0">
 							<Text>

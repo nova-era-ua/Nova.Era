@@ -18,7 +18,8 @@ const template: Template = {
 	commands: {
 		addHierarchy,
 		generateBarcode,
-		addVariant
+		addVariant,
+		editVariant
 	},
 	delegates: {
 		fetchUnit
@@ -61,4 +62,10 @@ async function addVariant(item) {
 	}
 	let vars = await ctrl.$showDialog('/catalog/item/createvariant', { Id: item.Id });
 	console.dir(vars);
+}
+
+async function editVariant(variant) {
+	const ctrl: IController = this.$ctrl;
+	let result = await ctrl.$showDialog('/catalog/item/editvariant', { Id: variant.Id });
+	console.dir(result);
 }

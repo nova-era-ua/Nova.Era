@@ -18,7 +18,8 @@ define(["require", "exports"], function (require, exports) {
         commands: {
             addHierarchy,
             generateBarcode,
-            addVariant
+            addVariant,
+            editVariant
         },
         delegates: {
             fetchUnit
@@ -53,5 +54,10 @@ define(["require", "exports"], function (require, exports) {
         }
         let vars = await ctrl.$showDialog('/catalog/item/createvariant', { Id: item.Id });
         console.dir(vars);
+    }
+    async function editVariant(variant) {
+        const ctrl = this.$ctrl;
+        let result = await ctrl.$showDialog('/catalog/item/editvariant', { Id: variant.Id });
+        console.dir(result);
     }
 });

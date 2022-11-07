@@ -53,7 +53,7 @@ begin
 
 	-- Prices definition
 	select [!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, ParentItemId = i.Parent,
 		[Values!TPriceValue!Array] = null
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
@@ -127,7 +127,7 @@ begin
 	option (recompile);
 
 	select [Prices!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, ParentItemId = i.Parent,
 		[Values!TPriceValue!Array] = null,
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id

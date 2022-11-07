@@ -71,7 +71,7 @@
 				<TableRow>
 					<TableCell Content="{Bind Article}"/>
 					<TableCell Content="{Bind Barcode}"/>
-					<TableCell Content="{Bind Name}" CssClass="nowrap-ellipsis"/>
+					<TableCell Content="{Bind Name}" CssClass="nowrap-ellipsis" Tip="{Bind Name}"/>
 					<TableCell Content="{Bind Unit.Short}" Align="Center"/>
 					<TextBox Value="{Bind $Price1, DataType=Currency, HideZeros=True}" Align="Right" Disabled="{Bind Root.$Disabled1}"/>
 					<TextBox Value="{Bind $Price2, DataType=Currency, HideZeros=True}" Align="Right" Disabled="{Bind Root.$Disabled2}"/>
