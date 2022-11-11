@@ -100,7 +100,7 @@ begin
 	select @TenantId, nullif(Id1, 0), nullif(Id2, 0), nullif(Id3, 0), [Name] from @Variants v;
 
 	insert into cat.Items(TenantId, Parent, [Role], [Name], Variant)
-	select @TenantId, @itemid, @role, @itemname + N' [' + v.[name] + N']', v.Id
+	select @TenantId, @itemid, @role, @itemname + N' [' + v.[name] + N']', v.id
 	from @vars v;
 	commit tran;
 end

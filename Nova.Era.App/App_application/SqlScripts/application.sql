@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 11.11.2022 11:15:32
+generated: 11.11.2022 11:20:29
 */
 
 
@@ -7182,7 +7182,7 @@ begin
 	select @TenantId, nullif(Id1, 0), nullif(Id2, 0), nullif(Id3, 0), [Name] from @Variants v;
 
 	insert into cat.Items(TenantId, Parent, [Role], [Name], Variant)
-	select @TenantId, @itemid, @role, @itemname + N' [' + v.[name] + N']', v.Id
+	select @TenantId, @itemid, @role, @itemname + N' [' + v.[name] + N']', v.id
 	from @vars v;
 	commit tran;
 end
