@@ -396,6 +396,65 @@ create table cat.ItemRoleAccounts (
 )
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemOptions')
+	create sequence cat.SQ_ItemOptions as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemOptions')
+create table cat.ItemOptions
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_ItemOptions_Id default(next value for cat.SQ_ItemOptions),
+	Void bit not null
+		constraint DF_ItemOptions_Void default(0),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_ItemOptions primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemOptionValues')
+	create sequence cat.SQ_ItemOptionValues as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemOptionValues')
+create table cat.ItemOptionValues
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_ItemOptionValues_Id default(next value for cat.SQ_ItemOptionValues),
+	Void bit not null
+		constraint DF_ItemOptionValues_Void default(0),
+	[Option] bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_ItemOptionValues primary key (TenantId, Id),
+		constraint FK_ItemOptionValues_Option_ItemOptions foreign key (TenantId, [Option]) references cat.ItemOptions(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemVariants')
+	create sequence cat.SQ_ItemVariants as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemVariants')
+create table cat.ItemVariants
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_ItemVariants_Id default(next value for cat.SQ_ItemVariants),
+	[Option1] bigint,
+	[Option2] bigint,
+	[Option3] bigint,
+	[Name] nvarchar(255),
+	constraint PK_ItemVariants primary key (TenantId, Id),
+	constraint FK_ItemVariants_Option1_ItemOptionValues foreign key (TenantId, [Option1]) references cat.ItemOptionValues(TenantId, Id),
+	constraint FK_ItemVariants_Option2_ItemOptionValues foreign key (TenantId, [Option2]) references cat.ItemOptionValues(TenantId, Id),
+	constraint FK_ItemVariants_Option3_ItemOptionValues foreign key (TenantId, [Option3]) references cat.ItemOptionValues(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Items')
 	create sequence cat.SQ_Items as bigint start with 100 increment by 1;
 go
@@ -418,6 +477,9 @@ create table cat.Items
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
 	Country nchar(3), -- references cat.Countries
+	Parent bigint,
+	Variant bigint,
+	IsVariant as (cast(case when [Parent] is not null then 1 else 0 end as bit)),
 	[Uid] uniqueidentifier not null
 		constraint DF_Items_Uid default(newid()),
 	constraint PK_Items primary key (TenantId, Id),
@@ -425,7 +487,9 @@ create table cat.Items
 	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id),
 	constraint FK_Items_Brand_Brands foreign key (TenantId, Brand) references cat.Brands(TenantId, Id),
 	constraint FK_Items_Role_ItemRoles foreign key (TenantId, [Role]) references cat.ItemRoles(TenantId, Id),
-	constraint FK_Items_Country_Countries foreign key (TenantId, Country) references cat.Countries(TenantId, Code)
+	constraint FK_Items_Country_Countries foreign key (TenantId, Country) references cat.Countries(TenantId, Code),
+	constraint FK_Items_Parent_Items foreign key (TenantId, [Parent]) references cat.Items(TenantId, Id),
+	constraint FK_Items_Variant_ItemVariants foreign key (TenantId, Variant) references cat.ItemVariants(TenantId, Id)
 );
 go
 ------------------------------------------------

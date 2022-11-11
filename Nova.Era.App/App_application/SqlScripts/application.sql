@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 07.11.2022 23:55:36
+generated: 11.11.2022 11:15:32
 */
 
 
@@ -8,7 +8,7 @@ generated: 07.11.2022 23:55:36
 
 /*
 version: 10.0.7877
-generated: 07.11.2022 13:21:24
+generated: 10.11.2022 17:31:41
 */
 
 set nocount on;
@@ -3808,6 +3808,65 @@ create table cat.ItemRoleAccounts (
 )
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemOptions')
+	create sequence cat.SQ_ItemOptions as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemOptions')
+create table cat.ItemOptions
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_ItemOptions_Id default(next value for cat.SQ_ItemOptions),
+	Void bit not null
+		constraint DF_ItemOptions_Void default(0),
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_ItemOptions primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemOptionValues')
+	create sequence cat.SQ_ItemOptionValues as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemOptionValues')
+create table cat.ItemOptionValues
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_ItemOptionValues_Id default(next value for cat.SQ_ItemOptionValues),
+	Void bit not null
+		constraint DF_ItemOptionValues_Void default(0),
+	[Option] bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255),
+		constraint PK_ItemOptionValues primary key (TenantId, Id),
+		constraint FK_ItemOptionValues_Option_ItemOptions foreign key (TenantId, [Option]) references cat.ItemOptions(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_ItemVariants')
+	create sequence cat.SQ_ItemVariants as bigint start with 100 increment by 1;
+go
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'ItemVariants')
+create table cat.ItemVariants
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_ItemVariants_Id default(next value for cat.SQ_ItemVariants),
+	[Option1] bigint,
+	[Option2] bigint,
+	[Option3] bigint,
+	[Name] nvarchar(255),
+	constraint PK_ItemVariants primary key (TenantId, Id),
+	constraint FK_ItemVariants_Option1_ItemOptionValues foreign key (TenantId, [Option1]) references cat.ItemOptionValues(TenantId, Id),
+	constraint FK_ItemVariants_Option2_ItemOptionValues foreign key (TenantId, [Option2]) references cat.ItemOptionValues(TenantId, Id),
+	constraint FK_ItemVariants_Option3_ItemOptionValues foreign key (TenantId, [Option3]) references cat.ItemOptionValues(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Items')
 	create sequence cat.SQ_Items as bigint start with 100 increment by 1;
 go
@@ -3830,6 +3889,9 @@ create table cat.Items
 	Vendor bigint, -- references cat.Vendors
 	Brand bigint, -- references cat.Brands
 	Country nchar(3), -- references cat.Countries
+	Parent bigint,
+	Variant bigint,
+	IsVariant as (cast(case when [Parent] is not null then 1 else 0 end as bit)),
 	[Uid] uniqueidentifier not null
 		constraint DF_Items_Uid default(newid()),
 	constraint PK_Items primary key (TenantId, Id),
@@ -3837,7 +3899,9 @@ create table cat.Items
 	constraint FK_Items_Vendor_Vendors foreign key (TenantId, Vendor) references cat.Vendors(TenantId, Id),
 	constraint FK_Items_Brand_Brands foreign key (TenantId, Brand) references cat.Brands(TenantId, Id),
 	constraint FK_Items_Role_ItemRoles foreign key (TenantId, [Role]) references cat.ItemRoles(TenantId, Id),
-	constraint FK_Items_Country_Countries foreign key (TenantId, Country) references cat.Countries(TenantId, Code)
+	constraint FK_Items_Country_Countries foreign key (TenantId, Country) references cat.Countries(TenantId, Code),
+	constraint FK_Items_Parent_Items foreign key (TenantId, [Parent]) references cat.Items(TenantId, Id),
+	constraint FK_Items_Variant_ItemVariants foreign key (TenantId, Variant) references cat.ItemVariants(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -5115,6 +5179,20 @@ if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'doc'
 	alter table doc.Documents add [State] bigint,
 		constraint FK_Documents_State_DocStates foreign key (TenantId, [State]) references doc.DocStates(TenantId, Id);
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Items' and COLUMN_NAME=N'Parent')
+	alter table cat.Items add Parent bigint,
+		constraint FK_Items_Parent_Items foreign key (TenantId, [Parent]) references cat.Items(TenantId, Id);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Items' and COLUMN_NAME=N'Variant')
+	alter table cat.Items add Variant bigint,
+		constraint FK_Items_Variant_ItemVariants foreign key (TenantId, Variant) references cat.ItemVariants(TenantId, Id);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Items' and COLUMN_NAME=N'IsVariant')
+	alter table cat.Items add IsVariant as (cast(case when [Parent] is not null then 1 else 0 end as bit));
+go
 
 
 
@@ -6148,15 +6226,10 @@ begin
 
 	-- Elements definition
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role],
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
-		[Variants!TVariant!Array] = null
+		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role], i.IsVariant,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
-	where 0 <> 0;
-
-	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], [!TItem.Variants!ParentId] = v.Parent
-	from cat.Items v 
 	where 0 <> 0;
 
 	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock
@@ -6218,7 +6291,7 @@ begin
 		count(*) over()
 	from cat.Items i
 		left join cat.ItemTreeElems ite on i.TenantId = ite.TenantId and i.Id = ite.Item
-	where i.TenantId = @TenantId and i.Void = 0 and i.IsVariant = 0
+	where i.TenantId = @TenantId and i.Void = 0
 		and (@Id = -1 or @Id = ite.Parent or (@Id < 0 and i.Id not in (
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
 		)))
@@ -6256,18 +6329,12 @@ begin
 	option (recompile);
 
 	select [Elements!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role],
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
-		[Variants!TVariant!Array] = null,
+		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role], i.IsVariant,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, 
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	order by t.rowno;
-
-	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name],
-		[!TItem.Variants!ParentId] = v.Parent
-	from cat.Items v inner join @items t on v.TenantId = @TenantId and v.Parent = t.id
-	order by v.Id;
 
 	with R([role]) as (select [role] from @items group by [role])
 	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock
@@ -7012,6 +7079,115 @@ begin
 	where vir.[!TenantId] = @TenantId;
 end
 go
+
+------------------------------------------------
+drop procedure if exists cat.[Item.Variant.Create.Metadata];
+drop procedure if exists cat.[Item.Variant.Create.Update];
+drop type if exists cat.[Item.Variant.Item.TableType];
+drop type if exists cat.[Item.Variant.Variant.TableType];
+go
+------------------------------------------------
+create type cat.[Item.Variant.Item.TableType] as table
+(
+	[GUID] uniqueidentifier,
+	Id bigint
+)
+go
+------------------------------------------------
+create type cat.[Item.Variant.Variant.TableType] as table
+(
+	ParentGUID uniqueidentifier,
+	Id1 bigint,
+	Id2 bigint,
+	Id3 bigint,
+	[Name] nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Variant.Create.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as 
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
+		[Option1!TOption!RefId] = cast(null as bigint),
+		[Option2!TOption!RefId] = cast(null as bigint),
+		[Option3!TOption!RefId] = cast(null as bigint),
+		[Variants!TVariant!Array] = null
+	from cat.Items i
+	where TenantId = @TenantId and Id = @Id;
+
+	select [Options!TOption!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
+		[Values!TOptionValue!Array] = null
+	from cat.ItemOptions 
+	where TenantId = @TenantId
+	order by Id;
+
+	select [!TOptionValue!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
+		[!TOption.Values!ParentId] = [Option], Checked = cast(1 as bit)
+	from cat.ItemOptionValues
+	where TenantId = @TenantId;
+
+	select [!TVariant!Array] = null, 
+		[Id1] = cast(null as bigint), [Name1] = cast(null as nvarchar),
+		[Id2] = cast(null as bigint), [Name2] = cast(null as nvarchar),
+		[Id3] = cast(null as bigint), [Name3] = cast(null as nvarchar),
+		Article = cast(null as nvarchar),
+		[!TItem.Variants!ParentId] = @Id
+	where 0 <> 0;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Variant.Create.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @Item cat.[Item.Variant.Item.TableType];
+	declare @Variants cat.[Item.Variant.Variant.TableType];
+
+	select [Item!Item!Metadata] = null, * from @Item;
+	select [Variants!Item.Variants!Metadata] = null, * from @Variants;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Variant.Create.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Item cat.[Item.Variant.Item.TableType] readonly,
+@Variants cat.[Item.Variant.Variant.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	declare @itemid bigint;
+	declare @itemname nvarchar(255);
+	declare @role bigint;
+
+	select @itemid = i.Id, @itemname = i.[Name], @role = i.[Role]
+	from @Item t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.Id;
+
+	declare @vars table(id bigint, [name] nvarchar(255));
+
+	begin tran;
+	insert into cat.ItemVariants(TenantId, Option1, Option2, Option3, [Name])
+	output inserted.Id, inserted.[Name] into @vars(id, [name])
+	select @TenantId, nullif(Id1, 0), nullif(Id2, 0), nullif(Id3, 0), [Name] from @Variants v;
+
+	insert into cat.Items(TenantId, Parent, [Role], [Name], Variant)
+	select @TenantId, @itemid, @role, @itemname + N' [' + v.[name] + N']', v.Id
+	from @vars v;
+	commit tran;
+end
+go
+
 
 /* ITEM GROUPING */
 ------------------------------------------------

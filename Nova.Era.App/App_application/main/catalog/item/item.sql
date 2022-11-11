@@ -83,15 +83,10 @@ begin
 
 	-- Elements definition
 	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role],
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
-		[Variants!TVariant!Array] = null
+		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role], i.IsVariant,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
-	where 0 <> 0;
-
-	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], [!TItem.Variants!ParentId] = v.Parent
-	from cat.Items v 
 	where 0 <> 0;
 
 	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock
@@ -153,7 +148,7 @@ begin
 		count(*) over()
 	from cat.Items i
 		left join cat.ItemTreeElems ite on i.TenantId = ite.TenantId and i.Id = ite.Item
-	where i.TenantId = @TenantId and i.Void = 0 and i.IsVariant = 0
+	where i.TenantId = @TenantId and i.Void = 0
 		and (@Id = -1 or @Id = ite.Parent or (@Id < 0 and i.Id not in (
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
 		)))
@@ -191,18 +186,12 @@ begin
 	option (recompile);
 
 	select [Elements!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role],
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
-		[Variants!TVariant!Array] = null,
+		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role], i.IsVariant,
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, 
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	order by t.rowno;
-
-	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name],
-		[!TItem.Variants!ParentId] = v.Parent
-	from cat.Items v inner join @items t on v.TenantId = @TenantId and v.Parent = t.id
-	order by v.Id;
 
 	with R([role]) as (select [role] from @items group by [role])
 	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock

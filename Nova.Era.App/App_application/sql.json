@@ -16,6 +16,7 @@
 			"main/catalog/company/company.sql",
 			"main/catalog/warehouse/warehouse.sql",
 			"main/catalog/item/item.sql",
+			"main/catalog/item/variant.sql",
 			"main/catalog/itemgroup/groupitem.sql",
 			"main/catalog/agent/agent.sql",
 			"main/catalog/person/person.sql",

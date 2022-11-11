@@ -56,21 +56,7 @@
 				<DataGridColumn Fit="True" ControlType="CheckBox" Editable="True"
 								Content="{Bind $checked}"/>
 				<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
-				<DataGridColumn Fit="True">
-					<Popover Icon="Queue" If="{Bind $HasVariants}" Tip="Є варіанти"
-							 Placement="BottomRight" Background="Cyan">
-						<Popup Width="50rem">
-							<Table ItemsSource="{Bind Variants}"
-							   GridLines="Horizontal" Width="100%">
-								<TableRow>
-									<TableCell Content="{Bind Id}"/>
-									<TableCell Content="{Bind Name}"></TableCell>
-								</TableRow>
-							</Table>
-						</Popup>
-					</Popover>
-				</DataGridColumn>
-				<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+				<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 				<DataGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" 
 					Sort="False" Fit="True" Wrap="NoWrap" Align="Center"/>
 				<DataGridColumn Header="@[ItemRole]" Sort="False" Fit="True" Wrap="NoWrap">
@@ -85,16 +71,6 @@
 						<Button Icon="Delete" Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
 					</CommandBar>
 				</DataGridColumn>
-				<DataGrid.RowDetails>
-					<DataGridRowDetails
-							Visible="{Bind $HasVariants}" Activate="Always">
-						<DataGrid ItemsSource="{Bind Variants}"
-							   GridLines="Horizontal" Margin="0,0,0,2rem">
-							<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
-							<DataGridColumn Header="Name" Content="{Bind Name}"/>
-						</DataGrid>
-					</DataGridRowDetails>
-				</DataGrid.RowDetails>
 			</DataGrid>
 			<Pager Grid.Row="3" Source="{Bind Parent.Pager}" XamlStyle="{StyleResource PagePager}"/>
 		</Grid>
