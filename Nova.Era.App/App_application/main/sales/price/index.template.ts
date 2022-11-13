@@ -8,7 +8,8 @@ const template: Template = {
 		'TRoot.$Disabled3': getDisabled(3),
 		'TPriceItem.$Price1': getPriceProp(1),
 		'TPriceItem.$Price2': getPriceProp(2),
-		'TPriceItem.$Price3': getPriceProp(3)
+		'TPriceItem.$Price3': getPriceProp(3),
+		'TPriceItem.$Mark'() { return this.IsVariant ? 'cyan' : null; }
 	},
 	commands: {
 	},

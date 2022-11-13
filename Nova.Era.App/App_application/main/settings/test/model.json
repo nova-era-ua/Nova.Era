@@ -1,12 +1,12 @@
 ﻿{
 	"$schema": "../../../@schemas/model-json-schema.json#",
 	"schema": "acc",
-	"model": "AccountCw",
+	"model": "Account",
 	"actions": {
 		"index": {
 			"index": true,
-			"template": "indexcw.template",
-			"view": "indexcw.view"
+			"template": "index.template",
+			"view": "index.view"
 		}
 	},
 	"commands": {

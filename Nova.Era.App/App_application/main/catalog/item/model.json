@@ -18,6 +18,11 @@
 			"template": "edit.template",
 			"view": "edit.dialog"
 		},
+		"editvariant": {
+			"model": "Item.Variant",
+			"template": "editvariant.template",
+			"view": "editvariant.dialog"
+		},
 		"show": {
 			"model": "Item",
 			"view": "show.dialog"

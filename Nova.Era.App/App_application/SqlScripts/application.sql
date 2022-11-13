@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 11.11.2022 11:20:29
+generated: 13.11.2022 10:42:28
 */
 
 
@@ -6225,9 +6225,10 @@ begin
 	order by _order, [Id];
 
 	-- Elements definition
-	select [!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
-		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role], i.IsVariant,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short
+	select [!TItem!Tree] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
+		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role],
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, i.IsVariant,
+		[Variants!TItem!Items] = null
 	from cat.Items i
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	where 0 <> 0;
@@ -6291,12 +6292,12 @@ begin
 		count(*) over()
 	from cat.Items i
 		left join cat.ItemTreeElems ite on i.TenantId = ite.TenantId and i.Id = ite.Item
-	where i.TenantId = @TenantId and i.Void = 0
+	where i.TenantId = @TenantId and i.Void = 0 and i.IsVariant = 0
 		and (@Id = -1 or @Id = ite.Parent or (@Id < 0 and i.Id not in (
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
 		)))
 		and (@fr is null or [Name] like @fr or Memo like @fr or Article like @fr or Barcode like @fr)
-	group by i.Id, i.Unit, i.[Name], i.Article, i.Barcode, i.Memo, i.[Role]
+	group by i.Id, i.Unit, i.[Name], i.Article, i.Barcode, i.Memo, i.[Role], i.Parent
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
@@ -6328,13 +6329,24 @@ begin
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Elements!TItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
+	select [Elements!TItem!Tree] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], 
 		i.Article, i.Barcode, i.Memo, [Role!TItemRole!RefId] = i.[Role], i.IsVariant,
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, 
+		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Variants!TItem!Items] = null,
 		[!!RowCount]  = t.rowcnt
 	from @items t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.id
 		left join cat.Units u on i.TenantId = u.TenantId and i.Unit = u.Id
 	order by t.rowno;
+
+
+	select [!TItem!Tree] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name],
+		v.Article, v.Barcode, v.Memo, [Role!TItemRole!RefId] = t.[role],
+		[Unit.Id!TUnit!Id] = v.Unit, [Unit.Short!TUnit] = u.Short, v.IsVariant,
+		[!TItem.Variants!ParentId] = v.Parent
+	from cat.Items v
+		inner join @items t on v.TenantId = @TenantId and v.Parent = t.Id
+		left join cat.Units u on v.TenantId = u.TenantId and t.unit = u.Id
+	order by v.Id;
 
 	with R([role]) as (select [role] from @items group by [role])
 	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.Color, ir.IsStock
@@ -14726,7 +14738,7 @@ begin
 	order by Id;
 
 	-- Prices definition
-	select [!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
+	select [!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode, i.IsVariant,
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, ParentItemId = i.Parent,
 		[Values!TPriceValue!Array] = null
 	from cat.Items i
@@ -14795,12 +14807,12 @@ begin
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
 		)))
 		and (@fr is null or i.[Name] like @fr or i.Memo like @fr or Article like @fr or Barcode like @fr)
-	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role]
-	order by i.Id
+	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role], i.Parent
+	order by isnull(i.Parent, i.Id), i.Id
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Prices!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
+	select [Prices!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode, i.IsVariant,
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, ParentItemId = i.Parent,
 		[Values!TPriceValue!Array] = null,
 		[!!RowCount]  = t.rowcnt

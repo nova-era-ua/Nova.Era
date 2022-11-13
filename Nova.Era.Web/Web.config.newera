@@ -11,7 +11,7 @@
 		<add key="theme" value="advance.blue"/>
 		<add key="customUserMenu" value="a2ui.[Menu.Simple.User.Load]"/>
 		<add key="customSecuritySchema" value="appsec"/>
-		<add key="availableLocales" value="uk-UA, en-US" />
+		<add key="availableLocales" value="uk-UA" />
 	</appSettings>
 
 	<system.web>

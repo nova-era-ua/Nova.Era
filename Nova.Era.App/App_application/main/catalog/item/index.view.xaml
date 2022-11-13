@@ -50,9 +50,33 @@
 				<TextBox Placeholder="@[Search]" ShowClear="True" ShowFilter="True"
 					 Value="{Bind Parent.Filter.Fragment}" Width="20rem"/>
 			</Toolbar>
-			<DataGrid Grid.Row="2" XamlStyle="{StyleResource DataGridSimple}"
+			<TreeGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"
+					ItemsProperty="Variants" FolderStyle="Bold" Hover="True" Sort="True"
+					DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Parent.ItemsSource}}"
+					Height="100%" StickyHeaders="True" GridLines="Horizontal"
+					  CssClass="ne-tree-grid">
+				<TreeGridColumn Header="#" Content="{Bind Id}" Wrap="NoWrap" Align="Right"/>
+				<TreeGridColumn Header="@[Name]" ShowButton="True"
+								Content="{Bind Name}" MinWidth="250px" MaxChars="64" Tip="{Bind Name}"/>
+				<TreeGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" 
+					Fit="True" Wrap="NoWrap" Align="Center" Sort="False"/>
+				<TreeGridColumn Header="@[ItemRole]" Fit="True" Wrap="NoWrap" Sort="False">
+					<TagLabel Style="{Bind Role.Color}" Content="{Bind Role.Name}"/>
+				</TreeGridColumn>
+				<TreeGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+				<TreeGridColumn Header="@[Barcode]" Content="{Bind Barcode}" Fit="True" Wrap="NoWrap"/>
+				<TreeGridColumn Header="@[Memo]" Content="{Bind Memo}" MaxChars="64"/>
+				<TreeGridColumn Fit="True" Wrap="NoWrap">
+					<CommandBar Visibility="Hover">
+						<Button Icon="Edit" Command="{BindCmd Execute, CommandName=edit, Argument={Bind}}"/>
+						<Button Icon="Delete" Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
+					</CommandBar>
+				</TreeGridColumn>
+			</TreeGrid>
+			<DataGrid Grid.Row="2"  If="False" XamlStyle="{StyleResource DataGridSimple}"
 					ItemsSource="{Bind Parent.ItemsSource}" FixedHeader="True" Sort="True"
-					DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Parent.ItemsSource}}">
+					DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Parent.ItemsSource}}"
+					  Mark="{Bind $Mark}" MarkerStyle="Row">
 				<DataGridColumn Fit="True" ControlType="CheckBox" Editable="True"
 								Content="{Bind $checked}"/>
 				<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>

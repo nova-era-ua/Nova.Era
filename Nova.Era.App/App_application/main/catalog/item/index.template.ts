@@ -1,10 +1,21 @@
 ﻿const EDIT_URL = '/catalog/item/edit';
+const EDIT_VARIANT_URL = '/catalog/item/editvariant';
 
 const template: Template = {
 	properties: {
 		'TRoot.$SelectedElem': selectedElem,
 		'TRoot.$$Check': Boolean,
-		'TItem.$HasVariants'() { return this.Variants.length > 0; }
+		'TItem.$Mark'() { return this.IsVariant ? 'cyan' : null; },
+		'TGroupArray.$HasElements'() {
+			return this.$hasSelected && this.$selected.Elements;
+		},
+		'TGroupArray.$Elements'() {
+			console.dir(this.$selected.Elements);
+			if (!this.$hasSelected)
+				return [];
+			this.$selected.Elements.$load();
+			return this.$selected.Elements.reduce((p, c) => p.concat(c, c.Variants), []);
+		}
 	},
 	events: {
 	},
@@ -37,15 +48,16 @@ function clearLazyElements(items, sel) {
 }
 
 async function create(coll) {
-	let ctrl: IController = this.$ctrl;
-	let res = await ctrl.$showDialog(EDIT_URL, null);
+	const ctrl: IController = this.$ctrl;
+	const res = await ctrl.$showDialog(EDIT_URL, null);
 	coll.$append(res);
 	clearLazyElements(this.Groups, this.Groups.$selected);
 }
 
 async function edit(item) {
-	let ctrl: IController = this.$ctrl;
-	let res = await ctrl.$showDialog(EDIT_URL, { Id: item.Id });
+	const ctrl: IController = this.$ctrl;
+	const url = item.IsVariant ? EDIT_VARIANT_URL : EDIT_URL;
+	let res = await ctrl.$showDialog(url, { Id: item.Id });
 	item.$merge(res);
 	clearLazyElements(this.Groups, this.Groups.$selected);
 }

@@ -68,7 +68,7 @@
 						</ComboBox>
 					</TableRow>
 				</Table.Header>
-				<TableRow>
+				<TableRow Mark="{Bind $Mark}">
 					<TableCell Content="{Bind Article}"/>
 					<TableCell Content="{Bind Barcode}"/>
 					<TableCell Content="{Bind Name}" CssClass="nowrap-ellipsis" Tip="{Bind Name}"/>

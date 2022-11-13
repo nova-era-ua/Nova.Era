@@ -52,7 +52,7 @@ begin
 	order by Id;
 
 	-- Prices definition
-	select [!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
+	select [!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode, i.IsVariant,
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, ParentItemId = i.Parent,
 		[Values!TPriceValue!Array] = null
 	from cat.Items i
@@ -121,12 +121,12 @@ begin
 			select Item from cat.ItemTreeElems intbl where intbl.TenantId = @TenantId and intbl.[Root] = -@Id /*hack:negative*/
 		)))
 		and (@fr is null or i.[Name] like @fr or i.Memo like @fr or Article like @fr or Barcode like @fr)
-	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role]
-	order by i.Id
+	group by i.Id, i.Unit, i.[Name], i.Article, i.Memo, i.[Role], i.Parent
+	order by isnull(i.Parent, i.Id), i.Id
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
-	select [Prices!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
+	select [Prices!TPriceItem!Array] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode, i.IsVariant,
 		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short, ParentItemId = i.Parent,
 		[Values!TPriceValue!Array] = null,
 		[!!RowCount]  = t.rowcnt

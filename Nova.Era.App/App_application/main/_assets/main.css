@@ -173,3 +173,6 @@ table.fixed-layout {
 .a2-hyperlink.not-active {
   opacity: 0.3;
 }
+.ne-tree-grid tr.lev-1 {
+  background-color: rgba(114, 234, 234, 0.05);
+}

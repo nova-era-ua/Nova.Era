@@ -10,8 +10,8 @@
 			  Striped="True" Hover="True" Width="Auto" GridLines="Both"
 			  FolderStyle="Bold" StickyHeaders="True" Height="100%" MinWidth="900px"
 			  DoubleClick="{BindCmd Reload}">
-		<TreeGridColumn Header="1" Width="5rem"  ShowButton="False" Content="{Bind Code}" Wrap="NoWrap" Bold="True"/>
-		<TreeGridColumn Header="2" Width="5rem"  Content="{Bind Code}" Wrap="NoWrap" Align="Center"/>
+		<TreeGridColumn Header="Code" Width="5rem" ShowButton="True" Content="{Bind Code}" Wrap="NoWrap" Bold="True"/>
+		<TreeGridColumn Header="2" Width="5rem" ShowButton="True" Content="{Bind Code}" Wrap="NoWrap" Align="Center"/>
 		<TreeGridColumn Header="3" Content="{Bind Name}" ShowButton="True"/>
 		<TreeGridColumn Header="4" Fit="True"  Content="{Bind Plan}" Align="Right" VAlign="Bottom"/>
 		<TreeGridColumn Header="5" Fit="True"  Content="{Bind IsFolder}" Align="Center"/>

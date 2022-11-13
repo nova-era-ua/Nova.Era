@@ -2,11 +2,22 @@ define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const EDIT_URL = '/catalog/item/edit';
+    const EDIT_VARIANT_URL = '/catalog/item/editvariant';
     const template = {
         properties: {
             'TRoot.$SelectedElem': selectedElem,
             'TRoot.$$Check': Boolean,
-            'TItem.$HasVariants'() { return this.Variants.length > 0; }
+            'TItem.$Mark'() { return this.IsVariant ? 'cyan' : null; },
+            'TGroupArray.$HasElements'() {
+                return this.$hasSelected && this.$selected.Elements;
+            },
+            'TGroupArray.$Elements'() {
+                console.dir(this.$selected.Elements);
+                if (!this.$hasSelected)
+                    return [];
+                this.$selected.Elements.$load();
+                return this.$selected.Elements.reduce((p, c) => p.concat(c, c.Variants), []);
+            }
         },
         events: {},
         commands: {
@@ -36,14 +47,15 @@ define(["require", "exports"], function (require, exports) {
         });
     }
     async function create(coll) {
-        let ctrl = this.$ctrl;
-        let res = await ctrl.$showDialog(EDIT_URL, null);
+        const ctrl = this.$ctrl;
+        const res = await ctrl.$showDialog(EDIT_URL, null);
         coll.$append(res);
         clearLazyElements(this.Groups, this.Groups.$selected);
     }
     async function edit(item) {
-        let ctrl = this.$ctrl;
-        let res = await ctrl.$showDialog(EDIT_URL, { Id: item.Id });
+        const ctrl = this.$ctrl;
+        const url = item.IsVariant ? EDIT_VARIANT_URL : EDIT_URL;
+        let res = await ctrl.$showDialog(url, { Id: item.Id });
         item.$merge(res);
         clearLazyElements(this.Groups, this.Groups.$selected);
     }
