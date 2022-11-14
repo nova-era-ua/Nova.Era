@@ -51,14 +51,14 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="A2v10.Xaml, Version=10.0.7904.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7904\lib\net48\A2v10.Xaml.dll</HintPath>
+    <Reference Include="A2v10.Xaml, Version=10.0.7905.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7905\lib\net48\A2v10.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7904.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7904\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7905.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7905\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Report, Version=10.0.7904.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.App.Runtime.10.0.7904\lib\net48\A2v10.Xaml.Report.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Report, Version=10.0.7905.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.App.Runtime.10.0.7905\lib\net48\A2v10.Xaml.Report.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -1261,8 +1261,8 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.targets'))" />
-    <Error Condition="!Exists('..\packages\A2v10.App.Runtime.10.0.7904\build\A2v10.App.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.App.Runtime.10.0.7904\build\A2v10.App.Runtime.targets'))" />
+    <Error Condition="!Exists('..\packages\A2v10.App.Runtime.10.0.7905\build\A2v10.App.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.App.Runtime.10.0.7905\build\A2v10.App.Runtime.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.targets" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.4.8.4\build\Microsoft.TypeScript.MSBuild.targets')" />
-  <Import Project="..\packages\A2v10.App.Runtime.10.0.7904\build\A2v10.App.Runtime.targets" Condition="Exists('..\packages\A2v10.App.Runtime.10.0.7904\build\A2v10.App.Runtime.targets')" />
+  <Import Project="..\packages\A2v10.App.Runtime.10.0.7905\build\A2v10.App.Runtime.targets" Condition="Exists('..\packages\A2v10.App.Runtime.10.0.7905\build\A2v10.App.Runtime.targets')" />
 </Project>
