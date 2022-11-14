@@ -201,7 +201,7 @@ begin
 		[Unit.Id!TUnit!Id] = v.Unit, [Unit.Short!TUnit] = u.Short, v.IsVariant,
 		[!TItem.Variants!ParentId] = v.Parent
 	from cat.Items v
-		inner join @items t on v.TenantId = @TenantId and v.Parent = t.Id
+		inner join @items t on v.TenantId = @TenantId and v.Parent = t.id
 		left join cat.Units u on v.TenantId = u.TenantId and t.unit = u.Id
 	order by v.Id;
 
