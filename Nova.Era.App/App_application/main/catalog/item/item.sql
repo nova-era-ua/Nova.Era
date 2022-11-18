@@ -8,7 +8,7 @@ as table (
 	[Name!!Name] nvarchar(255),
 	Article nvarchar(32),
 	Barcode nvarchar(32),
-	Memo nvarchar(32),
+	Memo nvarchar(255),
 	[Unit.Id!TUnit!Id] bigint, 
 	[Unit.Short!TUnit] nvarchar(8),
 	[Role!TItemRole!RefId] bigint,
@@ -376,7 +376,8 @@ begin
 	from cat.ItemTreeElems iti 
 	where TenantId = @TenantId  and iti.Item = @Id;
 
-	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], [!TItem.Variants!ParentId] = v.Parent
+	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Article, v.Barcode, v.Memo,
+		[!TItem.Variants!ParentId] = v.Parent
 	from cat.Items v 
 	where v.TenantId = @TenantId and v.Parent = @Id and v.Void = 0;
 

@@ -29,7 +29,7 @@
 				</TextBox.Link>
 			</TextBox>
 		</Grid>
-		<TabBar Grid.Row="2" Value="{Bind Root.$$Tab}">
+		<TabBar Grid.Row="2" Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton Content="Групування" ActiveValue=""/>
 			<TabButton Content="Варіанти" ActiveValue="variant"/>
 			<TabButton Content="Додатково" ActiveValue="other"/>
@@ -86,10 +86,17 @@
 				</Grid>
 			</Case>
 			<Case Value="variant">
-				<DataGrid ItemsSource="{Bind Item.Variants}" FixedHeader="True"
+				<Grid Rows="Auto,1*" Height="100%" CssClass="overflow-hidden"
+					  Gap="6">
+					<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+						<Button Icon="Add"/>
+					</Toolbar>
+				<DataGrid Grid.Row="2" ItemsSource="{Bind Item.Variants}" FixedHeader="True"
 						  XamlStyle="{StyleResource DataGridSimple}">
 					<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 					<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+					<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
+					<DataGridColumn Header="@[Barcode]" Content="{Bind Barcode}" Fit="True" Wrap="NoWrap"/>
 					<DataGridColumn Fit="True">
 						<CommandBar Visibility="Hover">
 							<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editVariant, Argument={Bind}}"/>
@@ -105,7 +112,7 @@
 						</EmptyPanel>
 					</DataGrid.EmptyPanel>
 				</DataGrid>
-				
+				</Grid>
 			</Case>
 			<Case Value="acc">
 				<DataGrid ItemsSource="{Bind Item.Role.Accounts}" GroupBy="PlanName"

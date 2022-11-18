@@ -1,0 +1,37 @@
+﻿<!-- ItemVariants -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="@[Variant.Item]" 
+		Size="Default" Width="40rem">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid Columns="1*,1*" AlignItems="Top"
+		  Gap="1rem">
+		<Static Grid.Row="1" Grid.Col="1" Grid.ColSpan="2" Label="@[Item]" Value="{Bind Variant.ParentName}"/>
+		<StackPanel Grid.Row="2" Grid.Col="1" Grid.ColSpan="2" Orientation="Horizontal" Gap="6">
+			<Group If="{Bind Variant.Option1.Id}">
+				<Label Content="{Bind Variant.Option1.Name}"/>
+				<Static Value="{Bind Variant.Option1.Value}" Width="8rem"/>
+			</Group>
+			<Group If="{Bind Variant.Option2.Id}">
+				<Label Content="{Bind Variant.Option2.Name}"/>
+				<Static Value="{Bind Variant.Option2.Value}" Width="8rem"/>
+			</Group>
+			<Group If="{Bind Variant.Option3.Id}">
+				<Label Content="{Bind Variant.Option3.Name}"/>
+				<Static Value="{Bind Variant.Option3.Value}" Width="8rem"/>
+			</Group>
+		</StackPanel>
+		<TextBox Grid.Row="3" Grid.Col="1" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Variant.Name}"
+				 TabIndex="1"/>
+		<TextBox Grid.Row="4" Grid.Col="1" Label="@[Article]" Value="{Bind Variant.Article}" UpdateTrigger="Input"/>
+		<TextBox Grid.Row="4" Grid.Col="2" Label="@[Barcode]" Value="{Bind Variant.Barcode}" UpdateTrigger="Input">
+			<TextBox.Link>
+				<Hyperlink Content="@[Generate]" Command="{BindCmd Execute, CommandName=generateBarcode, Argument={Bind Item}}"/>
+			</TextBox.Link>
+		</TextBox>
+		<TextBox Grid.Row="5" Grid.Col="1" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind Variant.Article}" Multiline="True"/>
+	</Grid>
+</Dialog>
+

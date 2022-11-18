@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 14.11.2022 22:50:42
+generated: 18.11.2022 08:12:51
 */
 
 
@@ -8,7 +8,7 @@ generated: 14.11.2022 22:50:42
 
 /*
 version: 10.0.7877
-generated: 14.11.2022 22:16:05
+generated: 17.11.2022 20:59:29
 */
 
 set nocount on;
@@ -6344,7 +6344,7 @@ begin
 		[Unit.Id!TUnit!Id] = v.Unit, [Unit.Short!TUnit] = u.Short, v.IsVariant,
 		[!TItem.Variants!ParentId] = v.Parent
 	from cat.Items v
-		inner join @items t on v.TenantId = @TenantId and v.Parent = t.Id
+		inner join @items t on v.TenantId = @TenantId and v.Parent = t.id
 		left join cat.Units u on v.TenantId = u.TenantId and t.unit = u.Id
 	order by v.Id;
 

@@ -105,4 +105,78 @@ begin
 	commit tran;
 end
 go
+------------------------------------------------
+create or alter procedure cat.[Item.Variant.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @vart bigint;
+	select @vart = Variant from cat.Items where TenantId = @TenantId and Id = @Id;
+
+	select [Variant!TVariant!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name],
+		i.Barcode, i.Article, i.Memo,
+		[Option1!TOption!RefId] = iv.Option1, [Option2!TOption!RefId] = iv.Option2, [Option3!TOption!RefId] = iv.Option3,
+		[ParentName] = p.[Name]
+	from cat.Items i
+		inner join cat.Items p on i.TenantId = p.TenantId and i.Parent = p.Id
+		left join cat.ItemVariants iv on i.TenantId = iv.TenantId and i.Variant = iv.Id
+		left join cat.ItemOptionValues ov1 on ov1.TenantId = iv.TenantId and iv.Option1 = ov1.Id
+	where i.TenantId = @TenantId and i.Id = @Id;
+
+	select [!TOption!Map] = null, [Id!!Id] = ov.Id, [Name!!Name] = o.[Name], [Value] = ov.[Name]
+	from cat.ItemOptionValues ov 
+		inner join cat.ItemVariants iv on ov.TenantId = iv.TenantId and ov.Id in (iv.Option1, iv.Option2, iv.Option3)
+		inner join cat.ItemOptions o on iv.TenantId = o.TenantId and o.Id = ov.[Option]
+	where iv.Id = @vart
+end
+go
+------------------------------------------------
+drop procedure if exists cat.[Item.Variant.Metadata];
+drop procedure if exists cat.[Item.Variant.Update];
+drop type if exists cat.[Item.Variant.TableType];
+go
+------------------------------------------------
+create type cat.[Item.Variant.TableType] as table
+(
+	[Id!!Id] bigint,
+	[Name!!Name] nvarchar(255),
+	Article nvarchar(32),
+	Barcode nvarchar(32),
+	Memo nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Variant.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Variant cat.[Item.Variant.TableType];
+	select [Variant!Variant!Metadata] = null, * from @Variant;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Variant.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Variant cat.[Item.Variant.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+end
+go
+
+
+
+
+
+
+
 
