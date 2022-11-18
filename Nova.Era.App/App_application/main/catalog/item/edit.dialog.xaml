@@ -37,7 +37,7 @@
 		</TabBar>
 		<Switch Expression="{Bind Root.$$Tab}" Grid.Row="3">
 			<Case Value="">
-				<Block Width="30rem" Scroll="True" Height="14rem">
+				<Block Width="30rem" Scroll="True" Height="14rem" Margin="1rem,0,0,0">
 					<Table ItemsSource="{Bind Hierarchies}" GridLines="Horizontal" Width="100%"
 					   Columns="Fit,100%">
 						<Table.Header>
@@ -88,18 +88,22 @@
 			<Case Value="variant">
 				<Grid Rows="Auto,1*" Height="100%" CssClass="overflow-hidden"
 					  Gap="6">
-					<Toolbar XamlStyle="{StyleResource ToolbarLight}">
-						<Button Icon="Add"/>
+					<Toolbar XamlStyle="{StyleResource ToolbarLight}"
+							 If="{Bind !Item.Variants.$isEmpty}">
+						<Button Icon="Plus" Content="@[Add]"/>
+						<ToolbarAligner />
+						<Button Icon="GearOutline"/>
 					</Toolbar>
 				<DataGrid Grid.Row="2" ItemsSource="{Bind Item.Variants}" FixedHeader="True"
-						  XamlStyle="{StyleResource DataGridSimple}">
+						  XamlStyle="{StyleResource DataGridSimple}"
+						  DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Item.Variants}, Url='/catalog/item/editvariant'}">
 					<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 					<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 					<DataGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
 					<DataGridColumn Header="@[Barcode]" Content="{Bind Barcode}" Fit="True" Wrap="NoWrap"/>
 					<DataGridColumn Fit="True">
 						<CommandBar Visibility="Hover">
-							<Button Icon="Edit" Command="{BindCmd Execute, CommandName=editVariant, Argument={Bind}}"/>
+							<Button Icon="Edit" Command="{BindCmd Dialog, Action=Edit, Url='/catalog/item/editvariant',Argument={Bind}}"/>
 						</CommandBar>
 					</DataGridColumn>
 					<DataGrid.EmptyPanel>
@@ -116,7 +120,8 @@
 			</Case>
 			<Case Value="acc">
 				<DataGrid ItemsSource="{Bind Item.Role.Accounts}" GroupBy="PlanName"
-						  FixedHeader="True" GridLines="Horizontal" Style="Light">
+						  FixedHeader="True" GridLines="Horizontal" Style="Light"
+						  Margin="1rem,0,0,0">
 					<DataGridColumn Header="@[AccKind]" Content="{Bind Kind}" Wrap="NoWrap" Fit="True"/>
 					<DataGridColumn Header="@[Account]" Content="{Bind Account}" Wrap="NoWrap" Align="Right" Fit="True"/>
 					<DataGridColumn Header="@[AccountName]" Content="{Bind AccountName}" Wrap="NoWrap" />

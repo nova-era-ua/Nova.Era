@@ -58,7 +58,10 @@ async function edit(item) {
 	const ctrl: IController = this.$ctrl;
 	const url = item.IsVariant ? EDIT_VARIANT_URL : EDIT_URL;
 	let res = await ctrl.$showDialog(url, { Id: item.Id });
-	item.$merge(res);
+	if (item.IsVariant) {
+		item.$merge(res, true, true);
+	} else
+		item.$merge(res);
 	clearLazyElements(this.Groups, this.Groups.$selected);
 }
 

@@ -143,8 +143,8 @@ go
 ------------------------------------------------
 create type cat.[Item.Variant.TableType] as table
 (
-	[Id!!Id] bigint,
-	[Name!!Name] nvarchar(255),
+	[Id] bigint,
+	[Name] nvarchar(255),
 	Article nvarchar(32),
 	Barcode nvarchar(32),
 	Memo nvarchar(255)
@@ -170,6 +170,20 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 	set xact_abort on;
+
+	merge cat.Items as t
+	using @Variant as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.Article = s.Article,
+		t.Barcode = s.Barcode,
+		t.Memo = s.Memo;
+
+	-- simple variant for update UI
+	select [Variant!TVariant!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name],
+		i.Barcode, i.Article, i.Memo, i.IsVariant
+	from cat.Items i inner join @Variant v on i.TenantId = @TenantId and i.Id = v.Id;
 end
 go
 
