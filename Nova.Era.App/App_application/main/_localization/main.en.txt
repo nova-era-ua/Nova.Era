@@ -73,6 +73,8 @@
 @Grouping=Grouping
 @Grouping.Item=Item Grouping
 @Variant.Item=Item Variants
+@Variants.Item=Items Variants
+@Variant.Setup=Variant Settings
 @NoGrouping=<No Grouping>
 @WithoutGroup=<Without Groups>
 @ItemCategory=Item Category

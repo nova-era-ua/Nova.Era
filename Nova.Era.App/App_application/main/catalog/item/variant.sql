@@ -14,11 +14,12 @@ go
 ------------------------------------------------
 create type cat.[Item.Variant.Variant.TableType] as table
 (
-	ParentGUID uniqueidentifier,
 	Id1 bigint,
 	Id2 bigint,
 	Id3 bigint,
-	[Name] nvarchar(255)
+	[Name] nvarchar(255),
+	[Article] nvarchar(32),
+	[Barcode] nvarchar(32)
 )
 go
 ------------------------------------------------
@@ -48,13 +49,13 @@ begin
 	select [!TOptionValue!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
 		[!TOption.Values!ParentId] = [Option], Checked = cast(1 as bit)
 	from cat.ItemOptionValues
-	where TenantId = @TenantId;
+	where TenantId = @TenantId and Void = 0;
 
 	select [!TVariant!Array] = null, 
-		[Id1] = cast(null as bigint), [Name1] = cast(null as nvarchar),
-		[Id2] = cast(null as bigint), [Name2] = cast(null as nvarchar),
-		[Id3] = cast(null as bigint), [Name3] = cast(null as nvarchar),
-		Article = cast(null as nvarchar),
+		[Id1] = cast(null as bigint), [Name1] = cast(null as nvarchar(255)),
+		[Id2] = cast(null as bigint), [Name2] = cast(null as nvarchar(255)),
+		[Id3] = cast(null as bigint), [Name3] = cast(null as nvarchar(255)),
+		Article = cast(null as nvarchar(32)), Barcode = cast(null as nvarchar(32)),
 		[!TItem.Variants!ParentId] = @Id
 	where 0 <> 0;
 end
@@ -88,20 +89,26 @@ begin
 	declare @itemid bigint;
 	declare @itemname nvarchar(255);
 	declare @role bigint;
+	declare @unit bigint;
 
-	select @itemid = i.Id, @itemname = i.[Name], @role = i.[Role]
+	select @itemid = i.Id, @itemname = i.[Name], @role = i.[Role], @unit = i.Unit
 	from @Item t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.Id;
 
-	declare @vars table(id bigint, [name] nvarchar(255));
+	declare @vars table(id bigint, [name] nvarchar(255), [article] nvarchar(32), barcode nvarchar(32));
 
 	begin tran;
-	insert into cat.ItemVariants(TenantId, Option1, Option2, Option3, [Name])
-	output inserted.Id, inserted.[Name] into @vars(id, [name])
-	select @TenantId, nullif(Id1, 0), nullif(Id2, 0), nullif(Id3, 0), [Name] from @Variants v;
+	-- insert into @vars with source columns
+	merge cat.ItemVariants as t
+	using @Variants as s
+	on (0 <> 0)
+	when not matched then insert
+		(TenantId, Option1, Option2, Option3, [Name]) values
+		(@TenantId, nullif(Id1, 0), nullif(Id2, 0), nullif(Id3, 0), [Name])
+	output inserted.Id, inserted.[Name], s.Article, s.Barcode into @vars(id, [name], article, barcode);
 
-	insert into cat.Items(TenantId, Parent, [Role], [Name], Variant)
-	select @TenantId, @itemid, @role, @itemname + N' [' + v.[name] + N']', v.id
-	from @vars v;
+	insert into cat.Items(TenantId, Parent, [Role], Unit, [Name], Variant, Article, Barcode)
+	select @TenantId, @itemid, @role, @unit, @itemname + N' [' + v.[name] + N']', v.id, v.article, v.barcode
+	from @vars v
 	commit tran;
 end
 go

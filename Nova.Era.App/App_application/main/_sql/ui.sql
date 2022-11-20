@@ -189,10 +189,12 @@ begin
 	declare @cat table(Id int, Menu nvarchar(16), [Name] nvarchar(255), 
 		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
 	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
-	(100, N'Sales', 10, N'@[Items]', N'@[Units]',    N'/catalog/unit/index', N'list',  N''),
-	(102, N'Sales', 11, N'@[Items]', N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
+
+	(100, N'Sales', 10, N'@[Items]', N'@[Units]',         N'/catalog/unit/index',       N'list',  N''),
+	(102, N'Sales', 11, N'@[Items]', N'@[Grouping.Item]', N'/catalog/itemgroup/index',  N'list',  N''),
+	(103, N'Sales', 12, N'@[Items]', N'@[Variant.Setup]', N'/catalog/itemoption/index', N'list',  N''),
 	--(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
-	(105, N'Sales', 11, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N''),
+	(105, N'Sales', 11, N'@[Prices]', N'@[PriceKinds]',   N'/catalog/pricekind/index', N'list',  N''),
 
 	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]',        N'/catalog/unit/index', N'list',  N''),
 	(201, N'Purchase',   11, N'@[Items]',  N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),

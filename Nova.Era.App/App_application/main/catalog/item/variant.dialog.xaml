@@ -3,7 +3,8 @@
 		Title="@[Variant.Item]" 
 		Size="Default" Width="Auto">
 	<Dialog.Buttons>
-		<Button Style="Cyan" Content="Налаштувати варіанти"/>
+		<Button Style="Cyan" Content="Налаштувати варіанти"
+				Command="{BindCmd Execute, CommandName=setupVariants}"/>
 		<Separator />
 		<Button Content="@[Create]" Command="{BindCmd SaveAndClose}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>

@@ -14,6 +14,7 @@ const template: Template = {
 	validators: {
 	},
 	commands: {
+		setupVariants
 	}
 };
 
@@ -50,7 +51,8 @@ function variants() {
 							Id1: v1.Id, Name1: v1.Name,
 							Id2: v2.Id, Name2: v2.Name,
 							Id3: v3.Id, Name3: v3.Name,
-							Name: `${v1.Name}, ${v2.Name}, ${v3.Name}`
+							Name: `${v1.Name}, ${v2.Name}, ${v3.Name}`,
+							Article: '', Barcode: ''
 						});
 					});
 				else
@@ -58,7 +60,8 @@ function variants() {
 						Id1: v1.Id, Name1: v1.Name,
 						Id2: v2.Id, Name2: v2.Name,
 						Id3: 0, Name3: null,
-						Name: `${v1.Name}, ${v2.Name}`
+						Name: `${v1.Name}, ${v2.Name}`,
+						Article: '', Barcode: ''
 					});
 			})
 		else
@@ -66,8 +69,15 @@ function variants() {
 				Id1: v1.Id, Name1: v1.Name,
 				Id2: 0, Name2: null,
 				Id3: 0, Name3: null,
-				Name: v1.Name
+				Name: v1.Name,
+				Article: '', Barcode: ''
 			});
 	});
 	return arr;
+}
+
+async function setupVariants() {
+	const ctrl: IController = this.$ctrl;
+	await ctrl.$showDialog('/catalog/itemoption/setup');
+	ctrl.$requery();
 }

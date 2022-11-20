@@ -5,6 +5,10 @@
 			<Button Icon="Plus" Command="{BindCmd Execute, CommandName=addElement, Argument={Bind Accounts.$selected}}"/>
 			<Button Icon="TaskComplete" Command="{BindCmd 
 				Command=Invoke, Url='/settings/test/testApi', Argument='0'}" />
+			<Button Icon="External" Command="{BindCmd 
+				Command=Execute, CommandName=testFetch}" />
+			<Button Icon="Call" Command="{BindCmd 
+				Command=Execute, CommandName=testInvoke}" />
 		</Toolbar>
 		<TreeGrid ItemsSource="{Bind Accounts}" ItemsProperty="Items" 
 			  Striped="True" Hover="True" Width="Auto" GridLines="Both"

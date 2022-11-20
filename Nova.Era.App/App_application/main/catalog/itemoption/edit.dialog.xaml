@@ -1,0 +1,36 @@
+﻿<!-- Edit Option -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="{Bind Option.$Id, Format='Опція [{0}]'}">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<StackPanel Padding="1rem" Gap=".5rem">
+		<TextBox Label="@[Name]" Value="{Bind Option.Name}" TabIndex="1" />
+		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
+			<Button Icon="Plus" Content="@[Add]"
+					Command="{BindCmd Append, Argument={Bind Option.Items}}"/>
+		</Toolbar>
+		<Table CellSpacing="Medium" Margin="-6px"
+					ItemsSource="{Bind Option.Items}" StickyHeaders="True"
+					Height="15rem" Columns="Fit,Auto,Auto,Fit" Width="100%">
+			<Table.Header>
+				<TableRow>
+					<TableCell>#</TableCell>
+					<TableCell>@[Name]</TableCell>
+					<TableCell>@[Memo]</TableCell>
+					<TableCell/>
+				</TableRow>
+			</Table.Header>
+			<TableRow>
+				<TableCell Content="{Bind Id}"/>
+				<TextBox Value="{Bind Name}" />
+				<TextBox Value="{Bind Memo}" />
+				<Hyperlink Content="✕" Size="Small"
+							   Command="{BindCmd Remove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}" />
+			</TableRow>
+		</Table>
+		<TextBox Label="@[Memo]" Value="{Bind Option.Memo}" Multiline="True"/>
+	</StackPanel>
+</Dialog>
+

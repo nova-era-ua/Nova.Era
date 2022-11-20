@@ -1,0 +1,29 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "ItemOption",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "index.template",
+      "view": "index.view"
+    }
+  },
+  "dialogs": {
+    "edit": {
+        "template": "edit.template",
+        "view": "edit.dialog"
+    },
+    "setup": {
+        "index": true,
+        "template": "index.template",
+        "view": "setup.dialog"
+    }
+  },
+  "commands": {
+    "delete": {
+      "type": "sql",
+      "procedure": "ItemOption.Delete"
+    }
+  }
+}

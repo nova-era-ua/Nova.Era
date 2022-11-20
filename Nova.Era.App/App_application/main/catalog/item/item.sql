@@ -335,18 +335,28 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Barcode, i.Memo,
-		[Role!TItemRole!RefId] = i.[Role],
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Role!TItemRole!RefId] = i.[Role], [Unit!TUnit!RefId] = i.Unit, 
 		[Brand!TBrand!RefId] = i.Brand, [Vendor!TVendor!RefId] = i.Vendor,
 		[Country!TCountry!RefId] = i.Country,
 		[Variants!TVariant!Array] = null
 	from cat.Items i 
-		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId and i.Id=@Id and i.Void = 0;
+
+	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Article, v.Barcode, v.Memo,
+		v.IsVariant, [Role!TItemRole!RefId] = v.[Role], [Unit!TUnit!RefId] = v.Unit, 
+		[!TItem.Variants!ParentId] = v.Parent
+	from cat.Items v 
+	where v.TenantId = @TenantId and v.Parent = @Id and v.Void = 0;
+
 
 	select [Hierarchies!THie!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
 		[Elements!THieElem!Array] = null
 	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
+
+	select [!TUnit!Map] = null, [Id!!Id] = u.Id, u.Short
+	from cat.Units u
+		inner join cat.Items i on u.TenantId = i.TenantId and u.Id = i.Unit
+	where i.TenantId = @TenantId and i.Id = @Id;
 
 	select [!TBrand!Map] = null, [Id!!Id] = b.Id, [Name!!Name] = b.[Name]
 	from cat.Brands b
@@ -375,11 +385,6 @@ begin
 		[Path] = cat.fn_GetItemBreadcrumbs(@TenantId, iti.Parent, null)
 	from cat.ItemTreeElems iti 
 	where TenantId = @TenantId  and iti.Item = @Id;
-
-	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Article, v.Barcode, v.Memo,
-		[!TItem.Variants!ParentId] = v.Parent
-	from cat.Items v 
-	where v.TenantId = @TenantId and v.Parent = @Id and v.Void = 0;
 
 	-- TItemRoleAcc
 	select [!TItemRoleAcc!LazyArray] = null, [Plan] = p.Code, Kind = ak.[Name], Account = a.Code,
@@ -456,7 +461,16 @@ begin
 	when not matched by target then insert
 		(TenantId, [Root], [Parent], Item) values
 		(@TenantId, s.ParentId, s.[Group], @RetId)
-	when not matched by source and t.TenantId=@TenantId and t.Item = @RetId then delete;
+	when not matched by source and t.TenantId = @TenantId and t.Item = @RetId then delete;
+
+	-- update variants
+	with TV as (
+		select v.Id, p.[Role], p.Unit, p.Vendor, p.Brand, p.Country
+		from cat.Items v inner join cat.Items p on v.TenantId = p.TenantId and v.Parent = p.Id
+		where p.TenantId = @TenantId and p.Id = @RetId
+	)
+	update cat.Items set Unit = TV.Unit, [Role] = TV.[Role], [Vendor] = TV.Vendor, Brand = TV.Brand, Country = TV.Country
+	from TV inner join cat.Items v on v.TenantId = @TenantId and v.Id = TV.Id;
 
 	commit tran;
 

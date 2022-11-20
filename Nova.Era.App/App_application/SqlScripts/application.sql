@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 18.11.2022 08:12:51
+generated: 20.11.2022 10:42:36
 */
 
 
@@ -6151,7 +6151,7 @@ as table (
 	[Name!!Name] nvarchar(255),
 	Article nvarchar(32),
 	Barcode nvarchar(32),
-	Memo nvarchar(32),
+	Memo nvarchar(255),
 	[Unit.Id!TUnit!Id] bigint, 
 	[Unit.Short!TUnit] nvarchar(8),
 	[Role!TItemRole!RefId] bigint,
@@ -6519,7 +6519,8 @@ begin
 	from cat.ItemTreeElems iti 
 	where TenantId = @TenantId  and iti.Item = @Id;
 
-	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], [!TItem.Variants!ParentId] = v.Parent
+	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Article, v.Barcode, v.Memo,
+		[!TItem.Variants!ParentId] = v.Parent
 	from cat.Items v 
 	where v.TenantId = @TenantId and v.Parent = @Id and v.Void = 0;
 
@@ -7108,11 +7109,12 @@ go
 ------------------------------------------------
 create type cat.[Item.Variant.Variant.TableType] as table
 (
-	ParentGUID uniqueidentifier,
 	Id1 bigint,
 	Id2 bigint,
 	Id3 bigint,
-	[Name] nvarchar(255)
+	[Name] nvarchar(255),
+	[Article] nvarchar(32),
+	[Barcode] nvarchar(32)
 )
 go
 ------------------------------------------------
@@ -7145,10 +7147,10 @@ begin
 	where TenantId = @TenantId;
 
 	select [!TVariant!Array] = null, 
-		[Id1] = cast(null as bigint), [Name1] = cast(null as nvarchar),
-		[Id2] = cast(null as bigint), [Name2] = cast(null as nvarchar),
-		[Id3] = cast(null as bigint), [Name3] = cast(null as nvarchar),
-		Article = cast(null as nvarchar),
+		[Id1] = cast(null as bigint), [Name1] = cast(null as nvarchar(255)),
+		[Id2] = cast(null as bigint), [Name2] = cast(null as nvarchar(255)),
+		[Id3] = cast(null as bigint), [Name3] = cast(null as nvarchar(255)),
+		Article = cast(null as nvarchar(32)), Barcode = cast(null as nvarchar(32)),
 		[!TItem.Variants!ParentId] = @Id
 	where 0 <> 0;
 end
@@ -7182,23 +7184,117 @@ begin
 	declare @itemid bigint;
 	declare @itemname nvarchar(255);
 	declare @role bigint;
+	declare @unit bigint;
 
-	select @itemid = i.Id, @itemname = i.[Name], @role = i.[Role]
+	select @itemid = i.Id, @itemname = i.[Name], @role = i.[Role], @unit = i.Unit
 	from @Item t inner join cat.Items i on i.TenantId = @TenantId and i.Id = t.Id;
 
-	declare @vars table(id bigint, [name] nvarchar(255));
+	declare @vars table(id bigint, [name] nvarchar(255), [article] nvarchar(32), barcode nvarchar(32));
 
 	begin tran;
-	insert into cat.ItemVariants(TenantId, Option1, Option2, Option3, [Name])
-	output inserted.Id, inserted.[Name] into @vars(id, [name])
-	select @TenantId, nullif(Id1, 0), nullif(Id2, 0), nullif(Id3, 0), [Name] from @Variants v;
+	-- insert into @vars with source columns
+	merge cat.ItemVariants as t
+	using @Variants as s
+	on (0 <> 0)
+	when not matched then insert
+		(TenantId, Option1, Option2, Option3, [Name]) values
+		(@TenantId, nullif(Id1, 0), nullif(Id2, 0), nullif(Id3, 0), [Name])
+	output inserted.Id, inserted.[Name], s.Article, s.Barcode into @vars(id, [name], article, barcode);
 
-	insert into cat.Items(TenantId, Parent, [Role], [Name], Variant)
-	select @TenantId, @itemid, @role, @itemname + N' [' + v.[name] + N']', v.id
-	from @vars v;
+	insert into cat.Items(TenantId, Parent, [Role], Unit, [Name], Variant, Article, Barcode)
+	select @TenantId, @itemid, @role, @unit, @itemname + N' [' + v.[name] + N']', v.id, v.article, v.barcode
+	from @vars v
 	commit tran;
 end
 go
+------------------------------------------------
+create or alter procedure cat.[Item.Variant.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @vart bigint;
+	select @vart = Variant from cat.Items where TenantId = @TenantId and Id = @Id;
+
+	select [Variant!TVariant!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name],
+		i.Barcode, i.Article, i.Memo,
+		[Option1!TOption!RefId] = iv.Option1, [Option2!TOption!RefId] = iv.Option2, [Option3!TOption!RefId] = iv.Option3,
+		[ParentName] = p.[Name]
+	from cat.Items i
+		inner join cat.Items p on i.TenantId = p.TenantId and i.Parent = p.Id
+		left join cat.ItemVariants iv on i.TenantId = iv.TenantId and i.Variant = iv.Id
+		left join cat.ItemOptionValues ov1 on ov1.TenantId = iv.TenantId and iv.Option1 = ov1.Id
+	where i.TenantId = @TenantId and i.Id = @Id;
+
+	select [!TOption!Map] = null, [Id!!Id] = ov.Id, [Name!!Name] = o.[Name], [Value] = ov.[Name]
+	from cat.ItemOptionValues ov 
+		inner join cat.ItemVariants iv on ov.TenantId = iv.TenantId and ov.Id in (iv.Option1, iv.Option2, iv.Option3)
+		inner join cat.ItemOptions o on iv.TenantId = o.TenantId and o.Id = ov.[Option]
+	where iv.Id = @vart
+end
+go
+------------------------------------------------
+drop procedure if exists cat.[Item.Variant.Metadata];
+drop procedure if exists cat.[Item.Variant.Update];
+drop type if exists cat.[Item.Variant.TableType];
+go
+------------------------------------------------
+create type cat.[Item.Variant.TableType] as table
+(
+	[Id] bigint,
+	[Name] nvarchar(255),
+	Article nvarchar(32),
+	Barcode nvarchar(32),
+	Memo nvarchar(255)
+)
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Variant.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Variant cat.[Item.Variant.TableType];
+	select [Variant!Variant!Metadata] = null, * from @Variant;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Item.Variant.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Variant cat.[Item.Variant.TableType] readonly
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	merge cat.Items as t
+	using @Variant as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.Article = s.Article,
+		t.Barcode = s.Barcode,
+		t.Memo = s.Memo;
+
+	-- simple variant for update UI
+	select [Variant!TVariant!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name],
+		i.Barcode, i.Article, i.Memo, i.IsVariant
+	from cat.Items i inner join @Variant v on i.TenantId = @TenantId and i.Id = v.Id;
+end
+go
+
+
+
+
+
+
+
 
 
 /* ITEM GROUPING */

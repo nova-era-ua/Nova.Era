@@ -164,6 +164,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\catalog\item\editvariant.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\dashboard\dashboard.view.xaml">
       <Generator>XamlIntelliSenseFileGenerator</Generator>
       <SubType>Designer</SubType>
@@ -192,6 +196,7 @@
     <Content Include="App_application\main\settings\operation\operation.sql" />
     <Content Include="App_application\main\settings\accountplan\plan.sql" />
     <Content Include="App_application\main\settings\policy\policy.sql" />
+    <Content Include="App_application\main\settings\test\testapi.server2.js" />
     <Content Include="App_application\main\_assets\main.css">
       <DependentUpon>main.less</DependentUpon>
     </Content>
@@ -547,6 +552,7 @@
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\docstate\_state.module.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\item\editvariant.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\variant.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\project\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\brand\edit.template.ts" />

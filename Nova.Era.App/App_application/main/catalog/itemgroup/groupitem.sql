@@ -144,7 +144,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	declare @Group [GroupItem.TableType];
+	declare @Group cat.[GroupItem.TableType];
 	select [Group!Group!Metadata] = null, * from @Group;
 end
 go
@@ -154,7 +154,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	declare @Group [GroupItem.TableType];
+	declare @Group cat.[GroupItem.TableType];
 	select [Group!Group!Metadata] = null, * from @Group;
 end
 go
@@ -162,7 +162,7 @@ go
 create or alter procedure cat.[GroupItem.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Group [GroupItem.TableType] readonly,
+@Group cat.[GroupItem.TableType] readonly,
 @RetId bigint = null output
 as
 begin
@@ -200,7 +200,7 @@ go
 create or alter procedure cat.[HierarchyItem.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Group [GroupItem.TableType] readonly,
+@Group cat.[GroupItem.TableType] readonly,
 @RetId bigint = null output
 as
 begin
