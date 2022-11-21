@@ -88,6 +88,7 @@
     </Content>
     <Content Include="App_application\main\catalog\contact\contact.sql" />
     <Content Include="App_application\main\catalog\crm\leadstage\leadstage.sql" />
+    <Content Include="App_application\main\catalog\itemoption\itemoption.sql" />
     <Content Include="App_application\main\catalog\item\variant.sql" />
     <Content Include="App_application\main\catalog\project\project.sql" />
     <Content Include="App_application\main\catalog\brand\brand.sql" />
@@ -165,6 +166,18 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_application\main\catalog\item\editvariant.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\itemoption\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\itemoption\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_application\main\catalog\itemoption\setup.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
@@ -522,6 +535,7 @@
     <Content Include="App_application\main\catalog\cashflowitem\model.json" />
     <Content Include="App_application\main\catalog\country\model.json" />
     <Content Include="App_application\main\catalog\person\model.json" />
+    <Content Include="App_application\main\catalog\itemoption\model.json" />
     <None Include="App_application\main\catalog\pricekind\model.json" />
     <Content Include="App_application\main\catalog\taxes\model.json" />
     <None Include="App_application\main\catalog\warehouse\model.json" />
@@ -552,6 +566,8 @@
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\crm\leadstage\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\docstate\_state.module.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\itemoption\edit.template.ts" />
+    <TypeScriptCompile Include="App_application\main\catalog\itemoption\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\editvariant.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\item\variant.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\project\edit.template.ts" />

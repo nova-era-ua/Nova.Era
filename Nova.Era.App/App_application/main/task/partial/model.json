@@ -1,0 +1,13 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "task",
+	"model": "",
+	"actions": {
+		"index": {
+			"index": true,
+			"template": "index.template",
+			"view": "index.view",
+			"skipDataStack": true
+		}
+	}
+}

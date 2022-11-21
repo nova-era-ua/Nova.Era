@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 20.11.2022 10:42:36
+generated: 21.11.2022 11:19:51
 */
 
 
@@ -5595,10 +5595,12 @@ begin
 	declare @cat table(Id int, Menu nvarchar(16), [Name] nvarchar(255), 
 		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
 	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
-	(100, N'Sales', 10, N'@[Items]', N'@[Units]',    N'/catalog/unit/index', N'list',  N''),
-	(102, N'Sales', 11, N'@[Items]', N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
+
+	(100, N'Sales', 10, N'@[Items]', N'@[Units]',         N'/catalog/unit/index',       N'list',  N''),
+	(102, N'Sales', 11, N'@[Items]', N'@[Grouping.Item]', N'/catalog/itemgroup/index',  N'list',  N''),
+	(103, N'Sales', 12, N'@[Items]', N'@[Variant.Setup]', N'/catalog/itemoption/index', N'list',  N''),
 	--(102, N'Sales', 12, N'@[Items]', N'@[Brands]',   N'/catalog/brand/index', N'list',  N''),
-	(105, N'Sales', 11, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N''),
+	(105, N'Sales', 11, N'@[Prices]', N'@[PriceKinds]',   N'/catalog/pricekind/index', N'list',  N''),
 
 	(200, N'Purchase',   10, N'@[Items]',  N'@[Units]',        N'/catalog/unit/index', N'list',  N''),
 	(201, N'Purchase',   11, N'@[Items]',  N'@[Grouping.Item]', N'/catalog/itemgroup/index', N'list',  N''),
@@ -6478,18 +6480,28 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.FullName, i.Article, i.Barcode, i.Memo,
-		[Role!TItemRole!RefId] = i.[Role],
-		[Unit.Id!TUnit!Id] = i.Unit, [Unit.Short!TUnit] = u.Short,
+		[Role!TItemRole!RefId] = i.[Role], [Unit!TUnit!RefId] = i.Unit, 
 		[Brand!TBrand!RefId] = i.Brand, [Vendor!TVendor!RefId] = i.Vendor,
 		[Country!TCountry!RefId] = i.Country,
 		[Variants!TVariant!Array] = null
 	from cat.Items i 
-		left join cat.Units u on  i.TenantId = u.TenantId and i.Unit = u.Id
 	where i.TenantId = @TenantId and i.Id=@Id and i.Void = 0;
+
+	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Article, v.Barcode, v.Memo,
+		v.IsVariant, [Role!TItemRole!RefId] = v.[Role], [Unit!TUnit!RefId] = v.Unit, 
+		[!TItem.Variants!ParentId] = v.Parent
+	from cat.Items v 
+	where v.TenantId = @TenantId and v.Parent = @Id and v.Void = 0;
+
 
 	select [Hierarchies!THie!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
 		[Elements!THieElem!Array] = null
 	from cat.ItemTree where TenantId = @TenantId and Parent = 0 and Id = [Root] and Id <> 0;
+
+	select [!TUnit!Map] = null, [Id!!Id] = u.Id, u.Short
+	from cat.Units u
+		inner join cat.Items i on u.TenantId = i.TenantId and u.Id = i.Unit
+	where i.TenantId = @TenantId and i.Id = @Id;
 
 	select [!TBrand!Map] = null, [Id!!Id] = b.Id, [Name!!Name] = b.[Name]
 	from cat.Brands b
@@ -6518,11 +6530,6 @@ begin
 		[Path] = cat.fn_GetItemBreadcrumbs(@TenantId, iti.Parent, null)
 	from cat.ItemTreeElems iti 
 	where TenantId = @TenantId  and iti.Item = @Id;
-
-	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Article, v.Barcode, v.Memo,
-		[!TItem.Variants!ParentId] = v.Parent
-	from cat.Items v 
-	where v.TenantId = @TenantId and v.Parent = @Id and v.Void = 0;
 
 	-- TItemRoleAcc
 	select [!TItemRoleAcc!LazyArray] = null, [Plan] = p.Code, Kind = ak.[Name], Account = a.Code,
@@ -6599,7 +6606,16 @@ begin
 	when not matched by target then insert
 		(TenantId, [Root], [Parent], Item) values
 		(@TenantId, s.ParentId, s.[Group], @RetId)
-	when not matched by source and t.TenantId=@TenantId and t.Item = @RetId then delete;
+	when not matched by source and t.TenantId = @TenantId and t.Item = @RetId then delete;
+
+	-- update variants
+	with TV as (
+		select v.Id, p.[Role], p.Unit, p.Vendor, p.Brand, p.Country
+		from cat.Items v inner join cat.Items p on v.TenantId = p.TenantId and v.Parent = p.Id
+		where p.TenantId = @TenantId and p.Id = @RetId
+	)
+	update cat.Items set Unit = TV.Unit, [Role] = TV.[Role], [Vendor] = TV.Vendor, Brand = TV.Brand, Country = TV.Country
+	from TV inner join cat.Items v on v.TenantId = @TenantId and v.Id = TV.Id;
 
 	commit tran;
 
@@ -7144,7 +7160,7 @@ begin
 	select [!TOptionValue!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
 		[!TOption.Values!ParentId] = [Option], Checked = cast(1 as bit)
 	from cat.ItemOptionValues
-	where TenantId = @TenantId;
+	where TenantId = @TenantId and Void = 0;
 
 	select [!TVariant!Array] = null, 
 		[Id1] = cast(null as bigint), [Name1] = cast(null as nvarchar(255)),
@@ -7443,7 +7459,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	declare @Group [GroupItem.TableType];
+	declare @Group cat.[GroupItem.TableType];
 	select [Group!Group!Metadata] = null, * from @Group;
 end
 go
@@ -7453,7 +7469,7 @@ as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
-	declare @Group [GroupItem.TableType];
+	declare @Group cat.[GroupItem.TableType];
 	select [Group!Group!Metadata] = null, * from @Group;
 end
 go
@@ -7461,7 +7477,7 @@ go
 create or alter procedure cat.[GroupItem.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Group [GroupItem.TableType] readonly,
+@Group cat.[GroupItem.TableType] readonly,
 @RetId bigint = null output
 as
 begin
@@ -7499,7 +7515,7 @@ go
 create or alter procedure cat.[HierarchyItem.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Group [GroupItem.TableType] readonly,
+@Group cat.[GroupItem.TableType] readonly,
 @RetId bigint = null output
 as
 begin
@@ -7564,6 +7580,149 @@ begin
 	delete from cat.ItemTreeElems where TenantId = @TenantId and Parent = @Id;
 	delete from cat.ItemTree where TenantId = @TenantId and Id = @Id;
 
+	commit tran;
+end
+go
+/* ITEM OPTIONS */
+------------------------------------------------
+create or alter procedure cat.[ItemOption.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Options!TOption!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Memo],
+		[Items!TOptionValue!Array] = null
+	from cat.ItemOptions 
+	where TenantId = @TenantId and Void = 0;
+
+	select [!TOptionValue!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name],
+		[!TOption.Items!ParentId] = [Option]
+	from cat.ItemOptionValues
+	where TenantId = @TenantId and Void = 0;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[ItemOption.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Option!TOption!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name], [Memo],
+		[Items!TOptionValue!Array] = null
+	from cat.ItemOptions 
+	where TenantId = @TenantId and Id = @Id;
+
+	select [!TOptionValue!Array] = null, [Id!!Id] = Id, [Name!!Name] = [Name], Memo,
+		[!TOption.Items!ParentId] = [Option]
+	from cat.ItemOptionValues
+	where TenantId = @TenantId and [Option] = @Id and Void = 0
+end
+go
+------------------------------------------------
+drop procedure if exists cat.[ItemOption.Metadata];
+drop procedure if exists cat.[ItemOption.Update];
+drop type if exists cat.[ItemOption.TableType];
+drop type if exists cat.[ItemOptionValue.TableType];
+go
+------------------------------------------------
+create type cat.[ItemOption.TableType]
+as table(
+	Id bigint null,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+);
+go
+-------------------------------------------------
+create type cat.[ItemOptionValue.TableType]
+as table (
+	Id bigint null,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+);
+go
+-------------------------------------------------
+create or alter procedure cat.[ItemOption.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Option cat.[ItemOption.TableType];
+	declare @Values cat.[ItemOptionValue.TableType];
+
+	select [Option!Option!Metadata] = null, * from @Option;
+	select [Values!Option.Items!Metadata] = null, * from @Values;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[ItemOption.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Option [ItemOption.TableType] readonly,
+@Values cat.[ItemOptionValue.TableType] readonly,
+@RetId bigint = null output
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	declare @output table(op sysname, id bigint);
+
+	merge cat.ItemOptions as t
+	using @Option as s
+	on (t.Id = s.Id and t.TenantId = @TenantId)
+	when matched then update set 
+		t.[Name] = s.[Name],
+		t.[Memo] = s.Memo
+	when not matched by target then 
+		insert (TenantId, [Name], Memo)
+		values (@TenantId, s.[Name], s.Memo)
+	output 
+		$action op, inserted.Id id
+	into @output(op, id);
+
+	select top(1) @RetId = id from @output;
+
+	with TV as (
+		select * from cat.ItemOptionValues where TenantId = @TenantId and [Option] = @RetId and Void = 0
+	)
+	merge TV as t
+	using @Values as s
+	on (t.Id = s.Id)
+	when matched then update set 
+		t.[Name] = s.[Name],
+		t.[Memo] = s.Memo,
+		t.Void = 0
+	when not matched by target then 
+		insert (TenantId, [Option], [Name], Memo)
+		values (@TenantId, @RetId, s.[Name], s.Memo)
+	when not matched by source then update set
+		t.Void = 1;
+
+	exec cat.[ItemOption.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @RetId;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[ItemOption.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	set xact_abort on;
+
+	begin tran;
+	update cat.ItemOptions set Void = 1 where TenantId = @TenantId and Id = @Id;
 	commit tran;
 end
 go

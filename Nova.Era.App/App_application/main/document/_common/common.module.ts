@@ -32,10 +32,11 @@ function category2Text(cat) {
 const template: Template = {
 	properties: {
 		'TDocBase.$Name': docBaseName,
-		'TDocBase.$Icon'() { return this.Done ? 'success-green' : 'warning-yellow';},
+		'TDocBase.$Icon'() { return this.Done ? 'success-green' : 'warning-yellow'; },
 		'TDocBase.$BindKind'() { return category2Text(this.BindKind); },
 		'TDocument.$CompanyAgentArg'() { return { Company: this.Company.Id, Agent: this.Agent.Id }; },
-		'TOpLink.$Category'() { return category2Text(this.Category); }
+		'TOpLink.$Category'() { return category2Text(this.Category); },
+		'TDocument.$TaskData'() { return { LinkType: 'Document' }; },
 	},
 	defaults: {
 		'Document.Date': dateUtils.today(),

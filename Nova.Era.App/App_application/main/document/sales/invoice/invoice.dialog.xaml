@@ -202,6 +202,12 @@
 			</Case>
 			<Case Value="delivery">
 			</Case>
+			<Case Value="tasks">
+				<EmptyPanel If="{Bind Document.$isNew }">
+					Потрібно зберегти документ
+				</EmptyPanel>
+				<Include Source="/task/partial/index" If="{Bind !Document.$isNew}" Argument="{Bind Document.Id}" Data="{Bind Document.$TaskData}"/>
+			</Case>
 		</Switch>
 		<Grid Grid.Row="6" Columns="Auto, 1*, Auto, 12rem" AlignItems="Top" Gap="1rem">
 			<Label Grid.Col="1" Content="@[Memo]" Grid.VAlign="Top"/>
