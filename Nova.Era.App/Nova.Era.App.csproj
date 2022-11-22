@@ -210,6 +210,7 @@
     <Content Include="App_application\main\settings\accountplan\plan.sql" />
     <Content Include="App_application\main\settings\policy\policy.sql" />
     <Content Include="App_application\main\settings\test\testapi.server2.js" />
+    <Content Include="App_application\main\task\partial\partial.sql" />
     <Content Include="App_application\main\_assets\main.css">
       <DependentUpon>main.less</DependentUpon>
     </Content>
@@ -492,6 +493,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\task\partial\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\accounting\bankacc\model.json" />
@@ -632,6 +637,7 @@
     <Content Include="App_application\main\settings\integration\model.json" />
     <Content Include="App_application\main\integration\delivery\novaposhta\model.json" />
     <Content Include="App_application\main\sales\widgets\model.json" />
+    <Content Include="App_application\main\task\partial\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
@@ -775,6 +781,7 @@
     <Content Include="App_application\main\settings\test\testapi.server.js" />
     <TypeScriptCompile Include="App_application\main\settings\test\indexcw.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\test\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\task\partial\index.template.ts" />
     <TypeScriptCompile Include="App_application\manufacturing\dashboard\test1.template.ts" />
   </ItemGroup>
   <ItemGroup>

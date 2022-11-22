@@ -55,6 +55,7 @@
 			"main/document/print/print.sql",
 			"main/sales/price/price.sql",
 			"main/crm/lead/lead.sql",
+			"main/task/partial/partial.sql",
 			"main/reports/report.sql",
 			"main/reports/stock/report.stock.sql",
 			"main/reports/agent/report.agent.sql",

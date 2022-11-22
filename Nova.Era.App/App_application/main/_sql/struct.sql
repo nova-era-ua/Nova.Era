@@ -42,6 +42,9 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'crm')
 	exec sp_executesql N'create schema crm';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'tsk')
+	exec sp_executesql N'create schema tsk';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -53,6 +56,7 @@ grant execute on schema::ini to public;
 grant execute on schema::ui to public;
 grant execute on schema::app to public;
 grant execute on schema::crm to public;
+grant execute on schema::tsk to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Blobs')

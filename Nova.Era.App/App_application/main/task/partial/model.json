@@ -1,10 +1,10 @@
 ﻿{
 	"$schema": "../../../@schemas/model-json-schema.json#",
-	"schema": "task",
-	"model": "",
+	"schema": "tsk",
 	"actions": {
 		"index": {
 			"index": true,
+			"model": "Task.Partial",
 			"template": "index.template",
 			"view": "index.view",
 			"skipDataStack": true

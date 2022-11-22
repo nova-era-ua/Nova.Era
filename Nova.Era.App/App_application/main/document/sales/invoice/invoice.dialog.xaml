@@ -117,7 +117,7 @@
 					<Label Content="@[PriceKind]" Margin="0,.5rem,0,0"/>
 					<SelectorSimple Value="{Bind Document.PriceKind}" Url="/catalog/pricekind"/>
 				</Toolbar>
-				<Table Grid.Row="5" ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" 
+				<Table ItemsSource="{Bind Document.StockRows}" Background="Paper" GridLines="Both" 
 					   Width="100%" Height="100%"
 					Columns="Fit,11rem,Auto,Fit,10rem,10rem,10rem,Fit" StickyHeaders="True">
 					<Table.Header>
@@ -206,7 +206,11 @@
 				<EmptyPanel If="{Bind Document.$isNew }">
 					Потрібно зберегти документ
 				</EmptyPanel>
-				<Include Source="/task/partial/index" If="{Bind !Document.$isNew}" Argument="{Bind Document.Id}" Data="{Bind Document.$TaskData}"/>
+				<Group If="{Bind !Document.$isNew}">
+					<Block />
+					<Include Source="/task/partial/index" Argument="{Bind Document.Id}" Data="{Bind Document.$TaskData}"
+							 CssClass="include-inside-grid"/>
+				</Group>
 			</Case>
 		</Switch>
 		<Grid Grid.Row="6" Columns="Auto, 1*, Auto, 12rem" AlignItems="Top" Gap="1rem">

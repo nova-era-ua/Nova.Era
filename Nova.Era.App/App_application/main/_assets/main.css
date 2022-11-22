@@ -176,3 +176,7 @@ table.fixed-layout {
 .ne-tree-grid tr.lev-1 {
   background-color: rgba(114, 234, 234, 0.05);
 }
+.include-inside-grid {
+  height: 100%;
+  overflow: hidden;
+}
