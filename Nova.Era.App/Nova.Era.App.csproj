@@ -497,6 +497,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\_navpane\navpane.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\accounting\bankacc\model.json" />
@@ -638,6 +641,11 @@
     <Content Include="App_application\main\integration\delivery\novaposhta\model.json" />
     <Content Include="App_application\main\sales\widgets\model.json" />
     <Content Include="App_application\main\task\partial\model.json" />
+    <Content Include="App_application\main\_navpane\model.json" />
+    <Page Include="App_application\main\_navpane\navpane.view.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

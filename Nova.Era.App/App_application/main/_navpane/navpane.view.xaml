@@ -1,0 +1,28 @@
+﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+			  CssClass="top-nav-pane">
+	<Button Icon="Bell" Badge="99">
+		<Button.DropDown>
+			<DropDownMenu>
+				<MenuItem Icon="Access" Content="Access"/>
+				<MenuItem Icon="Account"  Content="Account"/>
+				<MenuItem Icon="AddressBook"  Content="AddressBook"/>
+				<MenuItem Icon="Approve"/>
+				<MenuItem Icon="Reload" Command="{BindCmd Reload}"/>
+			</DropDownMenu>
+		</Button.DropDown>
+	</Button>
+	<Button Icon="ExportExcel">
+		<Button.DropDown>
+			<DropDownMenu Separate="True" Direction="DownLeft">
+				<List Margin=".25rem" Width="20rem" Height="80vh">
+					<ListItem Icon="Dashboard" Content="Dashboard" Command="{BindCmd Reload}"/>
+					<ListItem Icon="DashboardOutline" Content="Dashboard"/>
+					<ListItem Icon="Database" Content="Dashboard"/>
+					<ListItem Icon="Dashboard" Content="Dashboard"/>
+					<ListItem Icon="Dashboard" Content="Dashboard" Header="Header" Footer="Footer"/>
+					<ListItemSimple Icon="BankAccount" Content="BankAccount"/>
+				</List>
+			</DropDownMenu>
+		</Button.DropDown>
+	</Button>
+</PartialBlock>
