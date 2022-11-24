@@ -642,6 +642,9 @@
     <Content Include="App_application\main\sales\widgets\model.json" />
     <Content Include="App_application\main\task\partial\model.json" />
     <Content Include="App_application\main\_navpane\model.json" />
+    <Content Include="App_application\main\_navpane\notification.view.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\_navpane\navpane.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -790,6 +793,8 @@
     <TypeScriptCompile Include="App_application\main\settings\test\indexcw.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\test\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\task\partial\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\_navpane\notification.template.ts" />
+    <TypeScriptCompile Include="App_application\main\_navpane\navpane.template.ts" />
     <TypeScriptCompile Include="App_application\manufacturing\dashboard\test1.template.ts" />
   </ItemGroup>
   <ItemGroup>

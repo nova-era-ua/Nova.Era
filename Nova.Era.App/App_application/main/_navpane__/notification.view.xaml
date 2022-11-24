@@ -1,0 +1,20 @@
+﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+			  Height="100%" Overflow="Auto" Width="25rem">
+	<Code Content="{Bind Data}" Multiline="True">
+		
+	</Code>
+		<List Padding="1rem">
+			<ListItem Icon="Dashboard" Content="Dashboard" Command="{BindCmd Reload}"/>
+			<ListItem Icon="DashboardOutline" Content="Dashboard"/>
+			<ListItem Icon="Database" Content="Dashboard"/>
+			<ListItem Icon="Dashboard" Content="Dashboard"/>
+			<ListItem Icon="Dashboard" Content="Dashboard" Header="Header" Footer="Footer"/>
+			<ListItemSimple Icon="BankAccount" Content="BankAccount"/>
+			<ListItem Icon="Dashboard" Content="Dashboard" Header="Header" Footer="Footer"/>
+			<ListItem Icon="Dashboard" Content="Dashboard" Header="Header" Footer="Footer"/>
+			<ListItem Icon="Dashboard" Content="Dashboard" Header="Header" Footer="Footer"/>
+			<ListItem Icon="Dashboard" Content="Dashboard" Header="Header" Footer="Footer"/>
+			<ListItem Icon="Print" Content="Test Invoke" Header="Header" Footer="Footer"
+					  Command="{BindCmd Execute, CommandName=testInvoke}"/>
+		</List>
+</PartialBlock>

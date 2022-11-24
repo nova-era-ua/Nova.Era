@@ -180,12 +180,3 @@ table.fixed-layout {
   height: 100%;
   overflow: hidden;
 }
-.top-nav-pane {
-  display: flex;
-  height: 100%;
-}
-.top-nav-pane .btn-icon {
-  padding: 0;
-  width: 42px;
-  /* header-height */
-}

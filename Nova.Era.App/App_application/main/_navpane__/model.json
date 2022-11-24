@@ -1,0 +1,16 @@
+﻿{
+	"$schema": "../../@schemas/model-json-schema.json#",
+	"schema": "dbo",
+	"model": "NavPane",
+	"actions": {
+		"index": {
+			"template": "navpane.template",
+			"view": "navpane.view"
+		},
+		"notification": {
+			"model": "SidePane",
+			"template": "notification.template",
+			"view": "notification.view"
+		}
+	}
+}
