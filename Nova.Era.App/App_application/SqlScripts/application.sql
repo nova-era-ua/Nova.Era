@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 22.11.2022 12:30:29
+generated: 27.11.2022 10:05:14
 */
 
 
@@ -8,7 +8,7 @@ generated: 22.11.2022 12:30:29
 
 /*
 version: 10.0.7877
-generated: 17.11.2022 20:59:29
+generated: 27.11.2022 09:38:09
 */
 
 set nocount on;
@@ -3454,6 +3454,9 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'crm')
 	exec sp_executesql N'create schema crm';
 go
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'tsk')
+	exec sp_executesql N'create schema tsk';
+go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -3465,6 +3468,7 @@ grant execute on schema::ini to public;
 grant execute on schema::ui to public;
 grant execute on schema::app to public;
 grant execute on schema::crm to public;
+grant execute on schema::tsk to public;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Blobs')
@@ -15415,6 +15419,22 @@ begin
 	-- maps
 	exec crm.[Lead.Maps] @TenantId, @cnts;
 
+end
+go
+
+/* TASK.Partial */
+-------------------------------------------------
+create or alter procedure tsk.[Task.Partial.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@LinkType nvarchar(64)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Tasks!TTask!Array] = null, [Id!!Id] = 0
 end
 go
 

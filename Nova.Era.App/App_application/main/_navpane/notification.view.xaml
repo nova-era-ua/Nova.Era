@@ -1,0 +1,10 @@
+﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+			  Height="100%" Overflow="Auto" Width="25rem">
+	<List Padding=".5rem" ItemsSource="{Bind Tasks}">
+		<List.EmptyPanel>
+			<EmptyPanel Icon="TaskComplete">
+				Зараз немає невиконаних задач
+			</EmptyPanel>
+		</List.EmptyPanel>
+	</List>
+</PartialBlock>
