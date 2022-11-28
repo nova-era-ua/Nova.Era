@@ -30,7 +30,7 @@
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[AccountNo]" Content="{Bind AccountNo}" Wrap="NoWrap" Fit="True"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
-			<DataGridColumn Header="@[Rem]" Content="{Bind Balance, DataType=Currency, NegativeRed=True}" Role="Number" Sort="False" Bold="True"/>
+			<DataGridColumn Header="@[Rem]" Content="{Bind Balance, DataType=Currency, NegativeRed=True}" Role="Number" Bold="True"/>
 			<DataGridColumn Header="@[Currency]" Content="{Bind Currency.Alpha3}" Sort="False" Wrap="NoWrap" Fit="True"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
 			<DataGridColumn Header="@[ItemRole]" Content="{Bind ItemRole.Name}" Sort="False"/>

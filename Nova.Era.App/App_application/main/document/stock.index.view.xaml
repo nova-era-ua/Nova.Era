@@ -50,7 +50,7 @@
 						   Command="{BindCmd Dialog, Action=Show, Argument={Bind BaseDoc}, Url={Bind BaseDoc.$EditUrl}}"/>
 			</DataGridColumn>
 			<DataGridColumn Header="@[Memo]" SortProperty="memo">
-				<Span Content="{Bind Memo}" MaxChars="60" Tip="{Bind Memo}"/>
+				<Span Content="{Bind Memo}" MaxChars="50" Tip="{Bind Memo}"/>
 			</DataGridColumn>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">

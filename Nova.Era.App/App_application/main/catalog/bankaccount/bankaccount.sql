@@ -23,11 +23,12 @@ begin
 	set @Order = lower(@Order);
 	set @Dir = lower(@Dir);
 
-	insert into @ba(id, comp, bank, crc, rowcnt)
-	select b.Id, b.Company, b.Bank, b.Currency, 
+	insert into @ba(id, comp, bank, crc, balance, rowcnt)
+	select b.Id, b.Company, b.Bank, b.Currency, isnull(cr.[Sum], 0),
 		count(*) over ()
 	from cat.CashAccounts b
-	where TenantId = @TenantId and b.IsCashAccount = 0 
+		left join jrn.CashReminders cr on  b.TenantId = cr.TenantId and cr.CashAccount = b.Id
+	where b.TenantId = @TenantId and b.IsCashAccount = 0 
 		and (@Company is null or b.Company = @Company)
 		and (@fr is null or b.[Name] like @fr or b.Memo like @fr)
 	order by 
@@ -48,24 +49,18 @@ begin
 		case when @Dir = N'asc' then
 			case @Order
 				when N'id' then b.[Id]
+				when N'balance' then cr.[Sum]
 			end
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order
 				when N'id' then b.[Id]
+				when N'balance' then cr.[Sum]
 			end
 		end desc,
 		b.Id
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
-
-	with TB as (
-		select Id = t.id, [Sum] = sum(cj.[Sum] * cj.InOut)
-		from @ba t inner join jrn.CashJournal cj on cj.TenantId = @TenantId and cj.CashAccount = t.id
-		group by t.id
-	)
-	update @ba set balance = [Sum]
-	from @ba t inner join TB on t.id = TB.Id;
 
 	select [BankAccounts!TBankAccount!Array] = null,
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo, Balance = t.balance,

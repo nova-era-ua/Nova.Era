@@ -23,11 +23,12 @@ begin
 	set @Order = lower(@Order);
 	set @Dir = lower(@Dir);
 
-	insert into @ba(id, comp, crc, rowcnt)
-	select c.Id, c.Company, c.Currency, 
+	insert into @ba(id, comp, crc, balance, rowcnt)
+	select c.Id, c.Company, c.Currency, isnull(cr.[Sum], 0),
 		count(*) over ()
 	from cat.CashAccounts c
-	where TenantId = @TenantId
+		left join jrn.CashReminders cr on  c.TenantId = cr.TenantId and cr.CashAccount = c.Id
+	where c.TenantId = @TenantId
 		and (@Company is null or c.Company = @Company)
 		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
 	order by 
@@ -46,24 +47,18 @@ begin
 		case when @Dir = N'asc' then
 			case @Order
 				when N'id' then c.[Id]
+				when N'balance' then cr.[Sum]
 			end
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order
 				when N'id' then c.[Id]
+				when N'balance' then cr.[Sum]
 			end
 		end desc,
 		c.Id
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
-
-	with TB as (
-		select Id = t.id, [Sum] = sum(cj.[Sum] * cj.InOut)
-		from @ba t inner join jrn.CashJournal cj on cj.TenantId = @TenantId and cj.CashAccount = t.id
-		group by t.id
-	)
-	update @ba set balance = [Sum]
-	from @ba t inner join TB on t.id = TB.Id;
 
 	select [CashAccounts!TCashAccount!Array] = null,
 		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, Balance = t.balance,
@@ -77,6 +72,10 @@ begin
 	with T as(select comp from @ba group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join T on c.TenantId = @TenantId and c.Id = T.comp;
+
+	with T as(select crc from @ba group by crc)
+	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Alpha3
+	from cat.Currencies c inner join T on c.TenantId = @TenantId and c.Id = T.crc;
 
 	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'C';

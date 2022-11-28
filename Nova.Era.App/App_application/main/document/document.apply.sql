@@ -439,4 +439,35 @@ begin
 	commit tran;
 end
 go
+------------------------------------------------
+create or alter procedure jrn.[ReApply.Cash]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	delete from jrn.CashJournal where TenantId = @TenantId;
+	delete from jrn.CashReminders where TenantId = @TenantId;
+
+	with T as
+	(
+		select InOut = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = isnull(d.CashAccTo, d.CashAccFrom), [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+			d.CashFlowItem, d.Operation
+		from doc.Documents d
+			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and oc.IsIn = 1 and d.Done = 1
+		union all
+		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = isnull(d.CashAccFrom, d.CashAccTo), [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+			d.CashFlowItem, d.Operation
+		from doc.Documents d
+			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and oc.IsOut = 1 and d.Done = 1
+	)
+	insert into jrn.CashJournal(TenantId, Document, Operation, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter, Project)
+	select TenantId = @TenantId, Document, Operation, [Date], InOut, [Sum], Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter, Project
+	from T;
+end
+go
 

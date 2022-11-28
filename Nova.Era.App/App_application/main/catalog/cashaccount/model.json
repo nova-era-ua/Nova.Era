@@ -18,6 +18,10 @@
 			"model": "CashAccount.Simple",
 			"template": "browse.template",
 			"view": "browseall.dialog"
+		},
+		"show": {
+			"template": "show.template",
+			"view": "show.dialog"
 		}
 	},
 	"commands": {

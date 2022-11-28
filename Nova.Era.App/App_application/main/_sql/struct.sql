@@ -1252,6 +1252,17 @@ create table jrn.CashJournal
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'CashReminders')
+create table jrn.CashReminders
+(
+	TenantId int not null,
+	CashAccount bigint not null,
+	[Sum] money not null
+		constraint PK_CashReminders primary key (TenantId, CashAccount),
+		constraint FK_CashReminders_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'jrn' and SEQUENCE_NAME = N'SQ_SettleJournal')
 	create sequence jrn.SQ_SettleJournal as bigint start with 100 increment by 1;
 go
@@ -1588,4 +1599,41 @@ create table app.[Integrations]
 	constraint PK_Integrations primary key (TenantId, Id),
 	constraint FK_Integrations_Source_IntegrationSources foreign key (Source) references app.IntegrationSources(Id),
 );
+go
+-- TRIGGERS
+------------------------------------------------
+create or alter trigger jrn.CashJournal_ITRIG on jrn.CashJournal
+  for insert not for replication
+as
+begin
+	set nocount on;
+	with T(TenantId, CashAccount, [Sum]) as
+	(
+		select TenantId, CashAccount, [Sum] = sum([Sum] * InOut) from inserted
+		group by TenantId, CashAccount
+	)
+	merge jrn.CashReminders as t
+	using T as s
+	on t.TenantId = s.TenantId and t.CashAccount = s.CashAccount
+	when matched then update set
+		t.[Sum] = t.Sum + s.[Sum]
+	when not matched by target then insert
+		(TenantId, CashAccount, [Sum]) values
+		(TenantId, CashAccount, [Sum]);
+end
+go
+------------------------------------------------
+create or alter trigger jrn.CashJournal_DTRIG on jrn.CashJournal
+  for delete not for replication
+as
+begin
+	set nocount on;
+	with T(TenantId, CashAccount, [SumD]) as
+	(
+		select TenantId, CashAccount, [SumD] = sum([Sum] * InOut) from deleted
+		group by TenantId, CashAccount
+	)
+	update jrn.CashReminders set [Sum] = [Sum] - T.[SumD]
+	from jrn.CashReminders r inner join T on r.TenantId = T.TenantId and r.CashAccount = T.CashAccount
+end
 go

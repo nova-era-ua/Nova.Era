@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 27.11.2022 10:05:14
+generated: 27.11.2022 17:31:58
 */
 
 
@@ -4661,6 +4661,17 @@ create table jrn.CashJournal
 		constraint FK_CashJournal_RespCenter_RespCenters foreign key (TenantId, RespCenter) references cat.RespCenters(TenantId, Id),
 		constraint FK_CashJournal_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id),
 		constraint FK_CashJournal_Operation_Operations foreign key (TenantId, Operation) references doc.Operations(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'jrn' and TABLE_NAME=N'CashReminders')
+create table jrn.CashReminders
+(
+	TenantId int not null,
+	CashAccount bigint not null,
+	[Sum] money not null
+		constraint PK_CashReminders primary key (TenantId, CashAccount),
+		constraint FK_CashReminders_CashAccount_CashAccounts foreign key (TenantId, CashAccount) references cat.CashAccounts(TenantId, Id)
 );
 go
 ------------------------------------------------

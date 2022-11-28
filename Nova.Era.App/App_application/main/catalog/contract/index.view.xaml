@@ -32,8 +32,10 @@
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
 			<DataGridColumn Header="@[ContractKind]" Content="{Bind Kind.Name}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
-			<DataGridColumn Header="@[Agent]" Content="{Bind Agent.Name}" Sort="False"/>
-			<DataGridColumn Header="@[PriceKind]" Content="{Bind PriceKind.Name}" Sort="False"/>
+			<DataGridColumn Header="@[Agent]" Sort="False">
+				<Span Content="{Bind Agent.Name}" MaxChars="50"></Span>
+			</DataGridColumn>
+			<DataGridColumn Header="@[PriceKind]" Content="{Bind PriceKind.Name}" Sort="False" Wrap="NoWrap" Fit="True"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
 			<DataGridColumn Fit="True" Wrap="NoWrap">
 				<CommandBar Visibility="Hover">

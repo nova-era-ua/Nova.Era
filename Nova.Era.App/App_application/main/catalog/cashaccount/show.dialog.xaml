@@ -1,0 +1,22 @@
+﻿<!-- Edit CashAccount -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Placement="FullScreen">
+	<Button CssClass="fs-dialog-close" Style="Toolbar" Content="✕" Command="{BindCmd Close}"/>
+	<Grid Height="100%" Columns="MinMax(200px;20%),1px,1*" Rows="Auto,1*" 
+		  Gap="1rem" Padding="1rem">
+		<Grid Grid.Col="1" Grid.Row="1" Grid.RowSpan="2" Grid.VAlign="Top">
+			<Header Content="@[CashAccount]" Size="Large" Bold="False" Margin=".5rem,0,0,0"/>
+			<Static Label="@[Name]" Value="{Bind CashAccount.Name}" />
+			<Static Label="@[Company]"  Value="{Bind CashAccount.Company.Name}"/>
+			<Static Label="@[Currency]" Width="10rem"
+				  Value="{Bind CashAccount.Currency.Alpha3}"/>
+			<Static Label="@[ItemRole]" Value="{Bind CashAccount.ItemRole.Name}" />
+			<TextBox Label="@[Memo]" Value="{Bind CashAccount.Memo}" Multiline="True" Disabled="True"/>
+		</Grid>
+		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
+		<TabBar Grid.Row="1" Grid.Col="3" Value="{Bind Root.$$Tab}" Margin="0,0,1rem,0">
+			<TabButton Content="Документи" ActiveValue=""/>
+		</TabBar>
+	</Grid>
+</Dialog>
+

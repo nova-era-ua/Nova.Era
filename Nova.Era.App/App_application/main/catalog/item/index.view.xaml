@@ -57,7 +57,7 @@
 					  CssClass="ne-tree-grid">
 				<TreeGridColumn Header="#" Content="{Bind Id}" Wrap="NoWrap" Align="Right"/>
 				<TreeGridColumn Header="@[Name]" ShowButton="True"
-								Content="{Bind Name}" MinWidth="250px" MaxChars="64" Tip="{Bind Name}"/>
+								Content="{Bind Name}" MinWidth="250px" MaxChars="50" Tip="{Bind Name}"/>
 				<TreeGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" 
 					Fit="True" Wrap="NoWrap" Align="Center" Sort="False"/>
 				<TreeGridColumn Header="@[ItemRole]" Fit="True" Wrap="NoWrap" Sort="False">
@@ -65,7 +65,7 @@
 				</TreeGridColumn>
 				<TreeGridColumn Header="@[Article]" Content="{Bind Article}" Fit="True" Wrap="NoWrap"/>
 				<TreeGridColumn Header="@[Barcode]" Content="{Bind Barcode}" Fit="True" Wrap="NoWrap"/>
-				<TreeGridColumn Header="@[Memo]" Content="{Bind Memo}" MaxChars="64"/>
+				<TreeGridColumn Header="@[Memo]" Content="{Bind Memo}" MaxChars="50"/>
 				<TreeGridColumn Fit="True" Wrap="NoWrap">
 					<CommandBar Visibility="Hover">
 						<Button Icon="Edit" Command="{BindCmd Execute, CommandName=edit, Argument={Bind}}"/>
