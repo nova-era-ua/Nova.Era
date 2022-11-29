@@ -58,24 +58,19 @@
 					-->
 					<SheetSection>
 						<SheetRow Style="Header">
-							<SheetCell RowSpan="2"/>
-							<SheetCell ColSpan="2" RowSpan="2" VAlign="Middle" Wrap="PreWrap">@[Date]\n@[Document]</SheetCell>
-							<SheetCell ColSpan="2" VAlign="Middle" Wrap="NoWrap">На початок</SheetCell>
-							<SheetCell ColSpan="2" VAlign="Middle">На кінець</SheetCell>
-						</SheetRow>
-						<SheetRow Style="Header">
-							<SheetCell>@[Debit]</SheetCell>
-							<SheetCell>@[Credit]</SheetCell>
-							<SheetCell>@[Total]</SheetCell>
-							<SheetCell>@[Total]</SheetCell>
-							<SheetCell>@[Debit]</SheetCell>
-							<SheetCell>@[Credit]</SheetCell>
+							<SheetCell />
+							<SheetCell ColSpan="2" Wrap="PreWrap">@[Date] / @[Document]</SheetCell>
+							<SheetCell>Операція</SheetCell>
+							<SheetCell>На початок дня</SheetCell>
+							<SheetCell>@[Income]</SheetCell>
+							<SheetCell>@[Expense]</SheetCell>
+							<SheetCell>На кінець дня</SheetCell>
 						</SheetRow>
 					</SheetSection>
 					<SheetSection>
 						<SheetRow Style="Total" Align="Right" Wrap="NoWrap">
 							<SheetCell />
-							<SheetCell ColSpan="4" Align="Left">@[Total]</SheetCell>
+							<SheetCell ColSpan="3" Align="Left">@[Total]</SheetCell>
 							<SheetCell Content="{Bind RepData.SumStart, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind RepData.SumIn, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind RepData.SumOut, DataType=Currency, HideZeros=True}"/>
