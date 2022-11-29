@@ -11,9 +11,16 @@ define(["require", "exports"], function (require, exports) {
         },
         validators: {
             'Report.Name': '@[Error.Required]',
-            'Report.Account': '@[Error.Required]',
+            'Report.Account': { valid: validAccount, msg: '@[Error.Required]' },
             'Report.File': '@[Error.Required]'
         }
     };
     exports.default = template;
+    function validAccount(elem, val) {
+        console.dir(val);
+        switch (elem.Type.Id) {
+            case 'by.account': return !!elem.Account.Id;
+        }
+        return true;
+    }
 });

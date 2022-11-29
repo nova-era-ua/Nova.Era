@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 27.11.2022 17:31:58
+generated: 30.11.2022 00:49:13
 */
 
 
@@ -8,7 +8,7 @@ generated: 27.11.2022 17:31:58
 
 /*
 version: 10.0.7877
-generated: 27.11.2022 09:38:09
+generated: 29.11.2022 19:23:36
 */
 
 set nocount on;
@@ -5012,6 +5012,43 @@ create table app.[Integrations]
 	constraint FK_Integrations_Source_IntegrationSources foreign key (Source) references app.IntegrationSources(Id),
 );
 go
+-- TRIGGERS
+------------------------------------------------
+create or alter trigger jrn.CashJournal_ITRIG on jrn.CashJournal
+  for insert not for replication
+as
+begin
+	set nocount on;
+	with T(TenantId, CashAccount, [Sum]) as
+	(
+		select TenantId, CashAccount, [Sum] = sum([Sum] * InOut) from inserted
+		group by TenantId, CashAccount
+	)
+	merge jrn.CashReminders as t
+	using T as s
+	on t.TenantId = s.TenantId and t.CashAccount = s.CashAccount
+	when matched then update set
+		t.[Sum] = t.Sum + s.[Sum]
+	when not matched by target then insert
+		(TenantId, CashAccount, [Sum]) values
+		(TenantId, CashAccount, [Sum]);
+end
+go
+------------------------------------------------
+create or alter trigger jrn.CashJournal_DTRIG on jrn.CashJournal
+  for delete not for replication
+as
+begin
+	set nocount on;
+	with T(TenantId, CashAccount, [SumD]) as
+	(
+		select TenantId, CashAccount, [SumD] = sum([Sum] * InOut) from deleted
+		group by TenantId, CashAccount
+	)
+	update jrn.CashReminders set [Sum] = [Sum] - T.[SumD]
+	from jrn.CashReminders r inner join T on r.TenantId = T.TenantId and r.CashAccount = T.CashAccount
+end
+go
 
 -- MIGRATIONS
 ------------------------------------------------
@@ -9158,11 +9195,12 @@ begin
 	set @Order = lower(@Order);
 	set @Dir = lower(@Dir);
 
-	insert into @ba(id, comp, bank, crc, rowcnt)
-	select b.Id, b.Company, b.Bank, b.Currency, 
+	insert into @ba(id, comp, bank, crc, balance, rowcnt)
+	select b.Id, b.Company, b.Bank, b.Currency, isnull(cr.[Sum], 0),
 		count(*) over ()
 	from cat.CashAccounts b
-	where TenantId = @TenantId and b.IsCashAccount = 0 
+		left join jrn.CashReminders cr on  b.TenantId = cr.TenantId and cr.CashAccount = b.Id
+	where b.TenantId = @TenantId and b.IsCashAccount = 0 
 		and (@Company is null or b.Company = @Company)
 		and (@fr is null or b.[Name] like @fr or b.Memo like @fr)
 	order by 
@@ -9183,24 +9221,18 @@ begin
 		case when @Dir = N'asc' then
 			case @Order
 				when N'id' then b.[Id]
+				when N'balance' then cr.[Sum]
 			end
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order
 				when N'id' then b.[Id]
+				when N'balance' then cr.[Sum]
 			end
 		end desc,
 		b.Id
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
-
-	with TB as (
-		select Id = t.id, [Sum] = sum(cj.[Sum] * cj.InOut)
-		from @ba t inner join jrn.CashJournal cj on cj.TenantId = @TenantId and cj.CashAccount = t.id
-		group by t.id
-	)
-	update @ba set balance = [Sum]
-	from @ba t inner join TB on t.id = TB.Id;
 
 	select [BankAccounts!TBankAccount!Array] = null,
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo, Balance = t.balance,
@@ -9394,11 +9426,12 @@ begin
 	set @Order = lower(@Order);
 	set @Dir = lower(@Dir);
 
-	insert into @ba(id, comp, crc, rowcnt)
-	select c.Id, c.Company, c.Currency, 
+	insert into @ba(id, comp, crc, balance, rowcnt)
+	select c.Id, c.Company, c.Currency, isnull(cr.[Sum], 0),
 		count(*) over ()
 	from cat.CashAccounts c
-	where TenantId = @TenantId
+		left join jrn.CashReminders cr on  c.TenantId = cr.TenantId and cr.CashAccount = c.Id
+	where c.TenantId = @TenantId
 		and (@Company is null or c.Company = @Company)
 		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
 	order by 
@@ -9417,24 +9450,18 @@ begin
 		case when @Dir = N'asc' then
 			case @Order
 				when N'id' then c.[Id]
+				when N'balance' then cr.[Sum]
 			end
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order
 				when N'id' then c.[Id]
+				when N'balance' then cr.[Sum]
 			end
 		end desc,
 		c.Id
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
-
-	with TB as (
-		select Id = t.id, [Sum] = sum(cj.[Sum] * cj.InOut)
-		from @ba t inner join jrn.CashJournal cj on cj.TenantId = @TenantId and cj.CashAccount = t.id
-		group by t.id
-	)
-	update @ba set balance = [Sum]
-	from @ba t inner join TB on t.id = TB.Id;
 
 	select [CashAccounts!TCashAccount!Array] = null,
 		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, Balance = t.balance,
@@ -9448,6 +9475,10 @@ begin
 	with T as(select comp from @ba group by comp)
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join T on c.TenantId = @TenantId and c.Id = T.comp;
+
+	with T as(select crc from @ba group by crc)
+	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Alpha3
+	from cat.Currencies c inner join T on c.TenantId = @TenantId and c.Id = T.crc;
 
 	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'C';
@@ -14382,6 +14413,37 @@ begin
 	commit tran;
 end
 go
+------------------------------------------------
+create or alter procedure jrn.[ReApply.Cash]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	delete from jrn.CashJournal where TenantId = @TenantId;
+	delete from jrn.CashReminders where TenantId = @TenantId;
+
+	with T as
+	(
+		select InOut = 1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = isnull(d.CashAccTo, d.CashAccFrom), [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+			d.CashFlowItem, d.Operation
+		from doc.Documents d
+			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and oc.IsIn = 1 and d.Done = 1
+		union all
+		select InOut = -1, Document = d.Id, d.[Date], d.Company, d.Agent, d.[Contract], CashAcc = isnull(d.CashAccFrom, d.CashAccTo), [Sum] = d.[Sum] * oc.Factor, d.CostItem, d.RespCenter, d.Project, 
+			d.CashFlowItem, d.Operation
+		from doc.Documents d
+			inner join doc.OpCash oc on oc.TenantId = @TenantId and d.Operation = oc.Operation
+		where d.TenantId = @TenantId and oc.IsOut = 1 and d.Done = 1
+	)
+	insert into jrn.CashJournal(TenantId, Document, Operation, [Date], InOut, [Sum], Company, Agent, [Contract], CashAccount, CashFlowItem, RespCenter, Project)
+	select TenantId = @TenantId, Document, Operation, [Date], InOut, [Sum], Company, Agent, [Contract], CashAcc, CashFlowItem, RespCenter, Project
+	from T;
+end
+go
 
 
 /* Document.Dialogs */
@@ -17422,14 +17484,15 @@ begin
 
 	declare @rf table(Id nvarchar(16), [Order] int, [Type] nvarchar(16), [Url] nvarchar(255), [Name] nvarchar(255));
 	insert into @rf (Id, [Type], [Order], [Url], [Name]) values
-		(N'acc.date',      N'by.account',  1, N'/reports/account/rto_accdate', N'Обороти рахунку (дата)'),
+		(N'acc.date',      N'by.account',  1, N'/reports/account/rto_accdate',  N'Обороти рахунку (дата)'),
 		(N'acc.agent',     N'by.account',  2, N'/reports/account/rto_accagent', N'Обороти рахунку (контрагент)'),
-		(N'acc.agentcntr', N'by.account',  3, N'/reports/account/rto_accagentcontract', N'Обороти рахунку (контрагент+договір)'),
-		(N'acc.respcost',  N'by.account',  4, N'/reports/account/rto_respcost', N'Обороти рахунку (центр відповідальності+стаття витрат)'),
-		(N'acc.item',      N'by.account',  5, N'/reports/stock/rto_items', N'Оборотно сальдова відомість (об''єкт обліку)'),
-		(N'plan.turnover', N'by.plan', 1, N'/reports/plan/turnover',  N'Оборотно сальдова відомість'),
-		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',  N'Відомість по грошових коштах'),
-		(N'plan.rems',     N'by.plan', 2, N'/reports/plan/itemrems',  N'Залишики на складах');
+		(N'acc.agentcntr', N'by.account',  3, N'/reports/account/rto_accagentcontract', N'Обороти рахунку (контрагент + договір)'),
+		(N'acc.respcost',  N'by.account',  4, N'/reports/account/rto_respcost', N'Обороти рахунку (центр відповідальності + стаття витрат)'),
+		(N'acc.item',      N'by.account',  5, N'/reports/stock/rto_items',      N'Оборотно сальдова відомість (об''єкт обліку)'),
+		(N'plan.turnover', N'by.plan', 1, N'/reports/plan/turnover',    N'Оборотно сальдова відомість'),
+		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',    N'Відомість по грошових коштах'),
+		(N'plan.rems',     N'by.plan', 3, N'/reports/plan/itemrems',    N'Залишики на складах'),
+		(N'cash.rems',     N'by.cash', 1, N'/reports/cash/rto_datedoc', N'Оборотно сальдова відомість (дата + документ)');
 
 	merge rep.RepFiles as t
 	using @rf as s on t.Id = s.Id and t.TenantId = @TenantId

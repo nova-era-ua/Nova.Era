@@ -31,6 +31,7 @@
 @Order=Order
 @Companies=Companies
 @Company=Company
+@Document=Document
 @Type=Type
 @Active=Active
 @Other=Other

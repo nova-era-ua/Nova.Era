@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "rep",
+  "model": "",
+    "actions": {
+        "rto_datedoc": {
+            "model": "Report.Cash.Turnover.Date.Document",
+            "template": "turnover.datedoc.template",
+            "view": "turnover.datedoc.view"
+        }
+    }
+}

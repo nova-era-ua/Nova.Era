@@ -31,6 +31,7 @@
 @Order=Замовлення
 @Companies=Підприємства
 @Company=Підприємство
+@Document=Документ
 @Type=Тип
 @Active=Активний
 @Other=Інше
