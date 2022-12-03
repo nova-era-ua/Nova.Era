@@ -1629,7 +1629,7 @@ if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' 
 create table app.TaskStates (
 	TenantId int not null,
 	[Id] bigint not null
-		constraint DF_TaskStates_Id default(next value for crm.SQ_TaskStates),
+		constraint DF_TaskStates_Id default(next value for app.SQ_TaskStates),
 	Void bit not null 
 		constraint DF_TaskStates_Void default(0),
 	[Order] int,
