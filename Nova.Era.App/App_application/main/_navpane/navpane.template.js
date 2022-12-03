@@ -20,13 +20,11 @@ define(["require", "exports"], function (require, exports) {
     }
     function modelLoad() {
         let ctrl = this.$ctrl;
-        setInterval(async () => {
+        let update = async () => {
             let res = await ctrl.$invoke('updateNavPane', null, null, { hideIndicator: true });
             this.Notify.Count = res.Notify.Count;
-        }, 30000);
-        eventBus.$on('app.notify.dec', () => {
-            if (this.Notify.Count)
-                this.Notify.Count -= 1;
-        });
+        };
+        setInterval(update, 30000);
+        eventBus.$on('app.notify.update', update);
     }
 });

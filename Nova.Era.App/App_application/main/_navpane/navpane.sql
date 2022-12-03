@@ -58,3 +58,16 @@ begin
 	update app.Notifications set Done = 1 where TenantId = @TenantId and Id = @Id;
 end
 go
+-------------------------------------------------
+create or alter procedure app.[Notification.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	delete from app.Notifications where TenantId = @TenantId and Id = @Id;
+end
+go

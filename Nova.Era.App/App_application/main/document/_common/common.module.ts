@@ -24,6 +24,7 @@ function category2Text(cat) {
 		case 'Payment': return '@[KindPayment]';
 		case 'Shipment': return '@[KindShipment]';
 		case 'Return': return '@[KindReturn]';
+		case 'RetMoney': return '@[KindRetMoney]';
 	}
 	return cat;
 }

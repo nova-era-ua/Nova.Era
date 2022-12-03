@@ -15,6 +15,7 @@
 @KindPayment=Оплата
 @KindShipment=Відвантаження
 @KindReturn=Повернення
+@KindRetMoney=Повернення коштів
 @Money=Грошові кошти
 @StockPurchases=Запаси та закупівлі
 @SalesMarketing=Продаж та маркетинг

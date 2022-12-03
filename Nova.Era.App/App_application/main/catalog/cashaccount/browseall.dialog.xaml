@@ -12,6 +12,7 @@
 			DoubleClick="{BindCmd Select, Argument={Bind CashAccounts}}">
 		<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 		<DataGridColumn Header="@[Name]" Content="{Bind $Name}" />
+		<DataGridColumn Header="@[Rem]" Content="{Bind Balance, DataType=Currency, NegativeRed=True}" Role="Number"/>
 		<DataGridColumn Header="@[Role]" Content="{Bind ItemRole.Name}" Fit="True" Wrap="NoWrap"/>
 		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 	</DataGrid>

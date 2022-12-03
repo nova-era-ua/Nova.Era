@@ -6,7 +6,7 @@
 			"index": true,
 			"model": "Task.Partial",
 			"template": "index.template",
-			"view": "index.view",
+			"view": "index.partial",
 			"skipDataStack": true
 		}
 	}

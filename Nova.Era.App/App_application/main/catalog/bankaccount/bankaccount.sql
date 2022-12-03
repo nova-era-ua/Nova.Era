@@ -101,8 +101,10 @@ begin
 
 	select [BankAccounts!TBankAccount!Array] = null,
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo,
-		[ItemRole!TItemRole!RefId] = ba.ItemRole
+		[ItemRole!TItemRole!RefId] = ba.ItemRole,
+		Balance = cr.[Sum]
 	from cat.CashAccounts ba
+		left join jrn.CashReminders cr on  ba.TenantId = cr.TenantId and cr.CashAccount = ba.Id
 	where ba.TenantId = @TenantId and (@Company is null or Company = @Company) and ba.IsCashAccount = 0;
 
 	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
@@ -126,9 +128,11 @@ begin
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo,
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
-		[Bank!TBank!RefId] = ba.Bank, [ItemRole!TItemRole!RefId] = ba.ItemRole
+		[Bank!TBank!RefId] = ba.Bank, [ItemRole!TItemRole!RefId] = ba.ItemRole,
+		Balance = cr.[Sum]
 	from cat.CashAccounts ba
-	where TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
+		left join jrn.CashReminders cr on  ba.TenantId = cr.TenantId and cr.CashAccount = ba.Id
+	where ba.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Company = c.Id

@@ -1,6 +1,6 @@
 ﻿<!-- Browse CashAccount Simple -->
 <Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
-		Title="@[Browse.CashAccount]" Overflow="True" Padding="1rem">
+		Title="@[Browse.CashAccount]" Overflow="True" Padding="1rem" Width="50rem">
 	<Dialog.Buttons>
 		<Button Content="@[Select]" Command="{BindCmd Select, Argument={Bind CashAccounts}}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
@@ -12,6 +12,7 @@
 			DoubleClick="{BindCmd Select, Argument={Bind CashAccounts}}">
 		<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 		<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
+		<DataGridColumn Header="@[Rem]" Content="{Bind Balance, DataType=Currency, NegativeRed=True}" Role="Number"/>
 		<DataGridColumn Header="@[Memo]" Content="{Bind Memo}" />
 	</DataGrid>
 </Dialog>

@@ -500,7 +500,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\main\task\partial\index.view.xaml">
+    <Content Include="App_application\main\task\partial\index.partial.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

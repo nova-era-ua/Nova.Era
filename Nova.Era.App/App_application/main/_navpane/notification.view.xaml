@@ -3,7 +3,7 @@
 	<CollectionView RunAt="Server" ItemsSource="{Bind Notifications}"
 					Filter="Mode">
 		<Grid Rows="Auto,Auto,1*,Auto" Height="100%" AlignItems="Top">
-			<Header Size="Large" Bold="False" Padding="0">Сповіщення</Header>
+			<Header Size="Normal" Bold="False" Padding="0">Сповіщення</Header>
 			<TabBar Value="{Bind Parent.Filter.Mode}" Margin="0">
 				<TabButton Content="Непрочитані" ActiveValue="U"/>
 				<TabButton Content="Всі" ActiveValue="A"/>
@@ -18,7 +18,8 @@
 					Command="{BindCmd Execute, CommandName=clickNotify, Argument={Bind}}">
 					<ListItem.CommandBar>
 						<CommandBar Visibility="Hover">
-							<Button Icon="Trash" Command="{BindCmd Execute, CommandName=deleteNotify, Argument={Bind}}"/>
+							<Button Icon="Trash" Command="{BindCmd Execute, 
+								CommandName=deleteNotify, Argument={Bind},Confirm='@[Confirm.Delete.Element]'}"/>
 						</CommandBar>
 					</ListItem.CommandBar>
 				</ListItem>
@@ -28,7 +29,8 @@
 					</EmptyPanel>
 				</List.EmptyPanel>
 			</List>
-			<Pager Source="{Bind Parent.Pager}" TemplateText="Сповіщення #[Start]-#[End] з #[Count] "/>
+			<Pager Source="{Bind Parent.Pager}" EmptyText="немає сповіщень"
+				   TemplateText="Сповіщення #[Start]-#[End] з #[Count] "/>
 		</Grid>
 	</CollectionView>
 </PartialBlock>

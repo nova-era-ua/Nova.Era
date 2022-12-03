@@ -192,8 +192,7 @@ begin
 	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl,
 		[Links!TOpLink!Array] = null
 	from doc.Operations o 
-		left join doc.Documents d on d.TenantId = o.TenantId and d.Operation = o.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
+	where o.TenantId = @TenantId and o.Id = @Operation;
 
 	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, ol.Category, ch.[Name], [!TOperation.Links!ParentId] = ol.Parent
 	from doc.OperationLinks ol 

@@ -39,6 +39,9 @@
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.CashAccTo}, 
 						Url='/catalog/bankaccount/browse', Data={Bind Document.$CompanyArg}}"/>
 			</Selector>
+			<Popover Grid.VAlign="Center" If="{Bind !Document.Done}"
+				Grid.Row="3" Grid.Col="3" Text="{Bind Document.CashAccTo.$Balance}" Wrap="NoWrap"
+					 Url="{Bind Document.CashAccTo.$InfoUrl}" Placement="BottomRight"/>
 			<Label Content="@[Sum]" Grid.Row="4" Grid.Col="1"/>
 			<TextBox Grid.Row="4" Grid.Col="2" Width="15rem"
 					 Value="{Bind Document.Sum, DataType=Currency}" Align="Right" Bold="True"/>

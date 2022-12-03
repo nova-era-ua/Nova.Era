@@ -15,6 +15,7 @@
 @KindPayment=Payment
 @KindShipment=Shipment
 @KindReturn=Return
+@KindRetMoney=Return Money
 @Money=Money
 @StockPurchases=Stock & Purchases
 @SalesMarketing=Sales & Marketing

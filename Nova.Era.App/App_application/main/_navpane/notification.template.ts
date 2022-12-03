@@ -17,14 +17,17 @@ export default template;
 async function clickNotify(note) {
 	const ctrl: IController = this.$ctrl;
 	await ctrl.$invoke('done', { Id: note.Id })
-	if (note.Done) {
+	if (!note.Done) {
 		note.Done = true;
-		eventBus.$emit('app.notify.dec');
+		eventBus.$emit('app.notify.update');
 	}
 	if (note.Link && note.LinkUrl)
 		ctrl.$showDialog(note.LinkUrl, {Id: note.Link});
 }
 
-function deleteNotify(note) {
-	alert(note.Id);
+async function deleteNotify(note) {
+	const ctrl: IController = this.$ctrl;
+	await ctrl.$invoke('delete', { Id: note.Id })
+	note.$remove();
+	eventBus.$emit('app.notify.update');
 }

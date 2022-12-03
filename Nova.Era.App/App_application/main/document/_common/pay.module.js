@@ -9,17 +9,7 @@ define(["require", "exports"], function (require, exports) {
             'TCashAccount.$Balance'() { return `@[Rem]: ${utils.currency.format(this.Balance)}`; },
             'TCashAccount.$InfoUrl'() { return `/catalog/cashaccount/info/${this.Id}`; }
         },
-        events: {
-            'Document.Date.change': dateChange
-        }
+        events: {}
     };
     exports.default = utils.mergeTemplate(base, template);
-    async function dateChange(doc, date) {
-        doc.No = '';
-        if (!doc.CashAccFrom.Id)
-            return;
-        const ctrl = this.$ctrl;
-        let res = await ctrl.$invoke('getrem', { Id: doc.CashAccFrom.Id, Date: doc.Date }, '/catalog/cashaccount');
-        doc.CashAccFrom.Balance = res.Result.Balance;
-    }
 });

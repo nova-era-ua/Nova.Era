@@ -22,6 +22,7 @@ define(["require", "exports"], function (require, exports) {
             case 'Payment': return '@[KindPayment]';
             case 'Shipment': return '@[KindShipment]';
             case 'Return': return '@[KindReturn]';
+            case 'RetMoney': return '@[KindRetMoney]';
         }
         return cat;
     }

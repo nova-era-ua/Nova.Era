@@ -25,6 +25,10 @@
 		"updateNavPane": {
 			"type": "sql",
 			"procedure": "Navpane.Load"
+		},
+		"delete": {
+			"type": "sql",
+			"procedure": "Notification.Delete"
 		}
 	}
 }

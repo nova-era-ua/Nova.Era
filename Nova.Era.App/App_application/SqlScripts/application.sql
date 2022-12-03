@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 03.12.2022 11:21:14
+generated: 03.12.2022 22:24:10
 */
 
 
@@ -5151,13 +5151,61 @@ create table app.Notifications
 	[Text] nvarchar(255),
 	[Icon] nvarchar(32),
 	UtcDateCreated datetime not null
-		constraint DF_Notifications_DateCreated default(getutcdate()),
+		constraint DF_Notifications_UtcDateCreated default(getutcdate()),
 	[Done] bit not null
 		constraint DF_Notifications_Done default(0),
 	[LinkUrl] nvarchar(255) null,
 	[Link] bigint null,
 	constraint PK_Notifications primary key (TenantId, Id),
 	constraint FK_Notifications_UserId_Users foreign key (TenantId, UserId) references appsec.Users(Tenant, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_TaskStates')
+	create sequence app.SQ_TaskStates as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'TaskStates')
+create table app.TaskStates (
+	TenantId int not null,
+	[Id] bigint not null
+		constraint DF_TaskStates_Id default(next value for crm.SQ_TaskStates),
+	Void bit not null 
+		constraint DF_TaskStates_Void default(0),
+	[Order] int,
+	[Name] nvarchar(255),
+	[Color] nvarchar(32),
+	[Memo] nvarchar(255),
+	constraint PK_TaskStates primary key (TenantId, [Id])
+);
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_Tasks')
+	create sequence app.SQ_Tasks as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Tasks')
+create table app.Tasks
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Tasks_Id default(next value for app.SQ_Tasks),
+	[Text] nvarchar(255),
+	[State] bigint,
+	Assignee bigint null,
+	[Notice] nvarchar(255),
+	UtcDateCreated datetime not null
+		constraint DF_Tasks_UtcDateCreated default(getutcdate()),
+	UtcDateComplete datetime not null
+		constraint DF_Tasks_UtcDateComplete default(getutcdate()),
+	[LinkUrl] nvarchar(255) null,
+	[Link] bigint null,
+	Project bigint null,
+	[Void] bit not null
+		constraint DF_Tasks_Void default(0),
+	constraint PK_Tasks primary key (TenantId, Id),
+	constraint FK_Tasks_State_States foreign key (TenantId, Assignee) references app.TaskStates(TenantId, Id),
+	constraint FK_Tasks_Assignee_Users foreign key (TenantId, Assignee) references appsec.Users(Tenant, Id),
+	constraint FK_Tasks_Project_Projects foreign key (TenantId, Project) references cat.Projects(TenantId, Id)
 );
 go
 -- TRIGGERS
@@ -17637,6 +17685,19 @@ begin
 	set transaction isolation level read committed;
 
 	update app.Notifications set Done = 1 where TenantId = @TenantId and Id = @Id;
+end
+go
+-------------------------------------------------
+create or alter procedure app.[Notification.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	delete from app.Notifications where TenantId = @TenantId and Id = @Id;
 end
 go
 

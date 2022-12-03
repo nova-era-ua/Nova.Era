@@ -11,19 +11,10 @@ const template: Template = {
 		'TCashAccount.$InfoUrl'() { return `/catalog/cashaccount/info/${this.Id}`; }
 	},
 	events: {
-		'Document.Date.change': dateChange
 	}
 };
 
 export default utils.mergeTemplate(base, template);
 
-async function dateChange(doc, date) {
-	doc.No = '';
-	if (!doc.CashAccFrom.Id) return;
-	const ctrl: IController = this.$ctrl;
-	let res = await ctrl.$invoke('getrem', { Id: doc.CashAccFrom.Id, Date: doc.Date }, '/catalog/cashaccount');
-
-	doc.CashAccFrom.Balance = res.Result.Balance;
-}
 
 

@@ -61,7 +61,7 @@ begin
 	option (recompile);
 
 	select [CashAccounts!TCashAccount!Array] = null,
-		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, Balance = t.balance,
+		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, Balance = isnull(t.balance, 0),
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency,
 		[ItemRole!TItemRole!RefId] = ca.ItemRole,
@@ -101,16 +101,12 @@ begin
 
 	set @Date = isnull(@Date, getdate());
 
-	with TB as (
-		select Balance = sum([Sum] * InOut), CashAccount from jrn.CashJournal
-		where [Date] <= @Date and TenantId = @TenantId
-		group by CashAccount
-	)
 	select [CashAccounts!TCashAccount!Array] = null,
-		[Id!!Id] = ca.Id, [Name!!Name] = isnull(ca.[Name], ca.AccountNo),  ca.AccountNo, ca.Memo, TB.Balance,
+		[Id!!Id] = ca.Id, [Name!!Name] = isnull(ca.[Name], ca.AccountNo),  ca.AccountNo, ca.Memo, 
+		[Balance] = isnull(cr.[Sum], 0),
 		[ItemRole!TItemRole!RefId] = ca.ItemRole
 	from cat.CashAccounts ca
-		left join TB on ca.Id = TB.CashAccount
+		left join jrn.CashReminders cr on ca.TenantId = cr.TenantId and cr.CashAccount = ca.Id
 	where ca.TenantId = @TenantId and (@Company is null or ca.Company = @Company) and 
 		(@Mode = N'All' or @Mode = N'Cash' and ca.IsCashAccount = 1 or @Mode = N'Bank' and ca.IsCashAccount = 0)
 	order by ca.IsCashAccount, ca.[Name];
@@ -138,9 +134,11 @@ begin
 		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo,
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency,
-		[ItemRole!TItemRole!RefId] = ca.ItemRole
+		[ItemRole!TItemRole!RefId] = ca.ItemRole,
+		[Balance] = cr.[Sum]
 	from cat.CashAccounts ca
-	where TenantId = @TenantId and ca.Id = @Id and ca.IsCashAccount = 1;
+		left join jrn.CashReminders cr on ca.TenantId = cr.TenantId and cr.CashAccount = ca.Id
+	where ca.TenantId = @TenantId and ca.Id = @Id and ca.IsCashAccount = 1;
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and ca.Company = c.Id
