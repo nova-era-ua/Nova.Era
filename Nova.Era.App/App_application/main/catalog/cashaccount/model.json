@@ -28,10 +28,6 @@
 		"fetchall": {
 			"type": "sql",
 			"procedure": "CashAccount.Fetch.Simple"
-		},
-		"getRem": {
-			"type": "sql",
-			"procedure": "CashAccount.GetRem"
 		}
 	},
 	"popups": {

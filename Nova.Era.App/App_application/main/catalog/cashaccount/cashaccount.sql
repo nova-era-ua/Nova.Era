@@ -231,20 +231,6 @@ begin
 end
 go
 ------------------------------------------------
-create or alter procedure cat.[CashAccount.GetRem]
-@TenantId int = 1,
-@UserId bigint,
-@Id bigint,
-@Date date
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-	select [Result!TResult!Object] = null, Balance = rep.fn_getCashAccountRem(@TenantId, @Id, @Date)
-end
-go
-
-------------------------------------------------
 create or alter procedure cat.[CashAccount.Fetch.Simple]
 @TenantId int = 1,
 @UserId bigint,

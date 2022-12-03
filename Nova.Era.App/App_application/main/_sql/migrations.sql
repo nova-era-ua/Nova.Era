@@ -1,5 +1,8 @@
 -- MIGRATIONS
 ------------------------------------------------
+drop procedure if exists cat.[CashAccount.GetRem];
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Countries' and COLUMN_NAME=N'Alpha3')
 	alter table cat.Countries add [Alpha3] nchar(3);
 go
@@ -192,5 +195,3 @@ go
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Items' and COLUMN_NAME=N'IsVariant')
 	alter table cat.Items add IsVariant as (cast(case when [Parent] is not null then 1 else 0 end as bit));
 go
-
-
