@@ -183,8 +183,11 @@ table.fixed-layout {
 .notify-item .list-item-footer {
   margin: 0;
   color: var(--brandPrimary);
-}
-.notify-item .ico {
   font-size: 12px;
-  margin-top: 0.3rem;
+}
+.notify-item .list-item-header {
+  margin: 0;
+}
+.notify-item .list-item-icon {
+  font-size: 12px;
 }

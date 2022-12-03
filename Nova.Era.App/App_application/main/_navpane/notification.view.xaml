@@ -12,13 +12,13 @@
 				</TabBar.Description>
 			</TabBar>
 			<List ItemsSource="{Bind Parent.ItemsSource}" Height="100%"
-				  Style="Underlined">
+				  Style="Underlined" Margin="0, -.5rem">
 				<ListItem Header="{Bind Text}" CssClass="notify-item"
-					Footer="{Bind DateCreated, DataType=DateTime}"
+					Footer="{Bind DateCreated, DataType=DateTime}" Icon="{Bind $DoneIcon}"
 					Command="{BindCmd Execute, CommandName=clickNotify, Argument={Bind}}">
 					<ListItem.CommandBar>
-						<CommandBar Visibility="Default">
-							<SpanIcon Icon="{Bind $DoneIcon}"/>
+						<CommandBar Visibility="Hover">
+							<Button Icon="Trash" Command="{BindCmd Execute, CommandName=deleteNotify, Argument={Bind}}"/>
 						</CommandBar>
 					</ListItem.CommandBar>
 				</ListItem>

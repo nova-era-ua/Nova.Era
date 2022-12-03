@@ -7,7 +7,8 @@ define(["require", "exports"], function (require, exports) {
             'TNotify.$DoneIcon'() { return this.Done ? 'dot-blue' : 'circle'; }
         },
         commands: {
-            clickNotify
+            clickNotify,
+            deleteNotify
         }
     };
     exports.default = template;
@@ -20,5 +21,8 @@ define(["require", "exports"], function (require, exports) {
         }
         if (note.Link && note.LinkUrl)
             ctrl.$showDialog(note.LinkUrl, { Id: note.Link });
+    }
+    function deleteNotify(note) {
+        alert(note.Id);
     }
 });

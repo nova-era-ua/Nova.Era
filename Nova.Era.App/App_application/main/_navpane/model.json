@@ -7,7 +7,7 @@
 			"model": "Navpane",
 			"template": "navpane.template",
 			"view": "navpane.view",
-			"skipDataStack": false
+			"skipDataStack": true
 		},
 		"notification": {
 			"model": "Notification",

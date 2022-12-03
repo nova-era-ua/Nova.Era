@@ -7,7 +7,8 @@ const template: Template = {
 		'TNotify.$DoneIcon'() { return this.Done ? 'dot-blue' : 'circle'; }
 	},
 	commands: {
-		clickNotify
+		clickNotify,
+		deleteNotify
 	}
 }
 
@@ -22,4 +23,8 @@ async function clickNotify(note) {
 	}
 	if (note.Link && note.LinkUrl)
 		ctrl.$showDialog(note.LinkUrl, {Id: note.Link});
+}
+
+function deleteNotify(note) {
+	alert(note.Id);
 }
