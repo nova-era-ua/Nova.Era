@@ -6,7 +6,8 @@ define(["require", "exports"], function (require, exports) {
             addElement,
             removeElement,
             testFetch,
-            testInvoke
+            testInvoke,
+            testQueue
         }
     };
     exports.default = template;
@@ -39,6 +40,15 @@ define(["require", "exports"], function (require, exports) {
         }
         catch (err) {
             alert('catched: ' + err.message);
+        }
+    }
+    async function testQueue() {
+        let ctrl = this.$ctrl;
+        try {
+            await ctrl.$invoke('testqueue', null, null, { catchError: true });
+        }
+        catch (err) {
+            alert('catched: ' + err);
         }
     }
 });

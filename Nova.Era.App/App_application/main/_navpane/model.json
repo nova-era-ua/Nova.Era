@@ -1,18 +1,30 @@
 ﻿{
 	"$schema": "../../@schemas/model-json-schema.json#",
-	"schema": "",
+	"schema": "app",
 	"model": "",
 	"actions": {
 		"index": {
+			"model": "Navpane",
 			"template": "navpane.template",
 			"view": "navpane.view",
-			"skipDataStack": true
+			"skipDataStack": false
 		},
 		"notification": {
-			"model": "",
+			"model": "Notification",
+			"index": true,
 			"template": "notification.template",
 			"view": "notification.view",
 			"skipDataStack": true
+		}
+	},
+	"commands": {
+		"done": {
+			"type": "sql",
+			"procedure": "Notification.Done"
+		},
+		"updateNavPane": {
+			"type": "sql",
+			"procedure": "Navpane.Load"
 		}
 	}
 }

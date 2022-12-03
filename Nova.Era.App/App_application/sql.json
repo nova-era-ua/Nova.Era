@@ -66,6 +66,7 @@
 			"main/settings/develop/application.sql",
 			"main/settings/integration/integration.sql",
 			"main/sales/widgets/widgets.sql",
+			"main/_navpane/navpane.sql",
 			"main/_sql/admin.sql",
 			"main/_sql/initial_catalog.sql",
 			"main/_sql/initial_data.sql",

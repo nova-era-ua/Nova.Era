@@ -1,6 +1,6 @@
 ﻿{
 	"$schema": "../../../@schemas/model-json-schema.json#",
-	"schema": "tsk",
+	"schema": "app",
 	"actions": {
 		"index": {
 			"index": true,

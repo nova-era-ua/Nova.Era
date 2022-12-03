@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 30.11.2022 00:49:13
+generated: 03.12.2022 11:21:14
 */
 
 
@@ -74,9 +74,14 @@ create table appsec.Users
 	ChangePasswordEnabled bit not null constraint DF_Users_ChangePasswordEnabled default(1),
 	RegisterHost nvarchar(255) null,
 	Segment nvarchar(32) null,
+	SetPassword bit,
 	UtcDateCreated datetime not null constraint DF_Users_UtcDateCreated default(getutcdate()),
 	constraint PK_Users primary key (Tenant, Id)
 );
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'appsec' and TABLE_NAME=N'Users' and COLUMN_NAME=N'SetPassword')
+	alter table appsec.Users add SetPassword bit;
 go
 ------------------------------------------------
 create or alter view appsec.ViewUsers
@@ -85,10 +90,11 @@ as
 		LockoutEnabled, AccessFailedCount, LockoutEndDateUtc, TwoFactorEnabled, [Locale],
 		PersonName, Memo, Void, LastLoginDate, LastLoginHost, Tenant, EmailConfirmed,
 		PhoneNumberConfirmed, RegisterHost, ChangePasswordEnabled, Segment,
-		SecurityStamp2, PasswordHash2
+		SecurityStamp2, PasswordHash2, SetPassword
 	from appsec.Users u
 	where Void=0 and Id <> 0;
 go
+------------------------------------------------
 create or alter procedure appsec.FindUserById
 @Id bigint
 as
@@ -171,7 +177,7 @@ begin
 	set transaction isolation level read committed;
 	set xact_abort on;
 
-	update appsec.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp where Id=@Id;
+	update appsec.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp, SetPassword = null where Id=@Id;
 end
 go
 ------------------------------------------------

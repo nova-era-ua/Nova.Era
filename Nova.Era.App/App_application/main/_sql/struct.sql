@@ -42,9 +42,6 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'crm')
 	exec sp_executesql N'create schema crm';
 go
-if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'tsk')
-	exec sp_executesql N'create schema tsk';
-go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -53,14 +50,13 @@ grant execute on schema::jrn to public;
 grant execute on schema::usr to public;
 grant execute on schema::rep to public;
 grant execute on schema::ini to public;
-grant execute on schema::ui to public;
+grant execute on schema::ui  to public;
 grant execute on schema::app to public;
 grant execute on schema::crm to public;
-grant execute on schema::tsk to public;
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Blobs')
-	create sequence rep.SQ_Blobs as bigint start with 1000 increment by 1;
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_Blobs')
+	create sequence app.SQ_Blobs as bigint start with 1000 increment by 1;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Blobs')
@@ -68,7 +64,7 @@ create table app.Blobs
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Blobs_Id default(next value for rep.SQ_Blobs),
+		constraint DF_Blobs_Id default(next value for app.SQ_Blobs),
 	[Stream] varbinary(max),
 	[Name] nvarchar(255),
 	[Mime] nvarchar(255),
@@ -1598,6 +1594,30 @@ create table app.[Integrations]
 	ApiKey nvarchar(255),
 	constraint PK_Integrations primary key (TenantId, Id),
 	constraint FK_Integrations_Source_IntegrationSources foreign key (Source) references app.IntegrationSources(Id),
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_Notifications')
+	create sequence app.SQ_Notifications as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Notifications')
+create table app.Notifications
+(
+	TenantId int not null,
+	UserId bigint not null,
+	Id bigint not null
+		constraint DF_Notifications_Id default(next value for app.SQ_Notifications),
+	[Text] nvarchar(255),
+	[Icon] nvarchar(32),
+	UtcDateCreated datetime not null
+		constraint DF_Notifications_DateCreated default(getutcdate()),
+	[Done] bit not null
+		constraint DF_Notifications_Done default(0),
+	[LinkUrl] nvarchar(255) null,
+	[Link] bigint null,
+	constraint PK_Notifications primary key (TenantId, Id),
+	constraint FK_Notifications_UserId_Users foreign key (TenantId, UserId) references appsec.Users(Tenant, Id)
 );
 go
 -- TRIGGERS

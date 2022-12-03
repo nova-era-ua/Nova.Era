@@ -4,7 +4,8 @@ const template: Template = {
 		addElement,
 		removeElement,
 		testFetch,
-		testInvoke
+		testInvoke,
+		testQueue
 	} 
 };
 
@@ -41,4 +42,13 @@ async function testInvoke() {
 	} catch (err) {
 		alert('catched: ' + err.message);
 	}
+}
+async function testQueue() {
+	let ctrl: IController = this.$ctrl;
+	try {
+		await ctrl.$invoke('testqueue', null, null, { catchError: true });
+	} catch (err) {
+		alert('catched: ' + err);
+	}
+
 }

@@ -9,6 +9,8 @@
 				Command=Execute, CommandName=testFetch}" />
 			<Button Icon="Call" Command="{BindCmd 
 				Command=Execute, CommandName=testInvoke}" />
+			<Button Icon="Queue" Command="{BindCmd 
+				Command=Execute, CommandName=testQueue}" />
 		</Toolbar>
 		<TreeGrid ItemsSource="{Bind Accounts}" ItemsProperty="Items" 
 			  Striped="True" Hover="True" Width="Auto" GridLines="Both"

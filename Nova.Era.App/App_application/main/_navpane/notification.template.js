@@ -1,15 +1,24 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const eventBus = require('std:eventBus');
     const template = {
         properties: {
-            'TRoot.Tasks'() { return []; }
+            'TNotify.$DoneIcon'() { return this.Done ? 'dot-blue' : 'circle'; }
         },
         commands: {
-            showTask
+            clickNotify
         }
     };
     exports.default = template;
-    function showTask() {
+    async function clickNotify(note) {
+        const ctrl = this.$ctrl;
+        await ctrl.$invoke('done', { Id: note.Id });
+        if (note.Done) {
+            note.Done = true;
+            eventBus.$emit('app.notify.dec');
+        }
+        if (note.Link && note.LinkUrl)
+            ctrl.$showDialog(note.LinkUrl, { Id: note.Link });
     }
 });

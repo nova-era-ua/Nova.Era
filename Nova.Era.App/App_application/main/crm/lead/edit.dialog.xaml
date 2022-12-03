@@ -6,7 +6,8 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid Columns="1*,1*,1*">
-		<TextBox Grid.ColSpan="3" Label="@[Name]" Value="{Bind Lead.Name}" TabIndex="1"/>
+		<TextBox Grid.ColSpan="3" Label="@[Name]" Value="{Bind Lead.Name}" TabIndex="1"
+				 Multiline="True" Rows="3"/>
 		<ComboBox Grid.Row="2" Grid.Col="1" Label="@[Stage]" 
 				  Value="{Bind Lead.Stage}" ItemsSource="{Bind Stages}"/>
 		<Hyperlink Grid.Row="2" Grid.Col="2" If="False" Content="Налаштувати" Margin="0,0,.4rem,0"/>

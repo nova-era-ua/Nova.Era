@@ -13,6 +13,10 @@
 		"testApi": {
 			"type": "javascript",
 			"file": "testapi.server"
+		},
+		"testqueue": {
+			"type": "javascript",
+			"file": "testqueue.server"
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿/* TASK.Partial */
 -------------------------------------------------
-create or alter procedure tsk.[Task.Partial.Index]
+create or alter procedure app.[Task.Partial.Index]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint = null,

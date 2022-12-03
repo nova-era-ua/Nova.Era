@@ -1,5 +1,7 @@
 ﻿// navpane.top
 
+const eventBus: EventBus = require('std:eventBus');
+
 const template: Template = {
 	properties: {
 		'TRoot.$Badge'() {return '' }
@@ -22,10 +24,13 @@ function showNotify() {
 
 function modelLoad() {
 	let ctrl: IController = this.$ctrl;
-	/*
 	setInterval(async () => {
-		let res = await ctrl.$invoke('getPrices', { Items: '100,200,201', PriceKind: 5, Date: '20220101' }, '/document/sales/invoice', { hideIndicator: true });
-		console.dir(res);
-	}, 3000)
-	*/
+		let res = await ctrl.$invoke('updateNavPane', null, null, { hideIndicator: true });
+		this.Notify.Count = res.Notify.Count;
+	}, 30000); // 30 sec
+
+	eventBus.$on('app.notify.dec', () => {
+		if (this.Notify.Count)
+			this.Notify.Count -= 1;
+	});
 }

@@ -1,14 +1,14 @@
 ﻿/*
 version: 10.1.1028
-generated: 30.11.2022 00:49:13
+generated: 03.12.2022 11:21:14
 */
 
 
 /* SqlScripts/application.sql */
 
 /*
-version: 10.0.7877
-generated: 29.11.2022 19:23:36
+version: 10.0.7910
+generated: 02.12.2022 14:16:47
 */
 
 set nocount on;
@@ -27,9 +27,9 @@ if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'a2sys
 go
 ----------------------------------------------
 if exists(select * from a2sys.Versions where [Module]=N'script:platform')
-	update a2sys.Versions set [Version]=7877, [File]=N'a2v10platform.sql', Title=null where [Module]=N'script:platform';
+	update a2sys.Versions set [Version]=7910, [File]=N'a2v10platform.sql', Title=null where [Module]=N'script:platform';
 else
-	insert into a2sys.Versions([Module], [Version], [File], Title) values (N'script:platform', 7877, N'a2v10platform.sql', null);
+	insert into a2sys.Versions([Module], [Version], [File], Title) values (N'script:platform', 7910, N'a2v10platform.sql', null);
 go
 
 
@@ -428,11 +428,11 @@ go
 ------------------------------------------------
 Copyright © 2008-2022 Alex Kukhtin
 
-Last updated : 10 feb 2022
-module version : 7770
+Last updated : 01 dec 2022
+module version : 7910
 */
 ------------------------------------------------
-exec a2sys.SetVersion N'std:security', 7770;
+exec a2sys.SetVersion N'std:security', 7910;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2security')
@@ -601,6 +601,7 @@ begin
 		[Guid] uniqueidentifier null,
 		Referral bigint null,
 		Segment nvarchar(32) null,
+		SetPassword bit null,
 		Company bigint null,
 			-- constraint FK_Users_Company_Companies foreign key references a2security.Companies(Id)
 		DateCreated datetime null
@@ -614,6 +615,10 @@ begin
 	alter table a2security.Users add SecurityStamp2 nvarchar(max) null;
 	alter table a2security.Users add PasswordHash2 nvarchar(max) null;
 end
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'a2security' and TABLE_NAME=N'Users' and COLUMN_NAME=N'SetPassword')
+	alter table a2security.Users add SetPassword bit;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'a2security' and TABLE_NAME=N'Users' and COLUMN_NAME=N'DateCreated')
@@ -1016,7 +1021,7 @@ as
 		PhoneNumberConfirmed, RegisterHost, ChangePasswordEnabled, TariffPlan, Segment,
 		IsAdmin = cast(case when ug.GroupId = 77 /*predefined: admins*/ then 1 else 0 end as bit),
 		IsTenantAdmin = cast(case when exists(select * from a2security.Tenants where [Admin] = u.Id) then 1 else 0 end as bit),
-		SecurityStamp2, PasswordHash2, Company
+		SecurityStamp2, PasswordHash2, Company, SetPassword
 	from a2security.Users u
 		left join a2security.UserGroups ug on u.Id = ug.UserId and ug.GroupId=77 /*predefined: admins*/
 	where Void=0 and Id <> 0 and ApiUser = 0;
@@ -1264,7 +1269,9 @@ begin
 	set transaction isolation level read committed;
 	set xact_abort on;
 
-	update a2security.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp where Id=@Id;
+	update a2security.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp,
+		SetPassword = null
+	where Id=@Id;
 	exec a2security.[WriteLog] @Id, N'I', 15; /*PasswordUpdated*/
 end
 go
@@ -3106,6 +3113,121 @@ begin
 end
 go
 
+/*
+Copyright © 2008-2022 Oleksandr Kukhtin
+
+Last updated : 02 dec 2022
+module version : 7910
+*/
+------------------------------------------------
+exec a2sys.SetVersion N'std:bg', 7910;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2bg')
+	exec sp_executesql N'create schema a2bg';
+go
+------------------------------------------------
+grant execute on schema ::a2bg to public;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'a2bg' and SEQUENCE_NAME=N'SQ_Commands')
+	create sequence a2bg.SQ_Commands as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'a2bg' and TABLE_NAME=N'Commands')
+create table a2bg.Commands
+(
+	Id	bigint not null constraint PK_Commands primary key
+		constraint DF_Commands_PK default(next value for a2bg.SQ_Commands),
+	Kind nvarchar(16) not null,
+	[Data] nvarchar(max) null,
+	[Complete] int not null,
+	UtcRunAt datetime null,
+	Lock uniqueidentifier null,
+	LockDate datetime null,
+	[UtcDateCreated] datetime not null
+		constraint DF_Commands_UtcDateCreated default(getutcdate()),
+	[UtcDateComplete] datetime null,
+	Error nvarchar(1024) sparse null 
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'a2bg' and TABLE_NAME=N'Exceptions')
+create table a2bg.Exceptions
+(
+	Id bigint identity(100, 1) not null constraint PK_Exceptions primary key,
+	[JobId] nvarchar(32) null,
+	[Message] nvarchar(255) null,
+	[UtcDateCreated] datetime not null
+		constraint DF_Exceptions_UtcDateCreated default(getutcdate())
+);
+go
+------------------------------------------------
+create or alter procedure a2bg.[Command.List]
+@Limit int = 10
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	
+	declare @inst table(Id bigint);
+
+	update top(@Limit) a2bg.Commands set Lock = newid(), LockDate = getutcdate()
+	output inserted.Id into @inst
+	where Lock is null and Complete = 0 and 
+		(UtcRunAt is null or UtcRunAt < getutcdate());
+
+	select b.Id, b.Kind, b.[Data], b.Lock
+	from @inst t inner join a2bg.Commands b on t.Id = b.Id
+	order by b.Id; -- required!
+end
+go
+------------------------------------------------
+create or alter procedure a2bg.[Command.Queue]
+@Command nvarchar(16),
+@UtcRunAt datetime = null,
+@Data nvarchar(1024) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @rtable table(id bigint);
+	insert a2bg.Commands (Kind, UtcRunAt, [Data], Complete)
+	output inserted.Id into @rtable(id)
+	values (@Command, @UtcRunAt, @Data, 0);
+
+	select [Id] = id from @rtable;
+end
+go
+------------------------------------------------
+create or alter procedure a2bg.[Command.Complete]
+@Id bigint,
+@Lock uniqueidentifier,
+@Complete int,
+@Error nvarchar(1024) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update a2bg.Commands set Complete = case when @Complete = 1 then 1 else -1 end, 
+		Error = @Error, UtcDateComplete = getutcdate()
+	where Id = @Id and Lock = @Lock;
+end
+go
+------------------------------------------------
+create or alter procedure a2bg.[Exception]
+@Message nvarchar(255),
+@JobId nvarchar(32)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	insert into a2bg.Exceptions([JobId], [Message]) values (@JobId, @Message);
+end
+go
+
 
 -- security schema (common)
 ------------------------------------------------
@@ -3175,9 +3297,14 @@ create table appsec.Users
 	ChangePasswordEnabled bit not null constraint DF_Users_ChangePasswordEnabled default(1),
 	RegisterHost nvarchar(255) null,
 	Segment nvarchar(32) null,
+	SetPassword bit,
 	UtcDateCreated datetime not null constraint DF_Users_UtcDateCreated default(getutcdate()),
 	constraint PK_Users primary key (Tenant, Id)
 );
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'appsec' and TABLE_NAME=N'Users' and COLUMN_NAME=N'SetPassword')
+	alter table appsec.Users add SetPassword bit;
 go
 ------------------------------------------------
 create or alter view appsec.ViewUsers
@@ -3186,10 +3313,11 @@ as
 		LockoutEnabled, AccessFailedCount, LockoutEndDateUtc, TwoFactorEnabled, [Locale],
 		PersonName, Memo, Void, LastLoginDate, LastLoginHost, Tenant, EmailConfirmed,
 		PhoneNumberConfirmed, RegisterHost, ChangePasswordEnabled, Segment,
-		SecurityStamp2, PasswordHash2
+		SecurityStamp2, PasswordHash2, SetPassword
 	from appsec.Users u
 	where Void=0 and Id <> 0;
 go
+------------------------------------------------
 create or alter procedure appsec.FindUserById
 @Id bigint
 as
@@ -3272,7 +3400,7 @@ begin
 	set transaction isolation level read committed;
 	set xact_abort on;
 
-	update appsec.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp where Id=@Id;
+	update appsec.ViewUsers set PasswordHash = @PasswordHash, SecurityStamp = @SecurityStamp, SetPassword = null where Id=@Id;
 end
 go
 ------------------------------------------------
@@ -3454,9 +3582,6 @@ go
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'crm')
 	exec sp_executesql N'create schema crm';
 go
-if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'tsk')
-	exec sp_executesql N'create schema tsk';
-go
 ------------------------------------------------
 grant execute on schema::cat to public;
 grant execute on schema::doc to public;
@@ -3465,14 +3590,13 @@ grant execute on schema::jrn to public;
 grant execute on schema::usr to public;
 grant execute on schema::rep to public;
 grant execute on schema::ini to public;
-grant execute on schema::ui to public;
+grant execute on schema::ui  to public;
 grant execute on schema::app to public;
 grant execute on schema::crm to public;
-grant execute on schema::tsk to public;
 go
 ------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'rep' and SEQUENCE_NAME = N'SQ_Blobs')
-	create sequence rep.SQ_Blobs as bigint start with 1000 increment by 1;
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_Blobs')
+	create sequence app.SQ_Blobs as bigint start with 1000 increment by 1;
 go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Blobs')
@@ -3480,7 +3604,7 @@ create table app.Blobs
 (
 	TenantId int not null,
 	Id bigint not null
-		constraint DF_Blobs_Id default(next value for rep.SQ_Blobs),
+		constraint DF_Blobs_Id default(next value for app.SQ_Blobs),
 	[Stream] varbinary(max),
 	[Name] nvarchar(255),
 	[Mime] nvarchar(255),
@@ -5012,6 +5136,30 @@ create table app.[Integrations]
 	constraint FK_Integrations_Source_IntegrationSources foreign key (Source) references app.IntegrationSources(Id),
 );
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'app' and SEQUENCE_NAME = N'SQ_Notifications')
+	create sequence app.SQ_Notifications as bigint start with 1000 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Notifications')
+create table app.Notifications
+(
+	TenantId int not null,
+	UserId bigint not null,
+	Id bigint not null
+		constraint DF_Notifications_Id default(next value for app.SQ_Notifications),
+	[Text] nvarchar(255),
+	[Icon] nvarchar(32),
+	UtcDateCreated datetime not null
+		constraint DF_Notifications_DateCreated default(getutcdate()),
+	[Done] bit not null
+		constraint DF_Notifications_Done default(0),
+	[LinkUrl] nvarchar(255) null,
+	[Link] bigint null,
+	constraint PK_Notifications primary key (TenantId, Id),
+	constraint FK_Notifications_UserId_Users foreign key (TenantId, UserId) references appsec.Users(Tenant, Id)
+);
+go
 -- TRIGGERS
 ------------------------------------------------
 create or alter trigger jrn.CashJournal_ITRIG on jrn.CashJournal
@@ -5120,7 +5268,6 @@ begin
 		FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id);
 end
 go
-
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Companies' and COLUMN_NAME=N'Logo')
 	alter table cat.Companies add Logo bigint null
@@ -15497,7 +15644,7 @@ go
 
 /* TASK.Partial */
 -------------------------------------------------
-create or alter procedure tsk.[Task.Partial.Index]
+create or alter procedure app.[Task.Partial.Index]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint = null,
@@ -16382,6 +16529,95 @@ begin
 	select [!$System!] = null, 
 		[!RepData.Date!Filter] = @Date,
 		[!RepData.Company.Id!Filter] = @Company, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company);
+end
+go
+
+-- reports cash
+------------------------------------------------
+create or alter procedure rep.[Report.Cash.Turnover.Date.Document.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint, /* report id */
+@Company bigint = null,
+@CashAccount bigint = -1,
+@From date = null,
+@To date = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date = dateadd(day, 1, @To);
+
+	select @Company = isnull(@Company, Company)
+	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
+	declare @comp bigint = nullif(@Company, -1);
+	declare @cashacc bigint = nullif(@CashAccount, -1);
+
+	declare @start money;
+	select @start = sum(j.[Sum] * j.InOut)
+	from jrn.CashJournal j where TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and (@cashacc is null or j.CashAccount = @cashacc)
+		and [Date] < @From;
+	set @start = isnull(@start, 0);
+	
+	select [Date], Document, SumIn = sum(_SumIn), SumOut = sum(_SumOut),
+		GrpDate = grouping([Date]), GrpDocument = grouping(Document)
+	into #temp
+	from jrn.CashJournal j
+	where j.TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and (@cashacc is null or j.CashAccount = @cashacc)
+		and j.[Date] >= @From and j.[Date] < @end
+	group by rollup(j.[Date], j.Document);
+
+	if @@rowcount = 0
+		select [RepData!TRepData!Group] = null, [Id!!Id] = 0, [Date] = null, SumStart = @start,
+			SumIn = null, SumOut = null, SumEnd = @start, [Agent!TAgent!RefId] = null,
+			[Date!!GroupMarker] = 1,
+			[Document!!GroupMarker] = 1,
+			[Items!TRepData!Items] = null;
+	else 
+	begin
+		with T ([Date], Document, SumStart, SumIn, SumOut, SumEnd, GrpDate, GrpDocument)
+		as
+			(
+				select [Date], Document,
+					@start + coalesce(sum(SumIn - SumOut) over (
+						partition by GrpDate, GrpDocument order by [Date] rows between unbounded preceding and 1 preceding
+					), 0),
+					SumIn, SumOut,
+					@start + sum(SumIn - SumOut) over (
+						partition by GrpDate, GrpDocument  order by [Date] rows between unbounded preceding and current row),
+					GrpDate, GrpDocument
+				from #temp
+			)
+		select [RepData!TRepData!Group] = null, [Id!!Id] = T.Document, T.[Date], T.Document,
+			[No] = coalesce(d.SNo, cast(d.[No] as nvarchar(50))), [Agent!TAgent!RefId] = d.Agent,
+			o.DocumentUrl, OperationName = o.[Name],
+			SumStart, SumIn, SumOut, SumEnd, 
+			[Date!!GroupMarker] = GrpDate, [Document!!GroupMarker] = GrpDocument,
+			[Items!TRepData!Items] = null
+		from T
+			left join doc.Documents d on d.TenantId = @TenantId and d.Id = T.Document 
+			left join doc.Operations o on d.TenantId = o.TenantId and d.Operation = o.Id
+		order by GrpDate desc, GrpDocument desc, T.[Date], T.Document;
+
+		with T as (select d.Agent from #temp t inner join doc.Documents d on d.TenantId = @TenantId and t.Document = d.Id group by Agent)
+		select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+		from cat.Agents a inner join T on a.TenantId = @TenantId and a.Id = T.Agent;
+    end
+	select [Report!TReport!Object] = null, [Id!!Id] = r.Id, [Name!!Name] = r.[Name]
+	from rep.Reports r
+	where r.TenantId = @TenantId and r.Id = @Id;
+
+
+	select [!$System!] = null, 
+		[!RepData.Period.From!Filter] = @From, [!RepData.Period.To!Filter] = @To,
+		[!RepData.Company.Id!Filter] = @comp, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
+		[!RepData.CashAccount.Id!Filter] = @cashacc, [!RepData.CashAccount.Name!Filter] = cat.fn_GetCashAccountName(@TenantId, @CashAccount)
 end
 go
 
@@ -17343,6 +17579,67 @@ begin
 	select [Sales!TSale!Array] = null, [Id!!Id] = 0;
 end
 go
+-- Notification
+create or alter procedure app.[Navpane.Load]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	select [Notify!TNotify!Object] = null, [Count] = count(*)
+	from app.Notifications where TenantId = @TenantId and UserId = @UserId and Done = 0;
+end
+go
+-------------------------------------------------
+create or alter procedure app.[Notification.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Offset int = 0,
+@PageSize int = 20,
+@Mode nvarchar(1) = N'U'
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	declare @notes table(id bigint, rowcnt int, rowno int identity(1, 1));
+
+	insert into @notes(id, rowcnt)
+	select n.Id,
+		count(*) over()
+	from app.Notifications n
+	where n.TenantId = @TenantId and n.UserId = @UserId
+		and (@Mode = N'U' and Done = 0) or @Mode = 'A'
+	order by UtcDateCreated desc
+	offset @Offset rows fetch next @PageSize rows only
+	option (recompile);
+
+	select [Notifications!TNotify!Array] = null, [Id!!Id] = n.Id, n.[Text],
+		n.Done, n.Link, n.LinkUrl, n.Icon, [DateCreated!!Utc] = n.UtcDateCreated,
+		[!!RowCount] = t.rowcnt
+	from @notes t inner join 
+		app.Notifications n on n.TenantId = @TenantId and n.Id = t.id
+	order by t.rowno;
+
+	select [!$System!] = null, [!Notifications!Offset] = @Offset, [!Notifications!PageSize] = @PageSize, 
+		[!Notifications.Mode!Filter] = @Mode;
+end
+go
+-------------------------------------------------
+create or alter procedure app.[Notification.Done]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	update app.Notifications set Done = 1 where TenantId = @TenantId and Id = @Id;
+end
+go
+
 /*
 admin
 */

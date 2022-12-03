@@ -1,4 +1,4 @@
 ﻿<PartialBlock xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<Button Icon="Bell" Badge="{Bind Root.$Badge}" 
+	<Button Icon="Bell" Badge="{Bind Notify.Count}" 
 			Command="{BindCmd Execute, CommandName=showNotify}"/>
 </PartialBlock>

@@ -1,15 +1,25 @@
 ﻿// navpane.notification
 
+const eventBus: EventBus = require('std:eventBus');
+
 const template: Template = {
 	properties: {
-		'TRoot.Tasks'() { return []; }
+		'TNotify.$DoneIcon'() { return this.Done ? 'dot-blue' : 'circle'; }
 	},
 	commands: {
-		showTask
+		clickNotify
 	}
 }
 
 export default template;
 
-function showTask() {
+async function clickNotify(note) {
+	const ctrl: IController = this.$ctrl;
+	await ctrl.$invoke('done', { Id: note.Id })
+	if (note.Done) {
+		note.Done = true;
+		eventBus.$emit('app.notify.dec');
+	}
+	if (note.Link && note.LinkUrl)
+		ctrl.$showDialog(note.LinkUrl, {Id: note.Link});
 }

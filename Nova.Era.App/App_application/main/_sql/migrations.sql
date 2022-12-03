@@ -68,7 +68,6 @@ begin
 		FK_StockJournal_Contract_Contracts foreign key (TenantId, [Contract]) references doc.Contracts(TenantId, Id);
 end
 go
-
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Companies' and COLUMN_NAME=N'Logo')
 	alter table cat.Companies add Logo bigint null
