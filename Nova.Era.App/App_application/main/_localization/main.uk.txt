@@ -218,6 +218,7 @@
 @Placeholder.AllWarehouses=<Всі склади>
 @Placeholder.AllBankAccounts=<Всі рахунки в банках>
 @Placeholder.AllCashAccounts=<Всі каси>
+@Placeholder.AllAccounts=<Всі рахунки та каси>
 @Placeholder.AllItems=<Всі об'єкти обліку>
 ;
 @Browse.Company=Вибір підприємства

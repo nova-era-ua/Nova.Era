@@ -16,11 +16,10 @@ begin
 	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
 	declare @end date = dateadd(day, 1, @To);
 
-	select @Company = isnull(@Company, Company)
-	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
 	declare @comp bigint = nullif(@Company, -1);
 	declare @cashacc bigint = nullif(@CashAccount, -1);
 
+	
 	declare @start money;
 	select @start = sum(j.[Sum] * j.InOut)
 	from jrn.CashJournal j where TenantId = @TenantId 
@@ -86,3 +85,6 @@ begin
 		[!RepData.CashAccount.Id!Filter] = @cashacc, [!RepData.CashAccount.Name!Filter] = cat.fn_GetCashAccountName(@TenantId, @CashAccount)
 end
 go
+
+
+exec rep.[Report.Cash.Turnover.Date.Document.Load] 1, 99, 1013, null, 101

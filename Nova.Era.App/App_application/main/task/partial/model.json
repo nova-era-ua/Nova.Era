@@ -9,5 +9,12 @@
 			"view": "index.partial",
 			"skipDataStack": true
 		}
+	},
+	"dialogs": {
+		"edit": {
+			"model": "Task.Partial",
+			"template": "edit.template",
+			"view": "edit.dialog"
+		}
 	}
 }

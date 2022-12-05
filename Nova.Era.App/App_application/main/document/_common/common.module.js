@@ -32,8 +32,7 @@ define(["require", "exports"], function (require, exports) {
             'TDocBase.$Icon'() { return this.Done ? 'success-green' : 'warning-yellow'; },
             'TDocBase.$BindKind'() { return category2Text(this.BindKind); },
             'TDocument.$CompanyAgentArg'() { return { Company: this.Company.Id, Agent: this.Agent.Id }; },
-            'TOpLink.$Category'() { return category2Text(this.Category); },
-            'TDocument.$TaskData'() { return { LinkType: 'Document' }; },
+            'TOpLink.$Category'() { return category2Text(this.Category); }
         },
         defaults: {
             'Document.Date': dateUtils.today(),

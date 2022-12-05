@@ -3,6 +3,7 @@
 		<CollectionView.Filter>
 			<FilterDescription>
 				<FilterItem Property="Company" DataType="Object" />
+				<FilterItem Property="CashAccount" DataType="Object" />
 				<FilterItem Property="Period" DataType="Period"/>
 			</FilterDescription>
 		</CollectionView.Filter>
@@ -14,6 +15,13 @@
 							Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
 					<Hyperlink Content="✕" If="{Bind Parent.Filter.Company.Id}"
 								Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
+				</Selector>
+				<Selector Value="{Bind Parent.Filter.CashAccount}"  Placeholder="@[Placeholder.AllAccounts]"
+						  DisplayProperty="Name" Width="20rem" Fetch="/catalog/cashaccount/fetchall">
+					<Hyperlink Icon="Search" 
+							Command="{BindCmd Browse, Argument={Bind Parent.Filter.CashAccount}, Url='/catalog/cashaccount/browseall'}"/>
+					<Hyperlink Content="✕" If="{Bind Parent.Filter.CashAccount.Id}"
+								Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.CashAccount}}"/>
 				</Selector>
 				<PeriodPicker ShowAllData="False"
 							  Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
@@ -28,9 +36,11 @@
 						<SheetColumn Width="16px"/>
 						<SheetColumn Width="60px"/>
 						<SheetColumn Width="25rem"/>
+						<SheetColumn />
+						<SheetColumn />
 						<SheetColumn Background="Gray" Width="6rem"/>
-						<SheetColumn Background="Gray" Width="6rem"/>
-						<SheetColumn Background="Gray" Width="6rem"/>
+						<SheetColumn Width="6rem"/>
+						<SheetColumn Width="6rem"/>
 						<SheetColumn Background="Gray" Width="6rem"/>
 					</Sheet.Columns>
 					<Sheet.Header>
@@ -46,31 +56,22 @@
 							<SheetCell Bold="True" ColSpan="6" Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
 						</SheetRow>
 					</Sheet.Header>
-					<!--
-					<SheetSection>
-						<SheetRow>
-							<SheetCell />
-							<SheetCell />
-							<SheetCell />
-							<SheetCell />
-						</SheetRow>
-					</SheetSection>
-					-->
 					<SheetSection>
 						<SheetRow Style="Header">
-							<SheetCell />
-							<SheetCell ColSpan="2" Wrap="PreWrap">@[Date] / @[Document]</SheetCell>
-							<SheetCell>Операція</SheetCell>
-							<SheetCell>На початок дня</SheetCell>
+							<SheetCell MinWidth="16px"/>
+							<SheetCell MinWidth="20rem" ColSpan="2" Wrap="PreWrap">@[Date] / @[Operation]</SheetCell>
+							<SheetCell>@[Document]</SheetCell>
+							<SheetCell MinWidth="20rem">@[Agent]</SheetCell>
+							<SheetCell>На початок</SheetCell>
 							<SheetCell>@[Income]</SheetCell>
 							<SheetCell>@[Expense]</SheetCell>
-							<SheetCell>На кінець дня</SheetCell>
+							<SheetCell>На кінець</SheetCell>
 						</SheetRow>
 					</SheetSection>
 					<SheetSection>
 						<SheetRow Style="Total" Align="Right" Wrap="NoWrap">
 							<SheetCell />
-							<SheetCell ColSpan="3" Align="Left">@[Total]</SheetCell>
+							<SheetCell ColSpan="4" Align="Left">@[Total]</SheetCell>
 							<SheetCell Content="{Bind RepData.SumStart, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind RepData.SumIn, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind RepData.SumOut, DataType=Currency, HideZeros=True}"/>
@@ -81,8 +82,9 @@
 						<SheetRow Align="Right" Wrap="NoWrap">
 							<SheetGroupCell />
 							<SheetCell ColSpan="2" Align="Left" Content="{Bind $Name}" 
-									   Wrap="Wrap" MinWidth="25rem" />
-							<SheetCell Content="{Bind OperationName}" Align="Left"/>
+									   Wrap="Wrap" MinWidth="10rem" />
+							<SheetCell Content="{Bind No}" Align="Left"/>
+							<SheetCell Content="{Bind Agent.Name}" Align="Left" Wrap="Wrap"/>
 							<SheetCell Content="{Bind SumStart, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind SumIn, DataType=Currency, HideZeros=True}"/>
 							<SheetCell Content="{Bind SumOut, DataType=Currency, HideZeros=True}"/>

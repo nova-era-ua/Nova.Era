@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 03.12.2022 22:24:10
+generated: 05.12.2022 11:41:37
 */
 
 
@@ -5169,7 +5169,7 @@ if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'app' 
 create table app.TaskStates (
 	TenantId int not null,
 	[Id] bigint not null
-		constraint DF_TaskStates_Id default(next value for crm.SQ_TaskStates),
+		constraint DF_TaskStates_Id default(next value for app.SQ_TaskStates),
 	Void bit not null 
 		constraint DF_TaskStates_Void default(0),
 	[Order] int,
@@ -5247,6 +5247,9 @@ end
 go
 
 -- MIGRATIONS
+------------------------------------------------
+drop procedure if exists cat.[CashAccount.GetRem];
+go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Countries' and COLUMN_NAME=N'Alpha3')
 	alter table cat.Countries add [Alpha3] nchar(3);
@@ -5440,8 +5443,6 @@ go
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Items' and COLUMN_NAME=N'IsVariant')
 	alter table cat.Items add IsVariant as (cast(case when [Parent] is not null then 1 else 0 end as bit));
 go
-
-
 
 /*
 common
@@ -9468,8 +9469,10 @@ begin
 
 	select [BankAccounts!TBankAccount!Array] = null,
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo,
-		[ItemRole!TItemRole!RefId] = ba.ItemRole
+		[ItemRole!TItemRole!RefId] = ba.ItemRole,
+		Balance = cr.[Sum]
 	from cat.CashAccounts ba
+		left join jrn.CashReminders cr on  ba.TenantId = cr.TenantId and cr.CashAccount = ba.Id
 	where ba.TenantId = @TenantId and (@Company is null or Company = @Company) and ba.IsCashAccount = 0;
 
 	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
@@ -9493,9 +9496,11 @@ begin
 		[Id!!Id] = ba.Id, [Name!!Name] = ba.[Name], ba.Memo, ba.AccountNo,
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
-		[Bank!TBank!RefId] = ba.Bank, [ItemRole!TItemRole!RefId] = ba.ItemRole
+		[Bank!TBank!RefId] = ba.Bank, [ItemRole!TItemRole!RefId] = ba.ItemRole,
+		Balance = cr.[Sum]
 	from cat.CashAccounts ba
-	where TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
+		left join jrn.CashReminders cr on  ba.TenantId = cr.TenantId and cr.CashAccount = ba.Id
+	where ba.TenantId = @TenantId and ba.Id = @Id and ba.IsCashAccount = 0;
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join cat.CashAccounts ba on c.TenantId = ba.TenantId and ba.Company = c.Id
@@ -9659,7 +9664,7 @@ begin
 	option (recompile);
 
 	select [CashAccounts!TCashAccount!Array] = null,
-		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, Balance = t.balance,
+		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo, Balance = isnull(t.balance, 0),
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency,
 		[ItemRole!TItemRole!RefId] = ca.ItemRole,
@@ -9699,16 +9704,12 @@ begin
 
 	set @Date = isnull(@Date, getdate());
 
-	with TB as (
-		select Balance = sum([Sum] * InOut), CashAccount from jrn.CashJournal
-		where [Date] <= @Date and TenantId = @TenantId
-		group by CashAccount
-	)
 	select [CashAccounts!TCashAccount!Array] = null,
-		[Id!!Id] = ca.Id, [Name!!Name] = isnull(ca.[Name], ca.AccountNo),  ca.AccountNo, ca.Memo, TB.Balance,
+		[Id!!Id] = ca.Id, [Name!!Name] = isnull(ca.[Name], ca.AccountNo),  ca.AccountNo, ca.Memo, 
+		[Balance] = isnull(cr.[Sum], 0),
 		[ItemRole!TItemRole!RefId] = ca.ItemRole
 	from cat.CashAccounts ca
-		left join TB on ca.Id = TB.CashAccount
+		left join jrn.CashReminders cr on ca.TenantId = cr.TenantId and cr.CashAccount = ca.Id
 	where ca.TenantId = @TenantId and (@Company is null or ca.Company = @Company) and 
 		(@Mode = N'All' or @Mode = N'Cash' and ca.IsCashAccount = 1 or @Mode = N'Bank' and ca.IsCashAccount = 0)
 	order by ca.IsCashAccount, ca.[Name];
@@ -9736,9 +9737,11 @@ begin
 		[Id!!Id] = ca.Id, [Name!!Name] = ca.[Name], ca.Memo,
 		[Company!TCompany!RefId] = ca.Company,
 		[Currency!TCurrency!RefId] = ca.Currency,
-		[ItemRole!TItemRole!RefId] = ca.ItemRole
+		[ItemRole!TItemRole!RefId] = ca.ItemRole,
+		[Balance] = cr.[Sum]
 	from cat.CashAccounts ca
-	where TenantId = @TenantId and ca.Id = @Id and ca.IsCashAccount = 1;
+		left join jrn.CashReminders cr on ca.TenantId = cr.TenantId and cr.CashAccount = ca.Id
+	where ca.TenantId = @TenantId and ca.Id = @Id and ca.IsCashAccount = 1;
 
 	select [!TCompany!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name]
 	from cat.Companies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and ca.Company = c.Id
@@ -9830,20 +9833,6 @@ begin
 	update cat.CashAccounts set Void = 1 where TenantId = @TenantId and Id = @Id and IsCashAccount = 1;
 end
 go
-------------------------------------------------
-create or alter procedure cat.[CashAccount.GetRem]
-@TenantId int = 1,
-@UserId bigint,
-@Id bigint,
-@Date date
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-	select [Result!TResult!Object] = null, Balance = rep.fn_getCashAccountRem(@TenantId, @Id, @Date)
-end
-go
-
 ------------------------------------------------
 create or alter procedure cat.[CashAccount.Fetch.Simple]
 @TenantId int = 1,
@@ -13677,8 +13666,7 @@ begin
 	select [!TOperation!Map] = null, [Id!!Id] = o.Id, [Name!!Name] = o.[Name], o.Form, o.DocumentUrl,
 		[Links!TOpLink!Array] = null
 	from doc.Operations o 
-		left join doc.Documents d on d.TenantId = o.TenantId and d.Operation = o.Id
-	where d.Id = @Id and d.TenantId = @TenantId;
+	where o.TenantId = @TenantId and o.Id = @Operation;
 
 	select [!TOpLink!Array] = null, [Id!!Id] = ol.Id, ol.Category, ch.[Name], [!TOperation.Links!ParentId] = ol.Parent
 	from doc.OperationLinks ol 

@@ -7,7 +7,8 @@ const template: Template = {
 	properties: {
 		'TRoot.$$Scan': String,
 		'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
-		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
+		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
+		'TDocument.$TaskData'() { return { LinkType: 'Document', LinkUrl:'/document/sales/invoice/edit' }; },
 	},
 	events: {
 		'Document.Date.change': dateChange,

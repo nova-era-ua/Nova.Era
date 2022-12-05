@@ -1658,6 +1658,7 @@ create table app.Tasks
 	UtcDateComplete datetime not null
 		constraint DF_Tasks_UtcDateComplete default(getutcdate()),
 	[LinkUrl] nvarchar(255) null,
+	LinkType nvarchar(64),
 	[Link] bigint null,
 	Project bigint null,
 	[Void] bit not null

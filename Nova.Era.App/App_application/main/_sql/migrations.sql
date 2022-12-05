@@ -195,3 +195,7 @@ go
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Items' and COLUMN_NAME=N'IsVariant')
 	alter table cat.Items add IsVariant as (cast(case when [Parent] is not null then 1 else 0 end as bit));
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Tasks' and COLUMN_NAME=N'LinkType')
+	alter table app.Tasks add LinkType nvarchar(64);
+go
