@@ -35,10 +35,10 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Task!TTask!Object] = null, [Id!!Id] = t.Id, 
+	select [Task!TTask!Object] = null, [Id!!Id] = t.Id, t.[Text], [Assignee!TUser!RefId] = t.Assignee,
+		[State!TState!RefId] = t.[State], t.Notice, [Project!TProject!RefId] = t.Project
 	from app.Tasks t 
-	where t.TenantId = @TenantId and Link = @Id and LinkType = @LinkType
-	order by t.UtcDateCreated desc;
+	where t.TenantId = @TenantId and Id = @Id
 
 	select [Params!TParam!Object] = null, LinkId = @LinkId, LinkType = @LinkType, LinkUrl = @LinkUrl;
 end
