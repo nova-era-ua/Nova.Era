@@ -85,6 +85,3 @@ begin
 		[!RepData.CashAccount.Id!Filter] = @cashacc, [!RepData.CashAccount.Name!Filter] = cat.fn_GetCashAccountName(@TenantId, @CashAccount)
 end
 go
-
-
-exec rep.[Report.Cash.Turnover.Date.Document.Load] 1, 99, 1013, null, 101
