@@ -1,0 +1,16 @@
+﻿<!-- Edit ItemRole -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Title="{Bind Task.$Id, Format='@[ItemRole] [{0}]'}" Overflow="True"
+		Width="45rem">
+	<Dialog.Buttons>
+		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Grid Columns="1*,1*" Rows="Auto,Auto,Auto,5rem,Auto,15rem,Auto">
+		<TextBox Grid.Row="2" Grid.ColSpan="2" Label="@[Name]" Value="{Bind Task.Text}" 
+				 Bold="True" TabIndex="1" UpdateTrigger="Input"/>
+		<TextBox Grid.Row="7" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind Task.Notice}" 
+				 Multiline="True" Rows="3"/>
+	</Grid>
+</Dialog>
+

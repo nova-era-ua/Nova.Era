@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 06.12.2022 02:36:40
+generated: 07.12.2022 00:40:10
 */
 
 
@@ -16701,9 +16701,6 @@ begin
 		[!RepData.CashAccount.Id!Filter] = @cashacc, [!RepData.CashAccount.Name!Filter] = cat.fn_GetCashAccountName(@TenantId, @CashAccount)
 end
 go
-
-
-exec rep.[Report.Cash.Turnover.Date.Document.Load] 1, 99, 1013, null, 101
 
 -- DEBUG
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'debug')

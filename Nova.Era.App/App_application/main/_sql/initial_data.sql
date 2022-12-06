@@ -346,6 +346,30 @@ begin
 		(@TenantId, s.Id, s.Kind, s.[Name], s.[Order], s.[Color]);
 end
 go
+-------------------------------------------------
+-- App
+create or alter procedure ini.[App.OnCreateTenant]
+@TenantId int
+as
+begin
+	set nocount on;
+	declare @ts table(Id bigint, [Order] int, [Name] nvarchar(255), Color nvarchar(32));
+	insert into @ts (Id, [Order], [Name], [Color]) values
+		(10, 10, N'Нова', N'blue'),
+		(20, 20, N'В обробці', N'orange'),
+		(30, 30, N'Завершена', N'seagreen'),
+		(40, 40, N'Скасована', N'red');
+	merge app.TaskStates as t
+	using @ts as s on t.Id = s.Id and t.TenantId = @TenantId
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Order] = s.[Order],
+		t.[Color] = s.[Color]
+	when not matched by target then insert
+		(TenantId, Id, [Name], [Order], [Color]) values
+		(@TenantId, s.Id, s.[Name], s.[Order], s.[Color]);
+end
+go
 ------------------------------------------------
 -- !CHECK startup_mt.sql!
 exec ini.[Cat.OnCreateTenant] @TenantId = 1;
@@ -355,5 +379,6 @@ exec ini.[Widgets.OnCreateTenant] @TenantId = 1;
 exec ini.[Contract.OnCreateTenant] @TenantId = 1;
 exec ini.[Operation.OnCreateTenant] @TenantId = 1;
 exec ini.[Crm.OnCreateTenant] @TenantId = 1;
+exec ini.[App.OnCreateTenant] @TenantId = 1;
 go
 

@@ -14,6 +14,7 @@ begin
 	exec ini.[Contract.OnCreateTenant] @TenantId = @TenantId;
 	exec ini.[Operation.OnCreateTenant] @TenantId = @TenantId;
 	exec ini.[Crm.OnCreateTenant] @TenantId = @TenantId;
+	exec ini.[App.OnCreateTenant] @TenantId = @TenantId;
 end
 go
 -------------------------------------------------

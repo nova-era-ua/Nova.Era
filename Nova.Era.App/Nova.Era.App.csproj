@@ -663,6 +663,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\task\partial\edit.dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\_navpane\navpane.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -811,6 +815,7 @@
     <Content Include="App_application\main\settings\test\testapi.server.js" />
     <TypeScriptCompile Include="App_application\main\settings\test\indexcw.template.ts" />
     <TypeScriptCompile Include="App_application\main\settings\test\index.template.ts" />
+    <TypeScriptCompile Include="App_application\main\task\partial\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\task\partial\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\_navpane\notification.template.ts" />
     <TypeScriptCompile Include="App_application\main\_navpane\navpane.template.ts" />

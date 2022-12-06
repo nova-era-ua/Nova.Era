@@ -4,11 +4,23 @@
 		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Plus" Content="Нова задача" 
 					Command="{BindCmd Dialog, Action=Append, 
-				Argument={Bind Tasks}, Url='/task/partial/edit', Data={Bind Params}}"/>
+				Argument={Bind Tasks}, Url='/task/partial/edit', Data={Bind Tasks}}"/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Tasks}" FixedHeader="True"
 				  XamlStyle="{StyleResource DataGridSimple}" Sort="False">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[State]" Fit="True" Wrap="NoWrap">
+				<TagLabel Content="{Bind State.Name}" Style="{Bind State.Color}"/>
+			</DataGridColumn>
+			<DataGridColumn Header="@[Name]" Content="{Bind Text}" />
+			<DataGridColumn Header="@[Memo]" Content="{Bind Notice}" />
+			<DataGridColumn Header="@[Date]" Content="{Bind DateCreated, DataType=DateTime}" Role="Date"/>
+			<DataGridColumn Fit="True">
+				<CommandBar Visibility="Hover">
+					<Button Icon="Edit" 
+						   Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/task/partial/edit'}"/>
+				</CommandBar>
+			</DataGridColumn>
 		</DataGrid>
 	</Grid>
 </PartialBlock>
