@@ -51,9 +51,13 @@
 							<SheetCell ColSpan="2" Content="@[Period]"></SheetCell>
 							<SheetCell Bold="True" ColSpan="6" Content="{Bind Parent.Filter.Period.Name}"></SheetCell>
 						</SheetRow>
-						<SheetRow Style="LastParameter">
+						<SheetRow Style="Parameter">
 							<SheetCell ColSpan="2" Content="@[Company]"></SheetCell>
 							<SheetCell Bold="True" ColSpan="6" Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
+						</SheetRow>
+						<SheetRow Style="LastParameter">
+							<SheetCell ColSpan="2" Content="@[Label.Cash.Account]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="6" Content="{Bind Parent.Filter.CashAccount.Name}"></SheetCell>
 						</SheetRow>
 					</Sheet.Header>
 					<SheetSection>

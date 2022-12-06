@@ -44,7 +44,9 @@ returns nvarchar(255)
 as
 begin
 	declare @name nvarchar(255);
-	if @Id is not null
+	if @Id = -1 
+		set @name = N'@[Placeholder.AllAccounts]';
+	else if @Id is not null
 		select @name = isnull([Name], AccountNo) from cat.CashAccounts where TenantId=@TenantId and Id=@Id;
 	return @name;
 end

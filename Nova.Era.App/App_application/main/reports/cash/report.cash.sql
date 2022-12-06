@@ -4,7 +4,7 @@ create or alter procedure rep.[Report.Cash.Turnover.Date.Document.Load]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint, /* report id */
-@Company bigint = null,
+@Company bigint = -1,
 @CashAccount bigint = -1,
 @From date = null,
 @To date = null

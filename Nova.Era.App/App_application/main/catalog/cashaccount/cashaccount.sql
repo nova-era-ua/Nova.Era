@@ -104,6 +104,7 @@ begin
 	select [CashAccounts!TCashAccount!Array] = null,
 		[Id!!Id] = ca.Id, [Name!!Name] = isnull(ca.[Name], ca.AccountNo),  ca.AccountNo, ca.Memo, 
 		[Balance] = isnull(cr.[Sum], 0),
+		[Currency!TCurrency!RefId] = ca.Currency,
 		[ItemRole!TItemRole!RefId] = ca.ItemRole
 	from cat.CashAccounts ca
 		left join jrn.CashReminders cr on ca.TenantId = cr.TenantId and cr.CashAccount = ca.Id
@@ -113,6 +114,9 @@ begin
 
 	select [!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money';
+
+	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Alpha3
+	from cat.Currencies c inner join cat.CashAccounts ca on c.TenantId = ca.TenantId and c.Id = ca.Currency;
 
 	select [Company!TCompany!Object] = null, [Id!!Id] = Id, [Name!!Name] = [Name]
 	from cat.Companies where TenantId = @TenantId and Id=@Company;
