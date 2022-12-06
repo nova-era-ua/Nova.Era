@@ -2,15 +2,19 @@
   "$schema": "../../../@schemas/model-json-schema.json#",
   "schema": "cat",
   "model": "BankAccount",
-  "dialogs": {
-    "edit": {
-      "template": "edit.template",
-      "view": "edit.dialog"
-    },
-    "browse": {
-      "index": true,
-      "model": "BankAccount.Simple",
-      "view": "browse.dialog"
+    "dialogs": {
+        "edit": {
+            "template": "edit.template",
+            "view": "edit.dialog"
+        },
+        "browse": {
+            "index": true,
+            "model": "BankAccount.Simple",
+            "view": "browse.dialog"
+        },
+        "show": {
+            "template": "show.template",
+            "view": "show.dialog"
+        }
     }
-  }
 }

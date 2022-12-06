@@ -12,6 +12,9 @@
 				  Value="{Bind CashAccount.Currency.Alpha3}"/>
 			<Static Label="@[ItemRole]" Value="{Bind CashAccount.ItemRole.Name}" />
 			<TextBox Label="@[Memo]" Value="{Bind CashAccount.Memo}" Multiline="True" Disabled="True"/>
+			<Line />
+			<Button Content="@[Edit]" Width="10rem"
+					Command="{BindCmd Dialog, Action=Edit, Argument={Bind CashAccount}, Url='/catalog/cashaccount/edit'}"/>
 		</Grid>
 		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
 		<TabBar Grid.Row="1" Grid.Col="3" Value="{Bind Root.$$Tab}" Margin="0,0,1rem,0">

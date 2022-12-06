@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 05.12.2022 11:41:37
+generated: 06.12.2022 01:46:10
 */
 
 
@@ -5198,6 +5198,7 @@ create table app.Tasks
 	UtcDateComplete datetime not null
 		constraint DF_Tasks_UtcDateComplete default(getutcdate()),
 	[LinkUrl] nvarchar(255) null,
+	LinkType nvarchar(64),
 	[Link] bigint null,
 	Project bigint null,
 	[Void] bit not null
@@ -5442,6 +5443,10 @@ go
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Items' and COLUMN_NAME=N'IsVariant')
 	alter table cat.Items add IsVariant as (cast(case when [Parent] is not null then 1 else 0 end as bit));
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Tasks' and COLUMN_NAME=N'LinkType')
+	alter table app.Tasks add LinkType nvarchar(64);
 go
 
 /*
@@ -15684,16 +15689,45 @@ create or alter procedure app.[Task.Partial.Index]
 @TenantId int = 1,
 @UserId bigint,
 @Id bigint = null,
-@LinkType nvarchar(64)
+@LinkType nvarchar(64),
+@LinkUrl nvarchar(255)
 as
 begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	select [Tasks!TTask!Array] = null, [Id!!Id] = 0
+	select [Tasks!TTask!Array] = null, [Id!!Id] = t.Id
+	from app.Tasks t 
+		left join app.TaskStates ts on ts.TenantId = t.TenantId and ts.Id = t.[State]
+	where t.TenantId = @TenantId and Link = @Id and LinkType = @LinkType
+	order by t.UtcDateCreated desc;
+
+	select [Params!TParam!Object] = null, LinkType = @LinkType, LinkId = @Id, LinkUrl = @LinkUrl
 end
 go
 
+
+-------------------------------------------------
+create or alter procedure app.[Task.Partial.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@LinkId bigint = null,
+@LinkType nvarchar(64) = null,
+@LinkUrl nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Task!TTask!Object] = null, [Id!!Id] = t.Id, t.[Text], [Assignee!TUser!RefId] = t.Assignee,
+		[State!TState!RefId] = t.[State], t.Notice, [Project!TProject!RefId] = t.Project
+	from app.Tasks t 
+	where t.TenantId = @TenantId and Id = @Id
+
+	select [Params!TParam!Object] = null, LinkId = @LinkId, LinkType = @LinkType, LinkUrl = @LinkUrl;
+end
+go
 -- reports
 -------------------------------------------------
 create or alter procedure rep.[Report.Index]
@@ -16586,11 +16620,10 @@ begin
 	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
 	declare @end date = dateadd(day, 1, @To);
 
-	select @Company = isnull(@Company, Company)
-	from usr.Defaults where TenantId = @TenantId and UserId = @UserId;
 	declare @comp bigint = nullif(@Company, -1);
 	declare @cashacc bigint = nullif(@CashAccount, -1);
 
+	
 	declare @start money;
 	select @start = sum(j.[Sum] * j.InOut)
 	from jrn.CashJournal j where TenantId = @TenantId 
@@ -16656,6 +16689,9 @@ begin
 		[!RepData.CashAccount.Id!Filter] = @cashacc, [!RepData.CashAccount.Name!Filter] = cat.fn_GetCashAccountName(@TenantId, @CashAccount)
 end
 go
+
+
+exec rep.[Report.Cash.Turnover.Date.Document.Load] 1, 99, 1013, null, 101
 
 -- DEBUG
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'debug')

@@ -28,9 +28,10 @@ begin
 		count(*) over ()
 	from cat.CashAccounts b
 		left join jrn.CashReminders cr on  b.TenantId = cr.TenantId and cr.CashAccount = b.Id
+		left join cat.Banks bnk on bnk.TenantId = b.TenantId and bnk.Id = b.Bank
 	where b.TenantId = @TenantId and b.IsCashAccount = 0 
 		and (@Company is null or b.Company = @Company)
-		and (@fr is null or b.[Name] like @fr or b.Memo like @fr)
+		and (@fr is null or b.[Name] like @fr or b.Memo like @fr or bnk.[Name] like @fr)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order
@@ -67,6 +68,7 @@ begin
 		[Company!TCompany!RefId] = ba.Company,
 		[Currency!TCurrency!RefId] = ba.Currency,
 		[ItemRole!TItemRole!RefId] = ba.ItemRole,
+		[Bank!TBank!RefId] = ba.Bank,
 		[!!RowCount] = t.rowcnt
 	from @ba t inner join cat.CashAccounts ba on t.id  = ba.Id and ba.TenantId = @TenantId
 	order by t.rowno;
@@ -78,6 +80,10 @@ begin
 	with T as(select crc from @ba group by crc)
 	select [!TCurrency!Map] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Alpha3
 	from cat.Currencies c inner join T on c.TenantId = @TenantId and c.Id = T.crc;
+
+	with T as(select bank from @ba group by bank)
+	select [!TBank!Map] = null, [Id!!Id] = b.Id, [Name!!Name] = b.[Name], b.BankCode
+	from cat.Banks b inner join T on b.TenantId = @TenantId and b.Id = T.bank;
 
 	select [ItemRoles!TItemRole!Map] = null, [Id!!Id] = ir.Id, [Name!!Name] = ir.[Name], ir.IsStock, ir.Kind
 	from cat.ItemRoles ir where ir.TenantId = @TenantId and ir.Void = 0 and ir.Kind = N'Money' and ir.ExType = N'B';

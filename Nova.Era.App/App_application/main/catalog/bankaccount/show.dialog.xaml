@@ -1,0 +1,29 @@
+﻿<!-- Edit BankAccount -->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" 
+		Placement="FullScreen">
+	<Button CssClass="fs-dialog-close" Style="Toolbar" Content="✕" Command="{BindCmd Close}"/>
+	<Grid Height="100%" Columns="MinMax(200px;20%),1px,1*" Rows="Auto,1*" 
+		  Gap="1rem" Padding="1rem">
+		<Grid Grid.Col="1" Grid.Row="1" Grid.RowSpan="2" Grid.VAlign="Top">
+			<Header Content="@[BankAccount]" Size="Large" Bold="False" Margin=".5rem,0,0,0"/>
+			<Static Label="@[Name]" Value="{Bind BankAccount.Name}" />
+			<Static Label="@[Number]" Value="{Bind BankAccount.AccountNo}" />
+			<Static Label="@[Bank]" Value="{Bind BankAccount.Bank.Name}" />
+			<Static Label="@[Currency]" Width="10rem"
+				  Value="{Bind BankAccount.Currency.Alpha3}"/>
+			<Static Label="@[Rem]" Width="10rem" Align="Right"
+				  Value="{Bind BankAccount.Balance, DataType=Currency, NegativeRed=True}"/>
+			<Static Label="@[Company]"  Value="{Bind BankAccount.Company.Name}"/>
+			<Static Label="@[ItemRole]" Value="{Bind BankAccount.ItemRole.Name}" />
+			<TextBox Label="@[Memo]" Value="{Bind BankAccount.Memo}" Multiline="True" Disabled="True"/>
+			<Line />
+			<Button Content="@[Edit]" Width="10rem"
+					Command="{BindCmd Dialog, Action=Edit, Argument={Bind BankAccount}, Url='/catalog/bankaccount/edit'}"/>
+		</Grid>
+		<GridDivider Grid.Col="2" Grid.RowSpan="2"/>
+		<TabBar Grid.Row="1" Grid.Col="3" Value="{Bind Root.$$Tab}" Margin="0,0,1rem,0">
+			<TabButton Content="Документи" ActiveValue=""/>
+		</TabBar>
+	</Grid>
+</Dialog>
+
