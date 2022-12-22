@@ -1,5 +1,5 @@
 ﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.TypeScript.MSBuild.4.9.3\build\Microsoft.TypeScript.MSBuild.props" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.4.9.3\build\Microsoft.TypeScript.MSBuild.props')" />
+  <Import Project="..\packages\Microsoft.TypeScript.MSBuild.4.9.4\build\Microsoft.TypeScript.MSBuild.props" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.4.9.4\build\Microsoft.TypeScript.MSBuild.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -44,34 +44,34 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="A2v10.Data.Interfaces, Version=10.0.7317.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\A2v10.Data.Interfaces.dll</HintPath>
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7915\lib\net48\A2v10.Data.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Infrastructure, Version=10.0.7910.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\A2v10.Infrastructure.dll</HintPath>
+    <Reference Include="A2v10.Infrastructure, Version=10.0.7915.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7915\lib\net48\A2v10.Infrastructure.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Messaging, Version=10.0.7910.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\A2v10.Messaging.dll</HintPath>
+    <Reference Include="A2v10.Messaging, Version=10.0.7915.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7915\lib\net48\A2v10.Messaging.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Pdf.Report, Version=10.0.7910.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Pdf.Report.10.0.7910\lib\net48\A2v10.Pdf.Report.dll</HintPath>
+    <Reference Include="A2v10.Pdf.Report, Version=10.0.7915.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Pdf.Report.10.0.7915\lib\net48\A2v10.Pdf.Report.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Reports, Version=10.0.7910.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\A2v10.Reports.dll</HintPath>
+    <Reference Include="A2v10.Reports, Version=10.0.7915.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7915\lib\net48\A2v10.Reports.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Web.Mvc, Version=10.0.7910.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\A2v10.Web.Mvc.dll</HintPath>
+    <Reference Include="A2v10.Web.Mvc, Version=10.0.7915.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7915\lib\net48\A2v10.Web.Mvc.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Workflow, Version=10.0.7910.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\A2v10.Workflow.dll</HintPath>
+    <Reference Include="A2v10.Workflow, Version=10.0.7915.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7915\lib\net48\A2v10.Workflow.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml, Version=10.0.7910.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\A2v10.Xaml.dll</HintPath>
+    <Reference Include="A2v10.Xaml, Version=10.0.7915.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7915\lib\net48\A2v10.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7910.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Bootstrap, Version=10.0.7915.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7915\lib\net48\A2v10.Xaml.Bootstrap.dll</HintPath>
     </Reference>
-    <Reference Include="A2v10.Xaml.Report, Version=10.0.7910.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\A2v10.Xaml.Report.dll</HintPath>
+    <Reference Include="A2v10.Xaml.Report, Version=10.0.7915.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\A2v10.Pdf.Report.10.0.7915\lib\net48\A2v10.Xaml.Report.dll</HintPath>
     </Reference>
     <Reference Include="HarfBuzzSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\HarfBuzzSharp.2.8.2.3\lib\net462\HarfBuzzSharp.dll</HintPath>
@@ -80,13 +80,13 @@
       <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.7.0.0\lib\net462\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7911\lib\net48\Microsoft.Web.Infrastructure.dll</HintPath>
+      <HintPath>..\packages\A2v10.Web.Runtime.10.0.7915\lib\net48\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="Quartz, Version=3.5.0.0, Culture=neutral, PublicKeyToken=f6b8c98a402cc8a4, processorArchitecture=MSIL">
       <HintPath>..\packages\Quartz.3.5.0\lib\net472\Quartz.dll</HintPath>
     </Reference>
-    <Reference Include="QuestPDF, Version=2022.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QuestPDF.2022.11.0\lib\net462\QuestPDF.dll</HintPath>
+    <Reference Include="QuestPDF, Version=2022.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuestPDF.2022.12.0\lib\net462\QuestPDF.dll</HintPath>
     </Reference>
     <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.2.88.3\lib\net462\SkiaSharp.dll</HintPath>
@@ -222,20 +222,20 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.9.3\build\Microsoft.TypeScript.MSBuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.9.3\build\Microsoft.TypeScript.MSBuild.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.9.3\build\Microsoft.TypeScript.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.9.3\build\Microsoft.TypeScript.MSBuild.targets'))" />
     <Error Condition="!Exists('..\packages\HarfBuzzSharp.NativeAssets.macOS.2.8.2.3\build\net462\HarfBuzzSharp.NativeAssets.macOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\HarfBuzzSharp.NativeAssets.macOS.2.8.2.3\build\net462\HarfBuzzSharp.NativeAssets.macOS.targets'))" />
     <Error Condition="!Exists('..\packages\HarfBuzzSharp.NativeAssets.Win32.2.8.2.3\build\net462\HarfBuzzSharp.NativeAssets.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\HarfBuzzSharp.NativeAssets.Win32.2.8.2.3\build\net462\HarfBuzzSharp.NativeAssets.Win32.targets'))" />
     <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets'))" />
     <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.3\build\net462\SkiaSharp.NativeAssets.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.Win32.2.88.3\build\net462\SkiaSharp.NativeAssets.Win32.targets'))" />
-    <Error Condition="!Exists('..\packages\A2v10.Web.Runtime.10.0.7911\build\A2v10.Web.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.Web.Runtime.10.0.7911\build\A2v10.Web.Runtime.targets'))" />
+    <Error Condition="!Exists('..\packages\A2v10.Web.Runtime.10.0.7915\build\A2v10.Web.Runtime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\A2v10.Web.Runtime.10.0.7915\build\A2v10.Web.Runtime.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.9.4\build\Microsoft.TypeScript.MSBuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.9.4\build\Microsoft.TypeScript.MSBuild.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.TypeScript.MSBuild.4.9.4\build\Microsoft.TypeScript.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.TypeScript.MSBuild.4.9.4\build\Microsoft.TypeScript.MSBuild.targets'))" />
   </Target>
-  <Import Project="..\packages\Microsoft.TypeScript.MSBuild.4.9.3\build\Microsoft.TypeScript.MSBuild.targets" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.4.9.3\build\Microsoft.TypeScript.MSBuild.targets')" />
   <Import Project="..\packages\HarfBuzzSharp.NativeAssets.macOS.2.8.2.3\build\net462\HarfBuzzSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\HarfBuzzSharp.NativeAssets.macOS.2.8.2.3\build\net462\HarfBuzzSharp.NativeAssets.macOS.targets')" />
   <Import Project="..\packages\HarfBuzzSharp.NativeAssets.Win32.2.8.2.3\build\net462\HarfBuzzSharp.NativeAssets.Win32.targets" Condition="Exists('..\packages\HarfBuzzSharp.NativeAssets.Win32.2.8.2.3\build\net462\HarfBuzzSharp.NativeAssets.Win32.targets')" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.Win32.2.88.3\build\net462\SkiaSharp.NativeAssets.Win32.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.3\build\net462\SkiaSharp.NativeAssets.Win32.targets')" />
-  <Import Project="..\packages\A2v10.Web.Runtime.10.0.7911\build\A2v10.Web.Runtime.targets" Condition="Exists('..\packages\A2v10.Web.Runtime.10.0.7911\build\A2v10.Web.Runtime.targets')" />
+  <Import Project="..\packages\A2v10.Web.Runtime.10.0.7915\build\A2v10.Web.Runtime.targets" Condition="Exists('..\packages\A2v10.Web.Runtime.10.0.7915\build\A2v10.Web.Runtime.targets')" />
+  <Import Project="..\packages\Microsoft.TypeScript.MSBuild.4.9.4\build\Microsoft.TypeScript.MSBuild.targets" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.4.9.4\build\Microsoft.TypeScript.MSBuild.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,11 +1,15 @@
 ﻿
+const htmlTool = require("std:html");
+
 const template: Template = {
 	commands: {
 		addElement,
 		removeElement,
 		testFetch,
 		testInvoke,
-		testQueue
+		testQueue,
+		testPrint,
+		showInline() { this.$ctrl.$inlineOpen('testClr'); }
 	} 
 };
 
@@ -38,7 +42,8 @@ async function testFetch() {
 async function testInvoke() {
 	let ctrl: IController = this.$ctrl;
 	try {
-		await ctrl.$invoke('testapi', null, null, { catchError: true });
+		let res = await ctrl.$invoke('testapi', null, null, { catchError: true });
+		alert(JSON.stringify(res));
 	} catch (err) {
 		alert('catched: ' + err.message);
 	}
@@ -51,4 +56,9 @@ async function testQueue() {
 		alert('catched: ' + err);
 	}
 
+}
+
+function testPrint() {
+	debugger;
+	htmlTool.printDirect('/file/test.pdf');
 }

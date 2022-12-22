@@ -12,11 +12,17 @@
 	"commands": {
 		"testApi": {
 			"type": "javascript",
-			"file": "testapi.server"
+			"file": "testapi.server3"
 		},
 		"testqueue": {
 			"type": "javascript",
 			"file": "testqueue.server"
+		}
+	},
+	"files": {
+		"testPdf": {
+			"type": "clr",
+			"clrType": "clr-type:XamExtensionsSample.LoadFileClr;assembly=XamExtensionsSample"
 		}
 	}
 }

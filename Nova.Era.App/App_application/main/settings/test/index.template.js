@@ -1,13 +1,16 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const htmlTool = require("std:html");
     const template = {
         commands: {
             addElement,
             removeElement,
             testFetch,
             testInvoke,
-            testQueue
+            testQueue,
+            testPrint,
+            showInline() { this.$ctrl.$inlineOpen('testClr'); }
         }
     };
     exports.default = template;
@@ -36,7 +39,8 @@ define(["require", "exports"], function (require, exports) {
     async function testInvoke() {
         let ctrl = this.$ctrl;
         try {
-            await ctrl.$invoke('testapi', null, null, { catchError: true });
+            let res = await ctrl.$invoke('testapi', null, null, { catchError: true });
+            alert(JSON.stringify(res));
         }
         catch (err) {
             alert('catched: ' + err.message);
@@ -50,5 +54,9 @@ define(["require", "exports"], function (require, exports) {
         catch (err) {
             alert('catched: ' + err);
         }
+    }
+    function testPrint() {
+        debugger;
+        htmlTool.printDirect('/file/test.pdf');
     }
 });
