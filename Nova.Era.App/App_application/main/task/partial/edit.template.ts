@@ -1,7 +1,7 @@
 ﻿// task.edit
 const template: Template = {
 	properties: {
-		'TTask.$Id'() {return this.Id ? this.Id : '@[NewItem]' }
+		'TTask.$Id'() {return this.Id ? this.Id : '@[NewItemW]' }
 	},
 	defaults: {
 		'Task.LinkId'(this: any) { return this.Params.LinkId; },

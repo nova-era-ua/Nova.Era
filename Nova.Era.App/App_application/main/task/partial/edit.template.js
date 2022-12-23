@@ -3,7 +3,7 @@ define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
         properties: {
-            'TTask.$Id'() { return this.Id ? this.Id : '@[NewItem]'; }
+            'TTask.$Id'() { return this.Id ? this.Id : '@[NewItemW]'; }
         },
         defaults: {
             'Task.LinkId'() { return this.Params.LinkId; },

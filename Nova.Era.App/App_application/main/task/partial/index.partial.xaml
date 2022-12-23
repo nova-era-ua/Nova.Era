@@ -4,7 +4,7 @@
 		<Toolbar XamlStyle="{StyleResource ToolbarLight}">
 			<Button Icon="Plus" Content="Нова задача" 
 					Command="{BindCmd Dialog, Action=Append, 
-				Argument={Bind Tasks}, Url='/task/partial/edit', Data={Bind Tasks}}"/>
+				Argument={Bind Tasks}, Url='/task/partial/edit', Data={Bind Params}}"/>
 		</Toolbar>
 		<DataGrid ItemsSource="{Bind Tasks}" FixedHeader="True"
 				  XamlStyle="{StyleResource DataGridSimple}" Sort="False">

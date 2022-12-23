@@ -24,7 +24,7 @@ begin
 	select @start = sum(j.[Sum] * j.IncDec)
 	from jrn.SettleJournal j where TenantId = @TenantId 
 		and (@comp is null or j.Company = @comp)
-		and (@agent is null or j.Agent = @ag)
+		and (@ag is null or j.Agent = @ag)
 		and [Date] < @From;
 	set @start = isnull(@start, 0);
 	
