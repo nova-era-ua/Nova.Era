@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 23.12.2022 07:57:47
+generated: 23.12.2022 10:53:27
 */
 
 
@@ -7981,6 +7981,44 @@ begin
 	commit tran;
 end
 go
+/* Account */
+-------------------------------------------------
+create or alter procedure acc.[Account.Plan.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	
+	declare @fr nvarchar(255) = N'%' + @Text + N'%';
+
+	select [Accounts!TAccount!Array] = null, [Id!!Id] = a.Id, a.Code, a.[Name], a.[Plan], a.IsFolder
+	from acc.Accounts a where a.[Plan] is null and a.Parent is null and Void = 0 and 
+		(a.Code like @fr or a.[Name] like @fr);
+end
+go
+
+-------------------------------------------------
+create or alter procedure acc.[Account.Fetch]
+@TenantId int = 1,
+@UserId bigint,
+@Plan bigint,
+@Text nvarchar(255)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	
+	declare @fr nvarchar(255) = N'%' + @Text + N'%';
+
+	select [Accounts!TAccount!Array] = null, [Id!!Id] = a.Id, a.Code, a.[Name], a.[Plan], a.IsFolder
+	from acc.Accounts a where 
+		a.[Plan] = @Plan and Void = 0 and IsFolder = 0 and (a.Code like @fr or a.[Name] like @fr);
+end
+go
+
 /* Agent */
 -------------------------------------------------
 create or alter procedure cat.[Agent.Index]
@@ -14446,7 +14484,7 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	delete from jrn.CashJournal where TenantId = @TenantId and Document = @Id;
+	delete from jrn.SettleJournal where TenantId = @TenantId and Document = @Id;
 
 	with T as
 	(
@@ -18017,9 +18055,9 @@ begin
 		(N'writeoff',   null, 32, 0, N'@[KindStock]', N'/document/invent', N'Акт списання'),
 		(N'writeon',    null, 33, 0, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
 		-- Money
-		(N'payout',    -1,  40, 0, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
+		(N'payout',    -1,  40, 0, N'@[Money]', N'/document/money', N'Витрата грошових коштів'),
 		(N'cashout',   -1,  41, 0, N'@[Money]', N'/document/money', N'Витрата готівки'),
-		(N'payin',      1,  42, 0, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
+		(N'payin',      1,  42, 0, N'@[Money]', N'/document/money', N'Надходження грошових коштів'),
 		(N'cashin',     1,  43, 0, N'@[Money]', N'/document/money', N'Надходження готівки'),
 		(N'cashmove', null, 44, 0, N'@[Money]', N'/document/money', N'Прерахування коштів'),
 		(N'cashoff',  -1,   45, 0, N'@[Money]', N'/document/money', N'Списання коштів'),

@@ -209,6 +209,7 @@
     <Content Include="App_application\main\reports\agent\report.agent.sql" />
     <Content Include="App_application\main\reports\cash\report.cash.sql" />
     <Content Include="App_application\main\reports\plan\report.plan.sql" />
+    <Content Include="App_application\main\reports\settle\report.settle.sql" />
     <Content Include="App_application\main\reports\stock\report.stock.sql">
       <SubType>Designer</SubType>
     </Content>
@@ -622,6 +623,7 @@
     <TypeScriptCompile Include="App_application\main\document\print\browse.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\cash\turnover.datedoc.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\plan\itemrems.template.ts" />
+    <TypeScriptCompile Include="App_application\main\reports\settle\turnover.dateag.template.ts" />
     <TypeScriptCompile Include="App_application\main\sales\dashboard\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\sales\price\index.d.ts" />
     <TypeScriptCompile Include="App_application\main\sales\price\index.template.ts" />
@@ -668,11 +670,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\reports\settle\turnover.dateag.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\_navpane\navpane.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Content Include="App_application\main\reports\cash\model.json" />
+    <Content Include="App_application\main\reports\settle\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

@@ -43,6 +43,9 @@ begin
 		(@TenantId, s.Id, s.[Name], [Order], UseAccount, [UsePlan])
 	when not matched by source and t.TenantId = @TenantId then delete;
 
+	-- FIX ERRORS
+	delete from rep.Reports where [File] in (N'cash.rems');
+
 	declare @rf table(Id nvarchar(16), [Order] int, [Type] nvarchar(16), [Url] nvarchar(255), [Name] nvarchar(255));
 	insert into @rf (Id, [Type], [Order], [Url], [Name]) values
 		(N'acc.date',      N'by.account',  1, N'/reports/account/rto_accdate',  N'Обороти рахунку (дата)'),
@@ -53,7 +56,10 @@ begin
 		(N'plan.turnover', N'by.plan', 1, N'/reports/plan/turnover',    N'Оборотно сальдова відомість'),
 		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',    N'Відомість по грошових коштах'),
 		(N'plan.rems',     N'by.plan', 3, N'/reports/plan/itemrems',    N'Залишики на складах'),
-		(N'cash.rems',     N'by.cash', 1, N'/reports/cash/rto_datedoc', N'Оборотно сальдова відомість (дата + документ)');
+		--
+		(N'cash.datedoc',  N'by.cash', 1, N'/reports/cash/rto_datedoc', N'Оборотно сальдова відомість (дата + документ)'),
+		--
+		(N'settle.dateag',   N'by.settle', 1, N'/reports/settle/rto_dateag', N'Оборотно сальдова відомість (дата + контрагент)');
 
 	merge rep.RepFiles as t
 	using @rf as s on t.Id = s.Id and t.TenantId = @TenantId
@@ -118,9 +124,9 @@ begin
 		(N'writeoff',   null, 32, 0, N'@[KindStock]', N'/document/invent', N'Акт списання'),
 		(N'writeon',    null, 33, 0, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
 		-- Money
-		(N'payout',    -1,  40, 0, N'@[Money]', N'/document/money', N'Витрата грошових коштів'),
+		(N'payout',    -1,  40, 0, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
 		(N'cashout',   -1,  41, 0, N'@[Money]', N'/document/money', N'Витрата готівки'),
-		(N'payin',      1,  42, 0, N'@[Money]', N'/document/money', N'Надходження грошових коштів'),
+		(N'payin',      1,  42, 0, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
 		(N'cashin',     1,  43, 0, N'@[Money]', N'/document/money', N'Надходження готівки'),
 		(N'cashmove', null, 44, 0, N'@[Money]', N'/document/money', N'Прерахування коштів'),
 		(N'cashoff',  -1,   45, 0, N'@[Money]', N'/document/money', N'Списання коштів'),

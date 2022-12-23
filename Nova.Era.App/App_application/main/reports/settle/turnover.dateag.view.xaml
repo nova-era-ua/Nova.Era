@@ -1,0 +1,98 @@
+﻿<Partial xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<CollectionView RunAt="Server" ItemsSource="{Bind RepData}">
+		<CollectionView.Filter>
+			<FilterDescription>
+				<FilterItem Property="Company" DataType="Object" />
+				<FilterItem Property="Agent" DataType="Object" />
+				<FilterItem Property="Period" DataType="Period"/>
+			</FilterDescription>
+		</CollectionView.Filter>
+		<Grid Rows="Auto,1*" Columns="1*" Height="100%" Padding="0" Gap="6" AlignItems="Top">
+			<Toolbar Grid.Row="1" Style="Light" Padding="0">
+				<Selector Value="{Bind Parent.Filter.Company}"  Placeholder="@[Placeholder.AllCompanies]"
+						  DisplayProperty="Name" Width="15rem" Fetch="/catalog/company/fetch">
+					<Hyperlink Icon="Search" 
+							Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
+					<Hyperlink Content="✕" If="{Bind Parent.Filter.Company.Id}"
+								Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
+				</Selector>
+				<Selector Value="{Bind Parent.Filter.Agent}"  Placeholder="@[Placeholder.AllAgents]"
+						  DisplayProperty="Name" Width="20rem" Fetch="/catalog/agent/fetch">
+					<Hyperlink Icon="Search" 
+							Command="{BindCmd Browse, Argument={Bind Parent.Filter.Agent}, Url='/catalog/agent/browse'}"/>
+					<Hyperlink Content="✕" If="{Bind Parent.Filter.Agent.Id}"
+								Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Agent}}"/>
+				</Selector>
+				<PeriodPicker ShowAllData="False"
+							  Value="{Bind Parent.Filter.Period}" Display="NameDate"/>
+				<Button Icon="Reload" Command="{BindCmd Reload}" />
+				<Separator />
+				<Button Icon="Print" Command="{BindCmd Print}" />
+				<Button Icon="ExportExcel" Command="{BindCmd Command=ExportTo, Format=Excel, FileName={Bind Report.Name}}" />
+			</Toolbar>
+			<Block Grid.Col="1" Scroll="True" Height="100%" CssClass="sheet-page">
+				<Sheet GridLines="Both" Wrap="NoWrap" Width="1">
+					<Sheet.Columns>
+						<SheetColumn Width="16px"/>
+						<SheetColumn Width="60px"/>
+						<SheetColumn Width="25rem"/>
+						<SheetColumn />
+						<SheetColumn />
+						<SheetColumn Background="Gray" Width="6rem"/>
+						<SheetColumn Width="6rem"/>
+						<SheetColumn Width="6rem"/>
+						<SheetColumn Background="Gray" Width="6rem"/>
+					</Sheet.Columns>
+					<Sheet.Header>
+						<SheetRow Style="Title">
+							<SheetCell ColSpan="8" Content="{Bind Report.Name}"></SheetCell>
+						</SheetRow>
+						<SheetRow Style="Parameter">
+							<SheetCell ColSpan="2" Content="@[Period]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="6" Content="{Bind Parent.Filter.Period.Name}"></SheetCell>
+						</SheetRow>
+						<SheetRow Style="Parameter">
+							<SheetCell ColSpan="2" Content="@[Company]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="6" Content="{Bind Parent.Filter.Company.Name}"></SheetCell>
+						</SheetRow>
+						<SheetRow Style="LastParameter">
+							<SheetCell ColSpan="2" Content="@[Agent]"></SheetCell>
+							<SheetCell Bold="True" ColSpan="6" Content="{Bind Parent.Filter.Agent.Name}"></SheetCell>
+						</SheetRow>
+					</Sheet.Header>
+					<SheetSection>
+						<SheetRow Style="Header">
+							<SheetCell MinWidth="16px"/>
+							<SheetCell MinWidth="20rem" ColSpan="2" Wrap="PreWrap">@[Date] / @[Agent]</SheetCell>
+							<SheetCell>На початок</SheetCell>
+							<SheetCell>Збільшення</SheetCell>
+							<SheetCell>Зменьшення</SheetCell>
+							<SheetCell>На кінець</SheetCell>
+						</SheetRow>
+					</SheetSection>
+					<SheetSection>
+						<SheetRow Style="Total" Align="Right" Wrap="NoWrap">
+							<SheetCell />
+							<SheetCell ColSpan="2" Align="Left">@[Total]</SheetCell>
+							<SheetCell Content="{Bind RepData.SumStart, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.SumInc, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.SumDec, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind RepData.SumEnd, DataType=Currency, HideZeros=True}"/>
+						</SheetRow>
+					</SheetSection>
+					<SheetTreeSection ItemsSource="{Bind RepData.Items}">
+						<SheetRow Align="Right" Wrap="NoWrap">
+							<SheetGroupCell />
+							<SheetCell ColSpan="2" Align="Left" Content="{Bind $Name}" 
+									   Wrap="Wrap" MinWidth="10rem" />
+							<SheetCell Content="{Bind SumStart, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind SumInc, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind SumDec, DataType=Currency, HideZeros=True}"/>
+							<SheetCell Content="{Bind SumEnd, DataType=Currency, HideZeros=True}"/>
+						</SheetRow>
+					</SheetTreeSection>
+				</Sheet>
+			</Block>
+		</Grid>
+	</CollectionView>
+</Partial>

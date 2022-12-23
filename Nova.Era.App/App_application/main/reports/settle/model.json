@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "rep",
+  "model": "",
+    "actions": {
+        "rto_dateag": {
+            "model": "Report.Settle.Turnover.Date.Agent",
+            "template": "turnover.dateag.template",
+            "view": "turnover.dateag.view"
+        }
+    }
+}
