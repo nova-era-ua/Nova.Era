@@ -63,6 +63,7 @@
 			"main/reports/account/report.account.sql",
 			"main/reports/plan/report.plan.sql",
 			"main/reports/cash/report.cash.sql",
+			"main/reports/settle/report.settle.sql",
 			"main/settings/develop/develop.sql",
 			"main/settings/develop/application.sql",
 			"main/settings/integration/integration.sql",

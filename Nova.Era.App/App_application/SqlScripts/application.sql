@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 23.12.2022 10:53:27
+generated: 23.12.2022 12:12:36
 */
 
 
@@ -16809,6 +16809,91 @@ begin
 end
 go
 
+-- reports settle
+------------------------------------------------
+create or alter procedure rep.[Report.Settle.Turnover.Date.Agent.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint, /* report id */
+@Company bigint = -1,
+@Agent bigint = -1,
+@From date = null,
+@To date = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	exec usr.[Default.GetUserPeriod] @TenantId = @TenantId, @UserId = @UserId, @From = @From output, @To = @To output;
+	declare @end date = dateadd(day, 1, @To);
+
+	declare @comp bigint = nullif(@Company, -1);
+	declare @ag bigint = nullif(@Agent, -1);
+
+	
+	declare @start money;
+	select @start = sum(j.[Sum] * j.IncDec)
+	from jrn.SettleJournal j where TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and (@agent is null or j.Agent = @ag)
+		and [Date] < @From;
+	set @start = isnull(@start, 0);
+	
+	select [Date], Agent, SumInc = sum(_SumInc), SumDec = sum(_SumDec),
+		GrpDate = grouping([Date]), GrpAgent = grouping(Agent)
+	into #temp
+	from jrn.SettleJournal j
+	where j.TenantId = @TenantId 
+		and (@comp is null or j.Company = @comp)
+		and (@ag is null or j.Agent = @ag)
+		and j.[Date] >= @From and j.[Date] < @end
+	group by rollup(j.[Date], j.Agent);
+
+	if @@rowcount = 0
+		select [RepData!TRepData!Group] = null, [Id!!Id] = 0, [Date] = null, SumStart = @start,
+			SumInc = null, SumDec = null, SumEnd = @start, [Agent!TAgent!RefId] = null,
+			[Date!!GroupMarker] = 1,
+			[Agent!!GroupMarker] = 1,
+			[Items!TRepData!Items] = null;
+	else 
+	begin
+		with T ([Date], Agent, SumStart, SumInc, SumDec, SumEnd, GrpDate, GrpAgent)
+		as
+			(
+				select [Date], Agent,
+					@start + coalesce(sum(SumInc - SumDec) over (
+						partition by GrpDate, GrpAgent order by [Date] rows between unbounded preceding and 1 preceding
+					), 0),
+					SumInc, SumDec,
+					@start + sum(SumInc - SumDec) over (
+						partition by GrpDate, GrpAgent order by [Date] rows between unbounded preceding and current row),
+					GrpDate, GrpAgent
+				from #temp
+			)
+		select [RepData!TRepData!Group] = null, [Id!!Id] = T.Agent, T.[Date],
+			[Agent!TAgent!RefId] = T.Agent,
+			SumStart, SumInc, SumDec, SumEnd, 
+			[Date!!GroupMarker] = GrpDate, [Agent!!GroupMarker] = GrpAgent,
+			[Items!TRepData!Items] = null
+		from T
+		order by GrpDate desc, GrpAgent desc, T.[Date], T.Agent;
+
+		with T as (select t.Agent from #temp t group by Agent)
+		select [!TAgent!Map] = null, [Id!!Id] = a.Id, [Name!!Name] = a.[Name]
+		from cat.Agents a inner join T on a.TenantId = @TenantId and a.Id = T.Agent;
+    end
+	select [Report!TReport!Object] = null, [Id!!Id] = r.Id, [Name!!Name] = r.[Name]
+	from rep.Reports r
+	where r.TenantId = @TenantId and r.Id = @Id;
+
+
+	select [!$System!] = null, 
+		[!RepData.Period.From!Filter] = @From, [!RepData.Period.To!Filter] = @To,
+		[!RepData.Company.Id!Filter] = @comp, [!RepData.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
+		[!RepData.Agent.Id!Filter] = @ag, [!RepData.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent)
+end
+go
+
 -- DEBUG
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'debug')
 	exec sp_executesql N'create schema debug';
@@ -17980,6 +18065,9 @@ begin
 		(@TenantId, s.Id, s.[Name], [Order], UseAccount, [UsePlan])
 	when not matched by source and t.TenantId = @TenantId then delete;
 
+	-- FIX ERRORS
+	delete from rep.Reports where [File] in (N'cash.rems');
+
 	declare @rf table(Id nvarchar(16), [Order] int, [Type] nvarchar(16), [Url] nvarchar(255), [Name] nvarchar(255));
 	insert into @rf (Id, [Type], [Order], [Url], [Name]) values
 		(N'acc.date',      N'by.account',  1, N'/reports/account/rto_accdate',  N'Обороти рахунку (дата)'),
@@ -17990,7 +18078,10 @@ begin
 		(N'plan.turnover', N'by.plan', 1, N'/reports/plan/turnover',    N'Оборотно сальдова відомість'),
 		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',    N'Відомість по грошових коштах'),
 		(N'plan.rems',     N'by.plan', 3, N'/reports/plan/itemrems',    N'Залишики на складах'),
-		(N'cash.rems',     N'by.cash', 1, N'/reports/cash/rto_datedoc', N'Оборотно сальдова відомість (дата + документ)');
+		--
+		(N'cash.datedoc',  N'by.cash', 1, N'/reports/cash/rto_datedoc', N'Оборотно сальдова відомість (дата + документ)'),
+		--
+		(N'settle.dateag',   N'by.settle', 1, N'/reports/settle/rto_dateag', N'Оборотно сальдова відомість (дата + контрагент)');
 
 	merge rep.RepFiles as t
 	using @rf as s on t.Id = s.Id and t.TenantId = @TenantId
@@ -18055,9 +18146,9 @@ begin
 		(N'writeoff',   null, 32, 0, N'@[KindStock]', N'/document/invent', N'Акт списання'),
 		(N'writeon',    null, 33, 0, N'@[KindStock]', N'/document/invent', N'Акт оприбуткування'),
 		-- Money
-		(N'payout',    -1,  40, 0, N'@[Money]', N'/document/money', N'Витрата грошових коштів'),
+		(N'payout',    -1,  40, 0, N'@[Money]', N'/document/money', N'Витрата безготівкових коштів'),
 		(N'cashout',   -1,  41, 0, N'@[Money]', N'/document/money', N'Витрата готівки'),
-		(N'payin',      1,  42, 0, N'@[Money]', N'/document/money', N'Надходження грошових коштів'),
+		(N'payin',      1,  42, 0, N'@[Money]', N'/document/money', N'Надходження безготівкових коштів'),
 		(N'cashin',     1,  43, 0, N'@[Money]', N'/document/money', N'Надходження готівки'),
 		(N'cashmove', null, 44, 0, N'@[Money]', N'/document/money', N'Прерахування коштів'),
 		(N'cashoff',  -1,   45, 0, N'@[Money]', N'/document/money', N'Списання коштів'),
