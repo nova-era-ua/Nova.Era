@@ -109,8 +109,9 @@ begin
 		(N'waybillout', null, 12, 0, N'@[Sales]', N'/document/sales', N'Продаж товарів/послуг'),
 		(N'retcust',    null, 13, 0, N'@[Sales]', N'/document/sales', N'Повернення від покупця'),
 		-- Purchase
-		(N'waybillin',  null, 20, 0, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
-		(N'retsuppl',   null, 21, 0, N'@[Purchases]', N'/document/purchase', N'Покупка товарів/послуг'),
+		(N'invoicein',  null, 20, 1, N'@[Purchases]', N'/document/purchase', N'Замовлення постачальнику'),
+		(N'waybillin',  null, 21, 0, N'@[Purchases]', N'/document/purchase', N'Придбання товарів/послуг'),
+		(N'retsuppl',   null, 22, 0, N'@[Purchases]', N'/document/purchase', N'Повернення постачальнику'),
 		-- Invent
 		(N'movebill',   null, 30, 0, N'@[KindStock]', N'/document/invent', N'Внутрішнє переміщення'),
 		(N'inventbill', null, 31, 0, N'@[KindStock]', N'/document/invent', N'Інвентарізація'),
