@@ -272,7 +272,7 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	delete from jrn.CashJournal where TenantId = @TenantId and Document = @Id;
+	delete from jrn.SettleJournal where TenantId = @TenantId and Document = @Id;
 
 	with T as
 	(

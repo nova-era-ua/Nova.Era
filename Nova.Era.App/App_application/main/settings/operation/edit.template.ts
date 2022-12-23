@@ -23,7 +23,11 @@ const template: Template = {
 		'Operation.Form.change': formChange,
 		'Operation.Trans[].DtAccMode.change'(elem) { elem.Dt.$empty(); },
 		'Operation.Trans[].CtAccMode.change'(elem) { elem.Ct.$empty(); },
-		'Operation.OpLinks[].add'(links, link) { link.Type = 'BySum'; }
+		'Operation.OpLinks[].add'(links, link) { link.Type = 'BySum'; },
+		'Operation.Trans[].add': transAdd
+	},
+	delegates: {
+		fetchByPlan
 	}
 };
 
@@ -47,4 +51,16 @@ function opLinkCategories() {
 		{ Name: 'Повернення', Value: 'Return' },
 		{ Name: 'Повернення коштів', Value: 'RetMoney' }
 	];
+}
+
+function fetchByPlan(acc, text) {
+	let ctrl: IController = this.$ctrl;
+	return ctrl.$invoke('fetch', { Plan: acc.$parent.Plan.Id, Text: text }, '/catalog/account');
+}
+
+function transAdd(arr, elem) {
+	let ix = arr.indexOf(elem);
+	if (ix < 1) return;
+	let prev = arr[ix - 1];
+	elem.Plan.$merge(prev.Plan);
 }

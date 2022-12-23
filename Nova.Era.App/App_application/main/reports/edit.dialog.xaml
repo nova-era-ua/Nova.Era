@@ -13,9 +13,7 @@
 		<StackPanel Grid.Row="3">
 			<Selector Label="@[Account]" Value="{Bind Report.Account}" If="{Bind Report.Type.UseAccount}"
 					  DisplayProperty="$Title">
-				<Selector.AddOns>
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Report.Account}, Url='/catalog/account/browseall'}"/>
-				</Selector.AddOns>
 			</Selector>
 			<Selector Label="@[AccountPlan]" Value="{Bind Report.Account}" If="{Bind Report.Type.UsePlan}"
 					  DisplayProperty="$Title">

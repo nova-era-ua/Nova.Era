@@ -79,6 +79,7 @@
     <Content Include="App_application\%40sql\platform\source\a2v10ui.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10ui_simple.sql" />
     <Content Include="App_application\%40sql\platform\source\a2v10workflow.sql" />
+    <Content Include="App_application\main\catalog\account\account.sql" />
     <Content Include="App_application\main\catalog\docstate\docstate.sql" />
     <Content Include="App_application\main\catalog\autonum\autonum.sql" />
     <Content Include="App_application\main\catalog\agent\agent.sql" />

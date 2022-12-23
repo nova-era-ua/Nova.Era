@@ -6,7 +6,7 @@
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid Columns="1*,1*" Rows="Auto,Auto,Auto,5rem,Auto,15rem,Auto">
+	<Grid Columns="1*,1*" Rows="Auto,Auto,Auto,Auto,Auto,MinMax(15rem;Auto),Auto" AlignItems="Top">
 		<ComboBox Grid.Row="1" Grid.Col="1" Label="@[Purpose]" Value="{Bind ItemRole.Kind}">
 			<ComboBoxItem Content="@[Item]" Value="Item"/>
 			<ComboBoxItem Content="@[Expense]" Value="Expense"/>
@@ -34,8 +34,8 @@
 			<ComboBoxItem Content="Teal" Value="teal"/>
 		</ComboBox>
 		<TagLabel Grid.Row="3" Grid.Col="2" Style="{Bind ItemRole.Color}" Content="{Bind ItemRole.Name}" 
-				  Padding=".475rem" CssClass="min-height-30"/>
-		<StackPanel If="{Bind ItemRole.$HasStock}" Grid.Row="4" Grid.Col="1"
+				  Padding=".475rem" CssClass="min-height-30" Grid.VAlign="Bottom"/>
+		<StackPanel If="{Bind ItemRole.$HasStock}" Grid.Row="4" Grid.Col="1" Grid.VAlign="Bottom"
 				Orientation="Horizontal" Gap="2rem" Padding="0,0,.5rem,0">
 			<CheckBox Label="@[Stock]" Value="{Bind ItemRole.IsStock}"/>
 			<CheckBox Label="@[HasPrice]" Value="{Bind ItemRole.HasPrice}"/>
@@ -52,7 +52,7 @@
 		<TabBar Grid.Row="5" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton ActiveValue="">@[Accounts]</TabButton>
 		</TabBar>
-		<Block Grid.Row="6" Grid.ColSpan="2" Height="15rem" Scroll="True">
+		<Block Grid.Row="6" Grid.ColSpan="2">
 			<Switch Expression="{Bind Root.$$Tab}">
 				<Case Value="">
 					<!--TODO: Toolbar LightStyle -->
@@ -70,8 +70,10 @@
 							</TableRow>
 						</Table.Header>
 						<TableRow>
-							<Selector Value="{Bind Plan}" DisplayProperty="Code" Tip="{Bind Plan.Name}">
-								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
+							<Selector Value="{Bind Plan}" DisplayProperty="Code" Tip="{Bind Plan.Name}"
+								Fetch="/catalog/account/fetchplan">
+								<Hyperlink Icon="Search"
+										   Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
 								<Selector.Validator>
 									<Validator Placement="TopLeft" />
 								</Selector.Validator>
@@ -83,12 +85,18 @@
 								</ComboBox.Validator>
 							</ComboBox>
 							<Selector Value="{Bind Account}" DisplayProperty="Code" Tip="{Bind Account.Name}"
-						Disabled="{Bind !Plan.Id}">
-									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Account}, 
-								Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
+									Disabled="{Bind !Plan.Id}" Delegate="fetchByPlan" ListSize="20rem,15rem">
+								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Account}, 
+									Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
 								<Selector.Validator>
 									<Validator Placement="TopLeft" />
 								</Selector.Validator>
+								<Selector.ItemsPanel>
+									<DataGrid XamlStyle="{StyleResource DataGridPanel}">
+										<DataGridColumn Header="@[Code]" Content="{Bind Code}" Fit="True" Wrap="NoWrap"/>
+										<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+									</DataGrid>
+								</Selector.ItemsPanel>
 							</Selector>
 							<Hyperlink Size="Small" Icon="Delete" Command="{BindCmd Remove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
 						</TableRow>

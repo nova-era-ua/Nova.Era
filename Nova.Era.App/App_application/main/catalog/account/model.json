@@ -1,23 +1,33 @@
 ﻿{
-  "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "acc",
-  "dialogs": {
-    "browse": {
-      "index": true,
-      "template": "browse.template",
-      "model": "Account.Browse",
-      "view": "browse.dialog"
-    },
-    "browseall": {
-      "index": true,
-      "template": "browse.template",
-      "model": "Account.BrowseAll",
-      "view": "browse.dialog"
-    },
-    "browseplan": {
-      "index": true,
-      "model": "Account.Plan.Browse",
-      "view": "browseplan.dialog"
-    }
-  }
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "acc",
+	"dialogs": {
+		"browse": {
+			"index": true,
+			"template": "browse.template",
+			"model": "Account.Browse",
+			"view": "browse.dialog"
+		},
+		"browseall": {
+			"index": true,
+			"template": "browse.template",
+			"model": "Account.BrowseAll",
+			"view": "browse.dialog"
+		},
+		"browseplan": {
+			"index": true,
+			"model": "Account.Plan.Browse",
+			"view": "browseplan.dialog"
+		}
+	},
+	"commands": {
+		"fetchplan": {
+			"type": "sql",
+			"procedure": "Account.Plan.Fetch"
+		},
+		"fetch": {
+			"type": "sql",
+			"procedure": "Account.Fetch"
+		}
+	}
 }

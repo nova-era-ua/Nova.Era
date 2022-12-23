@@ -19,7 +19,11 @@ const template: Template = {
 		'ItemRole.Accounts[].Account': '@[Error.Required]'
 	},
 	events: {
-		'ItemRole.Kind.change': kindChange
+		'ItemRole.Kind.change': kindChange,
+		'ItemRole.Accounts[].add': rowAdd
+	},
+	delegates: {
+		fetchByPlan
 	}
 };
 
@@ -32,4 +36,16 @@ function kindChange(role, kind) {
 	} else {
 		role.ExType = '';
 	}
+}
+
+function rowAdd(arr, elem) {
+	let ix = arr.indexOf(elem);
+	if (ix < 1) return;
+	let prev = arr[ix - 1];
+	elem.Plan.$merge(prev.Plan);
+}
+
+function fetchByPlan(acc, text) {
+	let ctrl: IController = this.$ctrl;
+	return ctrl.$invoke('fetch', { Plan: acc.$parent.Plan.Id, Text: text }, '/catalog/account');
 }

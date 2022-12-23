@@ -19,6 +19,7 @@
 			"main/catalog/item/variant.sql",
 			"main/catalog/itemgroup/groupitem.sql",
 			"main/catalog/itemoption/itemoption.sql",
+			"main/catalog/account/account.sql",
 			"main/catalog/agent/agent.sql",
 			"main/catalog/person/person.sql",
 			"main/catalog/contract/contract.sql",

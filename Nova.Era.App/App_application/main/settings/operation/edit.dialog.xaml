@@ -8,335 +8,348 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid Rows="Auto,1*,Auto">
-	<Grid Grid.Row="1" Columns="1*,1*,1*,1*" Padding="0">
-		<TextBox Grid.Row="1" Grid.Col="1" Grid.ColSpan="2"
+		<Grid Grid.Row="1" Columns="1*,1*,1*,1*" Padding="0">
+			<TextBox Grid.Row="1" Grid.Col="1" Grid.ColSpan="2"
 			Label="@[Name]" Value="{Bind Operation.Name}" Bold="True" TabIndex="1"/>
-		<ComboBox Grid.Row="1" Grid.Col="4" Label="Форма" 
+			<ComboBox Grid.Row="1" Grid.Col="4" Label="Форма" 
 				  ItemsSource="{Bind Forms}" Value="{Bind Operation.Form}" GroupBy="Category">
-			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-		</ComboBox>
-		<Selector Grid.Row="2" Grid.Col="4" Label="@[Autonums]" Style="ComboBox"
+				<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+			</ComboBox>
+			<Selector Grid.Row="2" Grid.Col="4" Label="@[Autonums]" Style="ComboBox"
 				  ShowCaret="True" ShowClear="True" DisplayProperty="Name"
 			ItemsSource="{Bind Autonums}" Value="{Bind Operation.Autonum}"/>
-		<Selector Grid.Row="2" Grid.Col="1" Label="Вид операції" Style="ComboBox" ShowClear="True"
+			<Selector Grid.Row="2" Grid.Col="1" Label="Вид операції" Style="ComboBox" ShowClear="True"
 				  ItemsSource="{Bind Kinds}" Value="{Bind Operation.Kind}" ShowCaret="True" DisplayProperty="Name">
-		</Selector>
-	</Grid>
-	<Block Margin="0, 1rem, 1rem, 1rem">
-		<TabBar Value="{Bind Root.$$Tab}" Margin="0">
-			<TabButton Content="Проводки по рахунках" ActiveValue="" />
-			<TabButton Content="Прості журнали" ActiveValue="Journal" />
-			<TabButton Content="Меню" ActiveValue="Menu" />
-			<TabButton Content="Друковані форми" ActiveValue="Print" />
-			<TabButton Content="Зв'язані операції" ActiveValue="Links" />
-			<!--
+			</Selector>
+		</Grid>
+		<Block Margin="0, 1rem, 1rem, 1rem">
+			<TabBar Value="{Bind Root.$$Tab}" Margin="0">
+				<TabButton Content="Проводки по рахунках" ActiveValue="" />
+				<TabButton Content="Прості журнали" ActiveValue="Journal" />
+				<TabButton Content="Меню" ActiveValue="Menu" />
+				<TabButton Content="Друковані форми" ActiveValue="Print" />
+				<TabButton Content="Зв'язані операції" ActiveValue="Links" />
+				<!--
 			<TabButton Content="Додатково" ActiveValue="Other" />
 			<TabButton Content="Документ" ActiveValue="Document" />
 			<TabButton Content="Управліньский облік" ActiveValue="Management" />
 			-->
-		</TabBar>
-		<Block Margin="6,-6" Height="31rem" Scroll="True">
-			<Switch Expression="{Bind Root.$$Tab}">
-				<Case Value="Document">
-					<Grid Padding="0">
-						<ComboBox Label="@[Agent]">
-							<ComboBoxItem Content="Схований"/>
-							<ComboBoxItem Content="Любий"/>
-							<ComboBoxItem Content="Тількі покупці"/>
-							<ComboBoxItem Content="Тількі постачальники"/>
-						</ComboBox>
-						<ComboBox Label="@[WarehouseFrom]"/>
-						<ComboBox Label="@[WarehouseTo]"/>
-					</Grid>
-				</Case>
-				<Case Value="Management">
-					<Header Bold="False">Складські запаси</Header>
-					<Table ItemsSource="{Bind Operation.JournalStore}" CellSpacing="Medium" 
+			</TabBar>
+			<Block Margin="6,-6" Height="31rem" Scroll="True">
+				<Switch Expression="{Bind Root.$$Tab}">
+					<Case Value="Document">
+						<Grid Padding="0">
+							<ComboBox Label="@[Agent]">
+								<ComboBoxItem Content="Схований"/>
+								<ComboBoxItem Content="Любий"/>
+								<ComboBoxItem Content="Тількі покупці"/>
+								<ComboBoxItem Content="Тількі постачальники"/>
+							</ComboBox>
+							<ComboBox Label="@[WarehouseFrom]"/>
+							<ComboBox Label="@[WarehouseTo]"/>
+						</Grid>
+					</Case>
+					<Case Value="Management">
+						<Header Bold="False">Складські запаси</Header>
+						<Table ItemsSource="{Bind Operation.JournalStore}" CellSpacing="Medium" 
 						   Columns="10rem,1px,1px,1px">
-						<Table.Header>
-							<TableRow>
-								<TableCell Content="Блок рядків"/>
-								<TableCell Content="Прибуток"/>
-								<TableCell Content="Видаток"/>
-								<TableCell Content="@[Storno]"/>
+							<Table.Header>
+								<TableRow>
+									<TableCell Content="Блок рядків"/>
+									<TableCell Content="Прибуток"/>
+									<TableCell Content="Видаток"/>
+									<TableCell Content="@[Storno]"/>
+								</TableRow>
+							</Table.Header>
+							<TableRow VAlign="Middle">
+								<TableCell>
+									<ComboBox Value="{Bind RowKind}" ItemsSource="{Bind Root.Operation.Form.RowKinds}">
+										<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
+									</ComboBox>
+								</TableCell>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsIn}"/>
+								</TableCell>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsOut}"/>
+								</TableCell>
+								<TableCell Align="Center">
+									<CheckBox Value="{Bind IsStorno}"/>
+								</TableCell>
 							</TableRow>
-						</Table.Header>
-						<TableRow VAlign="Middle">
-							<TableCell>
-								<ComboBox Value="{Bind RowKind}" ItemsSource="{Bind Root.Operation.Form.RowKinds}">
-									<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
-								</ComboBox>
-							</TableCell>
-							<TableCell Align="Center">
-								<CheckBox Value="{Bind IsIn}"/>
-							</TableCell>
-							<TableCell Align="Center">
-								<CheckBox Value="{Bind IsOut}"/>
-							</TableCell>
-							<TableCell Align="Center">
-								<CheckBox Value="{Bind IsStorno}"/>
-							</TableCell>
-						</TableRow>
-					</Table>
-				</Case>
-				<Case Value="">
-					<Toolbar Padding="0,6" Style="Light">
-						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Trans}}"/>
-					</Toolbar>
-					<Table ItemsSource="{Bind Operation.Trans}"
+						</Table>
+					</Case>
+					<Case Value="">
+						<Toolbar Padding="0,6" Style="Light">
+							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Trans}}"/>
+						</Toolbar>
+						<Table ItemsSource="{Bind Operation.Trans}"
 						   Columns="1rem,9rem,  7rem,11rem,10rem,10rem,  7rem,11rem,10rem,10rem, 3rem, Fit" CellSpacing="Medium">
-						<Table.Header>
-							<TableRow>
-								<TableCell Content="@[AccountPlan]" Wrap="NoWrap" RowSpan="2"/>
-								<TableCell Content="Блок рядків" Wrap="NoWrap" RowSpan="2"/>
-								<TableCell ColSpan="4">@[Debit]</TableCell>
-								<TableCell ColSpan="4">@[Credit]</TableCell>
-								<TableCell RowSpan="2">@[Storno]</TableCell>
-								<TableCell RowSpan="2"/>
-							</TableRow>
-							<TableRow>
-								<TableCell Content="Режим"/>
-								<TableCell ColSpan="2">@[Account]</TableCell>
-								<TableCell Content="Сума"/>
-								<!---->
-								<TableCell Content="Режим"/>
-								<TableCell ColSpan="2">@[Account]</TableCell>
-								<TableCell Content="Сума"/>
-							</TableRow>
-						</Table.Header>
-						<TableRow>
-							<Selector Value="{Bind Plan}" DisplayProperty="Code">
-								<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
-							</Selector>
-							<ComboBox Value="{Bind RowKind}"
-									ItemsSource="{Bind Root.Operation.Form.RowKinds}">
-								<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
-							</ComboBox>
-							<ComboBox Value="{Bind DtRow}">
-								<ComboBoxItem Content="Сума" Value=""/>
-								<ComboBoxItem Content="По рядках" Value="R"/>
-							</ComboBox>
-							<ComboBox Value="{Bind DtAccMode}">
-								<ComboBoxItem Content="Фіксований" Value=""/>
-								<ComboBoxItem Content="Роль з рядка" Value="R"/>
-								<ComboBoxItem Content="Роль з документа" Value="D"/>
-								<ComboBoxItem Content="Роль рахунку" Value="C"/>
-								<ComboBoxItem Content="Роль контрагента" Value="A"/>
-							</ComboBox>
-							<TableCell>
-								<Group>
-									<Selector Value="{Bind Dt}" DisplayProperty="Code" If="{Bind $DtAccVisible}">
-										<Selector.AddOns>
-											<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Dt}, Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
-										</Selector.AddOns>
-									</Selector>
-									<ComboBox If="{Bind $DtRoleVisible}" Value="{Bind DtAccKind}"
-										ItemsSource="{Bind Root.AccountKinds}">
-										<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-									</ComboBox>
-								</Group>
-							</TableCell>
-							<ComboBox Value="{Bind DtSum}">
-								<ComboBoxItem Content="Сума" Value=""/>
-								<ComboBoxItem Content="Націнка" Value="E"/>
-								<ComboBoxItem Content="Знижка" Value="D"/>
-								<ComboBoxItem Content="Сума без знижки" Value="W"/>
-								<ComboBoxItem Content="Собівартість" Value="S"/>
-								<ComboBoxItem Content="Маржа" Value="R"/>
-							</ComboBox>
-							<!--Credit -->
-							<ComboBox Value="{Bind CtRow}">
-								<ComboBoxItem Content="Сума" Value=""/>
-								<ComboBoxItem Content="По рядках" Value="R"/>
-							</ComboBox>
-							<ComboBox Value="{Bind CtAccMode}">
-								<ComboBoxItem Content="Фіксований" Value=""/>
-								<ComboBoxItem Content="Роль з рядка" Value="R"/>
-								<ComboBoxItem Content="Роль з документа" Value="D"/>
-								<ComboBoxItem Content="Роль рахунку" Value="C"/>
-								<ComboBoxItem Content="Роль контрагента" Value="A"/>
-							</ComboBox>
-							<TableCell>
-								<Group>
-									<Selector Value="{Bind Ct}" DisplayProperty="Code" If="{Bind $CtAccVisible}">
-										<Selector.AddOns>
-											<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Ct}, Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
-										</Selector.AddOns>
-									</Selector>
-									<ComboBox If="{Bind $CtRoleVisible}" Value="{Bind CtAccKind}"
-										ItemsSource="{Bind Root.AccountKinds}">
-										<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-									</ComboBox>
-								</Group>
-							</TableCell>
-							<ComboBox Value="{Bind CtSum}">
-								<ComboBoxItem Content="Сума" Value=""/>
-								<ComboBoxItem Content="Націнка" Value="E"/>
-								<ComboBoxItem Content="Знижка" Value="D"/>
-								<ComboBoxItem Content="Сума без знижки" Value="W"/>
-								<ComboBoxItem Content="Собівартість" Value="S"/>
-								<ComboBoxItem Content="Маржа" Value="R"/>
-							</ComboBox>
-							<!---->
-							<TableCell Align="Center" VAlign="Middle">
-								<CheckBox Value="{Bind IsStorno}"/>
-							</TableCell>
-							<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
-						</TableRow>
-					</Table>
-				</Case>
-				<Case Value="Journal">
-					<Grid Columns="Auto,Auto,Auto,1*" Rows="Auto,Auto,Auto" Padding="0,1rem" AlignItems="Top" Gap="6px,2rem">
-						<Header Grid.Row="1" Grid.Col="1" Bold="False">Рух запасів</Header>
-						<Toolbar Grid.Row="2" Grid.Col="1" Style="Light" Padding="0">
-							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Store}}"/>
-						</Toolbar>
-						<Table Grid.Row="3" Grid.Col="1"  Columns="30rem,Fit,Fit,Fit,Fit" CellSpacing="Medium"
-							ItemsSource="{Bind Operation.Store}" Width="30rem" Margin="-6px">
 							<Table.Header>
 								<TableRow>
-									<TableCell>Блок рядків</TableCell>
-									<TableCell>Прибуток</TableCell>
-									<TableCell>Видаток</TableCell>
-									<TableCell>@[Storno]</TableCell>
-									<TableCell></TableCell>
+									<TableCell Content="@[AccountPlan]" Wrap="NoWrap" RowSpan="2"/>
+									<TableCell Content="Блок рядків" Wrap="NoWrap" RowSpan="2"/>
+									<TableCell ColSpan="4">@[Debit]</TableCell>
+									<TableCell ColSpan="4">@[Credit]</TableCell>
+									<TableCell RowSpan="2">@[Storno]</TableCell>
+									<TableCell RowSpan="2"/>
+								</TableRow>
+								<TableRow>
+									<TableCell Content="Режим"/>
+									<TableCell ColSpan="2">@[Account]</TableCell>
+									<TableCell Content="Сума"/>
+									<!---->
+									<TableCell Content="Режим"/>
+									<TableCell ColSpan="2">@[Account]</TableCell>
+									<TableCell Content="Сума"/>
 								</TableRow>
 							</Table.Header>
 							<TableRow>
+								<Selector Value="{Bind Plan}" DisplayProperty="Code"
+									  Fetch="/catalog/account/fetchplan" Tip="{Bind Plan.Name}">
+									<Hyperlink Icon="Search" Command="{BindCmd Browse, 
+									Argument={Bind Plan}, Url='/catalog/account/browseplan'}"/>
+								</Selector>
 								<ComboBox Value="{Bind RowKind}"
-								ItemsSource="{Bind Root.Operation.Form.RowKinds}">
+									ItemsSource="{Bind Root.Operation.Form.RowKinds}">
 									<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
 								</ComboBox>
-								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsIn}"/>
+								<ComboBox Value="{Bind DtRow}">
+									<ComboBoxItem Content="Сума" Value=""/>
+									<ComboBoxItem Content="По рядках" Value="R"/>
+								</ComboBox>
+								<ComboBox Value="{Bind DtAccMode}">
+									<ComboBoxItem Content="Фіксований" Value=""/>
+									<ComboBoxItem Content="Роль з рядка" Value="R"/>
+									<ComboBoxItem Content="Роль з документа" Value="D"/>
+									<ComboBoxItem Content="Роль рахунку" Value="C"/>
+									<ComboBoxItem Content="Роль контрагента" Value="A"/>
+								</ComboBox>
+								<TableCell>
+									<Group>
+										<Selector Value="{Bind Dt}" DisplayProperty="Code" If="{Bind $DtAccVisible}"
+											  Tip="{Bind Dt.Name}" Delegate="fetchByPlan" ListSize="20rem,15rem">
+											<Hyperlink Icon="Search" Command="{BindCmd Browse, 
+											Argument={Bind Dt}, Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
+											<Selector.ItemsPanel>
+												<DataGrid XamlStyle="{StyleResource DataGridPanel}">
+													<DataGridColumn Header="@[Code]" Content="{Bind Code}" Fit="True" Wrap="NoWrap"/>
+													<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+												</DataGrid>
+											</Selector.ItemsPanel>
+										</Selector>
+										<ComboBox If="{Bind $DtRoleVisible}" Value="{Bind DtAccKind}"
+										ItemsSource="{Bind Root.AccountKinds}">
+											<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+										</ComboBox>
+									</Group>
 								</TableCell>
-								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsOut}"/>
+								<ComboBox Value="{Bind DtSum}">
+									<ComboBoxItem Content="Сума" Value=""/>
+									<ComboBoxItem Content="Націнка" Value="E"/>
+									<ComboBoxItem Content="Знижка" Value="D"/>
+									<ComboBoxItem Content="Сума без знижки" Value="W"/>
+									<ComboBoxItem Content="Собівартість" Value="S"/>
+									<ComboBoxItem Content="Маржа" Value="R"/>
+								</ComboBox>
+								<!--Credit -->
+								<ComboBox Value="{Bind CtRow}">
+									<ComboBoxItem Content="Сума" Value=""/>
+									<ComboBoxItem Content="По рядках" Value="R"/>
+								</ComboBox>
+								<ComboBox Value="{Bind CtAccMode}">
+									<ComboBoxItem Content="Фіксований" Value=""/>
+									<ComboBoxItem Content="Роль з рядка" Value="R"/>
+									<ComboBoxItem Content="Роль з документа" Value="D"/>
+									<ComboBoxItem Content="Роль рахунку" Value="C"/>
+									<ComboBoxItem Content="Роль контрагента" Value="A"/>
+								</ComboBox>
+								<TableCell>
+									<Group>
+										<Selector Value="{Bind Ct}" DisplayProperty="Code" Tip="{Bind Ct.Name}"
+												  If="{Bind $CtAccVisible}" Delegate="fetchByPlan" ListSize="20rem,15rem">
+											<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Ct}, Url='/catalog/account/browse', Data={Bind $PlanArg}}"/>
+											<Selector.ItemsPanel>
+												<DataGrid XamlStyle="{StyleResource DataGridPanel}">
+													<DataGridColumn Header="@[Code]" Content="{Bind Code}" Fit="True" Wrap="NoWrap"/>
+													<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
+												</DataGrid>
+											</Selector.ItemsPanel>
+										</Selector>
+										<ComboBox If="{Bind $CtRoleVisible}" Value="{Bind CtAccKind}"
+										ItemsSource="{Bind Root.AccountKinds}">
+											<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
+										</ComboBox>
+									</Group>
 								</TableCell>
-								<TableCell Align="Center">
+								<ComboBox Value="{Bind CtSum}">
+									<ComboBoxItem Content="Сума" Value=""/>
+									<ComboBoxItem Content="Націнка" Value="E"/>
+									<ComboBoxItem Content="Знижка" Value="D"/>
+									<ComboBoxItem Content="Сума без знижки" Value="W"/>
+									<ComboBoxItem Content="Собівартість" Value="S"/>
+									<ComboBoxItem Content="Маржа" Value="R"/>
+								</ComboBox>
+								<!---->
+								<TableCell Align="Center" VAlign="Middle">
 									<CheckBox Value="{Bind IsStorno}"/>
 								</TableCell>
 								<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
 							</TableRow>
 						</Table>
-						<Header Grid.Row="1" Grid.Col="2" Bold="False">Грошові кошти</Header>
-						<Toolbar Grid.Row="2" Grid.Col="2" Style="Light" Padding="0">
-							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Cash}}"/>
-						</Toolbar>
-						<Table Grid.Row="3" Grid.Col="2" Columns="Fit,Fit,Fit,Fit" CellSpacing="Medium" Margin="-6px"
+					</Case>
+					<Case Value="Journal">
+						<Grid Columns="Auto,Auto,Auto,1*" Rows="Auto,Auto,Auto" Padding="0,1rem" AlignItems="Top" Gap="6px,2rem">
+							<Header Grid.Row="1" Grid.Col="1" Bold="False">Рух запасів</Header>
+							<Toolbar Grid.Row="2" Grid.Col="1" Style="Light" Padding="0">
+								<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Store}}"/>
+							</Toolbar>
+							<Table Grid.Row="3" Grid.Col="1"  Columns="30rem,Fit,Fit,Fit,Fit" CellSpacing="Medium"
+							ItemsSource="{Bind Operation.Store}" Width="30rem" Margin="-6px">
+								<Table.Header>
+									<TableRow>
+										<TableCell>Блок рядків</TableCell>
+										<TableCell>Прибуток</TableCell>
+										<TableCell>Видаток</TableCell>
+										<TableCell>@[Storno]</TableCell>
+										<TableCell></TableCell>
+									</TableRow>
+								</Table.Header>
+								<TableRow>
+									<ComboBox Value="{Bind RowKind}"
+								ItemsSource="{Bind Root.Operation.Form.RowKinds}">
+										<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
+									</ComboBox>
+									<TableCell Align="Center">
+										<CheckBox Value="{Bind IsIn}"/>
+									</TableCell>
+									<TableCell Align="Center">
+										<CheckBox Value="{Bind IsOut}"/>
+									</TableCell>
+									<TableCell Align="Center">
+										<CheckBox Value="{Bind IsStorno}"/>
+									</TableCell>
+									<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
+								</TableRow>
+							</Table>
+							<Header Grid.Row="1" Grid.Col="2" Bold="False">Грошові кошти</Header>
+							<Toolbar Grid.Row="2" Grid.Col="2" Style="Light" Padding="0">
+								<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Cash}}"/>
+							</Toolbar>
+							<Table Grid.Row="3" Grid.Col="2" Columns="Fit,Fit,Fit,Fit" CellSpacing="Medium" Margin="-6px"
 							Width="20rem" ItemsSource="{Bind Operation.Cash}">
-							<Table.Header>
+								<Table.Header>
+									<TableRow>
+										<TableCell>Прибуток</TableCell>
+										<TableCell>Видаток</TableCell>
+										<TableCell>@[Storno]</TableCell>
+										<TableCell></TableCell>
+									</TableRow>
+								</Table.Header>
 								<TableRow>
-									<TableCell>Прибуток</TableCell>
-									<TableCell>Видаток</TableCell>
-									<TableCell>@[Storno]</TableCell>
-									<TableCell></TableCell>
+									<TableCell Align="Center">
+										<CheckBox Value="{Bind IsIn}"/>
+									</TableCell>
+									<TableCell Align="Center">
+										<CheckBox Value="{Bind IsOut}"/>
+									</TableCell>
+									<TableCell Align="Center">
+										<CheckBox Value="{Bind IsStorno}"/>
+									</TableCell>
+									<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
 								</TableRow>
-							</Table.Header>
-							<TableRow>
-								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsIn}"/>
-								</TableCell>
-								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsOut}"/>
-								</TableCell>
-								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsStorno}"/>
-								</TableCell>
-								<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
-							</TableRow>
-						</Table>
-						<Header Grid.Row="1" Grid.Col="3" Bold="False">Взаєморазрахунки</Header>
-						<Toolbar Grid.Row="2" Grid.Col="3" Style="Light" Padding="0">
-							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Settle}}"/>
-						</Toolbar>
-						<Table Grid.Row="3" Grid.Col="3" Columns="Fit,Fit,Fit,Fit" CellSpacing="Medium" Margin="-6px"
+							</Table>
+							<Header Grid.Row="1" Grid.Col="3" Bold="False">Взаєморазрахунки</Header>
+							<Toolbar Grid.Row="2" Grid.Col="3" Style="Light" Padding="0">
+								<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.Settle}}"/>
+							</Toolbar>
+							<Table Grid.Row="3" Grid.Col="3" Columns="Fit,Fit,Fit,Fit" CellSpacing="Medium" Margin="-6px"
 							Width="20rem" ItemsSource="{Bind Operation.Settle}">
+								<Table.Header>
+									<TableRow>
+										<TableCell Wrap="NoWrap">Збільшення боргу</TableCell>
+										<TableCell Wrap="NoWrap">Зменьшення боргу</TableCell>
+										<TableCell>@[Storno]</TableCell>
+										<TableCell></TableCell>
+									</TableRow>
+								</Table.Header>
+								<TableRow>
+									<TableCell Align="Center">
+										<CheckBox Value="{Bind IsInc}"/>
+									</TableCell>
+									<TableCell Align="Center">
+										<CheckBox Value="{Bind IsDec}"/>
+									</TableCell>
+									<TableCell Align="Center">
+										<CheckBox Value="{Bind IsStorno}"/>
+									</TableCell>
+									<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
+								</TableRow>
+							</Table>
+						</Grid>
+					</Case>
+					<Case Value="Menu">
+						<List ItemsSource="{Bind Menu}" GroupBy="Category" Width="20rem" Margin="1rem,.5rem"
+						  Border="True"
+						  Select="False">
+							<FlexList Orientation="Horizontal" AlignItems="Center">
+								<SpanIcon Icon="Menu"/>
+								<Span Content="{Bind Name}" Space="Before"/>
+								<Separator />
+								<CheckBox Value="{Bind Checked}"/>
+							</FlexList>
+						</List>
+					</Case>
+					<Case Value="Print">
+						<List ItemsSource="{Bind PrintForms}" GroupBy="Category" Width="20rem" Margin="1rem, .5rem"
+						  Border="True"
+						  Select="False">
+							<FlexList Orientation="Horizontal" AlignItems="Center">
+								<SpanIcon Icon="FilePreview"/>
+								<Span Content="{Bind Name}" Space="Before"/>
+								<Separator />
+								<CheckBox Value="{Bind Checked}"/>
+							</FlexList>
+						</List>
+					</Case>
+					<Case Value="Links">
+						<Toolbar Style="Light" Padding="0,6">
+							<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.OpLinks}}"/>
+						</Toolbar>
+						<Table CellSpacing="Medium" ItemsSource="{Bind Operation.OpLinks}" 
+						   Width="52rem" Columns="30rem,12rem,10rem,16px">
 							<Table.Header>
 								<TableRow>
-									<TableCell Wrap="NoWrap">Збільшення боргу</TableCell>
-									<TableCell Wrap="NoWrap">Зменьшення боргу</TableCell>
-									<TableCell>@[Storno]</TableCell>
-									<TableCell></TableCell>
+									<TableCell>@[Operation]</TableCell>
+									<TableCell>Категорія</TableCell>
+									<TableCell>Режим</TableCell>
+									<TableCell/>
 								</TableRow>
 							</Table.Header>
 							<TableRow>
-								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsInc}"/>
-								</TableCell>
-								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsDec}"/>
-								</TableCell>
-								<TableCell Align="Center">
-									<CheckBox Value="{Bind IsStorno}"/>
-								</TableCell>
+								<Selector Value="{Bind Operation}" DisplayProperty="Name">
+									<Selector.AddOns>
+										<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Operation}, Url='/settings/operation/browse'}"/>
+									</Selector.AddOns>
+								</Selector>
+								<ComboBox Value="{Bind Category}" ItemsSource="{Bind $Categories}">
+									<ComboBoxItem Content="{Bind Name}" Value="{Bind Value}"/>
+								</ComboBox>
+								<ComboBox Value="{Bind Type}" ItemsSource="{Bind $Types}">
+									<ComboBoxItem Content="{Bind Name}" Value="{Bind Value}"/>
+								</ComboBox>
 								<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
 							</TableRow>
 						</Table>
-					</Grid>
-				</Case>
-				<Case Value="Menu">
-					<List ItemsSource="{Bind Menu}" GroupBy="Category" Width="20rem" Margin="1rem,.5rem"
-						  Border="True"
-						  Select="False">
-						<FlexList Orientation="Horizontal" AlignItems="Center">
-							<SpanIcon Icon="Menu"/>
-							<Span Content="{Bind Name}" Space="Before"/>
-							<Separator />
-							<CheckBox Value="{Bind Checked}"/>
-						</FlexList>
-					</List>
-				</Case>
-				<Case Value="Print">
-					<List ItemsSource="{Bind PrintForms}" GroupBy="Category" Width="20rem" Margin="1rem, .5rem"
-						  Border="True"
-						  Select="False">
-						<FlexList Orientation="Horizontal" AlignItems="Center">
-							<SpanIcon Icon="FilePreview"/>
-							<Span Content="{Bind Name}" Space="Before"/>
-							<Separator />
-							<CheckBox Value="{Bind Checked}"/>
-						</FlexList>
-					</List>
-				</Case>
-				<Case Value="Links">
-					<Toolbar Style="Light" Padding="0,6">
-						<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Operation.OpLinks}}"/>
-					</Toolbar>
-					<Table CellSpacing="Medium" ItemsSource="{Bind Operation.OpLinks}" 
-						   Width="52rem" Columns="30rem,12rem,10rem,16px">
-						<Table.Header>
-							<TableRow>
-								<TableCell>@[Operation]</TableCell>
-								<TableCell>Категорія</TableCell>
-								<TableCell>Режим</TableCell>
-								<TableCell/>
-							</TableRow>
-						</Table.Header>
-						<TableRow>
-							<Selector Value="{Bind Operation}" DisplayProperty="Name">
-								<Selector.AddOns>
-									<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Operation}, Url='/settings/operation/browse'}"/>
-								</Selector.AddOns>
-							</Selector>
-							<ComboBox Value="{Bind Category}" ItemsSource="{Bind $Categories}">
-								<ComboBoxItem Content="{Bind Name}" Value="{Bind Value}"/>
-							</ComboBox>
-							<ComboBox Value="{Bind Type}" ItemsSource="{Bind $Types}">
-								<ComboBoxItem Content="{Bind Name}" Value="{Bind Value}"/>
-							</ComboBox>
-							<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"/>
-						</TableRow>
-					</Table>
-				</Case>
-				<Case Value="Other">
-					<Block Padding="1rem,6">
-					</Block>
-				</Case>
-			</Switch>
+					</Case>
+					<Case Value="Other">
+						<Block Padding="1rem,6">
+						</Block>
+					</Case>
+				</Switch>
+			</Block>
 		</Block>
-	</Block>
-	<TextBox Label="@[Memo]" Value="{Bind Operation.Memo}" UpdateTrigger="Input" Multiline="True" Margin="1rem"/>
+		<TextBox Label="@[Memo]" Value="{Bind Operation.Memo}" UpdateTrigger="Input" Multiline="True" Margin="1rem"/>
 	</Grid>
 </Dialog>
 

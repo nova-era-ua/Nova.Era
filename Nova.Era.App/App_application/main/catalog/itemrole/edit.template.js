@@ -20,7 +20,11 @@ define(["require", "exports"], function (require, exports) {
             'ItemRole.Accounts[].Account': '@[Error.Required]'
         },
         events: {
-            'ItemRole.Kind.change': kindChange
+            'ItemRole.Kind.change': kindChange,
+            'ItemRole.Accounts[].add': rowAdd
+        },
+        delegates: {
+            fetchByPlan
         }
     };
     exports.default = template;
@@ -32,5 +36,16 @@ define(["require", "exports"], function (require, exports) {
         else {
             role.ExType = '';
         }
+    }
+    function rowAdd(arr, elem) {
+        let ix = arr.indexOf(elem);
+        if (ix < 1)
+            return;
+        let prev = arr[ix - 1];
+        elem.Plan.$merge(prev.Plan);
+    }
+    function fetchByPlan(acc, text) {
+        let ctrl = this.$ctrl;
+        return ctrl.$invoke('fetch', { Plan: acc.$parent.Plan.Id, Text: text }, '/catalog/account');
     }
 });
