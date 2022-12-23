@@ -7,7 +7,7 @@ const base: Template = require("reports/_common/simple.module");
 
 const template: Template = {
 	properties: {
-		'TRepData.$Name'() { return this.$level === 1 ? du.formatDate(this.Date) : "Agent" },
+		'TRepData.$Name'() { return this.$level === 1 ? du.formatDate(this.Date) : this.Agent.Name },
 	}
 };
 

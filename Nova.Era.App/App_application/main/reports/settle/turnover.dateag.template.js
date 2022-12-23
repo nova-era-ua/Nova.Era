@@ -6,7 +6,7 @@ define(["require", "exports"], function (require, exports) {
     const base = require("reports/_common/simple.module");
     const template = {
         properties: {
-            'TRepData.$Name'() { return this.$level === 1 ? du.formatDate(this.Date) : "Agent"; },
+            'TRepData.$Name'() { return this.$level === 1 ? du.formatDate(this.Date) : this.Agent.Name; },
         }
     };
     exports.default = utils.mergeTemplate(base, template);
