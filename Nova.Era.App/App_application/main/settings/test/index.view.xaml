@@ -38,6 +38,6 @@
 		</TreeGrid>
 	</Grid>
 	<InlineDialog Id="testClr">
-		<PdfViewer Source="/_file/settings/test/testpdf/0" Size="100%,40rem"/>
+		<PdfViewer Source="/_file/settings/test/testpdf/0?modelName=stringName" Size="100%,40rem"/>
 	</InlineDialog>
 </Page>

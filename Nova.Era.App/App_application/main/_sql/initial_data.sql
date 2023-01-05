@@ -264,14 +264,17 @@ as
 begin
 	set nocount on;
 
+	-- TEMPORARY
+	update doc.Operations set Kind = null where Kind like N'%.%';
+
 	-- operation kinds
 	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16), [Type] nchar(1));
 	insert into @ok(Id, Factor, [Order], [Type], [Kind], [Name]) values
-	(N'Sale.Order',     0, 1, N'B', N'Order',    N'@[OperationKind.OrderCust]'),
-	(N'Sale.Ship',      1, 2, N'P', N'Shipment', N'@[OperationKind.Shipment]'),
-	(N'Sale.RetCust',  -1, 3, N'P', N'Shipment', N'@[OperationKind.RetCust]'),
-	(N'Sale.PayCust',   1, 4, N'P', N'Payment',  N'@[OperationKind.PayCust]'),
-	(N'Sale.RetPay',   -1, 5, N'P', N'Payment',  N'@[OperationKind.RetPay]');
+	(N'Order',         0, 1, N'B', N'Order',    N'@[OperationKind.Order]'),
+	(N'Shipment',      1, 2, N'P', N'Shipment', N'@[OperationKind.Shipment]'),
+	(N'RetShipment',  -1, 3, N'P', N'Shipment', N'@[OperationKind.Return]'),
+	(N'Payment',       1, 4, N'P', N'Payment',  N'@[OperationKind.Payment]'),
+	(N'RetPayment',   -1, 5, N'P', N'Payment',  N'@[OperationKind.RetPayment]');
 
 	merge doc.OperationKinds as t
 	using @ok as s on t.Id = s.Id and t.TenantId = @TenantId

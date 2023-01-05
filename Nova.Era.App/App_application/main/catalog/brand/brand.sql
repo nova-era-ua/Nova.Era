@@ -1,16 +1,4 @@
 ﻿/* Brand */
-drop procedure if exists cat.[Brand.Metadata];
-drop procedure if exists cat.[Brand.Update];
-drop type if exists cat.[Brand.TableType];
-go
-------------------------------------------------
-create type cat.[Brand.TableType] as table
-(
-	Id bigint,
-	[Name] nvarchar(255),
-	[Memo] nvarchar(255)
-)
-go
 ------------------------------------------------
 create or alter procedure cat.[Brand.Index]
 @TenantId int = 1,
@@ -89,6 +77,19 @@ begin
 	from cat.Brands b
 	where b.TenantId = @TenantId and b.Id = @Id;
 end
+go
+------------------------------------------------
+drop procedure if exists cat.[Brand.Metadata];
+drop procedure if exists cat.[Brand.Update];
+drop type if exists cat.[Brand.TableType];
+go
+------------------------------------------------
+create type cat.[Brand.TableType] as table
+(
+	Id bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+)
 go
 ---------------------------------------------
 create or alter procedure cat.[Brand.Metadata]

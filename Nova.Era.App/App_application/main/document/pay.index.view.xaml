@@ -60,25 +60,26 @@
 	</Grid>
 	<Page.Taskpad>
 		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
-			<PeriodPicker Label="@[Period]" Display="Name" Placement="BottomRight"
+			<Panel Header="@[Filters]" Style="Transparent" Collapsible="True">
+				<PeriodPicker Label="@[Period]" Display="Name" Placement="BottomRight"
 				Value="{Bind Parent.Filter.Period}"
 				Description="{Bind Parent.Filter.Period.Name}"/>
-			<ComboBox Label="@[Operations]"
+				<ComboBox Label="@[Operations]"
 				ItemsSource="{Bind Operations}" Value="{Bind Parent.Filter.Operation}">
-				<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
-			</ComboBox>
-			<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+					<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
+				</ComboBox>
+				<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
 					  Value="{Bind Parent.Filter.Company}" Url="/catalog/company" ShowClear="True"/>
 
-			<SelectorSimple Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
+				<SelectorSimple Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
 					  Value="{Bind Parent.Filter.Agent}" Url="/catalog/agent" ShowClear="True"/>
 
-			<Selector Label="{Bind Root.$CashAccLabel}"  Placeholder="@[Placeholder.AllCashAccounts]"
+				<Selector Label="{Bind Root.$CashAccLabel}"  Placeholder="@[Placeholder.AllCashAccounts]"
 					  Value="{Bind Parent.Filter.CashAccount}" ShowClear="True" DisplayProperty="Name"
 					  Delegate="browseCashDelegate">
-				<Hyperlink Icon="Search" Command="{BindCmd Execute, CommandName=browseCashAccount, Argument={Bind Parent.Filter}}"/>
-			</Selector>
-
+					<Hyperlink Icon="Search" Command="{BindCmd Execute, CommandName=browseCashAccount, Argument={Bind Parent.Filter}}"/>
+				</Selector>
+			</Panel>
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

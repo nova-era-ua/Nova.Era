@@ -260,11 +260,11 @@
 @ContractKind.Customer = З покупцем
 @ContractKind.Other = Інший
 ;
-@OperationKind.OrderCust=Замовлення покупця
-@OperationKind.Shipment=Відвантаження
-@OperationKind.RetCust=Повернення від покупця
-@OperationKind.PayCust=Оплата від покупця
-@OperationKind.RetPay=Повернення оплати
+@OperationKind.Order=Замовлення
+@OperationKind.Shipment=Відвантаження/приймання ТМЦ
+@OperationKind.Return=Повернення ТМЦ
+@OperationKind.Payment=Оплата
+@OperationKind.RetPayment=Повернення оплати
 ;
 @Label.Unit.CodeUA=Код за КСПОВО
 @Label.Cash.Account=Каса/Рахунок

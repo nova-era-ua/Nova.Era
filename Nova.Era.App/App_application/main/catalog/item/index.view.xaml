@@ -55,7 +55,7 @@
 					DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Parent.ItemsSource}}"
 					Height="100%" StickyHeaders="True" GridLines="Horizontal"
 					  CssClass="ne-tree-grid">
-				<TreeGridColumn Header="#" Content="{Bind Id}" Wrap="NoWrap" Align="Right"/>
+				<TreeGridColumn Header="#" Content="{Bind Id}" Wrap="NoWrap" Align="Right" Fit="True"/>
 				<TreeGridColumn Header="@[Name]" ShowButton="True"
 								Content="{Bind Name}" MinWidth="250px" MaxChars="50" Tip="{Bind Name}"/>
 				<TreeGridColumn Header="@[UnitShort]" Content="{Bind Unit.Short}" 

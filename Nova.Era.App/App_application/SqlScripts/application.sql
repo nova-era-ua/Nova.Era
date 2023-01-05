@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 23.12.2022 12:12:36
+generated: 05.01.2023 17:23:41
 */
 
 
@@ -10062,7 +10062,7 @@ begin
 	from cat.ItemRoles ir
 	where ir.TenantId = @TenantId and ir.Void = 0 and
 		(@Kind is null or ir.Kind = @Kind)
-	order by ir.Id;
+	order by ir.Kind, ir.Id;
 end
 go
 ------------------------------------------------
@@ -10511,18 +10511,6 @@ end
 go
 
 /* Brand */
-drop procedure if exists cat.[Brand.Metadata];
-drop procedure if exists cat.[Brand.Update];
-drop type if exists cat.[Brand.TableType];
-go
-------------------------------------------------
-create type cat.[Brand.TableType] as table
-(
-	Id bigint,
-	[Name] nvarchar(255),
-	[Memo] nvarchar(255)
-)
-go
 ------------------------------------------------
 create or alter procedure cat.[Brand.Index]
 @TenantId int = 1,
@@ -10601,6 +10589,19 @@ begin
 	from cat.Brands b
 	where b.TenantId = @TenantId and b.Id = @Id;
 end
+go
+------------------------------------------------
+drop procedure if exists cat.[Brand.Metadata];
+drop procedure if exists cat.[Brand.Update];
+drop type if exists cat.[Brand.TableType];
+go
+------------------------------------------------
+create type cat.[Brand.TableType] as table
+(
+	Id bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+)
 go
 ---------------------------------------------
 create or alter procedure cat.[Brand.Metadata]
@@ -14748,12 +14749,13 @@ begin
 		account bigint, wh bigint, agent bigint, [contract] bigint, cashacc bigint, cashflowitem bigint,
 		project bigint);
 
-	select [Transactions!TTrans!Array] = null,
-		[Id!!Id] = TrNo, [Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
+	select [Transactions!TTrans!Array] = null, [Id!!Id] = TrNo, [Plan] = a.Code,
+		[Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
 	from jrn.Journal j
+		inner join acc.Accounts a on j.TenantId = a.TenantId and j.[Plan] = a.Id
 	where j.TenantId = @TenantId and j.Document = @Id
-	group by [TrNo]
-	order by TrNo;
+	group by [TrNo], a.Code
+	order by a.Code, TrNo;
 
 	-- dt
 	select *, [!TTrans.Dt!ParentId] = [!TrNo]
@@ -16835,7 +16837,7 @@ begin
 	select @start = sum(j.[Sum] * j.IncDec)
 	from jrn.SettleJournal j where TenantId = @TenantId 
 		and (@comp is null or j.Company = @comp)
-		and (@agent is null or j.Agent = @ag)
+		and (@ag is null or j.Agent = @ag)
 		and [Date] < @From;
 	set @start = isnull(@start, 0);
 	
@@ -18070,18 +18072,22 @@ begin
 
 	declare @rf table(Id nvarchar(16), [Order] int, [Type] nvarchar(16), [Url] nvarchar(255), [Name] nvarchar(255));
 	insert into @rf (Id, [Type], [Order], [Url], [Name]) values
+		-- acc
 		(N'acc.date',      N'by.account',  1, N'/reports/account/rto_accdate',  N'Обороти рахунку (дата)'),
 		(N'acc.agent',     N'by.account',  2, N'/reports/account/rto_accagent', N'Обороти рахунку (контрагент)'),
 		(N'acc.agentcntr', N'by.account',  3, N'/reports/account/rto_accagentcontract', N'Обороти рахунку (контрагент + договір)'),
 		(N'acc.respcost',  N'by.account',  4, N'/reports/account/rto_respcost', N'Обороти рахунку (центр відповідальності + стаття витрат)'),
 		(N'acc.item',      N'by.account',  5, N'/reports/stock/rto_items',      N'Оборотно сальдова відомість (об''єкт обліку)'),
+		-- plan
 		(N'plan.turnover', N'by.plan', 1, N'/reports/plan/turnover',    N'Оборотно сальдова відомість'),
 		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',    N'Відомість по грошових коштах'),
 		(N'plan.rems',     N'by.plan', 3, N'/reports/plan/itemrems',    N'Залишики на складах'),
-		--
+		-- cash
 		(N'cash.datedoc',  N'by.cash', 1, N'/reports/cash/rto_datedoc', N'Оборотно сальдова відомість (дата + документ)'),
-		--
-		(N'settle.dateag',   N'by.settle', 1, N'/reports/settle/rto_dateag', N'Оборотно сальдова відомість (дата + контрагент)');
+		-- settle
+		(N'settle.dateag',   N'by.settle', 1, N'/reports/settle/rto_dateag', N'Оборотно сальдова відомість (дата + контрагент)'),
+		-- stock
+		(N'stock.remswh',  N'by.stock', 1, N'/reports/stock/rems_wh', N'Залишки на складах');
 
 	merge rep.RepFiles as t
 	using @rf as s on t.Id = s.Id and t.TenantId = @TenantId
@@ -18282,14 +18288,17 @@ as
 begin
 	set nocount on;
 
+	-- TEMPORARY
+	update doc.Operations set Kind = null where Kind like N'%.%';
+
 	-- operation kinds
 	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16), [Type] nchar(1));
 	insert into @ok(Id, Factor, [Order], [Type], [Kind], [Name]) values
-	(N'Sale.Order',     0, 1, N'B', N'Order',    N'@[OperationKind.OrderCust]'),
-	(N'Sale.Ship',      1, 2, N'P', N'Shipment', N'@[OperationKind.Shipment]'),
-	(N'Sale.RetCust',  -1, 3, N'P', N'Shipment', N'@[OperationKind.RetCust]'),
-	(N'Sale.PayCust',   1, 4, N'P', N'Payment',  N'@[OperationKind.PayCust]'),
-	(N'Sale.RetPay',   -1, 5, N'P', N'Payment',  N'@[OperationKind.RetPay]');
+	(N'Order',         0, 1, N'B', N'Order',    N'@[OperationKind.Order]'),
+	(N'Shipment',      1, 2, N'P', N'Shipment', N'@[OperationKind.Shipment]'),
+	(N'RetShipment',  -1, 3, N'P', N'Shipment', N'@[OperationKind.Return]'),
+	(N'Payment',       1, 4, N'P', N'Payment',  N'@[OperationKind.Payment]'),
+	(N'RetPayment',   -1, 5, N'P', N'Payment',  N'@[OperationKind.RetPayment]');
 
 	merge doc.OperationKinds as t
 	using @ok as s on t.Id = s.Id and t.TenantId = @TenantId

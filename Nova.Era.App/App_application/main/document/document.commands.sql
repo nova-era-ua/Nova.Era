@@ -37,12 +37,18 @@ begin
 		set @ParentDoc = @Document;
 	end
 
+	declare @alreadysum money, @baseSum money;
+	select @baseSum = isnull([Sum], 0) from doc.Documents d where d.TenantId = @TenantId and d.Id = @BaseDoc;
+	-- calc remainder sum
+	select @alreadysum = isnull(sum(d.[Sum] * d.BindFactor), 0) 
+		from doc.Documents d where TenantId = @TenantId and d.Temp = 0 and
+			Base = @BaseDoc and d.BindKind = @linkkind;
 
 	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, BindKind, BindFactor, OpLink, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, UserCreated, Temp, [Sum])
 	output inserted.Id, inserted.Operation into @rtable(id, op)
 	select @TenantId, cast(getdate() as date), @operation, @ParentDoc, @BaseDoc, @linkkind, @factor, @LinkId, Company, Agent, [Contract], [RespCenter], 
-		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, [Sum]
+		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, @baseSum - @alreadysum
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
 	select [Document!TDocBase!Object] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],

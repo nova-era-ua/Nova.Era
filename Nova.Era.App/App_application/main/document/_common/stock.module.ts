@@ -3,6 +3,7 @@
 import { TRow, TDocument } from 'stock.d';
 
 const utils: Utils = require("std:utils");
+const cu: UtilsCurrency = utils.currency;
 
 const base: Template = require('/document/_common/common.module');
 
@@ -11,8 +12,8 @@ const template: Template = {
 		'TRoot.$$TabNo': String,
 		'TRoot.$$Barcode': String,
 		'TRow.Sum': {
-			get(this: TRow) { return this.Price * this.Qty; },
-			set(this: TRow, val: number) { this.Qty = val / this.Price; }
+			get(this: TRow) { return cu.round(this.Price * this.Qty, 2); },
+			set(this: TRow, val: number) { this.Qty = cu.round(val / this.Price, 2); }
 		},
 		'TRoot.$StockItemRoles'() { return this.ItemRoles.filter(r => r.Kind == "Item" && r.IsStock); },
 		'TDocument.Sum': docSum,
