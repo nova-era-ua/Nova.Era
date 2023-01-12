@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 05.01.2023 17:23:41
+generated: 10.01.2023 17:50:03
 */
 
 
@@ -5816,7 +5816,6 @@ begin
 		(1531,   50, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
 		-- Settings
-		(880,   88, 10, N'@[Dashboard]',    'dashboard', 'dashboard-outline', N'border-bottom'),
 		(881,   88, 11, N'@[Settings]',     null, null, null),
 		(8811, 881, 10, N'@[AccPolicy]',    N'policy',      N'gear-outline',  null),
 		(8812, 881, 10, N'@[AccountPlans]', N'accountplan', N'account',  null),
@@ -12931,14 +12930,14 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	declare @docs table(id bigint);
+	declare @docs table(id bigint);	
 	insert into @docs(id) 
 	select Id from doc.Documents where TenantId = @TenantId and UserCreated = @UserId and Temp = 1;
 
 	delete from doc.DocDetails from
 		doc.DocDetails dd inner join @docs d on dd.TenantId = @TenantId and dd.Document = d.id
 	update doc.Documents set Base = null, BindKind = null, BindFactor = null 
-	where TenantId = @TenantId and Base = (select id from @docs);
+	where TenantId = @TenantId and Base in (select id from @docs);
 	update doc.Documents set Parent = null where TenantId = @TenantId and Parent in (select id from @docs);
 
 	delete from doc.Documents where Id in (select id from @docs);
@@ -14950,12 +14949,18 @@ begin
 		set @ParentDoc = @Document;
 	end
 
+	declare @alreadysum money, @baseSum money;
+	select @baseSum = isnull([Sum], 0) from doc.Documents d where d.TenantId = @TenantId and d.Id = @BaseDoc;
+	-- calc remainder sum
+	select @alreadysum = isnull(sum(d.[Sum] * d.BindFactor), 0) 
+		from doc.Documents d where TenantId = @TenantId and d.Temp = 0 and
+			Base = @BaseDoc and d.BindKind = @linkkind;
 
 	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, BindKind, BindFactor, OpLink, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, UserCreated, Temp, [Sum])
 	output inserted.Id, inserted.Operation into @rtable(id, op)
 	select @TenantId, cast(getdate() as date), @operation, @ParentDoc, @BaseDoc, @linkkind, @factor, @LinkId, Company, Agent, [Contract], [RespCenter], 
-		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, [Sum]
+		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, @baseSum - @alreadysum
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
 	select [Document!TDocBase!Object] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
