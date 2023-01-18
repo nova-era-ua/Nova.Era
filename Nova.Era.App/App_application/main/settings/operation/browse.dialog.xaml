@@ -8,7 +8,7 @@
 	<Grid>
 		<DataGrid ItemsSource="{Bind Operations}"
 			Height="30rem" Style="Light" GridLines="Horizontal" FixedHeader="True" Striped="True"
-			DoubleClick="{BindCmd Select, Argument={Bind Operations}}">
+			DoubleClick="{BindCmd Select, Argument={Bind Operations}}" GroupBy="Form.Category">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}" />
 			<DataGridColumn Header="@[Category]" Content="{Bind Form.Category}"/>

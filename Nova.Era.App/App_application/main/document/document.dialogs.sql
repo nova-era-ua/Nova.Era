@@ -62,12 +62,13 @@ begin
 		account bigint, wh bigint, agent bigint, [contract] bigint, cashacc bigint, cashflowitem bigint,
 		project bigint);
 
-	select [Transactions!TTrans!Array] = null,
-		[Id!!Id] = TrNo, [Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
+	select [Transactions!TTrans!Array] = null, [Id!!Id] = TrNo, [Plan] = a.Code,
+		[Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
 	from jrn.Journal j
+		inner join acc.Accounts a on j.TenantId = a.TenantId and j.[Plan] = a.Id
 	where j.TenantId = @TenantId and j.Document = @Id
-	group by [TrNo]
-	order by TrNo;
+	group by [TrNo], a.Code
+	order by a.Code, TrNo;
 
 	-- dt
 	select *, [!TTrans.Dt!ParentId] = [!TrNo]

@@ -628,7 +628,6 @@
     <TypeScriptCompile Include="App_application\main\sales\dashboard\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\sales\price\index.d.ts" />
     <TypeScriptCompile Include="App_application\main\sales\price\index.template.ts" />
-    <Content Include="App_application\main\settings\dashboard\model.json" />
     <Content Include="App_application\main\settings\policy\model.json" />
     <Content Include="App_application\main\document\invent\movebill\model.json" />
     <Content Include="App_application\main\settings\person\model.json" />
@@ -1037,11 +1036,6 @@
   <ItemGroup>
     <Content Include="App_application\main\catalog\item\browseprice.dialog.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_application\main\settings\dashboard\index.view.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

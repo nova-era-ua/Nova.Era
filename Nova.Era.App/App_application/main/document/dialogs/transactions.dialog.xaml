@@ -1,5 +1,5 @@
 ﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
-		Title="@[Transactions]" Padding="1rem" Width="92rem" Height="40rem">
+		Title="@[Transactions]" Padding="1rem" Width="Auto" MinWidth="95rem" Height="40rem">
 	<Dialog.Buttons>
 		<Button Content="@[Close]" Command="{BindCmd Close}" />
 	</Dialog.Buttons>
@@ -12,11 +12,12 @@
 	<Switch Expression="{Bind Root.$$Tab}">
 		<Case Value="">
 			<Table ItemsSource="{Bind Transactions}" CssClass="fixed-layout"
-			   GridLines="Both" Columns="1rem, 5rem,8rem,5rem,26rem, 5rem,8rem,5rem,26rem"
+			   GridLines="Both" Columns="1rem, 2rem, 5rem,8rem,5rem,26rem, 5rem,8rem,5rem,26rem"
 			   Striped="True" >
 				<Table.Header>
 					<TableRow>
 						<TableCell RowSpan="2" Content="#"/>
+						<TableCell RowSpan="2" Content="План рахунків" Align="Center"/>
 						<TableCell ColSpan="4" Content="@[Debit]"/>
 						<TableCell ColSpan="4" Content="@[Credit]"/>
 					</TableRow>
@@ -32,7 +33,8 @@
 					</TableRow>
 				</Table.Header>
 				<TableRow VAlign="Top">
-					<TableCell Content="{Bind Id}"/>
+					<TableCell Content="{Bind Id}" Align="Right"/>
+					<TableCell Content="{Bind Plan}" Align="Center"/>
 					<TableCell ColSpan="4">
 						<Table CssClass="fixed-layout" ItemsSource="{Bind Dt}" GridLines="Both" 
 							   Width="100%" Columns="5rem,8rem,5rem,26rem">

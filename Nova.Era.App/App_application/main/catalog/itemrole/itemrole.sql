@@ -43,7 +43,7 @@ begin
 	from cat.ItemRoles ir
 	where ir.TenantId = @TenantId and ir.Void = 0 and
 		(@Kind is null or ir.Kind = @Kind)
-	order by ir.Id;
+	order by ir.Kind, ir.Id;
 end
 go
 ------------------------------------------------

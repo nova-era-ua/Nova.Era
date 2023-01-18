@@ -2,14 +2,15 @@ define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const utils = require("std:utils");
+    const cu = utils.currency;
     const base = require('/document/_common/common.module');
     const template = {
         properties: {
             'TRoot.$$TabNo': String,
             'TRoot.$$Barcode': String,
             'TRow.Sum': {
-                get() { return this.Price * this.Qty; },
-                set(val) { this.Qty = val / this.Price; }
+                get() { return cu.round(this.Price * this.Qty, 2); },
+                set(val) { this.Qty = cu.round(val / this.Price, 2); }
             },
             'TRoot.$StockItemRoles'() { return this.ItemRoles.filter(r => r.Kind == "Item" && r.IsStock); },
             'TDocument.Sum': docSum,

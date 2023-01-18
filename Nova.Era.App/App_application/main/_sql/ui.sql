@@ -155,7 +155,6 @@ begin
 		(1531,   50, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
 		-- Settings
-		(880,   88, 10, N'@[Dashboard]',    'dashboard', 'dashboard-outline', N'border-bottom'),
 		(881,   88, 11, N'@[Settings]',     null, null, null),
 		(8811, 881, 10, N'@[AccPolicy]',    N'policy',      N'gear-outline',  null),
 		(8812, 881, 10, N'@[AccountPlans]', N'accountplan', N'account',  null),

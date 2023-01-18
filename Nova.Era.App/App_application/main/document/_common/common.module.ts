@@ -29,7 +29,6 @@ function category2Text(cat) {
 	return cat;
 }
 
-
 const template: Template = {
 	properties: {
 		'TDocBase.$Name': docBaseName,

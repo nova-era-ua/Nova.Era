@@ -13,7 +13,7 @@
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>
 		</Toolbar>
 		<DataGrid Grid.Row="2" Grid.VAlign="Stretch" XamlStyle="{StyleResource DataGridSimple}"
-				ItemsSource="{Bind Operations}"
+				ItemsSource="{Bind Operations}" GroupBy="Form.Category"
 				DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Operations}, Url='/settings/operation/edit'}">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
