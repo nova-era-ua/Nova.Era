@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 23.12.2022 12:12:36
+generated: 18.01.2023 13:50:39
 */
 
 
@@ -307,5 +307,21 @@ if not exists(select * from a2sys.SysParams where [Name] = N'AppTitle')
 	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'Nova.Era');
 else
 	update a2sys.SysParams set StringValue = N'Nova.Era' where [Name] = N'AppTitle';
+go
+
+-- SETTINGS.USER
+------------------------------------------------
+create or alter procedure appsec.[User.Index]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [User!TUser!Array] = null, [Id!!Id] = u.Id, u.UserName, u.PersonName, u.LastLoginHost
+	from appsec.Users u where Tenant = @TenantId and Void = 0;
+
+end
 go
 

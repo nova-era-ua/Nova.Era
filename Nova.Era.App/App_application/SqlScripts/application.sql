@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 23.12.2022 12:12:36
+generated: 18.01.2023 13:50:39
 */
 
 
@@ -16835,7 +16835,7 @@ begin
 	select @start = sum(j.[Sum] * j.IncDec)
 	from jrn.SettleJournal j where TenantId = @TenantId 
 		and (@comp is null or j.Company = @comp)
-		and (@agent is null or j.Agent = @ag)
+		and (@ag is null or j.Agent = @ag)
 		and [Date] < @From;
 	set @start = isnull(@start, 0);
 	
@@ -18070,18 +18070,22 @@ begin
 
 	declare @rf table(Id nvarchar(16), [Order] int, [Type] nvarchar(16), [Url] nvarchar(255), [Name] nvarchar(255));
 	insert into @rf (Id, [Type], [Order], [Url], [Name]) values
+		-- acc
 		(N'acc.date',      N'by.account',  1, N'/reports/account/rto_accdate',  N'Обороти рахунку (дата)'),
 		(N'acc.agent',     N'by.account',  2, N'/reports/account/rto_accagent', N'Обороти рахунку (контрагент)'),
 		(N'acc.agentcntr', N'by.account',  3, N'/reports/account/rto_accagentcontract', N'Обороти рахунку (контрагент + договір)'),
 		(N'acc.respcost',  N'by.account',  4, N'/reports/account/rto_respcost', N'Обороти рахунку (центр відповідальності + стаття витрат)'),
 		(N'acc.item',      N'by.account',  5, N'/reports/stock/rto_items',      N'Оборотно сальдова відомість (об''єкт обліку)'),
+		-- plan
 		(N'plan.turnover', N'by.plan', 1, N'/reports/plan/turnover',    N'Оборотно сальдова відомість'),
 		(N'plan.money',    N'by.plan', 2, N'/reports/plan/cashflow',    N'Відомість по грошових коштах'),
 		(N'plan.rems',     N'by.plan', 3, N'/reports/plan/itemrems',    N'Залишики на складах'),
-		--
+		-- cash
 		(N'cash.datedoc',  N'by.cash', 1, N'/reports/cash/rto_datedoc', N'Оборотно сальдова відомість (дата + документ)'),
-		--
-		(N'settle.dateag',   N'by.settle', 1, N'/reports/settle/rto_dateag', N'Оборотно сальдова відомість (дата + контрагент)');
+		-- settle
+		(N'settle.dateag',   N'by.settle', 1, N'/reports/settle/rto_dateag', N'Оборотно сальдова відомість (дата + контрагент)'),
+		-- stock
+		(N'stock.remswh',  N'by.stock', 1, N'/reports/stock/rems_wh', N'Залишки на складах');
 
 	merge rep.RepFiles as t
 	using @rf as s on t.Id = s.Id and t.TenantId = @TenantId

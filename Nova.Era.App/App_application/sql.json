@@ -81,7 +81,8 @@
 		"inputFiles": [
 			"main/_sql/common/security_common.sql",
 			"main/_sql/catalog/catalog_security.sql",
-			"main/_sql/catalog/catalog_ui.sql"
+			"main/_sql/catalog/catalog_ui.sql",
+			"main/settings/user/catalog_user.sql"
 		]
 	},
 	{
