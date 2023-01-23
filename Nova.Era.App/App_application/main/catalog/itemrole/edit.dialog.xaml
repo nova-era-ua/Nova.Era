@@ -6,53 +6,35 @@
 		<Button Content="@[SaveAndClose]" Command="{BindCmd SaveAndClose, ValidRequired=True}" Style="Primary"/>
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
-	<Grid Columns="1*,1*" Rows="Auto,Auto,Auto,Auto,Auto,MinMax(15rem;Auto),Auto" AlignItems="Top">
+	<Grid Columns="1*,1*" Rows="Auto,Auto,50px,Auto,MinMax(15rem;Auto),Auto" AlignItems="Top">
 		<ComboBox Grid.Row="1" Grid.Col="1" Label="@[Purpose]" Value="{Bind ItemRole.Kind}">
 			<ComboBoxItem Content="@[Item]" Value="Item"/>
 			<ComboBoxItem Content="@[Expense]" Value="Expense"/>
 			<ComboBoxItem Content="@[Revenue]" Value="Revenue"/>
 			<ComboBoxItem Content="@[Money]" Value="Money"/>
 		</ComboBox>
+		<ColorPicker Label="@[Color]" Value="{Bind ItemRole.Color}" Text="{Bind ItemRole.Name}"
+					 Grid.Row="1" Grid.Col="2"/>
 		<TextBox Grid.Row="2" Grid.ColSpan="2" Label="@[Name]" Value="{Bind ItemRole.Name}" 
 				 Bold="True" TabIndex="1" UpdateTrigger="Input"/>
-		<ComboBox Grid.Row="3" Grid.Col="1" Label="@[Color]" Value="{Bind ItemRole.Color}">
-			<ComboBoxItem Content="Default" Value=""/>
-			<ComboBoxItem Content="Green" Value="green"/>
-			<ComboBoxItem Content="Orange" Value="orange"/>
-			<ComboBoxItem Content="Cyan" Value="cyan"/>
-			<ComboBoxItem Content="Червоний" Value="red"/>
-			<ComboBoxItem Content="Purlple" Value="purple"/>
-			<ComboBoxItem Content="Pink" Value="pink"/>
-			<ComboBoxItem Content="Gold" Value="gold"/>
-			<ComboBoxItem Content="Синій" Value="blue"/>
-			<ComboBoxItem Content="Salmon" Value="salmon"/>
-			<ComboBoxItem Content="Seagreen" Value="seagreen"/>
-			<ComboBoxItem Content="Tan" Value="tan"/>
-			<ComboBoxItem Content="Magenta" Value="magenta"/>
-			<ComboBoxItem Content="LightGray" Value="lightgray"/>
-			<ComboBoxItem Content="Оливковий" Value="olive"/>
-			<ComboBoxItem Content="Teal" Value="teal"/>
-		</ComboBox>
-		<TagLabel Grid.Row="3" Grid.Col="2" Style="{Bind ItemRole.Color}" Content="{Bind ItemRole.Name}" 
-				  Padding=".475rem" CssClass="min-height-30" Grid.VAlign="Bottom"/>
-		<StackPanel If="{Bind ItemRole.$HasStock}" Grid.Row="4" Grid.Col="1" Grid.VAlign="Bottom"
+		<StackPanel If="{Bind ItemRole.$HasStock}" Grid.Row="3" Grid.Col="1" Grid.VAlign="Bottom"
 				Orientation="Horizontal" Gap="2rem" Padding="0,0,.5rem,0">
 			<CheckBox Label="@[Stock]" Value="{Bind ItemRole.IsStock}"/>
 			<CheckBox Label="@[HasPrice]" Value="{Bind ItemRole.HasPrice}"/>
 		</StackPanel>
-		<StackPanel Grid.Row="4" Grid.Col="1" If="{Bind ItemRole.$HasMoneyType}" 
-				Orientation="Horizontal" Gap="2rem" Padding="0,0,.5rem,0">
+		<StackPanel Grid.Row="3" Grid.Col="1" If="{Bind ItemRole.$HasMoneyType}" 
+				Orientation="Horizontal" Gap="2rem" Grid.VAlign="Center">
 			<Radio Label="@[CashFunds]" Value="{Bind ItemRole.ExType}" CheckedValue="C"/>
 			<Radio Label="@[NonCashFunds]" Value="{Bind ItemRole.ExType}" CheckedValue="B"/>
 		</StackPanel>
-		<Selector Label="@[CostItem]" Grid.Row="4" Grid.Col="2" If="{Bind ItemRole.$HasCostItem}"
+		<Selector Label="@[CostItem]" Grid.Row="3" Grid.Col="2" If="{Bind ItemRole.$HasCostItem}"
 						Value="{Bind ItemRole.CostItem}" DisplayProperty="Name">
 			<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind ItemRole.CostItem}, Url='/catalog/costitem/browse' }"/>
 		</Selector>
-		<TabBar Grid.Row="5" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
+		<TabBar Grid.Row="4" Grid.ColSpan="2" Value="{Bind Root.$$Tab}" Margin="0">
 			<TabButton ActiveValue="">@[Accounts]</TabButton>
 		</TabBar>
-		<Block Grid.Row="6" Grid.ColSpan="2">
+		<Block Grid.Row="5" Grid.ColSpan="2">
 			<Switch Expression="{Bind Root.$$Tab}">
 				<Case Value="">
 					<!--TODO: Toolbar LightStyle -->
@@ -104,7 +86,7 @@
 				</Case>
 			</Switch>
 		</Block>
-		<TextBox Grid.Row="7" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind ItemRole.Memo}" Multiline="True"/>
+		<TextBox Grid.Row="6" Grid.ColSpan="2" Label="@[Memo]" Value="{Bind ItemRole.Memo}" Multiline="True"/>
 	</Grid>
 </Dialog>
 
