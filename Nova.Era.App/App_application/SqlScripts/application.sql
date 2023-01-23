@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 18.01.2023 13:50:39
+generated: 23.01.2023 13:46:00
 */
 
 
@@ -8,7 +8,7 @@ generated: 18.01.2023 13:50:39
 
 /*
 version: 10.0.7910
-generated: 18.12.2022 23:11:43
+generated: 23.01.2023 13:31:13
 */
 
 set nocount on;
@@ -5816,7 +5816,6 @@ begin
 		(1531,   50, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 
 		-- Settings
-		(880,   88, 10, N'@[Dashboard]',    'dashboard', 'dashboard-outline', N'border-bottom'),
 		(881,   88, 11, N'@[Settings]',     null, null, null),
 		(8811, 881, 10, N'@[AccPolicy]',    N'policy',      N'gear-outline',  null),
 		(8812, 881, 10, N'@[AccountPlans]', N'accountplan', N'account',  null),
@@ -10062,7 +10061,7 @@ begin
 	from cat.ItemRoles ir
 	where ir.TenantId = @TenantId and ir.Void = 0 and
 		(@Kind is null or ir.Kind = @Kind)
-	order by ir.Id;
+	order by ir.Kind, ir.Id;
 end
 go
 ------------------------------------------------
@@ -10511,18 +10510,6 @@ end
 go
 
 /* Brand */
-drop procedure if exists cat.[Brand.Metadata];
-drop procedure if exists cat.[Brand.Update];
-drop type if exists cat.[Brand.TableType];
-go
-------------------------------------------------
-create type cat.[Brand.TableType] as table
-(
-	Id bigint,
-	[Name] nvarchar(255),
-	[Memo] nvarchar(255)
-)
-go
 ------------------------------------------------
 create or alter procedure cat.[Brand.Index]
 @TenantId int = 1,
@@ -10601,6 +10588,19 @@ begin
 	from cat.Brands b
 	where b.TenantId = @TenantId and b.Id = @Id;
 end
+go
+------------------------------------------------
+drop procedure if exists cat.[Brand.Metadata];
+drop procedure if exists cat.[Brand.Update];
+drop type if exists cat.[Brand.TableType];
+go
+------------------------------------------------
+create type cat.[Brand.TableType] as table
+(
+	Id bigint,
+	[Name] nvarchar(255),
+	[Memo] nvarchar(255)
+)
 go
 ---------------------------------------------
 create or alter procedure cat.[Brand.Metadata]
@@ -12930,14 +12930,14 @@ begin
 	set nocount on;
 	set transaction isolation level read committed;
 
-	declare @docs table(id bigint);
+	declare @docs table(id bigint);	
 	insert into @docs(id) 
 	select Id from doc.Documents where TenantId = @TenantId and UserCreated = @UserId and Temp = 1;
 
 	delete from doc.DocDetails from
 		doc.DocDetails dd inner join @docs d on dd.TenantId = @TenantId and dd.Document = d.id
 	update doc.Documents set Base = null, BindKind = null, BindFactor = null 
-	where TenantId = @TenantId and Base = (select id from @docs);
+	where TenantId = @TenantId and Base in (select id from @docs);
 	update doc.Documents set Parent = null where TenantId = @TenantId and Parent in (select id from @docs);
 
 	delete from doc.Documents where Id in (select id from @docs);
@@ -14748,12 +14748,13 @@ begin
 		account bigint, wh bigint, agent bigint, [contract] bigint, cashacc bigint, cashflowitem bigint,
 		project bigint);
 
-	select [Transactions!TTrans!Array] = null,
-		[Id!!Id] = TrNo, [Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
+	select [Transactions!TTrans!Array] = null, [Id!!Id] = TrNo, [Plan] = a.Code,
+		[Dt!TTransPart!Array] = null, [Ct!TTransPart!Array] = null
 	from jrn.Journal j
+		inner join acc.Accounts a on j.TenantId = a.TenantId and j.[Plan] = a.Id
 	where j.TenantId = @TenantId and j.Document = @Id
-	group by [TrNo]
-	order by TrNo;
+	group by [TrNo], a.Code
+	order by a.Code, TrNo;
 
 	-- dt
 	select *, [!TTrans.Dt!ParentId] = [!TrNo]
@@ -14948,12 +14949,18 @@ begin
 		set @ParentDoc = @Document;
 	end
 
+	declare @alreadysum money, @baseSum money;
+	select @baseSum = isnull([Sum], 0) from doc.Documents d where d.TenantId = @TenantId and d.Id = @BaseDoc;
+	-- calc remainder sum
+	select @alreadysum = isnull(sum(d.[Sum] * d.BindFactor), 0) 
+		from doc.Documents d where TenantId = @TenantId and d.Temp = 0 and
+			Base = @BaseDoc and d.BindKind = @linkkind;
 
 	insert into doc.Documents (TenantId, [Date], Operation, Parent, Base, BindKind, BindFactor, OpLink, Company, Agent, [Contract], [RespCenter], 
 		PriceKind, WhFrom, WhTo, Currency, UserCreated, Temp, [Sum])
 	output inserted.Id, inserted.Operation into @rtable(id, op)
 	select @TenantId, cast(getdate() as date), @operation, @ParentDoc, @BaseDoc, @linkkind, @factor, @LinkId, Company, Agent, [Contract], [RespCenter], 
-		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, [Sum]
+		PriceKind, WhFrom, WhTo, Currency, @UserId, 1, @baseSum - @alreadysum
 	from doc.Documents where TenantId = @TenantId and Id = @Document and Operation = @parent;
 
 	select [Document!TDocBase!Object] = null, [Id!!Id] = d.Id, d.[Date], d.[Sum], d.[Done],
@@ -18286,14 +18293,17 @@ as
 begin
 	set nocount on;
 
+	-- TEMPORARY
+	update doc.Operations set Kind = null where Kind like N'%.%';
+
 	-- operation kinds
 	declare @ok table(Id nvarchar(16),Factor smallint, [Order] int, [Name] nvarchar(255), Kind nvarchar(16), [Type] nchar(1));
 	insert into @ok(Id, Factor, [Order], [Type], [Kind], [Name]) values
-	(N'Sale.Order',     0, 1, N'B', N'Order',    N'@[OperationKind.OrderCust]'),
-	(N'Sale.Ship',      1, 2, N'P', N'Shipment', N'@[OperationKind.Shipment]'),
-	(N'Sale.RetCust',  -1, 3, N'P', N'Shipment', N'@[OperationKind.RetCust]'),
-	(N'Sale.PayCust',   1, 4, N'P', N'Payment',  N'@[OperationKind.PayCust]'),
-	(N'Sale.RetPay',   -1, 5, N'P', N'Payment',  N'@[OperationKind.RetPay]');
+	(N'Order',         0, 1, N'B', N'Order',    N'@[OperationKind.Order]'),
+	(N'Shipment',      1, 2, N'P', N'Shipment', N'@[OperationKind.Shipment]'),
+	(N'RetShipment',  -1, 3, N'P', N'Shipment', N'@[OperationKind.Return]'),
+	(N'Payment',       1, 4, N'P', N'Payment',  N'@[OperationKind.Payment]'),
+	(N'RetPayment',   -1, 5, N'P', N'Payment',  N'@[OperationKind.RetPayment]');
 
 	merge doc.OperationKinds as t
 	using @ok as s on t.Id = s.Id and t.TenantId = @TenantId
