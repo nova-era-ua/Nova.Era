@@ -2,13 +2,18 @@ define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const template = {
+        validators: {
+            'User.UserName': '@[Error.Required]',
+            'User.PersonName': '@[Error.Required]'
+        },
         commands: {
-            createUser
+            create
         }
     };
     exports.default = template;
-    async function createUser(users) {
+    function create(user) {
         const ctrl = this.$ctrl;
-        let user = await ctrl.$showDialog("/settings/user/create");
+        ctrl.$invoke("createUser", { User: user });
+        alert(JSON.stringify(user));
     }
 });

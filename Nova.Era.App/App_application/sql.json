@@ -67,6 +67,7 @@
 			"main/settings/develop/develop.sql",
 			"main/settings/develop/application.sql",
 			"main/settings/integration/integration.sql",
+			"main/settings/user/user.sql",
 			"main/sales/widgets/widgets.sql",
 			"main/_navpane/navpane.sql",
 			"main/_sql/admin.sql",
@@ -81,8 +82,7 @@
 		"inputFiles": [
 			"main/_sql/common/security_common.sql",
 			"main/_sql/catalog/catalog_security.sql",
-			"main/_sql/catalog/catalog_ui.sql",
-			"main/settings/user/catalog_user.sql"
+			"main/_sql/catalog/catalog_ui.sql"
 		]
 	},
 	{

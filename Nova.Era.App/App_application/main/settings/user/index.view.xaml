@@ -1,5 +1,34 @@
 ﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<EmptyPanel Icon="SmileSad">
-		Yet not implemented
-	</EmptyPanel>
+	<Grid Rows="Auto,1*" Height="100%" Padding="1rem">
+		<Toolbar Grid.Row="1" Style="Light" Padding="0">
+			<Button Icon="Plus" Content="@[Create]" 
+				Command="{BindCmd Execute, CommandName=createUser, Argument={Bind Users}}" />
+			<Button Icon="Edit"
+				Command="{BindCmd Dialog, Action=EditSelected, Argument={Bind Users}, 
+				Url='/settings/user/edit'}"/>
+			<Button Icon="Reload" Command="{BindCmd Reload}"/>
+		</Toolbar>
+		<DataGrid Grid.Row="2" Grid.VAlign="Stretch" XamlStyle="{StyleResource DataGridSimple}"
+				ItemsSource="{Bind Users}"
+				DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Users}, Url='/settings/user/edit'}">
+			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id"/>
+			<DataGridColumn Header="@[Login]" Content="{Bind UserName}"/>
+			<DataGridColumn Header="@[PersonName]" Content="{Bind PersonName}"/>
+			<DataGridColumn Header="@[Email]" Content="{Bind Email}"/>
+			<DataGridColumn Header="@[PhoneNumber]" Content="{Bind PhoneNumber}"/>
+			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
+			<DataGridColumn Fit="True" Wrap="NoWrap">
+				<CommandBar Visibility="Hover">
+					<Button Icon="Edit" Command="{BindCmd Dialog, Action=Edit, Argument={Bind}, Url='/settings/user/edit'}"/>
+					<Button Icon="Delete" 
+							Command="{BindCmd DbRemove, Argument={Bind}, Confirm='@[Confirm.Delete.Element]'}"/>
+				</CommandBar>
+			</DataGridColumn>
+		</DataGrid>
+	</Grid>
+	<Page.Taskpad>
+		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
+
+		</Taskpad>
+	</Page.Taskpad>
 </Page>
