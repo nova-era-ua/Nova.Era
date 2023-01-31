@@ -6,11 +6,11 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Grid>
-		<TextBox Label="@[Login]" Value="{Bind User.UserName}" TabIndex="1"/>
+		<TextBox Label="Логін" Value="{Bind User.UserName}" TabIndex="1"/>
 		<TextBox Label="@[PersonName]" Value="{Bind User.PersonName}" />
-		<TextBox Label="@[PhoneNumber]" Value="{Bind User.PhoneNumber}" />
-		<TextBox Label="@[Password]" Value="{Bind User.Password}" />
-		<TextBox Label="@[Confirm]" Value="{Bind User.Confirm}" />
+		<TextBox Label="@[Phone]" Value="{Bind User.PhoneNumber}" />
+		<TextBox Label="@[Password]" Value="{Bind User.Password}" Password="True"/>
+		<TextBox Label="@[Confirm]" Value="{Bind User.Confirm}" Password="True"/>
 		<TextBox Label="@[Memo]" Value="{Bind User.Memo}" Multiline="True" Rows="3"/>
 	</Grid>
 </Dialog>

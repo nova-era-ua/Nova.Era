@@ -227,5 +227,33 @@ begin
 	from appsec.Users where Id=@UserId;
 end
 go
+------------------------------------------------
+create or alter procedure appsec.[User.Simple.Create]
+@Tenant int = 1,
+@UserName nvarchar(255),
+@PersonName nvarchar(255),
+@PhoneNumber nvarchar(255),
+@Email nvarchar(255),
+@RegisterHost nvarchar(255),
+@Locale nvarchar(255) = null,
+@Segment nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @rt table(Id bigint);
+	insert into appsec.Users (Tenant, Segment, UserName, PersonName, PhoneNumber, Email, RegisterHost,
+		EmailConfirmed, SecurityStamp, PasswordHash)
+	output inserted.Id into @rt(Id)
+	values (@Tenant, @Segment, @UserName, @PersonName, @PhoneNumber, @Email, @RegisterHost,
+		1, N'', N'');
+
+	declare @id bigint;
+	select top(1) @id = Id from @rt;
+
+	select * from appsec.ViewUsers where Id=@Id;
+end
+go
 
 

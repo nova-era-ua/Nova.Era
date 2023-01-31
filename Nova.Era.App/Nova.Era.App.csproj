@@ -234,9 +234,12 @@
     <Content Include="App_application\main\_localization\main.en.txt" />
     <Content Include="App_application\main\_navpane\navpane.sql" />
     <Content Include="App_application\main\_sql\catalog\catalog_security.sql" />
+    <Content Include="App_application\main\_sql\common\security_common.sql" />
     <Content Include="App_application\main\_sql\flush.sql" />
+    <Content Include="App_application\main\_sql\initial_catalog.sql" />
     <Content Include="App_application\main\_sql\initial_data.sql" />
     <Content Include="App_application\main\_sql\common.sql" />
+    <Content Include="App_application\main\_sql\migrations.sql" />
     <Content Include="App_application\main\_sql\security.sql" />
     <Content Include="App_application\main\_sql\startup_mt.sql" />
     <Content Include="App_application\SqlScriptsDebug\drop_all_tables.sql" />
