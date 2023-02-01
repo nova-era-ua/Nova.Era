@@ -24,8 +24,23 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [User!TUser!Object] = null, [Id!!Id] = u.Id, u.UserName, u.PersonName, u.PhoneNumber, 
-		u.Email, 
+		u.Email,  u.Memo,
 		[Password] = cast(null as nvarchar(255)), Confirm = cast(null as nvarchar(255))
 	from appsec.Users u where 0 <> 0;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.[User.Load]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [User!TUser!Object] = null, [Id!!Id] = u.Id, u.UserName, u.PersonName, u.PhoneNumber, 
+		u.Email,  u.Memo
+	from appsec.Users u where u.Id = @Id;
 end
 go

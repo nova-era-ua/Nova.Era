@@ -1,5 +1,5 @@
 ﻿
-// User.Create
+// User.Edit
 const template: Template = {
 	validators: {
 		'User.UserName': '@[Error.Required]',
@@ -15,6 +15,5 @@ export default template;
 async function create(user) {
 	const ctrl: IController = this.$ctrl;
 	let newuser = await ctrl.$invoke("createUser", { User: user });
-	console.dir(newuser);
-	ctrl.$modalClose(newuser);
+
 }

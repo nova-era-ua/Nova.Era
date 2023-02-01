@@ -236,17 +236,18 @@ create or alter procedure appsec.[User.Simple.Create]
 @Email nvarchar(255),
 @RegisterHost nvarchar(255),
 @Locale nvarchar(255) = null,
-@Segment nvarchar(255) = null
+@Segment nvarchar(255) = null,
+@Memo nvarchar(255) = null
 as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
 
 	declare @rt table(Id bigint);
-	insert into appsec.Users (Tenant, Segment, UserName, PersonName, PhoneNumber, Email, RegisterHost,
+	insert into appsec.Users (Tenant, Segment, UserName, PersonName, PhoneNumber, Email, Memo, RegisterHost,
 		EmailConfirmed, SecurityStamp, PasswordHash)
 	output inserted.Id into @rt(Id)
-	values (@Tenant, @Segment, @UserName, @PersonName, @PhoneNumber, @Email, @RegisterHost,
+	values (@Tenant, @Segment, @UserName, @PersonName, @PhoneNumber, @Email, @Memo, @RegisterHost,
 		1, N'', N'');
 
 	declare @id bigint;

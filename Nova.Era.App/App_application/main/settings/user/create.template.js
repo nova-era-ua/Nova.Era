@@ -11,9 +11,10 @@ define(["require", "exports"], function (require, exports) {
         }
     };
     exports.default = template;
-    function create(user) {
+    async function create(user) {
         const ctrl = this.$ctrl;
-        ctrl.$invoke("createUser", { User: user });
-        alert(JSON.stringify(user));
+        let newuser = await ctrl.$invoke("createUser", { User: user });
+        console.dir(newuser);
+        ctrl.$modalClose(newuser);
     }
 });
