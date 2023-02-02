@@ -256,5 +256,14 @@ begin
 	select * from appsec.ViewUsers where Id=@Id;
 end
 go
+------------------------------------------------
+create or alter procedure appsec.[UserStateInfo.Load]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	select [UserState!TUserState!Object] = null;
+end
+go
 
 

@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 25.01.2023 14:44:56
+generated: 02.02.2023 09:42:58
 */
 
 
@@ -235,6 +235,44 @@ begin
 	from appsec.Users where Id=@UserId;
 end
 go
+------------------------------------------------
+create or alter procedure appsec.[User.Simple.Create]
+@Tenant int = 1,
+@UserName nvarchar(255),
+@PersonName nvarchar(255),
+@PhoneNumber nvarchar(255),
+@Email nvarchar(255),
+@RegisterHost nvarchar(255),
+@Locale nvarchar(255) = null,
+@Segment nvarchar(255) = null,
+@Memo nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @rt table(Id bigint);
+	insert into appsec.Users (Tenant, Segment, UserName, PersonName, PhoneNumber, Email, Memo, RegisterHost,
+		EmailConfirmed, SecurityStamp, PasswordHash)
+	output inserted.Id into @rt(Id)
+	values (@Tenant, @Segment, @UserName, @PersonName, @PhoneNumber, @Email, @Memo, @RegisterHost,
+		1, N'', N'');
+
+	declare @id bigint;
+	select top(1) @id = Id from @rt;
+
+	select * from appsec.ViewUsers where Id=@Id;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.[UserStateInfo.Load]
+@TenantId int = 1,
+@UserId bigint
+as
+begin
+	select [UserState!TUserState!Object] = null;
+end
+go
 
 
 
@@ -307,21 +345,5 @@ if not exists(select * from a2sys.SysParams where [Name] = N'AppTitle')
 	insert into a2sys.SysParams ([Name], StringValue) values (N'AppTitle', N'Nova.Era');
 else
 	update a2sys.SysParams set StringValue = N'Nova.Era' where [Name] = N'AppTitle';
-go
-
--- SETTINGS.USER
-------------------------------------------------
-create or alter procedure appsec.[User.Index]
-@TenantId int = 1,
-@UserId bigint
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-
-	select [User!TUser!Array] = null, [Id!!Id] = u.Id, u.UserName, u.PersonName, u.LastLoginHost
-	from appsec.Users u where Tenant = @TenantId and Void = 0;
-
-end
 go
 

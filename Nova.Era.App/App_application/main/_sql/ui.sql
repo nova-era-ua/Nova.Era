@@ -1,9 +1,27 @@
 ﻿/*
 user interface
 */
+drop procedure if exists ui.[MenuModule.Merge];
+drop type if exists ui.[MenuModule.TableType];
+go
 -------------------------------------------------
-if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'a2ui' and TABLE_NAME=N'Catalog')
-create table a2ui.[Catalog]
+create type ui.[MenuModule.TableType] as table
+(
+	Id bigint,
+	Parent bigint,
+	[Name] nvarchar(255),
+	[Url] nvarchar(255),
+	Icon nvarchar(255),
+	[Model] nvarchar(255),
+	[Order] int,
+	[Description] nvarchar(255),
+	[Help] nvarchar(255),
+	Module nvarchar(16),
+	ClassName nvarchar(255)
+);
+-------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'ui' and TABLE_NAME=N'Catalog')
+create table ui.[Catalog]
 (
 	Id int not null
 		constraint PK_Catalog primary key,
@@ -14,6 +32,32 @@ create table a2ui.[Catalog]
 	[Url] nvarchar(255),
 	[Order] int,
 	[Category] nvarchar(16)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA=N'ui' and SEQUENCE_NAME=N'SQ_Menu')
+	create sequence ui.SQ_Menu as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'ui' and TABLE_NAME=N'Menu')
+create table ui.Menu
+(
+	Id	bigint not null constraint PK_Menu primary key
+		constraint DF_Menu_PK default(next value for ui.SQ_Menu),
+	Parent bigint null
+		constraint FK_Menu_Parent_Menu foreign key references ui.Menu(Id),
+	[Key] nchar(4) null,
+	[Name] nvarchar(255) null,
+	[Url] nvarchar(255) null,
+	Icon nvarchar(255) null,
+	Model nvarchar(255) null,
+	Help nvarchar(255) null,
+	[Order] int not null constraint DF_Menu_Order default(0),
+	[Description] nvarchar(255) null,
+	[Params] nvarchar(255) null,
+	[Feature] nchar(4) null,
+	[Feature2] nvarchar(255) null,
+	[ClassName] nvarchar(255) null	
 );
 go
 ------------------------------------------------
@@ -32,7 +76,39 @@ else
 	update a2sys.SysParams set StringValue = N'Нова Ера' where [Name] = N'AppTitle';
 go
 ------------------------------------------------
-create or alter procedure a2ui.[Menu.Simple.User.Load]
+create procedure ui.[MenuModule.Merge]
+@Menu ui.[MenuModule.TableType] readonly,
+@Start bigint,
+@End bigint
+as
+begin
+	with T as (
+		select * from ui.Menu where Id >=@Start and Id <= @End
+	)
+	merge T as t
+	using @Menu as s
+	on t.Id = s.Id 
+	when matched then
+		update set
+			t.Id = s.Id,
+			t.Parent = s.Parent,
+			t.[Name] = s.[Name],
+			t.[Url] = s.[Url],
+			t.[Icon] = s.Icon,
+			t.[Order] = s.[Order],
+			t.Model = s.Model,
+			t.[Description] = s.[Description],
+			t.Help = s.Help,
+			t.ClassName = s.ClassName
+	when not matched by target then
+		insert(Id, Parent, [Name], [Url], Icon, [Order], Model, [Description], Help, ClassName) values 
+		(Id, Parent, [Name], [Url], Icon, [Order], Model, [Description], Help, ClassName)
+	when not matched by source and t.Id >= @Start and t.Id < @End then 
+		delete;
+end
+go
+------------------------------------------------
+create or alter procedure ui.[Menu.Simple.User.Load]
 @TenantId int = 1,
 @UserId bigint = null,
 @Mobile bit = 0,
@@ -44,17 +120,17 @@ begin
 
 	with RT as (
 		select Id=m0.Id, ParentId = m0.Parent, [Level]=0
-			from a2ui.Menu m0
+			from ui.Menu m0
 			where m0.Id = @Root
 		union all
 		select m1.Id, m1.Parent, RT.[Level]+1
-			from RT inner join a2ui.Menu m1 on m1.Parent = RT.Id
+			from RT inner join ui.Menu m1 on m1.Parent = RT.Id
 	)
 	select [Menu!TMenu!Tree] = null, [Id!!Id]=RT.Id, [!TMenu.Menu!ParentId]=RT.ParentId,
 		[Menu!TMenu!Array] = null,
 		m.Name, m.Url, m.Icon, m.[Description], m.Help, m.Params, m.ClassName
 	from RT 
-		inner join a2ui.Menu m on RT.Id=m.Id
+		inner join ui.Menu m on RT.Id=m.Id
 	order by RT.[Level], m.[Order], RT.[Id];
 
 	-- system parameters
@@ -69,8 +145,7 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 
-	declare @menu a2ui.[MenuModule.TableType];
-	truncate table a2security.[Menu.Acl];
+	declare @menu ui.[MenuModule.TableType];
 
 	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon, ClassName) 
 	values
@@ -178,7 +253,7 @@ begin
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
 
-	exec a2ui.[MenuModule.Merge] @menu, 1, 9999;
+	exec ui.[MenuModule.Merge] @menu, 1, 9999;
 end
 go
 -------------------------------------------------
@@ -228,7 +303,7 @@ begin
 	(940, N'Settings',  40, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N''),
 	(950, N'Settings',  50, N'@[Crm]',    N'@[LeadStages]',        N'/catalog/crm/leadstage/index', N'list',  N'');
 
-	merge a2ui.[Catalog] as t
+	merge ui.[Catalog] as t
 	using @cat as s on t.Id = s.Id
 	when matched then update set
 		t.[Name] = s.[Name],
@@ -245,7 +320,7 @@ begin
 end
 go
 -------------------------------------------------
-create or alter procedure a2ui.[Catalog.Other.Index]
+create or alter procedure ui.[Catalog.Other.Index]
 @TenantId int = 1,
 @UserId bigint = null,
 @Mobile bit = 0,
@@ -256,7 +331,7 @@ begin
 	set transaction isolation level read uncommitted;
 	select [Catalog!TCatalog!Array] = null, [Id!!Id] = Id,
 		[Name], [Memo], Icon, [Url], Category
-	from a2ui.[Catalog]
+	from ui.[Catalog]
 	where Menu = @Menu order by [Order];
 end
 go
@@ -288,5 +363,36 @@ begin
 		(Id,  [Key], [Name], [Order], Memo, [SetupUrl], DocumentUrl, Icon, Logo) values
 		(s.Id, [Key], s.[Name], [Order], Memo, [SetupUrl], DocumentUrl, Icon, Logo)
 	when not matched by source then delete;
+end
+go
+-- TODO : удалить в следующей версии. Теперь оно в 
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2ui')
+	exec sp_executesql N'create schema a2ui';
+go
+grant execute on schema ::a2ui to public;
+go
+------------------------------------------------
+create or alter procedure a2ui.[AppTitle.Load]
+as
+begin
+	set nocount on;
+	select [AppTitle], [AppSubTitle]
+	from (select Name, Value=StringValue from a2sys.SysParams) as s
+		pivot (min(Value) for Name in ([AppTitle], [AppSubTitle])) as p;
+end
+go
+-- TODO: удалить в следующей версии - теперь оно в appsec.
+if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2security')
+	exec sp_executesql N'create schema a2security';
+go
+grant execute on schema ::a2security to public;
+go
+------------------------------------------------
+create procedure a2security.[UserStateInfo.Load]
+@TenantId int = null,
+@UserId bigint
+as
+begin
+	select [UserState!TUserState!Object] = null;
 end
 go

@@ -1,6 +1,6 @@
 ﻿{
   "$schema": "../../../@schemas/model-json-schema.json#",
-  "schema": "a2ui",
+  "schema": "ui",
   "model": "Catalog.Other",
   "actions": {
     "index": {

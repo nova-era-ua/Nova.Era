@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 25.01.2023 14:44:56
+generated: 02.02.2023 09:42:58
 */
 
 
@@ -14,7 +14,7 @@ create or alter procedure appsec.OnCreateTenant
 @TenantId int
 as
 begin
-	set nocount on
+	set nocount on;
 	exec ini.[Cat.OnCreateTenant] @TenantId = @TenantId;
 	exec ini.[Forms.OnCreateTenant] @TenantId = @TenantId;
 	exec ini.[Rep.OnCreateTenant] @TenantId = @TenantId;

@@ -1,6 +1,6 @@
 -- security schema
 ------------------------------------------------
-create or alter procedure a2security.SetTenantId
+create or alter procedure appsec.SetTenantId
 @TenantId int
 as
 begin

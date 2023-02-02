@@ -4,7 +4,7 @@
 		"version": "10.1.1028",
 		"outputFile": "SqlScripts/application.sql",
 		"inputFiles": [
-			"@sql/platform/a2v10platform.sql",
+			"@sql/platform/a2v10minimal.sql",
 			"main/_sql/common/security_common.sql",
 			"main/_sql/security.sql",
 			"main/_sql/struct.sql",
