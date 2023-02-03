@@ -71,6 +71,7 @@
 @Categories=Категорії
 @Category=Категорія
 @Defaults=Замовчування
+@License=Ліцензія
 @Filters=Фільтри
 @Grouping=Групування
 @Grouping.Item=Групування об'єктів обліку

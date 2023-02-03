@@ -137,7 +137,6 @@ begin
 	select [SysParams!TParam!Object]= null, [AppTitle], [AppSubTitle], [SideBarMode], [NavBarMode], [Pages]
 	from (select [Name], [Value]=StringValue from a2sys.SysParams) as s
 		pivot (min([Value]) for [Name] in ([AppTitle], [AppSubTitle], [SideBarMode], [NavBarMode], [Pages])) as p;
-
 end
 go
 ------------------------------------------------
@@ -251,7 +250,8 @@ begin
 		(8850,  88, 30, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
 		(8851,  88, 99, N'Test',            N'test',      N'file', null),
 		-- Profile
-		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
+		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null),
+		(9002,  90, 20, N'@[License]',     N'license',   N'policy', null);
 
 	exec ui.[MenuModule.Merge] @menu, 1, 9999;
 end
@@ -363,36 +363,5 @@ begin
 		(Id,  [Key], [Name], [Order], Memo, [SetupUrl], DocumentUrl, Icon, Logo) values
 		(s.Id, [Key], s.[Name], [Order], Memo, [SetupUrl], DocumentUrl, Icon, Logo)
 	when not matched by source then delete;
-end
-go
--- TODO : удалить в следующей версии. Теперь оно в 
-if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2ui')
-	exec sp_executesql N'create schema a2ui';
-go
-grant execute on schema ::a2ui to public;
-go
-------------------------------------------------
-create or alter procedure a2ui.[AppTitle.Load]
-as
-begin
-	set nocount on;
-	select [AppTitle], [AppSubTitle]
-	from (select Name, Value=StringValue from a2sys.SysParams) as s
-		pivot (min(Value) for Name in ([AppTitle], [AppSubTitle])) as p;
-end
-go
--- TODO: удалить в следующей версии - теперь оно в appsec.
-if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2security')
-	exec sp_executesql N'create schema a2security';
-go
-grant execute on schema ::a2security to public;
-go
-------------------------------------------------
-create procedure a2security.[UserStateInfo.Load]
-@TenantId int = null,
-@UserId bigint
-as
-begin
-	select [UserState!TUserState!Object] = null;
 end
 go

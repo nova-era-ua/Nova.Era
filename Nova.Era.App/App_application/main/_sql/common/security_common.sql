@@ -262,7 +262,7 @@ create or alter procedure appsec.[UserStateInfo.Load]
 @UserId bigint
 as
 begin
-	select [UserState!TUserState!Object] = null;
+	select [UserState!TUserState!Object] = null, License = N'LICENSE TEXT HERE';
 end
 go
 

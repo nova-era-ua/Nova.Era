@@ -619,6 +619,7 @@
     <TypeScriptCompile Include="App_application\main\document\order.index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\_common\bind.module.ts" />
     <Content Include="App_application\main\integration\delivery\novaposhta\checkconnect.server.js" />
+    <TypeScriptCompile Include="App_application\main\profile\license\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\reports\account\turnover.accrespcost.template.ts" />
     <TypeScriptCompile Include="App_application\main\appinit\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\document\money\cashmove\edit.template.ts" />
@@ -683,12 +684,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\main\profile\license\index.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Page Include="App_application\main\_navpane\navpane.view.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Content Include="App_application\main\reports\cash\model.json" />
     <Content Include="App_application\main\reports\settle\model.json" />
+    <Content Include="App_application\main\profile\license\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

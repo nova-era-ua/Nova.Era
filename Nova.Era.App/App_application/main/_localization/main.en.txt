@@ -71,6 +71,7 @@
 @Categories=Categories
 @Category=Category
 @Defaults=Defaults
+@License=License
 @Filters=Filters
 @Grouping=Grouping
 @Grouping.Item=Item Grouping

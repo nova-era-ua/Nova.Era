@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 02.02.2023 09:42:58
+generated: 03.02.2023 05:18:35
 */
 
 
@@ -2887,37 +2887,6 @@ begin
 		(Id,  [Key], [Name], [Order], Memo, [SetupUrl], DocumentUrl, Icon, Logo) values
 		(s.Id, [Key], s.[Name], [Order], Memo, [SetupUrl], DocumentUrl, Icon, Logo)
 	when not matched by source then delete;
-end
-go
--- TODO : to a2v10minimal.sql
-if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2ui')
-	exec sp_executesql N'create schema a2ui';
-go
-grant execute on schema ::a2ui to public;
-go
-------------------------------------------------
-create or alter procedure a2ui.[AppTitle.Load]
-as
-begin
-	set nocount on;
-	select [AppTitle], [AppSubTitle]
-	from (select Name, Value=StringValue from a2sys.SysParams) as s
-		pivot (min(Value) for Name in ([AppTitle], [AppSubTitle])) as p;
-end
-go
--- TODO: remove it (starting at 7918 appsec.
-if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2security')
-	exec sp_executesql N'create schema a2security';
-go
-grant execute on schema ::a2security to public;
-go
-------------------------------------------------
-create procedure a2security.[UserStateInfo.Load]
-@TenantId int = null,
-@UserId bigint
-as
-begin
-	select [UserState!TUserState!Object] = null;
 end
 go
 
