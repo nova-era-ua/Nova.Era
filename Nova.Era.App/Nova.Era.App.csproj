@@ -107,6 +107,7 @@
     <Content Include="App_application\main\catalog\itemrole\itemrole.sql" />
     <Content Include="App_application\main\catalog\cashflowitem\cashflowitem.sql" />
     <Content Include="App_application\main\catalog\pricekind\pricekind.sql" />
+    <Content Include="App_application\main\catalog\tag\tag.sql" />
     <Content Include="App_application\main\catalog\vendor\vendor.sql" />
     <Content Include="App_application\main\catalog\warehouse\warehouse.sql" />
     <Content Include="App_application\main\accounting\widgets\cashflow.view.xaml">
@@ -565,6 +566,7 @@
     <Content Include="App_application\main\catalog\itemoption\model.json" />
     <None Include="App_application\main\catalog\pricekind\model.json" />
     <Content Include="App_application\main\catalog\taxes\model.json" />
+    <Content Include="App_application\main\catalog\tag\model.json" />
     <None Include="App_application\main\catalog\warehouse\model.json" />
     <None Include="App_application\main\catalog\company\model.json" />
     <None Include="App_application\main\catalog\vendor\model.json" />

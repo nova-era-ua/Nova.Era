@@ -1,0 +1,12 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "cat",
+	"model": "Tag",
+	"dialogs": {
+		"settings": {
+			"index": true,
+			"template": "settings.template",
+			"view": "settings.dialog"
+		}
+	}
+}

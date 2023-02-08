@@ -34,6 +34,8 @@
 @Company=Company
 @Document=Document
 @Type=Type
+@Tag=Tag
+@Tags=Tags
 @Active=Active
 @Other=Other
 @AccPolicy=Accounting Policy
@@ -182,6 +184,9 @@
 ; Actions
 @Add=Add
 @Open=Open
+; Tag
+@Tag.Settings=Tag settings
+@Tag.Choose=Choose tags
 ;
 @Debit=Debit
 @Credit=Credit

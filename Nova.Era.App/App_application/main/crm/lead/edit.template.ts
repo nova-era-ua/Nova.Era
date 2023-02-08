@@ -12,7 +12,14 @@ const template: Template = {
 	},
 	defaults: {
 		'Lead.Stage'(this: any) { return this.Stages.find(x => x.Kind === 'I'); }
+	},
+	delegates: {
+		tagSettings
 	}
 };
 
 export default template;
+
+function tagSettings() {
+
+}

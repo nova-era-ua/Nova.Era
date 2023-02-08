@@ -10,9 +10,14 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Agents!TAgent!Array] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
-		FullName, [Memo]
+		FullName, [Memo], [Tags!TTag!Array] = null
 	from cat.Agents a
 	where TenantId = @TenantId and [Partner] = 1
+
+	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
+		[!TAgent.Tags!ParentId] = ta.Agent
+	from cat.TagsAgent ta inner join cat.Tags t on ta.TenantId = t.TenantId and ta.Tag = t.Id
+	order by t.Id;
 end
 go
 -------------------------------------------------
@@ -27,7 +32,8 @@ begin
 
 	select [Agent!TAgent!Object] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
 		FullName, [Memo], IsSupplier, IsCustomer,
-		[Contacts!TContact!Array] = null
+		[Contacts!TContact!Array] = null,
+		[Tags!TTag!Array] = null
 	from cat.Agents a
 	where TenantId = @TenantId and Id = @Id;
 
@@ -36,7 +42,15 @@ begin
 		[!TAgent.Contacts!ParentId] = ac.Agent
 	from cat.Contacts c
 		inner join cat.AgentContacts ac on c.TenantId = ac.TenantId and c.Id = ac.Contact
-	where ac.TenantId = @TenantId and ac.Agent = @Id
+	where ac.TenantId = @TenantId and ac.Agent = @Id;
+
+	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
+		[!TAgent.Tags!ParentId] = ta.Agent
+	from cat.TagsAgent ta 
+		inner join cat.Tags t on ta.TenantId = t.TenantId and ta.Tag = t.Id
+	where ta.Agent = @Id;
+
+	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Agent';
 end
 go
 -------------------------------------------------
@@ -71,7 +85,9 @@ begin
 	set transaction isolation level read uncommitted;
 	declare @Agent cat.[Agent.TableType];
 	declare @Contacts cat.[Agent.Contact.TableType];
+	declare @Tag a2sys.[Id.TableType];
 	select [Agent!Agent!Metadata] = null, * from @Agent;
+	select [Tags!Agent.Tags!Metadata] = null, * from @Tag;
 	select [Contacts!Agent.Contacts!Metadata] = null, * from @Contacts;
 end
 go
@@ -80,7 +96,8 @@ create or alter procedure cat.[Agent.Update]
 @TenantId int = 1,
 @UserId bigint,
 @Agent cat.[Agent.TableType] readonly, 
-@Contacts cat.[Agent.Contact.TableType] readonly
+@Contacts cat.[Agent.Contact.TableType] readonly,
+@Tags a2sys.[Id.TableType] readonly
 as
 begin
 	set nocount on;
@@ -88,7 +105,7 @@ begin
 
 	/*
 	declare @xml nvarchar(max);
-	set @xml = (select * from @Contacts for xml auto);
+	set @xml = (select * from @Tags for xml auto);
 	throw 60000, @xml, 0;
 	*/
 
@@ -122,6 +139,18 @@ begin
 		(TenantId, Agent, Contact) values
 		(@TenantId, @id, s.Id)
 	when not matched by source then delete;
+
+	with TT as (
+		select * from cat.TagsAgent where TenantId = @TenantId and Agent = @id
+	)
+	merge TT as t
+	using @Tags as s
+	on t.TenantId = @TenantId and t.Tag = s.Id
+	when not matched by target then insert
+		(TenantId, Agent, Tag) values
+		(@TenantId, @id, s.Id)
+	when not matched by source and t.Agent = @id and t.TenantId = @TenantId
+	then delete;
 
 	exec cat.[Agent.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end

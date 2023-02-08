@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 03.02.2023 05:18:35
+generated: 07.02.2023 08:36:30
 */
 
 
@@ -318,7 +318,7 @@ create or alter procedure appsec.[UserStateInfo.Load]
 @UserId bigint
 as
 begin
-	select [UserState!TUserState!Object] = null;
+	select [UserState!TUserState!Object] = null, License = N'LICENSE TEXT HERE';
 end
 go
 
@@ -1067,6 +1067,38 @@ create table cat.CashAccounts
 		constraint FK_CashAccounts_Currency_Currencies foreign key (TenantId, Currency) references cat.Currencies(TenantId, Id),
 		constraint FK_CashAccounts_Bank_Banks foreign key (TenantId, Bank) references cat.Banks(TenantId, Id),
 		constraint FK_CashAccounts_ItemRole_ItemRoles foreign key (TenantId, ItemRole) references cat.ItemRoles(TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Tags')
+	create sequence cat.SQ_Tags as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Tags')
+create table cat.Tags
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Tags_Id default(next value for cat.SQ_Tags),
+	[For] nvarchar(32) not null,
+	Void bit not null 
+		constraint DF_Tags_Void default(0),
+	[Name] nvarchar(255),
+	[Color] nvarchar(32),
+	[Memo] nvarchar(255),
+		constraint PK_Tags primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'TagsAgent')
+create table cat.TagsAgent
+(
+	TenantId int not null,
+	Tag bigint not null,
+	Agent bigint not null
+		constraint PK_TagAgents primary key (TenantId, Tag, Agent),
+		constraint FK_TagAgents_Tag_Tags foreign key (TenantId, Tag) references cat.Tags(TenantId, Id),
+		constraint FK_TagAgents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -2661,7 +2693,6 @@ begin
 	select [SysParams!TParam!Object]= null, [AppTitle], [AppSubTitle], [SideBarMode], [NavBarMode], [Pages]
 	from (select [Name], [Value]=StringValue from a2sys.SysParams) as s
 		pivot (min([Value]) for [Name] in ([AppTitle], [AppSubTitle], [SideBarMode], [NavBarMode], [Pages])) as p;
-
 end
 go
 ------------------------------------------------
@@ -2775,7 +2806,8 @@ begin
 		(8850,  88, 30, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
 		(8851,  88, 99, N'Test',            N'test',      N'file', null),
 		-- Profile
-		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null);
+		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null),
+		(9002,  90, 20, N'@[License]',     N'license',   N'policy', null);
 
 	exec ui.[MenuModule.Merge] @menu, 1, 9999;
 end
@@ -8698,6 +8730,26 @@ begin
 end
 go
 
+
+/* Tag */
+------------------------------------------------
+create or alter procedure cat.[Tag.Index]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint = null,
+@For nvarchar(32)
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Tags!TTag!Array] = null,
+		[Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color, t.[Memo]
+	from cat.Tags t
+	where t.TenantId = @TenantId and t.[For] = @For and t.Void = 0
+	order by t.Id;
+end
+go
 
 /* LeadStage */
 drop procedure if exists crm.[LeadStage.Metadata];

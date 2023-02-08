@@ -667,6 +667,38 @@ create table cat.CashAccounts
 );
 go
 ------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'cat' and SEQUENCE_NAME = N'SQ_Tags')
+	create sequence cat.SQ_Tags as bigint start with 100 increment by 1;
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'Tags')
+create table cat.Tags
+(
+	TenantId int not null,
+	Id bigint not null
+		constraint DF_Tags_Id default(next value for cat.SQ_Tags),
+	[For] nvarchar(32) not null,
+	Void bit not null 
+		constraint DF_Tags_Void default(0),
+	[Name] nvarchar(255),
+	[Color] nvarchar(32),
+	[Memo] nvarchar(255),
+		constraint PK_Tags primary key (TenantId, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'cat' and TABLE_NAME=N'TagsAgent')
+create table cat.TagsAgent
+(
+	TenantId int not null,
+	Tag bigint not null,
+	Agent bigint not null
+		constraint PK_TagAgents primary key (TenantId, Tag, Agent),
+		constraint FK_TagAgents_Tag_Tags foreign key (TenantId, Tag) references cat.Tags(TenantId, Id),
+		constraint FK_TagAgents_Agent_Agents foreign key (TenantId, Agent) references cat.Agents(TenantId, Id)
+);
+go
+------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SEQUENCES where SEQUENCE_SCHEMA = N'crm' and SEQUENCE_NAME = N'SQ_LeadStages')
 	create sequence crm.SQ_LeadStages as bigint start with 100 increment by 1;
 go
@@ -717,6 +749,18 @@ create table crm.Leads (
 	constraint FK_Leads_Agent_Agnets foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
 	constraint FK_Leads_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
 	constraint FK_Leads_UserModified_Users foreign key (TenantId, UserModified) references appsec.Users(Tenant, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'crm' and TABLE_NAME=N'TagsLead')
+create table crm.TagsLead
+(
+	TenantId int not null,
+	Tag bigint not null,
+	[Lead] bigint not null
+		constraint PK_TagsLeads primary key (TenantId, Tag, [Lead]),
+		constraint FK_TagsLeads_Tag_Tags foreign key (TenantId, Tag) references cat.Tags(TenantId, Id),
+		constraint FK_TagsLeads_Lead_Leads foreign key (TenantId, [Lead]) references crm.Leads(TenantId, Id)
 );
 go
 ------------------------------------------------

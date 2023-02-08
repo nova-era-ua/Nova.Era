@@ -5,13 +5,12 @@
 	</connectionStrings>
 	
 	<appSettings>
-		<add key="appPath" value="###full_path_for_catalog###/New.Era.App/App_application" />
+		<add key="appPath" value="###full_path_for_application_catalog###" />
 		<add key="appKey" value="main" />
 		<add key="configuration" value="debug" />
 		<add key="theme" value="advance.blue"/>
 		<add key="customUserMenu" value="ui.[Menu.Simple.User.Load]"/>
 		<add key="customSecuritySchema" value="appsec"/>
-		<add key="availableLocales" value="uk-UA" />
 	</appSettings>
 
 	<system.web>

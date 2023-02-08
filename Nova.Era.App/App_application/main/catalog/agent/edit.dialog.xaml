@@ -30,6 +30,11 @@
 				</Case>
 			</Switch>
 		</Block>
+		<TagsControl Label="@[Tags]"
+			Value="{Bind Agent.Tags}" ItemsSource="{Bind Tags}" Disabled="False"
+					 SettingsDelegate="tagSettings" SettingsText="@[Tag.Settings]" 
+					 Placeholder="@[Tag.Choose]">
+		</TagsControl>
 		<TextBox  Label="@[Memo]" Value="{Bind Agent.Memo}" UpdateTrigger="Input" Multiline="True"/>
 	</Grid>
 </Dialog>

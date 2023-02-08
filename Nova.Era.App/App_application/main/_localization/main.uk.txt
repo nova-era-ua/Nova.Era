@@ -34,6 +34,8 @@
 @Company=Підприємство
 @Document=Документ
 @Type=Тип
+@Tag=Тег
+@Tags=Теги
 @Active=Активний
 @Other=Інше
 @AccPolicy=Налаштування обліку
@@ -182,6 +184,9 @@
 ; Actions
 @Add=Додати
 @Open=Відкрити
+; Tag
+@Tag.Settings=Налаштувати теги
+@Tag.Choose=Оберіть теги
 ;
 @Debit=Дебет
 @Credit=Кредит

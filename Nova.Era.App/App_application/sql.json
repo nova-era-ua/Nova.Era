@@ -13,6 +13,7 @@
 			"main/_sql/ui.sql",
 			"main/profile/default/default.sql",
 			"main/settings/policy/policy.sql",
+			"main/catalog/tag/tag.sql",
 			"main/catalog/company/company.sql",
 			"main/catalog/warehouse/warehouse.sql",
 			"main/catalog/item/item.sql",

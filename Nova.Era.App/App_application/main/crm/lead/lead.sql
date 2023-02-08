@@ -96,13 +96,21 @@ begin
 		[Agent!TAgent!RefId] = c.Agent, [Contact!TContact!RefId] = c.Contact, [Stage!TStage!RefId] = c.Stage,
 		c.Amount, [Currency!TCurrency!RefId] = c.Currency,
 		[DateCreated!!Utc] = c.UtcDateCreated,
+		[Tags!TTag!Array] = null,
 		[!!RowCount] = t.rowcnt
 	from @leads t inner join 
 		crm.Leads c on c.TenantId = @TenantId and c.Id = t.id
 	order by t.rowno;
 
+
 	-- maps
 	exec crm.[Lead.Maps] @TenantId, @leads;
+
+	-- tags
+	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
+		[!TLead.Tags!ParentId] = tl.[Lead]
+	from crm.TagsLead tl inner join cat.Tags t on tl.TenantId = t.TenantId and tl.Tag = t.Id
+	order by t.Id;
 
 	select [!$System!] = null, [!Leads!Offset] = @Offset, [!Leads!PageSize] = @PageSize, 
 		[!Leads!SortOrder] = @Order, [!Leads!SortDir] = @Dir,
@@ -122,6 +130,7 @@ begin
 	select [Lead!TLead!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo,
 		[Agent!TAgent!RefId] = c.Agent, [Contact!TContact!RefId] = c.Contact, [Stage!TStage!RefId] = c.Stage,
 		c.Amount, [Currency!TCurrency!RefId] = c.Currency,
+		[Tags!TTag!Array] = null,
 		[DateCreated!!Utc] = c.UtcDateCreated
 	from crm.Leads c
 	where c.TenantId = @TenantId and c.Id = @Id;
@@ -133,6 +142,14 @@ begin
 
 	-- maps
 	exec crm.[Lead.Maps] @TenantId, @leads;
+
+	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
+		[!TLead.Tags!ParentId] = tl.[Lead]
+	from crm.TagsLead tl 
+		inner join cat.Tags t on tl.TenantId = t.TenantId and tl.Tag = t.Id
+	where tl.[Lead] = @Id;
+
+	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Lead';
 end
 go
 -------------------------------------------------
@@ -160,14 +177,17 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	declare @Lead crm.[Lead.TableType];
+	declare @Tag a2sys.[Id.TableType];
 	select [Lead!Lead!Metadata] = null, * from @Lead;
+	select [Tags!Lead.Tags!Metadata] = null, * from @Tag;
 end
 go
 ------------------------------------------------
 create or alter procedure crm.[Lead.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Lead crm.[Lead.TableType] readonly
+@Lead crm.[Lead.TableType] readonly,
+@Tags a2sys.[Id.TableType] readonly
 as
 begin
 	set nocount on;
@@ -196,6 +216,19 @@ begin
 		    @UserId, @UserId, getutcdate())
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
+
+	with TT as (
+		select * from crm.TagsLead where TenantId = @TenantId and [Lead] = @id
+	)
+	merge TT as t
+	using @Tags as s
+	on t.TenantId = @TenantId and t.Tag = s.Id
+	when not matched by target then insert
+		(TenantId, [Lead], Tag) values
+		(@TenantId, @id, s.Id)
+	when not matched by source and t.[Lead] = @id and t.TenantId = @TenantId
+	then delete;
+
 	exec crm.[Lead.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go

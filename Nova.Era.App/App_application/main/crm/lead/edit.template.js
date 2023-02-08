@@ -12,7 +12,12 @@ define(["require", "exports"], function (require, exports) {
         },
         defaults: {
             'Lead.Stage'() { return this.Stages.find(x => x.Kind === 'I'); }
+        },
+        delegates: {
+            tagSettings
         }
     };
     exports.default = template;
+    function tagSettings() {
+    }
 });

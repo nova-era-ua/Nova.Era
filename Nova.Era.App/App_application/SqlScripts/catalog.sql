@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 03.02.2023 05:18:35
+generated: 07.02.2023 08:36:30
 */
 
 
@@ -270,7 +270,7 @@ create or alter procedure appsec.[UserStateInfo.Load]
 @UserId bigint
 as
 begin
-	select [UserState!TUserState!Object] = null;
+	select [UserState!TUserState!Object] = null, License = N'LICENSE TEXT HERE';
 end
 go
 
