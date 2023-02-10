@@ -253,7 +253,7 @@ begin
 	declare @id bigint;
 	select top(1) @id = Id from @rt;
 
-	select * from appsec.ViewUsers where Id=@Id;
+	select * from appsec.ViewUsers where Id = @id;
 end
 go
 ------------------------------------------------
@@ -262,6 +262,8 @@ create or alter procedure appsec.[UserStateInfo.Load]
 @UserId bigint
 as
 begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 	select [UserState!TUserState!Object] = null, License = N'LICENSE TEXT HERE';
 end
 go
