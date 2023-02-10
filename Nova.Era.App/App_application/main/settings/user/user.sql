@@ -10,7 +10,7 @@ begin
 
 	select [Users!TUser!Array] = null, [Id!!Id] = u.Id, u.UserName, u.PersonName, u.PhoneNumber, 
 		u.Memo, u.Email
-	from appsec.Users u where Tenant = @TenantId and Void = 0;
+	from appsec.Users u where Tenant = @TenantId and Void = 0 and Id <> 0;
 end
 go
 ------------------------------------------------
