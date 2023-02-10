@@ -1,12 +1,14 @@
 ﻿{
 	"$schema": "../../../@schemas/model-json-schema.json#",
 	"schema": "cat",
-	"model": "Tag",
+	"model": "Tags",
 	"dialogs": {
 		"settings": {
-			"index": true,
 			"template": "settings.template",
-			"view": "settings.dialog"
+			"view": "settings.dialog",
+			"parameters": {
+				"For": "{{Params.For}}"
+			}
 		}
 	}
 }

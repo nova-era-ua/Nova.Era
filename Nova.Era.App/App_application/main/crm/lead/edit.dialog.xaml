@@ -7,7 +7,7 @@
 		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
-		<Taskpad Collapsible="False" Width="20rem" Padding="1rem">
+		<Taskpad Collapsible="False" Width="20rem" Padding="1rem" Overflow="True">
 			<ComboBox Grid.Row="2" Grid.Col="1" Label="@[Stage]" 
 				  Value="{Bind Lead.Stage}" ItemsSource="{Bind Stages}"/>
 			<TagsControl Label="@[Tags]"  Value="{Bind Lead.Tags}" ItemsSource="{Bind Tags}"

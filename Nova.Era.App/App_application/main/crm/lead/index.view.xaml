@@ -4,6 +4,7 @@
 			<CollectionView.Filter>
 				<FilterDescription>
 					<FilterItem Property="Fragment" DataType="String"/>
+					<FilterItem Property="Tags" DataType="String"/>
 				</FilterDescription>
 			</CollectionView.Filter>
 		</CollectionView>
@@ -50,6 +51,10 @@
 	</Grid>
 	<Page.Taskpad>
 		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
+			<Panel Header="@[Filters]" Style="Transparent" Collapsible="True">
+				<TagsFilter Value="{Bind Parent.Filter.Tags}" Label="@[Tags]"
+							ItemsSource="{Bind Tags}" Placeholder="@[Placeholder.AllTags]"/>
+			</Panel>
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

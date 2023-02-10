@@ -226,6 +226,7 @@
 @Placeholder.AllCashAccounts=<Всі каси>
 @Placeholder.AllAccounts=<Всі рахунки та каси>
 @Placeholder.AllItems=<Всі об'єкти обліку>
+@Placeholder.AllTags=<Всі теги>
 ;
 @Browse.Company=Вибір підприємства
 @Browse.Warehouse=Вибір складу

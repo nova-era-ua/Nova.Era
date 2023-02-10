@@ -46,7 +46,8 @@ create or alter procedure crm.[Lead.Index]
 @PageSize int = 20,
 @Order nvarchar(255) = N'date',
 @Dir nvarchar(20) = N'desc',
-@Fragment nvarchar(255) = null
+@Fragment nvarchar(255) = null,
+@Tags nvarchar(255) = null
 as
 begin
 	set nocount on;
@@ -60,35 +61,43 @@ begin
 
 	declare @leads crm.[Lead.Index.TableType];
 
+	declare @ftags table(id bigint);
+	insert into @ftags(id) select TRY_CAST([value] as bigint) from STRING_SPLIT(@Tags, N'-');
+
 	insert into @leads(id, agent, contact, currency, rowcnt)
-	select c.Id, c.Agent, c.Contact, c.Currency,
+	select ld.Id, ld.Agent, ld.Contact, ld.Currency,
 		count(*) over()
-	from crm.Leads c
-	where c.TenantId = @TenantId and c.Void = 0
-		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
+	from crm.Leads ld
+	where ld.TenantId = @TenantId and ld.Void = 0
+		and (@fr is null or ld.[Name] like @fr or ld.Memo like @fr)
+		and (@Tags is null or exists(
+				select 1 from @ftags f inner join crm.TagsLead tl on tl.TenantId = ld.TenantId and tl.[Lead] = ld.Id and f.id = tl.Tag and tl.TenantId = @TenantId
+			)
+		)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
-				when N'date' then c.[UtcDateCreated]
+				when N'date' then ld.[UtcDateCreated]
 			end
 		end asc,
 		case when @Dir = N'asc' then
 			case @Order 
-				when N'name' then c.[Name]
-				when N'memo' then c.[Memo]
+				when N'name' then ld.[Name]
+				when N'memo' then ld.[Memo]
 			end
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order 
-				when N'date' then c.[UtcDateCreated]
+				when N'date' then ld.[UtcDateCreated]
 			end
 		end desc,
 		case when @Dir = N'desc' then
 			case @Order
-				when N'name' then c.[Name]
-				when N'memo' then c.[Memo]
+				when N'name' then ld.[Name]
+				when N'memo' then ld.[Memo]
 			end
-		end desc
+		end desc,
+		ld.Id desc
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
@@ -107,14 +116,17 @@ begin
 	exec crm.[Lead.Maps] @TenantId, @leads;
 
 	-- tags
-	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
+	select [!TTag!Array] = null, [Id!!Id] = tg.Id, [Name!!Name] = tg.[Name], tg.Color,
 		[!TLead.Tags!ParentId] = tl.[Lead]
-	from crm.TagsLead tl inner join cat.Tags t on tl.TenantId = t.TenantId and tl.Tag = t.Id
-	order by t.Id;
+	from crm.TagsLead tl inner join cat.Tags tg on tl.TenantId = tg.TenantId and tl.Tag = tg.Id
+		inner join @leads t on t.id = tl.[Lead] and tl.TenantId = @TenantId
+	order by tg.Id;
+
+	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Lead';
 
 	select [!$System!] = null, [!Leads!Offset] = @Offset, [!Leads!PageSize] = @PageSize, 
 		[!Leads!SortOrder] = @Order, [!Leads!SortDir] = @Dir,
-		[!Leads.Fragment!Filter] = @Fragment;
+		[!Leads.Fragment!Filter] = @Fragment, [!Leads.Tags!Filter] = @Tags;
 end
 go
 -------------------------------------------------
@@ -222,9 +234,9 @@ begin
 	)
 	merge TT as t
 	using @Tags as s
-	on t.TenantId = @TenantId and t.Tag = s.Id
+	on t.TenantId = @TenantId and t.Tag = s.Id and t.[Lead] = @id
 	when not matched by target then insert
-		(TenantId, [Lead], Tag) values
+		(TenantId,  [Lead], Tag) values
 		(@TenantId, @id, s.Id)
 	when not matched by source and t.[Lead] = @id and t.TenantId = @TenantId
 	then delete;

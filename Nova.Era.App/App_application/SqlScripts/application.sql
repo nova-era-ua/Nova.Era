@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 07.02.2023 08:36:30
+generated: 10.02.2023 07:42:13
 */
 
 
@@ -9,8 +9,8 @@ generated: 07.02.2023 08:36:30
 /*
 Copyright © 2008-2023 Oleksandr Kukhtin
 
-Last updated : 02 feb 2023
-module version : 7917
+Last updated : 05 feb 2023
+module version : 7918
 */
 ------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.SCHEMATA where SCHEMA_NAME=N'a2sys')
@@ -52,6 +52,48 @@ if not exists(select * from INFORMATION_SCHEMA.DOMAINS where DOMAIN_SCHEMA=N'a2s
 	as table(
 		Id uniqueidentifier null
 	);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.DOMAINS where DOMAIN_SCHEMA=N'a2sys' and DOMAIN_NAME=N'NameValue.TableType' and DATA_TYPE=N'table type')
+create type a2sys.[NameValue.TableType]
+as table(
+	[Name] nvarchar(255),
+	[Value] nvarchar(max)
+);
+go
+------------------------------------------------
+create or alter procedure a2sys.[GetVersions]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	select [Module], [Version], [File], [Title] from a2sys.Versions;
+end
+go
+------------------------------------------------
+create or alter procedure a2sys.[SetVersion]
+@Module nvarchar(255),
+@Version int
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	if not exists(select * from a2sys.Versions where Module = @Module)
+		insert into a2sys.Versions (Module, [Version]) values (@Module, @Version);
+	else
+		update a2sys.Versions set [Version] = @Version where Module = @Module;
+end
+go
+
+------------------------------------------------
+create or alter procedure a2sys.[AppTitle.Load]
+as
+begin
+	set nocount on;
+	select [AppTitle], [AppSubTitle]
+	from (select Name, Value=StringValue from a2sys.SysParams) as s
+		pivot (min(Value) for Name in ([AppTitle], [AppSubTitle])) as p;
+end
 go
 
 -- security schema (common)
@@ -1152,6 +1194,18 @@ create table crm.Leads (
 	constraint FK_Leads_Agent_Agnets foreign key (TenantId, Agent) references cat.Agents(TenantId, Id),
 	constraint FK_Leads_UserCreated_Users foreign key (TenantId, UserCreated) references appsec.Users(Tenant, Id),
 	constraint FK_Leads_UserModified_Users foreign key (TenantId, UserModified) references appsec.Users(Tenant, Id)
+);
+go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'crm' and TABLE_NAME=N'TagsLead')
+create table crm.TagsLead
+(
+	TenantId int not null,
+	Tag bigint not null,
+	[Lead] bigint not null
+		constraint PK_TagsLeads primary key (TenantId, Tag, [Lead]),
+		constraint FK_TagsLeads_Tag_Tags foreign key (TenantId, Tag) references cat.Tags(TenantId, Id),
+		constraint FK_TagsLeads_Lead_Leads foreign key (TenantId, [Lead]) references crm.Leads(TenantId, Id)
 );
 go
 ------------------------------------------------
@@ -3101,6 +3155,97 @@ begin
 end
 go
 
+/* Tag */
+------------------------------------------------
+create or alter procedure cat.[Tag.For]
+@TenantId int = 1,
+@UserId bigint,
+@For nvarchar(32),
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Tags!TTag!Array] = null,
+		[Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color
+	from cat.Tags t
+	where t.TenantId = @TenantId and t.[For] = @For and t.Void = 0
+	order by t.Id;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Tags.Load]
+@TenantId int = 1,
+@UserId bigint,
+@For nvarchar(32),
+@Id bigint = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+
+	select [Tags!TTag!Array] = null,
+		[Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color, t.[Memo], [For] = @For
+	from cat.Tags t
+	where t.TenantId = @TenantId and t.[For] = @For and t.Void = 0
+	order by t.Id;
+
+	select [Params!TParam!Object] = null, [For] = @For;
+end
+go
+-------------------------------------------------
+drop procedure if exists cat.[Tags.Metadata];
+drop procedure if exists cat.[Tags.Update];
+drop type if exists cat.[Tag.TableType];
+go
+-------------------------------------------------
+create type cat.[Tag.TableType]
+as table(
+	Id bigint null,
+	[Name] nvarchar(255),
+	[Color] nvarchar(32),
+	[Memo] nvarchar(255),
+	[For] nvarchar(32)
+)
+go
+
+------------------------------------------------
+create or alter procedure cat.[Tags.Metadata]
+as
+begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
+	declare @Tag cat.[Tag.TableType];
+	select [Tags!Tags!Metadata] = null, * from @Tag;
+end
+go
+------------------------------------------------
+create or alter procedure cat.[Tags.Update]
+@TenantId int = 1,
+@UserId bigint,
+@Tags cat.[Tag.TableType] readonly,
+@For nvarchar(32)
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	merge cat.Tags as t
+	using @Tags as s
+	on t.TenantId = @TenantId and t.Id = s.Id
+	when matched then update set
+		t.[Name] = s.[Name],
+		t.[Memo] = s.[Memo],
+		t.[Color] = s.[Color]
+	when not matched by target then insert
+		(TenantId,  [For], [Name], Color, Memo) values
+		(@TenantId, @For, s.[Name], s.Color, s.Memo)
+	when not matched by source and t.[For] = @For then update set
+		t.Void = 1;
+	exec cat.[Tags.Load] @TenantId = @TenantId, @UserId = @UserId, @For = @For;
+end
+go
 -- Company
 ------------------------------------------------
 create or alter procedure cat.[Company.Index]
@@ -5000,9 +5145,14 @@ begin
 	set transaction isolation level read uncommitted;
 
 	select [Agents!TAgent!Array] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
-		FullName, [Memo]
+		FullName, [Memo], [Tags!TTag!Array] = null
 	from cat.Agents a
 	where TenantId = @TenantId and [Partner] = 1
+
+	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
+		[!TAgent.Tags!ParentId] = ta.Agent
+	from cat.TagsAgent ta inner join cat.Tags t on ta.TenantId = t.TenantId and ta.Tag = t.Id
+	order by t.Id;
 end
 go
 -------------------------------------------------
@@ -5017,7 +5167,8 @@ begin
 
 	select [Agent!TAgent!Object] = null, [Id!!Id] = a.Id, [Name!!Name] = [Name],
 		FullName, [Memo], IsSupplier, IsCustomer,
-		[Contacts!TContact!Array] = null
+		[Contacts!TContact!Array] = null,
+		[Tags!TTag!Array] = null
 	from cat.Agents a
 	where TenantId = @TenantId and Id = @Id;
 
@@ -5026,7 +5177,15 @@ begin
 		[!TAgent.Contacts!ParentId] = ac.Agent
 	from cat.Contacts c
 		inner join cat.AgentContacts ac on c.TenantId = ac.TenantId and c.Id = ac.Contact
-	where ac.TenantId = @TenantId and ac.Agent = @Id
+	where ac.TenantId = @TenantId and ac.Agent = @Id;
+
+	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
+		[!TAgent.Tags!ParentId] = ta.Agent
+	from cat.TagsAgent ta 
+		inner join cat.Tags t on ta.TenantId = t.TenantId and ta.Tag = t.Id
+	where ta.Agent = @Id;
+
+	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Agent';
 end
 go
 -------------------------------------------------
@@ -5061,7 +5220,9 @@ begin
 	set transaction isolation level read uncommitted;
 	declare @Agent cat.[Agent.TableType];
 	declare @Contacts cat.[Agent.Contact.TableType];
+	declare @Tag a2sys.[Id.TableType];
 	select [Agent!Agent!Metadata] = null, * from @Agent;
+	select [Tags!Agent.Tags!Metadata] = null, * from @Tag;
 	select [Contacts!Agent.Contacts!Metadata] = null, * from @Contacts;
 end
 go
@@ -5070,7 +5231,8 @@ create or alter procedure cat.[Agent.Update]
 @TenantId int = 1,
 @UserId bigint,
 @Agent cat.[Agent.TableType] readonly, 
-@Contacts cat.[Agent.Contact.TableType] readonly
+@Contacts cat.[Agent.Contact.TableType] readonly,
+@Tags a2sys.[Id.TableType] readonly
 as
 begin
 	set nocount on;
@@ -5078,7 +5240,7 @@ begin
 
 	/*
 	declare @xml nvarchar(max);
-	set @xml = (select * from @Contacts for xml auto);
+	set @xml = (select * from @Tags for xml auto);
 	throw 60000, @xml, 0;
 	*/
 
@@ -5112,6 +5274,18 @@ begin
 		(TenantId, Agent, Contact) values
 		(@TenantId, @id, s.Id)
 	when not matched by source then delete;
+
+	with TT as (
+		select * from cat.TagsAgent where TenantId = @TenantId and Agent = @id
+	)
+	merge TT as t
+	using @Tags as s
+	on t.TenantId = @TenantId and t.Tag = s.Id
+	when not matched by target then insert
+		(TenantId, Agent, Tag) values
+		(@TenantId, @id, s.Id)
+	when not matched by source and t.Agent = @id and t.TenantId = @TenantId
+	then delete;
 
 	exec cat.[Agent.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
@@ -8730,26 +8904,6 @@ begin
 end
 go
 
-
-/* Tag */
-------------------------------------------------
-create or alter procedure cat.[Tag.Index]
-@TenantId int = 1,
-@UserId bigint,
-@Id bigint = null,
-@For nvarchar(32)
-as
-begin
-	set nocount on;
-	set transaction isolation level read uncommitted;
-
-	select [Tags!TTag!Array] = null,
-		[Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color, t.[Memo]
-	from cat.Tags t
-	where t.TenantId = @TenantId and t.[For] = @For and t.Void = 0
-	order by t.Id;
-end
-go
 
 /* LeadStage */
 drop procedure if exists crm.[LeadStage.Metadata];
@@ -12520,7 +12674,8 @@ create or alter procedure crm.[Lead.Index]
 @PageSize int = 20,
 @Order nvarchar(255) = N'date',
 @Dir nvarchar(20) = N'desc',
-@Fragment nvarchar(255) = null
+@Fragment nvarchar(255) = null,
+@Tags nvarchar(255) = null
 as
 begin
 	set nocount on;
@@ -12534,35 +12689,43 @@ begin
 
 	declare @leads crm.[Lead.Index.TableType];
 
+	declare @ftags table(id bigint);
+	insert into @ftags(id) select TRY_CAST([value] as bigint) from STRING_SPLIT(@Tags, N'-');
+
 	insert into @leads(id, agent, contact, currency, rowcnt)
-	select c.Id, c.Agent, c.Contact, c.Currency,
+	select ld.Id, ld.Agent, ld.Contact, ld.Currency,
 		count(*) over()
-	from crm.Leads c
-	where c.TenantId = @TenantId and c.Void = 0
-		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
+	from crm.Leads ld
+	where ld.TenantId = @TenantId and ld.Void = 0
+		and (@fr is null or ld.[Name] like @fr or ld.Memo like @fr)
+		and (@Tags is null or exists(
+				select 1 from @ftags f inner join crm.TagsLead tl on tl.TenantId = ld.TenantId and tl.[Lead] = ld.Id and f.id = tl.Tag and tl.TenantId = @TenantId
+			)
+		)
 	order by 
 		case when @Dir = N'asc' then
 			case @Order 
-				when N'date' then c.[UtcDateCreated]
+				when N'date' then ld.[UtcDateCreated]
 			end
 		end asc,
 		case when @Dir = N'asc' then
 			case @Order 
-				when N'name' then c.[Name]
-				when N'memo' then c.[Memo]
+				when N'name' then ld.[Name]
+				when N'memo' then ld.[Memo]
 			end
 		end asc,
 		case when @Dir = N'desc' then
 			case @Order 
-				when N'date' then c.[UtcDateCreated]
+				when N'date' then ld.[UtcDateCreated]
 			end
 		end desc,
 		case when @Dir = N'desc' then
 			case @Order
-				when N'name' then c.[Name]
-				when N'memo' then c.[Memo]
+				when N'name' then ld.[Name]
+				when N'memo' then ld.[Memo]
 			end
-		end desc
+		end desc,
+		ld.Id desc
 	offset @Offset rows fetch next @PageSize rows only
 	option (recompile);
 
@@ -12570,17 +12733,28 @@ begin
 		[Agent!TAgent!RefId] = c.Agent, [Contact!TContact!RefId] = c.Contact, [Stage!TStage!RefId] = c.Stage,
 		c.Amount, [Currency!TCurrency!RefId] = c.Currency,
 		[DateCreated!!Utc] = c.UtcDateCreated,
+		[Tags!TTag!Array] = null,
 		[!!RowCount] = t.rowcnt
 	from @leads t inner join 
 		crm.Leads c on c.TenantId = @TenantId and c.Id = t.id
 	order by t.rowno;
 
+
 	-- maps
 	exec crm.[Lead.Maps] @TenantId, @leads;
 
+	-- tags
+	select [!TTag!Array] = null, [Id!!Id] = tg.Id, [Name!!Name] = tg.[Name], tg.Color,
+		[!TLead.Tags!ParentId] = tl.[Lead]
+	from crm.TagsLead tl inner join cat.Tags tg on tl.TenantId = tg.TenantId and tl.Tag = tg.Id
+		inner join @leads t on t.id = tl.[Lead] and tl.TenantId = @TenantId
+	order by tg.Id;
+
+	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Lead';
+
 	select [!$System!] = null, [!Leads!Offset] = @Offset, [!Leads!PageSize] = @PageSize, 
 		[!Leads!SortOrder] = @Order, [!Leads!SortDir] = @Dir,
-		[!Leads.Fragment!Filter] = @Fragment;
+		[!Leads.Fragment!Filter] = @Fragment, [!Leads.Tags!Filter] = @Tags;
 end
 go
 -------------------------------------------------
@@ -12596,6 +12770,7 @@ begin
 	select [Lead!TLead!Object] = null, [Id!!Id] = c.Id, [Name!!Name] = c.[Name], c.Memo,
 		[Agent!TAgent!RefId] = c.Agent, [Contact!TContact!RefId] = c.Contact, [Stage!TStage!RefId] = c.Stage,
 		c.Amount, [Currency!TCurrency!RefId] = c.Currency,
+		[Tags!TTag!Array] = null,
 		[DateCreated!!Utc] = c.UtcDateCreated
 	from crm.Leads c
 	where c.TenantId = @TenantId and c.Id = @Id;
@@ -12607,6 +12782,14 @@ begin
 
 	-- maps
 	exec crm.[Lead.Maps] @TenantId, @leads;
+
+	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
+		[!TLead.Tags!ParentId] = tl.[Lead]
+	from crm.TagsLead tl 
+		inner join cat.Tags t on tl.TenantId = t.TenantId and tl.Tag = t.Id
+	where tl.[Lead] = @Id;
+
+	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Lead';
 end
 go
 -------------------------------------------------
@@ -12634,14 +12817,17 @@ begin
 	set nocount on;
 	set transaction isolation level read uncommitted;
 	declare @Lead crm.[Lead.TableType];
+	declare @Tag a2sys.[Id.TableType];
 	select [Lead!Lead!Metadata] = null, * from @Lead;
+	select [Tags!Lead.Tags!Metadata] = null, * from @Tag;
 end
 go
 ------------------------------------------------
 create or alter procedure crm.[Lead.Update]
 @TenantId int = 1,
 @UserId bigint,
-@Lead crm.[Lead.TableType] readonly
+@Lead crm.[Lead.TableType] readonly,
+@Tags a2sys.[Id.TableType] readonly
 as
 begin
 	set nocount on;
@@ -12670,6 +12856,19 @@ begin
 		    @UserId, @UserId, getutcdate())
 	output inserted.Id into @rtable(id);
 	select top(1) @id = id from @rtable;
+
+	with TT as (
+		select * from crm.TagsLead where TenantId = @TenantId and [Lead] = @id
+	)
+	merge TT as t
+	using @Tags as s
+	on t.TenantId = @TenantId and t.Tag = s.Id and t.[Lead] = @id
+	when not matched by target then insert
+		(TenantId,  [Lead], Tag) values
+		(@TenantId, @id, s.Id)
+	when not matched by source and t.[Lead] = @id and t.TenantId = @TenantId
+	then delete;
+
 	exec crm.[Lead.Load] @TenantId = @TenantId, @UserId = @UserId, @Id = @id;
 end
 go

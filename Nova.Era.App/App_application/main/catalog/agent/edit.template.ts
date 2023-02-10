@@ -28,6 +28,10 @@ async function addContact() {
 
 async function tagSettings(items) {
 	const ctrl = this.$ctrl;
-	let tags = await ctrl.$showDialog('/catalog/tag/settings', null, { For: ' Agent' });
-
+	let tags = await ctrl.$showDialog('/catalog/tag/settings', null, { For: 'Agent' });
+	this.Tags.$copy(tags);
+	this.Agent.Tags.forEach(lt => {
+		let nt = tags.find(t => t.Id == lt.Id);
+		if (nt) lt.$merge(nt);
+	});
 }

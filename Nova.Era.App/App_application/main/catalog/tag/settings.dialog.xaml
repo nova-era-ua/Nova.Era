@@ -1,0 +1,31 @@
+﻿<!--TAG.Settings-->
+<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml"
+		Title="@[Tags]" Overflow="True" Padding="1rem" Width="50rem" Height="30rem">
+	<Dialog.Buttons>
+		<Button Style="Primary" Content="@[SaveAndClose]" 
+				Command="{BindCmd SaveAndClose, ValidRequired=True}"/>
+		<Button Content="@[Cancel]" Command="{BindCmd Close}"/>
+	</Dialog.Buttons>
+	<Toolbar XamlStyle="{StyleResource ToolbarLight}" Margin="0,0,.5rem,0">
+		<Button Icon="Plus" Content="@[Add]" Command="{BindCmd Append, Argument={Bind Tags}}"></Button>
+	</Toolbar>
+	<Table ItemsSource="{Bind Tags}" CellSpacing="Small" Height="20rem"
+		   Width="100%" Columns="Fit,15rem,10rem,Auto,27px" Margin="-2px">
+		<Table.Header>
+			<TableRow>
+				<TableCell Align="Right">#</TableCell>
+				<TableCell>@[Tag]</TableCell>
+				<TableCell>@[Color]</TableCell>
+				<TableCell>@[Memo]</TableCell>
+				<TableCell></TableCell>
+			</TableRow>
+		</Table.Header>
+		<TableRow>
+			<TableCell Content="{Bind Id}" Align="Right"/>
+			<TextBox Value="{Bind Name}"/>
+			<ColorPicker Value="{Bind Color}" Text="{Bind Name}"/>
+			<TextBox Value="{Bind Memo}" />
+			<Hyperlink Icon="Delete" Command="{BindCmd Remove, Argument={Bind}}"></Hyperlink>
+		</TableRow>
+	</Table>
+</Dialog>

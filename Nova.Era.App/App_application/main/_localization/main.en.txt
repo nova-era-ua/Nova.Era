@@ -226,6 +226,8 @@
 @Placeholder.AllCashAccounts=<All Cash Accounts>
 @Placeholder.AllAccounts=<All Bank & Cash Accounts>
 @Placeholder.AllItems=<All Items>
+@Placeholder.AllTags=<All Tags>
+
 ;
 @Browse.Company=Browse Company
 @Browse.Warehouse=Browse Warehouse

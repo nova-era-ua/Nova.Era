@@ -18,6 +18,14 @@ define(["require", "exports"], function (require, exports) {
         }
     };
     exports.default = template;
-    function tagSettings() {
+    async function tagSettings() {
+        const ctrl = this.$ctrl;
+        let tags = await ctrl.$showDialog('/catalog/tag/settings', null, { For: 'Lead' });
+        this.Tags.$copy(tags);
+        this.Lead.Tags.forEach(lt => {
+            let nt = tags.find(t => t.Id == lt.Id);
+            if (nt)
+                lt.$merge(nt);
+        });
     }
 });
