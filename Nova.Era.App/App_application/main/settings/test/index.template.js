@@ -3,6 +3,10 @@ define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     const htmlTool = require("std:html");
     const template = {
+        properties: {
+            'TRoot.$IntVal': Number,
+            'TRoot.$BoolVal': Boolean
+        },
         commands: {
             addElement,
             removeElement,
@@ -10,7 +14,8 @@ define(["require", "exports"], function (require, exports) {
             testInvoke,
             testQueue,
             testPrint,
-            showInline() { this.$ctrl.$inlineOpen('testClr'); }
+            showInline() { this.$ctrl.$inlineOpen('testClr'); },
+            testUpload
         }
     };
     exports.default = template;
@@ -58,5 +63,15 @@ define(["require", "exports"], function (require, exports) {
     function testPrint() {
         debugger;
         htmlTool.printDirect('/file/test.pdf');
+    }
+    async function testUpload() {
+        let ctrl = this.$ctrl;
+        try {
+            let result = await ctrl.$upload('/settings/test/excel', undefined, undefined, { catchError: false });
+            console.dir(result);
+        }
+        catch (error) {
+            alert("FROM CLIENT:" + error);
+        }
     }
 });

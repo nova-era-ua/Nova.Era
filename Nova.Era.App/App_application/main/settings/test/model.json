@@ -23,6 +23,12 @@
 		"testPdf": {
 			"type": "clr",
 			"clrType": "clr-type:XamExtensionsSample.LoadFileClr;assembly=XamExtensionsSample"
+		},
+		"excel": {
+			"type": "parse",
+			"parse": "xlsx",
+			"schema": "dbo",
+			"model": "Upload"
 		}
 	}
 }

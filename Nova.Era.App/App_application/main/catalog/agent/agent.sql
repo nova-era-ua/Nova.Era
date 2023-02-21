@@ -17,6 +17,7 @@ begin
 	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
 		[!TAgent.Tags!ParentId] = ta.Agent
 	from cat.TagsAgent ta inner join cat.Tags t on ta.TenantId = t.TenantId and ta.Tag = t.Id
+	where ta.TenantId = @TenantId and t.TenantId = @TenantId
 	order by t.Id;
 end
 go
@@ -48,7 +49,7 @@ begin
 		[!TAgent.Tags!ParentId] = ta.Agent
 	from cat.TagsAgent ta 
 		inner join cat.Tags t on ta.TenantId = t.TenantId and ta.Tag = t.Id
-	where ta.Agent = @Id;
+	where ta.Agent = @Id and ta.TenantId = @TenantId;
 
 	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Agent';
 end

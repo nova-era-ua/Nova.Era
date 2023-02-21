@@ -2,6 +2,10 @@
 const htmlTool = require("std:html");
 
 const template: Template = {
+	properties: {
+		'TRoot.$IntVal': Number,
+		'TRoot.$BoolVal': Boolean
+	},
 	commands: {
 		addElement,
 		removeElement,
@@ -9,7 +13,8 @@ const template: Template = {
 		testInvoke,
 		testQueue,
 		testPrint,
-		showInline() { this.$ctrl.$inlineOpen('testClr'); }
+		showInline() { this.$ctrl.$inlineOpen('testClr'); },
+		testUpload
 	} 
 };
 
@@ -61,4 +66,14 @@ async function testQueue() {
 function testPrint() {
 	debugger;
 	htmlTool.printDirect('/file/test.pdf');
+}
+
+async function testUpload() {
+	let ctrl: IController = this.$ctrl;
+	try {
+		let result = await ctrl.$upload('/settings/test/excel', undefined, undefined, {catchError: false});
+		console.dir(result);
+	} catch (error) {
+		alert("FROM CLIENT:" + error);
+	}
 }

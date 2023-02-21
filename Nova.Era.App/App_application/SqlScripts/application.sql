@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1028
-generated: 10.02.2023 07:42:13
+generated: 21.02.2023 12:50:53
 */
 
 
@@ -351,7 +351,7 @@ begin
 	declare @id bigint;
 	select top(1) @id = Id from @rt;
 
-	select * from appsec.ViewUsers where Id=@Id;
+	select * from appsec.ViewUsers where Id = @id;
 end
 go
 ------------------------------------------------
@@ -360,6 +360,8 @@ create or alter procedure appsec.[UserStateInfo.Load]
 @UserId bigint
 as
 begin
+	set nocount on;
+	set transaction isolation level read uncommitted;
 	select [UserState!TUserState!Object] = null, License = N'LICENSE TEXT HERE';
 end
 go
@@ -440,6 +442,31 @@ begin
 				N'', N'');
 		commit tran;
 	end
+end
+go
+------------------------------------------------
+create or alter procedure appsec.[TenantUser.Simple.Create]
+@Id bigint,
+@Tenant int,
+@UserName nvarchar(255),
+@PersonName nvarchar(255),
+@PhoneNumber nvarchar(255),
+@Email nvarchar(255),
+@RegisterHost nvarchar(255),
+@Locale nvarchar(255) = null,
+@Segment nvarchar(255) = null,
+@Memo nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @rt table(Id bigint);
+	insert into appsec.Users (Id, Tenant, Segment, UserName, PersonName, PhoneNumber, Email, Memo, RegisterHost,
+		EmailConfirmed, SecurityStamp, PasswordHash)
+	output inserted.Id into @rt(Id)
+	values (@Id, @Tenant, @Segment, @UserName, @PersonName, @PhoneNumber, @Email, @Memo, @RegisterHost,
+		1, N'', N'');
 end
 go
 
@@ -5152,6 +5179,7 @@ begin
 	select [!TTag!Array] = null, [Id!!Id] = t.Id, [Name!!Name] = t.[Name], t.Color,
 		[!TAgent.Tags!ParentId] = ta.Agent
 	from cat.TagsAgent ta inner join cat.Tags t on ta.TenantId = t.TenantId and ta.Tag = t.Id
+	where ta.TenantId = @TenantId and t.TenantId = @TenantId
 	order by t.Id;
 end
 go
@@ -5183,7 +5211,7 @@ begin
 		[!TAgent.Tags!ParentId] = ta.Agent
 	from cat.TagsAgent ta 
 		inner join cat.Tags t on ta.TenantId = t.TenantId and ta.Tag = t.Id
-	where ta.Agent = @Id;
+	where ta.Agent = @Id and ta.TenantId = @TenantId;
 
 	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Agent';
 end
@@ -9056,7 +9084,7 @@ begin
 	where di.TenantId = @TenantId and di.Dashboard = @id;
 
 	select [!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id, w.Icon, w.Memo, [Params]
+		[Widget] = w.Id, w.Icon, w.Memo, [Params], w.Kind
 	from app.Widgets w where 0 <> 0;
 end
 go
@@ -9074,7 +9102,7 @@ begin
 	select @kind = Kind from app.Dashboards where TenantId = @TenantId and Id = @Id;
 
 	select [Widgets!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id, Icon, Memo, Params
+		[Widget] = w.Id, Icon, Memo, Params, w.Kind
 	from app.Widgets w 
 	where w.TenantId = @TenantId and Kind = @kind
 	order by w.Id;
@@ -15048,7 +15076,7 @@ begin
 
 	select [Users!TUser!Array] = null, [Id!!Id] = u.Id, u.UserName, u.PersonName, u.PhoneNumber, 
 		u.Memo, u.Email
-	from appsec.Users u where Tenant = @TenantId and Void = 0;
+	from appsec.Users u where Tenant = @TenantId and Void = 0 and Id <> 0;
 end
 go
 ------------------------------------------------

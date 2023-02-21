@@ -74,3 +74,28 @@ begin
 	end
 end
 go
+------------------------------------------------
+create or alter procedure appsec.[TenantUser.Simple.Create]
+@Id bigint,
+@Tenant int,
+@UserName nvarchar(255),
+@PersonName nvarchar(255),
+@PhoneNumber nvarchar(255),
+@Email nvarchar(255),
+@RegisterHost nvarchar(255),
+@Locale nvarchar(255) = null,
+@Segment nvarchar(255) = null,
+@Memo nvarchar(255) = null
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+
+	declare @rt table(Id bigint);
+	insert into appsec.Users (Id, Tenant, Segment, UserName, PersonName, PhoneNumber, Email, Memo, RegisterHost,
+		EmailConfirmed, SecurityStamp, PasswordHash)
+	output inserted.Id into @rt(Id)
+	values (@Id, @Tenant, @Segment, @UserName, @PersonName, @PhoneNumber, @Email, @Memo, @RegisterHost,
+		1, N'', N'');
+end
+go

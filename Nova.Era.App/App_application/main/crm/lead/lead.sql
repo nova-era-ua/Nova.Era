@@ -120,6 +120,7 @@ begin
 		[!TLead.Tags!ParentId] = tl.[Lead]
 	from crm.TagsLead tl inner join cat.Tags tg on tl.TenantId = tg.TenantId and tl.Tag = tg.Id
 		inner join @leads t on t.id = tl.[Lead] and tl.TenantId = @TenantId
+	where tl.TenantId = @TenantId and tg.TenantId = @TenantId
 	order by tg.Id;
 
 	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Lead';
@@ -159,7 +160,7 @@ begin
 		[!TLead.Tags!ParentId] = tl.[Lead]
 	from crm.TagsLead tl 
 		inner join cat.Tags t on tl.TenantId = t.TenantId and tl.Tag = t.Id
-	where tl.[Lead] = @Id;
+	where tl.TenantId = @TenantId and tl.[Lead] = @Id;
 
 	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Lead';
 end

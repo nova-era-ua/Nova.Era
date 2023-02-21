@@ -14,6 +14,7 @@
 			<Button Icon="Print" Command="{BindCmd 
 				Command=Execute, CommandName=testPrint}" />
 			<Button Icon="Storyboard" Command="{BindCmd Execute, CommandName=showInline}" />
+			<Button Icon="Upload2" Command="{BindCmd Execute, CommandName=testUpload}" />
 		</Toolbar>
 		<TreeGrid ItemsSource="{Bind Accounts}" ItemsProperty="Items" 
 			  Striped="True" Hover="True" Width="Auto" GridLines="Both"
@@ -36,6 +37,27 @@
 				</DropDownMenu>
 			</TreeGrid.ContextMenu>
 		</TreeGrid>
+		<Block>
+			<FieldSet Title="Radio Buttons" Orientation="Horizontal" Wrap="Wrap">
+				<Radio Value="{Bind Root.$IntVal}" Label="Radio 1" CheckedValue="0"/>
+				<Radio Value="{Bind Root.$IntVal}" Label="Radio 2" CheckedValue="1"/>
+				<Radio Value="{Bind Root.$IntVal}" Label="Radio 1 disabled" CheckedValue="0" Disabled="True"/>
+				<Radio Value="{Bind Root.$IntVal}" Label="Radio 2 disabled" CheckedValue="1" Disabled="True"/>
+				<Radio Size="Large" Value="{Bind Root.$IntVal}" Label="Radio 1 large" CheckedValue="0"/>
+				<Radio Size="Large" Value="{Bind Root.$IntVal}" Label="Radio 2 large" CheckedValue="1"/>
+				<Radio Style="CheckBox" Value="{Bind Root.$IntVal}" Label="Radio 1 as checkbox" CheckedValue="0"/>
+				<Radio Style="CheckBox" Value="{Bind Root.$IntVal}" Label="Radio 2 as checkbox" CheckedValue="1"/>
+				<Radio Size="Large" Value="{Bind Root.$IntVal}" Label="Radio 1 large danger" CheckedValue="0" Color="Danger"/>
+			</FieldSet>
+			<FieldSet Title="Checkboxes" Orientation="Horizontal" Wrap="Wrap">
+				<CheckBox Value="{Bind Root.$BoolVal}" Label="CheckBox"/>
+				<CheckBox Value="{Bind Root.$BoolVal}" Label="CheckBox disabled" Disabled="True"/>
+				<CheckBox Size="Large" Value="{Bind Root.$BoolVal}" Label="CheckBox large"/>
+				<CheckBox Value="{Bind Root.$BoolVal}"/>
+				<CheckBox Value="{Bind Root.$BoolVal}"/>
+				<CheckBox Value="{Bind Root.$BoolVal}" Label="CheckBox danger" Color="Danger"/>
+			</FieldSet>
+		</Block>
 	</Grid>
 	<InlineDialog Id="testClr">
 		<PdfViewer Source="/_file/settings/test/testpdf/0?modelName=stringName" Size="100%,40rem"/>

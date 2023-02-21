@@ -10,7 +10,7 @@
 			</CollectionView.Filter>
 		</CollectionView>
 	</Page.CollectionView>
-	<Grid Rows="Auto,1*,Auto" Height="100%">
+	<Grid Rows="Auto,1*,Auto" Height="50%">
 		<Toolbar>
 			<TextBox Value="{Bind Parent.Filter.Fragment}"/>
 			<Button Icon="Reload" Command="{BindCmd Reload}"/>

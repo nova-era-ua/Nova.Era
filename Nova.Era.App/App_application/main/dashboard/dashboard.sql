@@ -32,7 +32,7 @@ begin
 	where di.TenantId = @TenantId and di.Dashboard = @id;
 
 	select [!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id, w.Icon, w.Memo, [Params]
+		[Widget] = w.Id, w.Icon, w.Memo, [Params], w.Kind
 	from app.Widgets w where 0 <> 0;
 end
 go
@@ -50,7 +50,7 @@ begin
 	select @kind = Kind from app.Dashboards where TenantId = @TenantId and Id = @Id;
 
 	select [Widgets!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id, Icon, Memo, Params
+		[Widget] = w.Id, Icon, Memo, Params, w.Kind
 	from app.Widgets w 
 	where w.TenantId = @TenantId and Kind = @kind
 	order by w.Id;

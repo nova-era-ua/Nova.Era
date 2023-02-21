@@ -1,5 +1,8 @@
 ﻿
 const template: Template = {
+	properties: {
+		'TRoot.$IntVal': Number
+	},
 	delegates: {
 		filter
 	}

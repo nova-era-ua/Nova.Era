@@ -14,7 +14,7 @@
 	-->
 	<Dashboard ItemsSource="{Bind Dashboard.Items}" Editable="True"
 			   EditMode="{Bind Root.$$EditMode}" CellWidth="96" CellHeight="96px" 
-			   ItemsList="{Bind Dashboard.$Widgets}">
+			   ItemsList="{Bind Dashboard.$Widgets}" GroupBy="Kind">
 		<Include Source="{Bind Url}" Argument="{Bind Id}" Queued="True" Data="{Bind Params}"/>
 		<Dashboard.ListTemplate>
 			<ListItem Padding="1rem"
@@ -23,7 +23,7 @@
 		<Dashboard.EndEditToolbar>
 			<Toolbar>
 				<Button Icon="Save" Command="{BindCmd Execute, CommandName=endEdit}" />
-				<TextBox Placeholder="@[Search]" 
+				<TextBox Placeholder="@[Search]"
 						 Value="{Bind Dashboard.$$Text}" UpdateTrigger="Input" Width="15rem"/>
 				<ToolbarAligner />
 				<Button Icon="Delete" Command="{BindCmd Execute, CommandName=cancelEdit}"/>
