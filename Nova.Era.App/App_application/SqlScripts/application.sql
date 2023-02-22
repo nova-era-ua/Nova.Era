@@ -1,6 +1,6 @@
 ﻿/*
-version: 10.1.1028
-generated: 21.02.2023 12:50:53
+version: 10.1.1040
+generated: 22.02.2023 16:12:07
 */
 
 
@@ -2796,17 +2796,12 @@ begin
 		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
 		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
 		(13,    1,  13, N'@[Purchases]',     N'purchase',    N'cart', null),
-
+		(50,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
 		--(14,    1,  14, N'@[Manufacturing]', N'$manufacturing',  N'wrench', null),
-		--(1401,  14, 10, N'@[Dashboard]',     N'dashboard', N'dashboard-outline', null),
-		--(141,   14, 11, N'@[Documents]',     null, null, null),
-		--(1412, 141, 10, N'Специфікації',     N'spec', N'file-content', null),
-
-		(50,    1,  50, N'@[Accounting]',    N'accounting',  N'calc', null),
 		--(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
 		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
-		(88,    1,  88, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
-		(90,    1,  90, N'@[Profile]',        N'profile',   N'user', null),
+		(88,    1,  880, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
+		(90,    1,  900, N'@[Profile]',        N'profile',   N'user', null),
 		-- CRM
 		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
@@ -12776,6 +12771,7 @@ begin
 		[!TLead.Tags!ParentId] = tl.[Lead]
 	from crm.TagsLead tl inner join cat.Tags tg on tl.TenantId = tg.TenantId and tl.Tag = tg.Id
 		inner join @leads t on t.id = tl.[Lead] and tl.TenantId = @TenantId
+	where tl.TenantId = @TenantId and tg.TenantId = @TenantId
 	order by tg.Id;
 
 	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Lead';
@@ -12815,7 +12811,7 @@ begin
 		[!TLead.Tags!ParentId] = tl.[Lead]
 	from crm.TagsLead tl 
 		inner join cat.Tags t on tl.TenantId = t.TenantId and tl.Tag = t.Id
-	where tl.[Lead] = @Id;
+	where tl.TenantId = @TenantId and tl.[Lead] = @Id;
 
 	exec cat.[Tag.For] @TenantId =@TenantId, @UserId = @UserId, @For = N'Lead';
 end

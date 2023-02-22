@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "../../@schemas/model-json-schema.json#",
+  "schema": "cat",
+  "model": "Item.Group",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "../../main/catalog/item/index.template",
+      "view": "../../main/catalog/item/index.view"
+    }
+  }
+}

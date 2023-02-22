@@ -20,6 +20,10 @@
 		}
 	},
 	"files": {
+		"save": {
+			"type": "azureBlob",
+			"container": "ContainerName"
+		},
 		"testPdf": {
 			"type": "clr",
 			"clrType": "clr-type:XamExtensionsSample.LoadFileClr;assembly=XamExtensionsSample"

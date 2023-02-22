@@ -238,6 +238,7 @@
       <DependentUpon>main.css</DependentUpon>
     </Content>
     <Content Include="App_application\main\_localization\main.en.txt" />
+    <Content Include="App_application\main\_localization\manufacturing.uk.txt" />
     <Content Include="App_application\main\_navpane\navpane.sql" />
     <Content Include="App_application\main\_sql\catalog\catalog_security.sql" />
     <Content Include="App_application\main\_sql\common\security_common.sql" />
@@ -248,6 +249,8 @@
     <Content Include="App_application\main\_sql\migrations.sql" />
     <Content Include="App_application\main\_sql\security.sql" />
     <Content Include="App_application\main\_sql\startup_mt.sql" />
+    <Content Include="App_application\manufacturing\readme.txt" />
+    <Content Include="App_application\manufacturing\_sql\ui.sql" />
     <Content Include="App_application\SqlScriptsDebug\drop_all_tables.sql" />
     <Content Include="todo.txt" />
     <Content Include="App_application\main\catalog\item\edit.dialog.xaml">
@@ -702,6 +705,8 @@
     <Content Include="App_application\main\reports\cash\model.json" />
     <Content Include="App_application\main\reports\settle\model.json" />
     <Content Include="App_application\main\profile\license\model.json" />
+    <Content Include="App_application\manufacturing\item\model.json" />
+    <Content Include="App_application\manufacturing\report\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

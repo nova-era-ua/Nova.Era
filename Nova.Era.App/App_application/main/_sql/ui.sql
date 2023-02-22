@@ -159,17 +159,12 @@ begin
 		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
 		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
 		(13,    1,  13, N'@[Purchases]',     N'purchase',    N'cart', null),
-
+		(50,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
 		--(14,    1,  14, N'@[Manufacturing]', N'$manufacturing',  N'wrench', null),
-		--(1401,  14, 10, N'@[Dashboard]',     N'dashboard', N'dashboard-outline', null),
-		--(141,   14, 11, N'@[Documents]',     null, null, null),
-		--(1412, 141, 10, N'Специфікації',     N'spec', N'file-content', null),
-
-		(50,    1,  50, N'@[Accounting]',    N'accounting',  N'calc', null),
 		--(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
 		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
-		(88,    1,  88, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
-		(90,    1,  90, N'@[Profile]',        N'profile',   N'user', null),
+		(88,    1,  880, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
+		(90,    1,  900, N'@[Profile]',        N'profile',   N'user', null),
 		-- CRM
 		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
 		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
@@ -316,7 +311,7 @@ begin
 	when not matched by target then insert
 		(Id, [Name], [Order], Category, Menu, Memo, [Url], Icon) values
 		(s.Id, s.[Name], [Order], Category, Menu, Memo, [Url], Icon)
-	when not matched by source then delete;
+	when not matched by source and t.Id < 10000 then delete;
 end
 go
 -------------------------------------------------

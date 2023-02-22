@@ -1,0 +1,15 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "rep",
+  "model": "Report",
+  "actions": {
+    "index": {
+      "index": true,
+      "template": "../../main/reports/index.template",
+      "view": "../../main/reports/index.view",
+      "parameters": {
+        "Menu": "Manufacturing"
+      }
+    }
+  }
+}
