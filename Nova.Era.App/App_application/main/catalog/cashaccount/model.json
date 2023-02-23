@@ -11,13 +11,19 @@
 			"index": true,
 			"model": "CashAccount.Simple",
 			"template": "browse.template",
-			"view": "browse.dialog"
+			"view": "browse.dialog",
+			"parameters": {
+				"Mode": "Cash"
+			}
 		},
 		"browseall": {
 			"index": true,
 			"model": "CashAccount.Simple",
 			"template": "browse.template",
-			"view": "browseall.dialog"
+			"view": "browseall.dialog",
+			"parameters": {
+				"Mode": "All"
+			}
 		},
 		"show": {
 			"template": "show.template",

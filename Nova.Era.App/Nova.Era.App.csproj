@@ -707,6 +707,8 @@
     <Content Include="App_application\main\profile\license\model.json" />
     <Content Include="App_application\manufacturing\item\model.json" />
     <Content Include="App_application\manufacturing\report\model.json" />
+    <Content Include="App_application\manufacturing\catalog\model.json" />
+    <Content Include="App_application\manufacturing\project\model.json" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />

@@ -1,0 +1,14 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "ui",
+  "model": "Catalog.Other",
+  "actions": {
+    "index": {
+      "index": true,
+      "view": "../../main/catalog/other/index.view",
+      "parameters": {
+        "Menu": "Manufacturing"
+      }
+    }
+  }
+}

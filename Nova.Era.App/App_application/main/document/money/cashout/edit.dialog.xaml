@@ -1,19 +1,8 @@
 ﻿<Dialog xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Size="Max"
 		ButtonOnTop="True" Title="Витрата готівки" SaveEvent="app.document.saved"
-		CanCloseDelegate="canClose">
+		CanCloseDelegate="canClose" Components="{Components ../../_components/doc.common}">
 	<Dialog.Buttons>
-		<Button Icon="SaveCloseOutline" Content="@[SaveAndClose]" Style="Primary" Command="{BindCmd SaveAndClose}"/>
-		<Button If="{Bind !Document.Done}"
-			Content="Провести" Command="{BindCmd Execute, CommandName=apply, SaveRequired=True, ValidRequired=True}"/>
-		<Button If="{Bind Document.Done}"
-			Content="Скасувати проведення" Command="{BindCmd Execute, CommandName=unApply}"/>
-		<Button Content="@[Close]" Command="{BindCmd Close}" />
-		<Separator />
-		<Label Content="@[Operation]"/>
-		<ComboBox ItemsSource="{Bind Operations}" Width="20rem"
-					  Value="{Bind Document.Operation}">
-			<ComboBoxItem Content="{Bind Name}" Value="{Bind}"/>
-		</ComboBox>
+		<Component Name="TopBar"/>
 	</Dialog.Buttons>
 	<Dialog.Taskpad>
 		<ContentControl Content="{Source '../../_common/pay.taskpad.xaml'}"/>
@@ -37,12 +26,8 @@
 		</Grid>
 		<Grid Columns="Auto,22rem,Auto,1*,Auto,22rem" Gap="1rem">
 			<Label Content="@[Agent]" Grid.Row="1" Grid.Col="1"/>
-			<Selector Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" 
-					  DisplayProperty="Name" Fetch="/catalog/agent/fetch">
-				<Selector.AddOns>
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Document.Agent}, Url='/catalog/agent/browse'}"/>
-				</Selector.AddOns>
-			</Selector>
+			<SelectorSimple Grid.Row="1" Grid.Col="2" Value="{Bind Document.Agent}" 
+					  Url="/catalog/agent"/>
 			<Label Content="@[Contract]" Grid.Row="2" Grid.Col="1"/>
 			<Selector Grid.Row="2" Grid.Col="2" Value="{Bind Document.Contract}" DisplayProperty="Name">
 					<Hyperlink Icon="Search" Command="{BindCmd Browse, 

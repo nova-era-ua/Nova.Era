@@ -2,7 +2,9 @@
 user interface
 */
 drop procedure if exists ui.[MenuModule.Merge];
+drop procedure if exists ui.[Catalog.Merge];
 drop type if exists ui.[MenuModule.TableType];
+drop type if exists ui.[Catalog.TableType];
 go
 -------------------------------------------------
 create type ui.[MenuModule.TableType] as table
@@ -18,6 +20,18 @@ create type ui.[MenuModule.TableType] as table
 	[Help] nvarchar(255),
 	Module nvarchar(16),
 	ClassName nvarchar(255)
+);
+go
+-------------------------------------------------
+create type ui.[Catalog.TableType] as table (
+	Id int, 
+	Menu nvarchar(16), 
+	[Name] nvarchar(255), 
+	[Order] int, 
+	Category nvarchar(32), 
+	[Memo] nvarchar(255), 
+	[Url] nvarchar(255), 
+	Icon nvarchar(16)
 );
 -------------------------------------------------
 if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=N'ui' and TABLE_NAME=N'Catalog')
@@ -103,6 +117,36 @@ begin
 	when not matched by target then
 		insert(Id, Parent, [Name], [Url], Icon, [Order], Model, [Description], Help, ClassName) values 
 		(Id, Parent, [Name], [Url], Icon, [Order], Model, [Description], Help, ClassName)
+	when not matched by source and t.Id >= @Start and t.Id < @End then 
+		delete;
+end
+go
+------------------------------------------------
+create or alter procedure ui.[Catalog.Merge]
+@Catalog ui.[Catalog.TableType] readonly,
+@Start bigint,
+@End bigint
+as
+begin
+	set nocount on;
+	with T as (
+		select * from ui.[Catalog] where Id >=@Start and Id <= @End
+	)
+	merge T as t
+	using @Catalog as s
+	on t.Id = s.Id 
+	when matched then
+		update set
+			t.Menu = s.Menu,
+			t.[Name] = s.[Name],
+			t.[Url] = s.[Url],
+			t.[Icon] = s.Icon,
+			t.[Order] = s.[Order],
+			t.Category = s.Category,
+			t.[Memo] = s.[Memo]
+	when not matched by target then
+		insert(Id, [Menu], [Name], [Url], Icon, [Order], Category, Memo) values 
+		(Id, [Menu], [Name], [Url], Icon, [Order], Category, Memo)
 	when not matched by source and t.Id >= @Start and t.Id < @End then 
 		delete;
 end
@@ -255,8 +299,8 @@ go
 -- Catalog
 begin
 	set nocount on;
-	declare @cat table(Id int, Menu nvarchar(16), [Name] nvarchar(255), 
-		[Order] int, Category nvarchar(32), [Memo] nvarchar(255), [Url] nvarchar(255), Icon nvarchar(16));
+	declare @cat ui.[Catalog.TableType];
+
 	insert into @cat (Id, Menu, [Order], [Category], [Name], [Url], Icon, Memo) values
 
 	(100, N'Sales', 10, N'@[Items]', N'@[Units]',         N'/catalog/unit/index',       N'list',  N''),
@@ -298,20 +342,7 @@ begin
 	(940, N'Settings',  40, N'@[Prices]', N'@[PriceKinds]',        N'/catalog/pricekind/index', N'list',  N''),
 	(950, N'Settings',  50, N'@[Crm]',    N'@[LeadStages]',        N'/catalog/crm/leadstage/index', N'list',  N'');
 
-	merge ui.[Catalog] as t
-	using @cat as s on t.Id = s.Id
-	when matched then update set
-		t.[Name] = s.[Name],
-		t.[Order] = s.[Order],
-		t.Category = s.Category,
-		t.Menu = s.Menu,
-		t.Memo = s.Memo,
-		t.[Url] = s.[Url],
-		t.Icon = s.Icon
-	when not matched by target then insert
-		(Id, [Name], [Order], Category, Menu, Memo, [Url], Icon) values
-		(s.Id, s.[Name], [Order], Category, Menu, Memo, [Url], Icon)
-	when not matched by source and t.Id < 10000 then delete;
+	exec ui.[Catalog.Merge] @cat, 100, 999;
 end
 go
 -------------------------------------------------
