@@ -25,15 +25,15 @@
 		</Toolbar>
 		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True"
 				XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True" Striped="True"
-				DoubleClick="{BindCmd Dialog, Action=EditSelected, Argument={Bind Contracts}, Url='/catalog/contract/edit'}">
+				DoubleClick="{BindCmd Dialog, Action=ShowSelected, Argument={Bind Contracts}, Url='/catalog/contract/show'}">
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>
 			<DataGridColumn Header="@[Number]" Content="{Bind SNo}" Fit="True" Wrap="NoWrap"/>
 			<DataGridColumn Header="@[Name]" Content="{Bind Name}"/>
-			<DataGridColumn Header="@[ContractKind]" Content="{Bind Kind.Name}" Fit="True" Wrap="NoWrap"/>
+			<DataGridColumn Header="@[ContractKind]" Content="{Bind Kind.Name}" Fit="True" Wrap="NoWrap" Sort="False"/>
 			<DataGridColumn Header="@[Company]" Content="{Bind Company.Name}" Sort="False"/>
 			<DataGridColumn Header="@[Agent]" Sort="False">
-				<Span Content="{Bind Agent.Name}" MaxChars="50"></Span>
+				<Span Content="{Bind Agent.Name}" MaxChars="50"/>
 			</DataGridColumn>
 			<DataGridColumn Header="@[PriceKind]" Content="{Bind PriceKind.Name}" Sort="False" Wrap="NoWrap" Fit="True"/>
 			<DataGridColumn Header="@[Memo]" Content="{Bind Memo}"/>
@@ -48,18 +48,16 @@
 	</Grid>
 	<Page.Taskpad>
 		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
-			<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
-					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-				<Hyperlink If="{Bind Parent.Filter.Company.Id}"
-					Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
-			</Selector>
-			<Selector Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
+			<Panel Header="@[Filters]" Style="Transparent" Collapsible="True">
+				<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+					  Value="{Bind Parent.Filter.Company}" Url="/catalog/company" ShowClear="True"/>
+				<Selector Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
 					  Value="{Bind Parent.Filter.Agent}" DisplayProperty="Name">
-				<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Agent}, Url='/catalog/agent/browse'}"/>
-				<Hyperlink If="{Bind Parent.Filter.Agent.Id}"
+					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Agent}, Url='/catalog/agent/browse'}"/>
+					<Hyperlink If="{Bind Parent.Filter.Agent.Id}"
 					Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Agent}}"/>
-			</Selector>
+				</Selector>
+			</Panel>
 		</Taskpad>
 	</Page.Taskpad>
 </Page>

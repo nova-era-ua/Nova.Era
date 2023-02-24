@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1040
-generated: 23.02.2023 16:54:52
+generated: 24.02.2023 07:58:08
 */
 
 
@@ -6879,7 +6879,7 @@ begin
 		count(*) over ()
 	from cat.CashAccounts c
 		left join jrn.CashReminders cr on  c.TenantId = cr.TenantId and cr.CashAccount = c.Id
-	where c.TenantId = @TenantId
+	where c.TenantId = @TenantId and c.IsCashAccount = 1
 		and (@Company is null or c.Company = @Company)
 		and (@fr is null or c.[Name] like @fr or c.Memo like @fr)
 	order by 

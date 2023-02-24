@@ -54,12 +54,8 @@
 	<Page.Taskpad>
 		<Taskpad XamlStyle="{StyleResource TaskpadPage}" Width="20rem">
 			<Panel Header="@[Filters]" Style="Transparent" Collapsible="True">
-				<Selector Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
-					  Value="{Bind Parent.Filter.Company}" DisplayProperty="Name">
-					<Hyperlink Icon="Search" Command="{BindCmd Browse, Argument={Bind Parent.Filter.Company}, Url='/catalog/company/browse'}"/>
-					<Hyperlink If="{Bind Parent.Filter.Company.Id}"
-					Icon="Clear" Command="{BindCmd Execute, CommandName=clearFilter, Argument={Bind Parent.Filter.Company}}"/>
-				</Selector>
+				<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
+					  Value="{Bind Parent.Filter.Company}" Url="/catalog/company" ShowClear="True"/>
 			</Panel>
 		</Taskpad>
 	</Page.Taskpad>
