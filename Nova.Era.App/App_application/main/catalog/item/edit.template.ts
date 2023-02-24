@@ -1,6 +1,8 @@
 ﻿
 import { TRoot, TItem, TItemRole } from './item';
 
+const barcode = require('std:barcode');
+
 const template: Template = {
 	properties: {
 		'TRoot.$$Tab': String,
@@ -49,8 +51,12 @@ function fetchUnit(item, text) {
 	return this.$ctrl.$invoke('fetch', {Text: text}, '/catalog/unit');
 }
 
-function generateBarcode(item) {
-	//item.Barcode = '2222332333';
+async function generateBarcode(item) {
+	if (this.Item.$isNew) {
+		this.$setDirty(true);
+		await this.$ctrl.$save();
+	}
+	item.Barcode = barcode.generateEAN13('20', item.Id);
 }
 
 async function addVariant(item) {

@@ -95,10 +95,9 @@
 					<ComboBoxItem Content="{Bind Name}" Value="{Bind Id}"/>
 				</ComboBox>
 				<SelectorSimple Label="@[Company]" Placeholder="@[Placeholder.AllCompanies]"
-					  Value="{Bind Parent.Filter.Company}" Url="/catalog/company" ShowClear="True"/>
-				<SelectorSimple Label="@[Warehouse]" Placeholder="@[Placeholder.AllWarehouses]"
-					  Value="{Bind Parent.Filter.Warehouse}" Url="/catalog/warehouse" ShowClear="True"/>
-				<SelectorSimple Label="@[Agent]"  Placeholder="@[Placeholder.AllAgents]"
+					  Value="{Bind Parent.Filter.Company}" Url="/catalog/company" ShowClear="True">
+				</SelectorSimple>
+				<SelectorSimple Label="@[Customer]"  Placeholder="@[Placeholder.AllAgents]"
 					  Value="{Bind Parent.Filter.Agent}" Url="/catalog/agent" ShowClear="True"/>
 			</Panel>
 		</Taskpad>

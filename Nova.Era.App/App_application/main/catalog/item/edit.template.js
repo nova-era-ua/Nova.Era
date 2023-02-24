@@ -1,6 +1,7 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const barcode = require('std:barcode');
     const template = {
         properties: {
             'TRoot.$$Tab': String,
@@ -44,7 +45,12 @@ define(["require", "exports"], function (require, exports) {
             return [];
         return this.$ctrl.$invoke('fetch', { Text: text }, '/catalog/unit');
     }
-    function generateBarcode(item) {
+    async function generateBarcode(item) {
+        if (this.Item.$isNew) {
+            this.$setDirty(true);
+            await this.$ctrl.$save();
+        }
+        item.Barcode = barcode.generateEAN13('20', item.Id);
     }
     async function addVariant(item) {
         const ctrl = this.$ctrl;

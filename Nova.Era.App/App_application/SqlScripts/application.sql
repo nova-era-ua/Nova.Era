@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1040
-generated: 24.02.2023 07:58:08
+generated: 24.02.2023 15:35:04
 */
 
 
@@ -11074,7 +11074,6 @@ create or alter procedure doc.[Document.Order.Index]
 @Dir nvarchar(20) = N'desc',
 @Operation bigint = -1,
 @Agent bigint = null,
-@Warehouse bigint = null,
 @Company bigint = null,
 @From date = null,
 @To date = null,
@@ -11108,7 +11107,6 @@ begin
 		and (@Operation = -1 or d.Operation = @Operation)
 		and (@Agent is null or d.Agent = @Agent)
 		and (@Company is null or d.Company = @Company)
-		and (@Warehouse is null or d.WhFrom = @Warehouse or d.WhTo = @Warehouse)
 		and (@State = N'A' or @State = N'W' and ds.Kind in (N'I', N'P') or @State = ds.Kind)
 	order by 
 		case when @Dir = N'asc' then
@@ -11228,7 +11226,6 @@ begin
 		[!Documents.Operation!Filter] = @Operation, 
 		[!Documents.Agent.Id!Filter] = @Agent, [!Documents.Agent.Name!Filter] = cat.fn_GetAgentName(@TenantId, @Agent),
 		[!Documents.Company.Id!Filter] = @Company, [!Documents.Company.Name!Filter] = cat.fn_GetCompanyName(@TenantId, @Company),
-		[!Documents.Warehouse.Id!Filter] = @Warehouse, [!Documents.Warehouse.Name!Filter] = cat.fn_GetWarehouseName(@TenantId, @Warehouse),
 		[!Documents.State!Filter] = @State
 end
 go
