@@ -302,13 +302,13 @@ begin
 	-- 2000 sales
 	-- 3000 purchase
 	-- 10000+ modules
-	declare @widgets table(Kind nvarchar(16), Id bigint, rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
+	declare @widgets table(Kind nvarchar(16), Category nvarchar(64), Id bigint, rowSpan int, colSpan int, [Name] nvarchar(255), [Url] nvarchar(255), 
 		Memo nvarchar(255), Icon nvarchar(32), Params nvarchar(1023));
-	insert into @widgets (Id, Kind, colSpan, rowSpan, [Name], [Url], Icon, Memo, Params) values
-		(1000, N'Root',       5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null),
-		(1001, N'Root',       2, 1, N'Продажі',       N'/sales/widgets/salesmonth',    N'cart',         N'Продажі за місяць', null),
+	insert into @widgets (Id, Kind, Category, colSpan, rowSpan, [Name], [Url], Icon, Memo, Params) values
+		(1000, N'Root',       N'@[Accounting]', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null),
+		(1001, N'Root',       N'@[Sales]',      2, 1, N'Продажі',       N'/sales/widgets/salesmonth',    N'cart',         N'Продажі за місяць', null),
 		--
-		(2001, N'Accounting', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null);
+		(2001, N'Accounting', N'@[Accounting]', 5, 3, N'Грошові кошти', N'/accounting/widgets/cashflow', N'chart-column', N'Діаграма руху грошових коштів', null);
 		/*
 		(1002, N'Root',       2, 1, N'Widget 2x1', N'/widgets/widget3/index', N'currency-uah', null, null);
 		(N'Widget4', 2, 2, N'Widget 2x2', N'/widgets/widget4/index', null, null),
@@ -327,10 +327,11 @@ begin
 		t.Memo = s.Memo,
 		t.Icon = s.Icon,
 		t.Kind = s.Kind,
+		t.Category = s.Category,
 		t.Params = s.Params
 	when not matched by target then insert
-		(TenantId, Id, Kind, [Name], rowSpan, colSpan, [Url], Memo, Icon, Params) values
-		(@TenantId, s.Id, s.Kind, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon, s.Params);
+		(TenantId, Id, Kind, Category, [Name], rowSpan, colSpan, [Url], Memo, Icon, Params) values
+		(@TenantId, s.Id, s.Category, s.Kind, s.[Name], s.rowSpan, s.colSpan, s.[Url], s.Memo, s.Icon, s.Params);
 end
 go
 -------------------------------------------------

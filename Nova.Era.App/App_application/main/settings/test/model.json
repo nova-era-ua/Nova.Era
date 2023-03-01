@@ -31,8 +31,9 @@
 		"excel": {
 			"type": "parse",
 			"parse": "xlsx",
-			"schema": "dbo",
-			"model": "Upload"
+			"source": "UCOM",
+			"schema": "gas",
+			"model": "Order.DownloadFact"
 		}
 	}
 }

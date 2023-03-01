@@ -1549,6 +1549,7 @@ create table app.Widgets
 (
 	TenantId int not null,
 	Id bigint not null,
+	Category nvarchar(64),
 	Kind nvarchar(16),
 	[Name] nvarchar(255),
 	rowSpan int,

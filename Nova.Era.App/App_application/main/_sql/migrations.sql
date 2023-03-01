@@ -199,3 +199,7 @@ go
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Tasks' and COLUMN_NAME=N'LinkType')
 	alter table app.Tasks add LinkType nvarchar(64);
 go
+------------------------------------------------
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=N'app' and TABLE_NAME=N'Widgets' and COLUMN_NAME=N'Category')
+	alter table app.Widgets add Category nvarchar(64);
+go

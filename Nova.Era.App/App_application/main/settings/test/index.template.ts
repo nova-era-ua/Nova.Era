@@ -71,7 +71,7 @@ function testPrint() {
 async function testUpload() {
 	let ctrl: IController = this.$ctrl;
 	try {
-		let result = await ctrl.$upload('/settings/test/excel', undefined, undefined, {catchError: false});
+		let result = await ctrl.$upload('/settings/test/excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', { Id: 102 }, {catchError: false});
 		console.dir(result);
 	} catch (error) {
 		alert("FROM CLIENT:" + error);

@@ -14,7 +14,7 @@
 	-->
 	<Dashboard ItemsSource="{Bind Dashboard.Items}" Editable="True"
 			   EditMode="{Bind Root.$$EditMode}" CellWidth="96" CellHeight="96px" 
-			   ItemsList="{Bind Dashboard.$Widgets}" GroupBy="Kind">
+			   ItemsList="{Bind Dashboard.$Widgets}" GroupBy="Category">
 		<Include Source="{Bind Url}" Argument="{Bind Id}" Queued="True" Data="{Bind Params}"/>
 		<Dashboard.ListTemplate>
 			<ListItem Padding="1rem"
