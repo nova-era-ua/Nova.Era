@@ -99,5 +99,12 @@
 		"inputFiles": [
 			"manufacturing/_sql/ui.sql"
 		]
+	},
+	{
+		"version": "10.1.1040",
+		"outputFile": "SqlScripts/personnel.sql",
+		"inputFiles": [
+			"personnel/_sql/ui.sql"
+		]
 	}
 ]

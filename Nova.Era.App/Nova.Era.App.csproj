@@ -252,6 +252,7 @@
     <Content Include="App_application\manufacturing\readme.txt" />
     <Content Include="App_application\manufacturing\_sql\ui.sql" />
     <Content Include="App_application\SqlScriptsDebug\drop_all_tables.sql" />
+    <Content Include="personnel\_sql\ui.sql" />
     <Content Include="todo.txt" />
     <Content Include="App_application\main\catalog\item\edit.dialog.xaml">
       <SubType>Designer</SubType>
