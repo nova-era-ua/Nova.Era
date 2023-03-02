@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1040
-generated: 01.03.2023 06:36:30
+generated: 02.03.2023 09:16:59
 */
 
 
@@ -9133,7 +9133,7 @@ begin
 	select @kind = Kind from app.Dashboards where TenantId = @TenantId and Id = @Id;
 
 	select [Widgets!TWidget!Array] = null, w.[Name], [row] = 0, col = 0, w.rowSpan, w.colSpan, w.[Url],
-		[Widget] = w.Id, Icon, Memo, Params, w.Kind
+		[Widget] = w.Id, Icon, Memo, Params, w.Kind, w.Category
 	from app.Widgets w 
 	where w.TenantId = @TenantId and Kind = @kind
 	order by w.Id;
