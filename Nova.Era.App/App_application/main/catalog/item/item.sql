@@ -203,6 +203,7 @@ begin
 	from cat.Items v
 		inner join @items t on v.TenantId = @TenantId and v.Parent = t.id
 		left join cat.Units u on v.TenantId = u.TenantId and t.unit = u.Id
+	where v.Void = 0
 	order by v.Id;
 
 	with R([role]) as (select [role] from @items group by [role])
@@ -407,7 +408,7 @@ begin
 	declare @Item cat.[Item.TableType];
 	declare @Groups cat.[ItemTreeElem.TableType];
 	select [Item!Item!Metadata] = null, * from @Item;
-	select [Groups!Item.Hierarchies.Elements!Metadata] = null, * from @Groups;
+	select [Groups!Hierarchies.Elements!Metadata] = null, * from @Groups;
 end
 go
 -------------------------------------------------
@@ -674,6 +675,17 @@ begin
 	delete from cat.ItemTreeElems where TenantId = @Id and Item = @Id;
 	update cat.Items set Void = 1 where TenantId = @TenantId and Id=@Id;
 	commit tran;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Item.Group.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	exec cat.[Item.Group.Elements.Delete] @TenantId = @TenantId, @UserId = @UserId, @Id = @Id;
 end
 go
 -------------------------------------------------

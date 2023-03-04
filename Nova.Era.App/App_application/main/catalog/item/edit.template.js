@@ -19,11 +19,13 @@ define(["require", "exports"], function (require, exports) {
         commands: {
             addHierarchy,
             generateBarcode,
-            addVariant,
-            editVariant
+            addVariant
         },
         delegates: {
             fetchUnit
+        },
+        events: {
+            'variant.saved': handleSavedVariant
         }
     };
     exports.default = template;
@@ -59,11 +61,20 @@ define(["require", "exports"], function (require, exports) {
             await ctrl.$save();
         }
         let vars = await ctrl.$showDialog('/catalog/item/createvariant', { Id: item.Id });
-        console.dir(vars);
+        item.Variants.$copy(vars.Result);
+        ctrl.$emitSaveEvent();
     }
-    async function editVariant(variant) {
+    function handleSavedVariant(root) {
         const ctrl = this.$ctrl;
-        let result = await ctrl.$showDialog('/catalog/item/editvariant', { Id: variant.Id });
-        console.dir(result);
+        let elem = root.Variant;
+        let found = this.Item.Variants.$find(x => x.Id == elem.Id);
+        if (found) {
+            let wasDirty = this.$dirty;
+            found.$merge(elem);
+            ctrl.$defer(() => {
+                this.$setDirty(wasDirty);
+            });
+            ctrl.$emitSaveEvent();
+        }
     }
 });

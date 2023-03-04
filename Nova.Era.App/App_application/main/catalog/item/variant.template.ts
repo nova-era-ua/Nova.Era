@@ -21,8 +21,10 @@ const template: Template = {
 export default template;
 
 function modelLoad() {
-	if (this.Options.length > 0)
+	if (this.Options.length > 0) { 
 		this.Item.Option1 = this.Options[0];
+		this.$defer(() => this.$setDirty(true));
+	}
 }
 
 function options2() {
@@ -42,6 +44,7 @@ function options3() {
 
 function variants() {
 	let arr = [];
+
 	this.Option1.Values.filter(o1 => o1.Checked).forEach(v1 => {
 		if (this.Option2.Id)
 			this.Option2.Values.filter(o2 => o2.Checked).forEach(v2 => {
@@ -79,5 +82,5 @@ function variants() {
 async function setupVariants() {
 	const ctrl: IController = this.$ctrl;
 	await ctrl.$showDialog('/catalog/itemoption/setup');
-	ctrl.$requery();
+	ctrl.$requery();    
 }

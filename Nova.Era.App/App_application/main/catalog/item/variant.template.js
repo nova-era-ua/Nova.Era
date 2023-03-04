@@ -19,8 +19,10 @@ define(["require", "exports"], function (require, exports) {
     };
     exports.default = template;
     function modelLoad() {
-        if (this.Options.length > 0)
+        if (this.Options.length > 0) {
             this.Item.Option1 = this.Options[0];
+            this.$defer(() => this.$setDirty(true));
+        }
     }
     function options2() {
         let id1 = this.Item.Option1.Id;

@@ -47,7 +47,7 @@
 		<DataGrid Grid.Row="2" ItemsSource="{Bind Parent.ItemsSource}"  Sort="True"
 				XamlStyle="{StyleResource DataGridSimple}" FixedHeader="True" Striped="True"
 				DoubleClick="{BindCmd Execute, CommandName=editSelected, Argument={Bind Documents}}"
-				  Mark="{Bind $Mark}" MarkerStyle="Marker">
+				Mark="{Bind $Mark}" MarkerStyle="Marker">
 			<DataGridColumn Fit="True" Content="{Bind $checked}" ControlType="CheckBox" Editable="True"/>
 			<DataGridColumn Header="#" Content="{Bind Id}" Role="Id" Sort="False"/>
 			<DataGridColumn Header="@[Date]" Content="{Bind Date, DataType=Date}" Role="Date"/>

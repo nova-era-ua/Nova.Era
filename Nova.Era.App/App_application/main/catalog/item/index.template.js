@@ -19,7 +19,10 @@ define(["require", "exports"], function (require, exports) {
                 return this.$selected.Elements.reduce((p, c) => p.concat(c, c.Variants), []);
             }
         },
-        events: {},
+        events: {
+            'item.saved': handleSavedItem,
+            'variant.saved': handleSavedVariant
+        },
         commands: {
             create,
             edit,
@@ -43,6 +46,8 @@ define(["require", "exports"], function (require, exports) {
     }
     function clearLazyElements(items, sel) {
         items.forEach(el => {
+            if (el.Id !== sel.Id)
+                el.Elements.$resetLazy();
             clearLazyElements(el.Items, sel);
         });
     }
@@ -52,16 +57,32 @@ define(["require", "exports"], function (require, exports) {
         coll.$append(res);
         clearLazyElements(this.Groups, this.Groups.$selected);
     }
+    function handleSavedItem(root) {
+        let sel = this.Groups.$selected;
+        if (!sel)
+            return;
+        let elem = root.Item;
+        let found = sel.Elements.$find(x => x.Id === elem.Id);
+        if (found) {
+            found.$merge(elem);
+            clearLazyElements(this.Groups, this.Groups.$selected);
+        }
+    }
+    function handleSavedVariant(root) {
+        let sel = this.Groups.$selected;
+        if (!sel)
+            return;
+        let variant = root.Variant;
+        sel.Elements.forEach(elem => {
+            let f = elem.Variants.$find(v => v.Id === variant.Id);
+            if (f)
+                f.$merge(variant);
+        });
+    }
     async function edit(item) {
         const ctrl = this.$ctrl;
         const url = item.IsVariant ? EDIT_VARIANT_URL : EDIT_URL;
-        let res = await ctrl.$showDialog(url, { Id: item.Id });
-        if (item.IsVariant) {
-            item.$merge(res, true, true);
-        }
-        else
-            item.$merge(res);
-        clearLazyElements(this.Groups, this.Groups.$selected);
+        await ctrl.$showDialog(url, { Id: item.Id });
     }
     async function editSelected(coll) {
         if (!coll.$hasSelected)
