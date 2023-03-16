@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1040
-generated: 02.03.2023 09:16:59
+generated: 07.03.2023 13:20:21
 */
 
 
@@ -3775,6 +3775,7 @@ begin
 	from cat.Items v
 		inner join @items t on v.TenantId = @TenantId and v.Parent = t.id
 		left join cat.Units u on v.TenantId = u.TenantId and t.unit = u.Id
+	where v.Void = 0
 	order by v.Id;
 
 	with R([role]) as (select [role] from @items group by [role])
@@ -3979,7 +3980,7 @@ begin
 	declare @Item cat.[Item.TableType];
 	declare @Groups cat.[ItemTreeElem.TableType];
 	select [Item!Item!Metadata] = null, * from @Item;
-	select [Groups!Item.Hierarchies.Elements!Metadata] = null, * from @Groups;
+	select [Groups!Hierarchies.Elements!Metadata] = null, * from @Groups;
 end
 go
 -------------------------------------------------
@@ -4246,6 +4247,17 @@ begin
 	delete from cat.ItemTreeElems where TenantId = @Id and Item = @Id;
 	update cat.Items set Void = 1 where TenantId = @TenantId and Id=@Id;
 	commit tran;
+end
+go
+-------------------------------------------------
+create or alter procedure cat.[Item.Group.Delete]
+@TenantId int = 1,
+@UserId bigint,
+@Id bigint
+as
+begin
+	set nocount on;
+	exec cat.[Item.Group.Elements.Delete] @TenantId = @TenantId, @UserId = @UserId, @Id = @Id;
 end
 go
 -------------------------------------------------
@@ -4574,7 +4586,8 @@ begin
 		[Option1!TOption!RefId] = cast(null as bigint),
 		[Option2!TOption!RefId] = cast(null as bigint),
 		[Option3!TOption!RefId] = cast(null as bigint),
-		[Variants!TVariant!Array] = null
+		[Variants!TVariant!Array] = null,
+		[Result!TResult!Array] = null
 	from cat.Items i
 	where TenantId = @TenantId and Id = @Id;
 
@@ -4595,6 +4608,11 @@ begin
 		[Id3] = cast(null as bigint), [Name3] = cast(null as nvarchar(255)),
 		Article = cast(null as nvarchar(32)), Barcode = cast(null as nvarchar(32)),
 		[!TItem.Variants!ParentId] = @Id
+	where 0 <> 0;
+
+	select [!TResult!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Article, v.Barcode, v.Memo,
+		v.IsVariant, [!TItem.Result!ParentId] = @Id
+	from cat.Items v 
 	where 0 <> 0;
 end
 go
@@ -4648,6 +4666,18 @@ begin
 	select @TenantId, @itemid, @role, @unit, @itemname + N' [' + v.[name] + N']', v.id, v.article, v.barcode
 	from @vars v
 	commit tran;
+
+	select [Item!TItem!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name], i.Article, i.Barcode,
+		[Result!TResult!Array] = null
+	from cat.Items i
+	where TenantId = @TenantId and Id = @itemid;
+
+	select [!TVariant!Array] = null, [Id!!Id] = v.Id, [Name!!Name] = v.[Name], v.Article, v.Barcode, v.Memo,
+		[Role.Id!TItemRole!Id] = v.[Role], [Role.Name!TItemRole!Name] = ir.[Name], [Role.Color!TItemRole!] = ir.Color,
+		v.IsVariant, [!TItem.Result!ParentId] = @itemid
+	from cat.Items v 
+		left join cat.ItemRoles ir on v.TenantId = ir.TenantId and v.[Role] = ir.Id
+	where v.TenantId = @TenantId and v.Parent = @itemid and v.Void = 0 and v.IsVariant = 1;
 end
 go
 ------------------------------------------------
@@ -4664,13 +4694,15 @@ begin
 	select @vart = Variant from cat.Items where TenantId = @TenantId and Id = @Id;
 
 	select [Variant!TVariant!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name],
-		i.Barcode, i.Article, i.Memo,
+		i.Barcode, i.Article, i.Memo, i.IsVariant,
 		[Option1!TOption!RefId] = iv.Option1, [Option2!TOption!RefId] = iv.Option2, [Option3!TOption!RefId] = iv.Option3,
-		[ParentName] = p.[Name]
+		[ParentName] = p.[Name],
+		[Role.Id!TItemRole!Id] = i.[Role], [Role.Name!TItemRole!Name] = ir.[Name], [Role.Color!TItemRole!] = ir.Color
 	from cat.Items i
 		inner join cat.Items p on i.TenantId = p.TenantId and i.Parent = p.Id
 		left join cat.ItemVariants iv on i.TenantId = iv.TenantId and i.Variant = iv.Id
 		left join cat.ItemOptionValues ov1 on ov1.TenantId = iv.TenantId and iv.Option1 = ov1.Id
+		left join cat.ItemRoles ir on ir.TenantId = i.TenantId and i.[Role] = ir.Id
 	where i.TenantId = @TenantId and i.Id = @Id;
 
 	select [!TOption!Map] = null, [Id!!Id] = ov.Id, [Name!!Name] = o.[Name], [Value] = ov.[Name]
@@ -4727,8 +4759,10 @@ begin
 
 	-- simple variant for update UI
 	select [Variant!TVariant!Object] = null, [Id!!Id] = i.Id, [Name!!Name] = i.[Name],
-		i.Barcode, i.Article, i.Memo, i.IsVariant
-	from cat.Items i inner join @Variant v on i.TenantId = @TenantId and i.Id = v.Id;
+		i.Barcode, i.Article, i.Memo, i.IsVariant,
+		[Role.Id!TItemRole!Id] = i.[Role], [Role.Name!TItemRole!Name] = ir.[Name], [Role.Color!TItemRole!] = ir.Color
+	from cat.Items i inner join @Variant v on i.TenantId = @TenantId and i.Id = v.Id
+	inner join cat.ItemRoles ir on i.TenantId = ir.TenantId and i.[Role] = ir.Id
 end
 go
 

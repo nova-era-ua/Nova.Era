@@ -288,6 +288,7 @@ begin
 		(885,   88, 15, N'@[Integrations]', 'integration',N'queue', N'border-top'),
 		(8850,  88, 30, N'Розробка (debug)',N'develop',   N'switch', N'border-top'),
 		(8851,  88, 99, N'Test',            N'test',      N'file', null),
+		(8852,  88, 100, N'Test Group',     N'testgroup',      N'file', null),
 		-- Profile
 		(9001,  90, 10, N'@[Defaults]',    N'default',   N'list', null),
 		(9002,  90, 20, N'@[License]',     N'license',   N'policy', null);

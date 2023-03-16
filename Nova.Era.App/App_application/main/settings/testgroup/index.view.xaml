@@ -1,0 +1,31 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml" Padding="1rem">
+	<Toolbar>
+		<Button Icon="Refresh" Command="{BindCmd Reload}"/>
+		<Button Icon="Access" Command="{BindCmd Execute,CommandName=testConfirm}"/>
+	</Toolbar>
+	<SheetPage>
+		<Sheet>
+			<SheetSection>
+				<SheetRow>
+					<SheetCell />
+					<SheetCell />
+					<SheetCell />
+					<SheetCell Content="{Bind Trans.Qty}"/>
+					<SheetCell Content="{Bind Trans.Price}"/>
+					<SheetCell Content="{Bind Trans.Sum}"/>
+				</SheetRow>
+			</SheetSection>
+			<SheetTreeSection ItemsSource="{Bind Trans.Items}">
+				<SheetRow>
+					<SheetGroupCell />
+					<SheetCell Content="{Bind $groupName.Name}" GroupIndent="True"/>
+					<SheetCell Content="{Bind Entity.Name}"/>
+					<SheetCell Content="{Bind Qty}"/>
+					<SheetCell Content="{Bind Price}"/>
+					<SheetCell Content="{Bind Sum}"/>
+				</SheetRow>
+			</SheetTreeSection>
+		</Sheet>
+	</SheetPage>
+	<Code Multiline="True" Content="{Bind Trans}"></Code>
+</Page>

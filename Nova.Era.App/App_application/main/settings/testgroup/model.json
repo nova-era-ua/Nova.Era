@@ -1,0 +1,13 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"source": "Test",
+	"schema": "a2test",
+	"model": "DynamicGrouping",
+	"actions": {
+		"index": {
+			"index": true,
+			"template": "index.template",
+			"view": "index.view"
+		}
+	}
+}
