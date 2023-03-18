@@ -42,7 +42,12 @@
 					Value="{Bind Document.Project}" Url="/catalog/project"/>
 		</Grid>
 		<TabBar Grid.Row="3" Value="{Bind Root.$$TabNo}" Margin="0">
-			<TabButton Content="@[KindStock]" ActiveValue=""/>
+			<TabButton ActiveValue="">
+				<Text>
+					<Span Content="@[KindStock]"/>
+					<SpanIcon Icon="ErrorOutline" CssClass="ml-1" If="{Bind Root.$StockErrors}"/>
+				</Text>
+			</TabButton>
 			<TabButton Content="@[KindServices]" ActiveValue="service"/>
 		</TabBar>
 		<Switch Expression="{Bind Root.$$TabNo}">

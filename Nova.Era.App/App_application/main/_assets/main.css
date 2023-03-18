@@ -54,6 +54,9 @@ li.line-top:before {
 .mr-1 {
   margin-right: 0.25rem;
 }
+.ml-1 {
+  margin-left: 0.25rem;
+}
 .ml-3 {
   margin-left: 1rem;
 }

@@ -8,7 +8,8 @@ const template: Template = {
 		'TRoot.$CheckRems'() { return !this.Document.Done && this.Params.CheckRems; },
 		'TRoot.$StockSpan'() { return this.$CheckRems ? 7 : 6; },
 		'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date, CheckRems: this.$CheckRems, Wh: this.Document.WhFrom.Id }; },
-		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
+		'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
+		'TRoot.$StockErrors': stockErrors
 	},
 	defaults: {
 		'Document.WhFrom'(this: any) { return this.Default.Warehouse; }
@@ -38,6 +39,11 @@ const template: Template = {
 
 export default utils.mergeTemplate(base, template);
 
+// #region properties
+function stockErrors(this: IRoot): boolean {
+	return this.$hasErrors(['Document.StockRows[].Item', 'Document.StockRows[].Price', 'Document.StockRows[].Qty']);
+}
+// #endregion
 
 // #region validators
 function checkRems(elem, val): boolean {

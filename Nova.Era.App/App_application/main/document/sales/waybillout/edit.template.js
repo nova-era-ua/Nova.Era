@@ -8,7 +8,8 @@ define(["require", "exports"], function (require, exports) {
             'TRoot.$CheckRems'() { return !this.Document.Done && this.Params.CheckRems; },
             'TRoot.$StockSpan'() { return this.$CheckRems ? 7 : 6; },
             'TRoot.$BrowseStockArg'() { return { IsStock: 'T', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date, CheckRems: this.$CheckRems, Wh: this.Document.WhFrom.Id }; },
-            'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; }
+            'TRoot.$BrowseServiceArg'() { return { IsStock: 'V', PriceKind: this.Document.PriceKind.Id, Date: this.Document.Date }; },
+            'TRoot.$StockErrors': stockErrors
         },
         defaults: {
             'Document.WhFrom'() { return this.Default.Warehouse; }
@@ -36,6 +37,9 @@ define(["require", "exports"], function (require, exports) {
         }
     };
     exports.default = utils.mergeTemplate(base, template);
+    function stockErrors() {
+        return this.$hasErrors(['Document.StockRows[].Item', 'Document.StockRows[].Price', 'Document.StockRows[].Qty']);
+    }
     function checkRems(elem, val) {
         return elem.Qty <= elem.Rem;
     }
