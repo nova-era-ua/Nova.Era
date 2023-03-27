@@ -36,6 +36,8 @@
 @Type=Type
 @Tag=Tag
 @Tags=Tags
+@Board=Board
+@Boards=Boards
 @Active=Active
 @Other=Other
 @AccPolicy=Accounting Policy

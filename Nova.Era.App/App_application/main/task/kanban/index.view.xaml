@@ -1,0 +1,37 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Grid Rows="Auto,1*" Height="100%" Gap="1rem">
+		<StackPanel Gap="1rem" Orientation="Horizontal">
+			<Header Grid.Row="1" Bold="False">Kanban board</Header>
+			<Button Style="Outline" Rounded="True" Icon="Refresh" Command="{BindCmd Reload}"></Button>
+		</StackPanel>
+		<KanbanBoard Grid.Row="2" Lanes="{Bind States}" Items="{Bind Tasks}" StateProperty="State"
+					 DropDelegate="dropTask" Grid.VAlign="Stretch">
+			<KanbanBoard.Header>
+				<Span Content="{Bind Name}" Block="True" Padding="8px"/>
+			</KanbanBoard.Header>
+			<KanbanBoard.Footer>
+				<Button Icon="Plus" Content="Add Task" Size="Mini" Style="Outline" Margin="8px,0"
+						Command="{BindCmd Execute,CommandName=addTask, Argument={Bind}}"/>
+			</KanbanBoard.Footer>
+			<KanbanCard DropShadow="Shadow1" 
+						Command="{BindCmd Execute, CommandName=openTask, Argument={Bind}}">
+				<KanbanCard.Header>
+					<Span Content="{Bind Text}" Bold="True" Color="Label"/>
+				</KanbanCard.Header>
+				<StackPanel Padding="8px">
+					<Span Content="{Bind Text}" Bold="True"/>
+					<Span Content="{Bind Notice}" Block="True"/>
+					<Text>
+						<SpanIcon Icon="WaitingOutline" Color="LightGray"/>
+						<Span Content="{Bind DateCreated, DataType=DateTime}" Color="LightGray" Space="After"/>
+						<TagLabel Content="{Bind State.Name}" Style="{Bind State.Color}" />
+					</Text>
+					<Span Content="{Bind UserName}" Block="True"/>
+				</StackPanel>
+				<KanbanCard.Footer>
+					<Button Icon="ExportExcel" Size="Mini" Style="Outline" Command="{BindCmd Execute, CommandName=test}"></Button>
+				</KanbanCard.Footer>
+			</KanbanCard>
+		</KanbanBoard>
+	</Grid>
+</Page>

@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1040
-generated: 18.03.2023 12:48:41
+generated: 27.03.2023 06:55:47
 */
 
 
@@ -191,34 +191,44 @@ end
 go
 ------------------------------------------------
 create or alter procedure appsec.[User.SetPasswordHash]
-@UserId bigint,
+@Id bigint,
 @PasswordHash nvarchar(max)
 as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
-	set xact_abort on;
 
-	update appsec.ViewUsers set PasswordHash2 = @PasswordHash where Id=@UserId;
+	update appsec.ViewUsers set PasswordHash2 = @PasswordHash where Id = @Id;
 end
 go
 ------------------------------------------------
 create or alter procedure appsec.[User.SetSecurityStamp]
-@UserId bigint,
+@Id bigint,
 @SecurityStamp nvarchar(max)
 as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
-	set xact_abort on;
 
-	update appsec.ViewUsers set SecurityStamp2 = @SecurityStamp where Id=@UserId;
+	update appsec.ViewUsers set SecurityStamp2 = @SecurityStamp where Id = @Id;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.[User.SetPhoneNumberConfirmed]
+@Id bigint,
+@PhoneNumber nvarchar(255),
+@Confirmed bit
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	update appsec.ViewUsers set PhoneNumber = @PhoneNumber, PhoneNumberConfirmed = @Confirmed where Id = @Id;
 end
 go
 ------------------------------------------------
 create or alter procedure appsec.[User.ChangePassword.Load]
-	@TenantId int = 0,
-	@UserId bigint
+@TenantId int = 0,
+@UserId bigint
 as
 begin
 	set nocount on;

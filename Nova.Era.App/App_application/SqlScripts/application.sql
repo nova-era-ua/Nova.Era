@@ -1,6 +1,6 @@
 ﻿/*
 version: 10.1.1040
-generated: 18.03.2023 12:48:41
+generated: 27.03.2023 06:55:47
 */
 
 
@@ -281,34 +281,44 @@ end
 go
 ------------------------------------------------
 create or alter procedure appsec.[User.SetPasswordHash]
-@UserId bigint,
+@Id bigint,
 @PasswordHash nvarchar(max)
 as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
-	set xact_abort on;
 
-	update appsec.ViewUsers set PasswordHash2 = @PasswordHash where Id=@UserId;
+	update appsec.ViewUsers set PasswordHash2 = @PasswordHash where Id = @Id;
 end
 go
 ------------------------------------------------
 create or alter procedure appsec.[User.SetSecurityStamp]
-@UserId bigint,
+@Id bigint,
 @SecurityStamp nvarchar(max)
 as
 begin
 	set nocount on;
 	set transaction isolation level read committed;
-	set xact_abort on;
 
-	update appsec.ViewUsers set SecurityStamp2 = @SecurityStamp where Id=@UserId;
+	update appsec.ViewUsers set SecurityStamp2 = @SecurityStamp where Id = @Id;
+end
+go
+------------------------------------------------
+create or alter procedure appsec.[User.SetPhoneNumberConfirmed]
+@Id bigint,
+@PhoneNumber nvarchar(255),
+@Confirmed bit
+as
+begin
+	set nocount on;
+	set transaction isolation level read committed;
+	update appsec.ViewUsers set PhoneNumber = @PhoneNumber, PhoneNumberConfirmed = @Confirmed where Id = @Id;
 end
 go
 ------------------------------------------------
 create or alter procedure appsec.[User.ChangePassword.Load]
-	@TenantId int = 0,
-	@UserId bigint
+@TenantId int = 0,
+@UserId bigint
 as
 begin
 	set nocount on;
@@ -2842,55 +2852,58 @@ begin
 		(72,    3,  1, N'@[AppInit]',     N'appinit',    N'arrow-up', null),
 
 		(10,    1,  10, N'@[Dashboard]',     N'dashboard',   N'dashboard-outline', null),
-		(11,    1,  11, N'@[Crm]',           N'crm',         N'share', null),
-		(12,    1,  12, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
-		(13,    1,  13, N'@[Purchases]',     N'purchase',    N'cart', null),
-		(50,    1,  15, N'@[Accounting]',    N'accounting',  N'calc', null),
-		--(14,    1,  14, N'@[Manufacturing]', N'$manufacturing',  N'wrench', null),
-		--(16,    1,  16, N'@[Payroll]',       N'payroll',  N'calc', null),
-		--(17,    1,  17, N'@[Tax]',           N'tax',  N'calc', null),
+		(14,    1,  11, N'@[Tasks]',         N'task',        N'task-complete', null),
+		(15,    1,  12, N'@[Crm]',           N'crm',         N'share', null),
+		(20,    1,  20, N'@[Sales]',         N'sales',       N'shopping', N'border-top'),
+		(21,    1,  21, N'@[Purchases]',     N'purchase',    N'cart', null),
+		(50,    1,  50, N'@[Accounting]',    N'accounting',  N'calc', null),
+		--(14,    1,  16, N'@[Manufacturing]', N'$manufacturing',  N'wrench', null),
+		--(16,    1,  17, N'@[Payroll]',       N'payroll',  N'calc', null),
+		--(17,    1,  18, N'@[Tax]',           N'tax',  N'calc', null),
 		(88,    1,  880, N'@[Settings]',       N'settings',  N'gear-outline', N'border-top'),
 		(90,    1,  900, N'@[Profile]',        N'profile',   N'user', null),
+		-- TASKS
+		(1401,  14, 10, N'@[Board]',          N'kanban',    N'dashboard-outline', null),
 		-- CRM
-		(1101,  11, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
-		(1102,  11, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
-		(1103,  11, 13, N'@[Contacts]',       N'contact',   N'address-card', null),
-		(110,   11, 14, N'@[Catalogs]',       null,  null, null),
+		(1101,  15, 11, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', null),
+		(1102,  15, 12, N'@[Leads]',          N'lead',      N'users', N'border-top'),
+		(1103,  15, 13, N'@[Contacts]',       N'contact',   N'address-card', null),
+		(110,   15, 14, N'@[Catalogs]',       null,  null, null),
 		(1105, 110, 15, N'@[Agents]',         N'agent',     N'users', null),
 		(1106, 110, 16, N'@[CatalogOther]',   N'catalog',   N'list', null),
 		-- Sales
-		(1201,   12, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
-		(120,    12, 11, N'@[Documents]',      null,  null, null),
+		(1201,   20, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
+		(120,    20, 11, N'@[Documents]',      null,  null, null),
 		(1202,   120, 2, N'@[Orders]',         N'order',     N'task-complete', null),
 		(1203,   120, 3, N'@[Sales]',          N'sales',     N'shopping', null),
 		(1204,   120, 4, N'@[Payment]',        N'payment',   N'currency-uah', null),
-		(121,    12, 12, N'@[PriceLists]', null, null, null),
+		(121,    20, 12, N'@[PriceLists]', null, null, null),
 		(1210,	 121, 11, N'@[Prices]',         N'price',     N'tag-outline', null),
-		(122,    12, 12, N'@[Catalogs]',      null,  null, null),
+		(122,    20, 12, N'@[Catalogs]',      null,  null, null),
 		(1220,   122, 30, N'@[Customers]',      N'agent',     N'users', null),
 		(1221,   122, 31, N'@[Contracts]',      N'contract',  N'user-image', null),
 		(1222,   122, 32, N'@[Projects]',       N'project',   N'log', null),
 		(1223,   122, 33, N'@[Items]',          N'item',      N'package-outline', N'line-top'),
 		(1224,   122, 34, N'@[CatalogOther]',   N'catalog',   N'list', null),
-		(1230,   12, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
-		(1231,   12, 41, N'@[Service]',        N'service',   N'gear-outline', null),
+		(1230,   20, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
+		(1231,   20, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Purchase
-		(1301,   13, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
-		(130,    13, 11, N'@[Documents]',      null,  null, null),
+		(1301,   21, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
+		(130,    21, 11, N'@[Documents]',      null,  null, null),
 		(1302,  130, 10, N'@[Purchases]',      N'purchase',  N'cart', null),
 		(1303,  130, 11, N'@[Warehouse]',      N'stock',     N'warehouse', null),
 		(1304,  130, 12, N'@[Payment]',        N'payment',   N'currency-uah', null),
-		--(1310,   13, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
-		--(131,    13, 12, N'@[Prices]', null, null, null),
+		--(1310,   14, 20, N'@[Planning]',       N'plan',      N'calendar', N'border-top'),
+		--(131,    14, 12, N'@[Prices]', null, null, null),
 		--(1311,  131, 10, N'@[PriceDoc]',       N'pricedoc',  N'file', null),
 		--(1312,  131, 11, N'@[Prices]',         N'price',     N'tag-outline', null),
-		(133,    13, 14, N'@[Catalogs]',  null, null, null),
+		(133,    21, 14, N'@[Catalogs]',  null, null, null),
 		(1320,  133, 10, N'@[Suppliers]',      N'agent',     N'users', null),
 		(1321,  133, 11, N'@[Contracts]',      N'contract',  N'user-image', null),
 		(1322,  133, 12, N'@[Items]',          N'item',      N'package-outline', N'line-top'),
 		(1323,  133, 13, N'@[CatalogOther]',   N'catalog',   N'list', null),
-		(1330,   13, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
-		(1331,   13, 41, N'@[Service]',        N'service',   N'gear-outline', null),
+		(1330,   21, 40, N'@[Reports]',        N'report',    N'report', N'border-top'),
+		(1331,   21, 41, N'@[Service]',        N'service',   N'gear-outline', null),
 		-- Accounting
 		(1501,   50, 10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
 		(150,    50, 11, N'@[Documents]',      null, null, null),

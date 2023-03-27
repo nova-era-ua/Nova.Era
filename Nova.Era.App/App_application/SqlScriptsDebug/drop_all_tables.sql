@@ -1,4 +1,4 @@
-
+﻿
 drop table if exists usr.Defaults;
 --
 drop table if exists cat.ItemRoleAccounts

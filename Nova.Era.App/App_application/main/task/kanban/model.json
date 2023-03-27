@@ -1,0 +1,18 @@
+﻿{
+	"$schema": "../../../@schemas/model-json-schema.json#",
+	"schema": "app",
+	"model": "Task",
+	"actions": {
+		"index": {
+			"index": true,
+			"template": "index.template",
+			"view": "index.view"
+		}
+	},
+	"commands": {
+		"setTaskState": {
+			"type": "sql",
+			"procedure": "Task.SetState"
+		}
+	}
+}
