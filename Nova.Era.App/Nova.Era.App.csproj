@@ -231,6 +231,12 @@
     <Content Include="App_application\main\settings\test\testapi.server2.js" />
     <Content Include="App_application\main\settings\user\user.sql" />
     <Content Include="App_application\main\task\partial\partial.sql" />
+    <Content Include="App_application\main\_assets\main - Copy.css">
+      <DependentUpon>timetable.less</DependentUpon>
+    </Content>
+    <Content Include="App_application\main\_assets\main - Copy.min.css">
+      <DependentUpon>main - Copy.css</DependentUpon>
+    </Content>
     <Content Include="App_application\main\_assets\main.css">
       <DependentUpon>main.less</DependentUpon>
     </Content>
@@ -528,6 +534,10 @@
     <Content Include="App_application\main\_navpane\navpane.view.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App_application\personnel\timetable\test.view.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\accounting\bankacc\model.json" />
@@ -719,6 +729,9 @@
     <Content Include="App_application\manufacturing\project\model.json" />
     <Content Include="App_application\main\settings\testgroup\model.json" />
     <Content Include="App_application\main\task\kanban\model.json" />
+    <Content Include="App_application\personnel\timetable\model.json" />
+    <Content Include="App_application\main\_assets\timetable.less" />
+    <Content Include="App_application\main\_assets\timetable.js" />
     <None Include="packages.config" />
     <TypeScriptCompile Include="App_application\main\catalog\respcenter\edit.template.ts" />
     <TypeScriptCompile Include="App_application\main\catalog\costitem\edit.template.ts" />
@@ -872,6 +885,7 @@
     <TypeScriptCompile Include="App_application\main\_navpane\notification.template.ts" />
     <TypeScriptCompile Include="App_application\main\_navpane\navpane.template.ts" />
     <TypeScriptCompile Include="App_application\manufacturing\dashboard\test1.template.ts" />
+    <TypeScriptCompile Include="App_application\personnel\timetable\test.template.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\_localization\main.uk.txt" />

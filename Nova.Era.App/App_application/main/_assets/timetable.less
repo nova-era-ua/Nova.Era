@@ -1,0 +1,35 @@
+﻿@border-color: var(--neutralBkDarker);
+@bk-header: var(--neutralBk);
+
+.time-table {
+	font-size: 12px;
+	position: relative;
+
+	table {
+		border: 2px solid @border-color;
+
+		td, th {
+			padding: 4px;
+			border: 1px solid @border-color;
+			white-space: pre;
+			line-height: 1;
+
+			&.cb {
+				border-bottom: 2px solid @border-color;
+			}
+
+			&.blue {
+				background-color: aliceblue;
+			}
+
+			&.weekend {
+				background-color: antiquewhite;
+			}
+		}
+
+		th {
+			text-align: center;
+			background-color: @bk-header;
+		}
+	}
+}

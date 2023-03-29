@@ -194,33 +194,3 @@ table.fixed-layout {
 .notify-item .list-item-icon {
   font-size: 12px;
 }
-.time-table {
-  font-size: 12px;
-  position: relative;
-}
-.time-table table {
-  border: 2px solid var(--neutralBkDarker);
-}
-.time-table table td,
-.time-table table th {
-  padding: 4px;
-  border: 1px solid var(--neutralBkDarker);
-  white-space: pre;
-  line-height: 1;
-}
-.time-table table td.cb,
-.time-table table th.cb {
-  border-bottom: 2px solid var(--neutralBkDarker);
-}
-.time-table table td.blue,
-.time-table table th.blue {
-  background-color: aliceblue;
-}
-.time-table table td.weekend,
-.time-table table th.weekend {
-  background-color: antiquewhite;
-}
-.time-table table th {
-  text-align: center;
-  background-color: var(--neutralBk);
-}

@@ -12,13 +12,16 @@ begin
 	insert into @menu(Id, Parent, [Order], [Name], [Url], Icon, ClassName) 
 	values
 
-		(12000,     1, 120,  N'@[Manufacturing]', N'personnel',  N'user-image', null),
+		(12000,     1, 120,  N'Персонал',        N'$personnel',  N'user-image', null),
 		-- Manufacturing
 		(12001, 12000,  10, N'@[Dashboard]',      N'dashboard', N'dashboard-outline', N'border-bottom'),
-		(12002, 12000,  11, N'@[Documents]',      null,  null, null),
-		(12003, 12000,  12, N'@[Catalogs]',       null,  null, null),
-		(12004, 12000,  40, N'@[Reports]',        N'report',    N'report', N'border-top');
+		(12002, 12000,  11, N'Кадрові документи',    null,  null, null),
+		(12003, 12000,  12, N'Облік робочого часу',  null,  null, null),
+		(12004, 12000,  13, N'Заробітна плата',      null,  null, null),
+		(12005, 12000,  30, N'@[Catalogs]',       null,  null, null),
+		(12006, 12000,  40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		-- documents
+		(12301, 12003,  10, N'Табель', N'timetable',  N'file', null);
 		-- catalogs
 
 	exec ui.[MenuModule.Merge] @menu, 12000, 12999;

@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "../../../@schemas/model-json-schema.json#",
+  "schema": "hr",
+  "model": "TimeTable",
+  "actions": {
+    "index": {
+        "template": "test.template",
+        "view": "test.view"
+    }
+  }
+}

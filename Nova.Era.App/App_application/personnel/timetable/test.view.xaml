@@ -1,0 +1,19 @@
+﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
+	<Page.Taskpad>
+		<Taskpad Width="25rem" Collapsible="False">
+			<Code Multiline="True" Content="{Bind Document}" Height="100%"/>
+		</Taskpad>
+	</Page.Taskpad>
+	<Grid Rows="Auto,1*">
+		<Toolbar>
+			<DatePicker Label="Період" View="Month" Value="{Bind Document.Date}"/>
+		</Toolbar>
+		<HtmlElement TagName="a2-timetable">
+			<HtmlElement.Attributes>
+				<HtmlAttribute Name="rows" Value="{Bind Document.Rows}"/>
+				<HtmlAttribute Name="period" Value="{Bind Document.Date}"/>
+				<HtmlAttribute Name="codes" Value="{Bind Codes}"/>
+			</HtmlElement.Attributes>
+		</HtmlElement>
+	</Grid>
+</Page>
