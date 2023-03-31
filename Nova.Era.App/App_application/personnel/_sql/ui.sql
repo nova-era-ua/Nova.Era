@@ -21,7 +21,7 @@ begin
 		(12005, 12000,  30, N'@[Catalogs]',       null,  null, null),
 		(12006, 12000,  40, N'@[Reports]',        N'report',    N'report', N'border-top'),
 		-- documents
-		(12301, 12003,  10, N'Табель', N'timetable',  N'file', null);
+		(12301, 12003,  10, N'Табель', N'timeboard',  N'file', null);
 		-- catalogs
 
 	exec ui.[MenuModule.Merge] @menu, 12000, 12999;

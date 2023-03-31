@@ -194,33 +194,133 @@ table.fixed-layout {
 .notify-item .list-item-icon {
   font-size: 12px;
 }
-.time-table {
+.time-board {
   font-size: 12px;
   position: relative;
+  height: 100%;
+  overflow: auto;
 }
-.time-table table {
-  border: 2px solid var(--neutralBkDarker);
+.time-board table {
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #fcfaf6;
 }
-.time-table table td,
-.time-table table th {
+.time-board table thead {
+  position: sticky;
+  top: 0;
+  z-index: 7;
+}
+.time-board table tfoot {
+  position: sticky;
+  bottom: 0;
+  z-index: 7;
+}
+.time-board table td,
+.time-board table th {
   padding: 4px;
-  border: 1px solid var(--neutralBkDarker);
+  border-right: 1px solid var(--neutralBkDarker);
+  border-bottom: 1px solid var(--neutralBkDarker);
   white-space: pre;
   line-height: 1;
+  vertical-align: baseline;
+  min-width: 31px;
 }
-.time-table table td.cb,
-.time-table table th.cb {
+.time-board table td.cb,
+.time-board table th.cb {
   border-bottom: 2px solid var(--neutralBkDarker);
 }
-.time-table table td.blue,
-.time-table table th.blue {
-  background-color: aliceblue;
+.time-board table td.wkday-sat,
+.time-board table th.wkday-sat {
+  background-color: #ffecda7f;
 }
-.time-table table td.weekend,
-.time-table table th.weekend {
-  background-color: antiquewhite;
+.time-board table td.wkday-sun,
+.time-board table th.wkday-sun {
+  background-color: #ffe3d27f;
 }
-.time-table table th {
+.time-board table td.active,
+.time-board table th.active {
+  outline: 2px solid blue;
+  outline-offset: -1px;
+}
+.time-board table td.center,
+.time-board table th.center {
   text-align: center;
+}
+.time-board table td.no-data,
+.time-board table th.no-data {
+  background-color: #fafafa;
+}
+.time-board table th {
   background-color: var(--neutralBk);
+}
+.time-board table .bt-2 {
+  border-top: 2px solid var(--neutralBkDarker);
+}
+.time-board table .bl-2 {
+  border-left: 2px solid var(--neutralBkDarker);
+}
+.time-board .code-ed {
+  background-color: white;
+}
+.time-board .code-green {
+  background-color: #e3ffe37f;
+}
+.time-board .code-teal {
+  background-color: #d3fff07f;
+}
+.time-board .code-pink {
+  background-color: #ffe3f07f;
+}
+.time-board .code-blue {
+  background-color: #d3f0ff7f;
+}
+.time-board .code-lemon {
+  background-color: #ffffe07f;
+}
+.time-board .code-gold {
+  background-color: #f8f0d37f;
+}
+.time-board .timeboard-select {
+  position: absolute;
+  background: white;
+  margin: 0;
+  padding: 2px;
+  z-index: 8;
+}
+.time-board .timeboard-select li {
+  list-style: none;
+  padding: 2px 8px 2px 2px;
+  cursor: pointer;
+}
+.time-board .timeboard-select li.sel:hover {
+  background-color: var(--hoverBk);
+}
+.time-board .timeboard-select li.clear {
+  border-top: 1px solid var(--neutralBkDarker);
+  padding: 4px 2px 4px 5ch;
+  margin-top: 4px;
+}
+.time-board .timeboard-select li .code {
+  display: inline-block;
+  min-width: 3.5ch;
+  margin-right: 3px;
+  padding: 1px;
+  text-align: center;
+  border: 1px solid var(--neutralBkDarker);
+}
+.time-board .timeboard-select .wd {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 10px;
+  padding: 0 0 4px 0;
+  border-bottom: 1px solid var(--neutralBkDarker);
+  width: 100%;
+}
+.time-board .timeboard-select .wd input {
+  border: 1px solid var(--neutralBkDarker);
+  padding: 0 4px;
+  text-align: right;
+  width: 5ch;
+  height: 22px;
 }

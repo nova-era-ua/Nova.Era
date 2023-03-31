@@ -4,11 +4,11 @@
 			<Code Multiline="True" Content="{Bind Document}" Height="100%"/>
 		</Taskpad>
 	</Page.Taskpad>
-	<Grid Rows="Auto,1*">
+	<Grid Rows="Auto,1*" Height="100%">
 		<Toolbar>
 			<DatePicker Label="Період" View="Month" Value="{Bind Document.Date}"/>
 		</Toolbar>
-		<HtmlElement TagName="a2-timetable">
+		<HtmlElement TagName="a2-timeboard">
 			<HtmlElement.Attributes>
 				<HtmlAttribute Name="rows" Value="{Bind Document.Rows}"/>
 				<HtmlAttribute Name="period" Value="{Bind Document.Date}"/>

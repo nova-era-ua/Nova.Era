@@ -1,0 +1,155 @@
+﻿@border-color: var(--neutralBkDarker);
+@bk-header: var(--neutralBk);
+@outline-color: blue;
+
+.time-board {
+	font-size: 12px;
+	position: relative;
+	height: 100%;
+	overflow: auto;
+
+	table {
+		border-collapse: separate;
+		border-spacing: 0;
+		background-color: #fcfaf6;
+
+		thead {
+			position: sticky;
+			top: 0;
+			z-index: 7;
+		}
+
+		tfoot {
+			position: sticky;
+			bottom: 0;
+			z-index: 7;
+		}
+
+
+		td, th {
+			padding: 4px;
+			border-right: 1px solid @border-color;
+			border-bottom: 1px solid @border-color;
+			white-space: pre;
+			line-height: 1;
+			vertical-align: baseline;
+			min-width: 31px;
+
+			&.cb {
+				border-bottom: 2px solid @border-color;
+			}
+
+			&.wkday-sat {
+				background-color: #ffecda7f;
+			}
+
+			&.wkday-sun {
+				background-color: #ffe3d27f;
+			}
+
+			&.active {
+				outline: 2px solid @outline-color;
+				outline-offset: -1px;
+			}
+
+			&.center {
+				text-align: center;
+			}
+
+			&.no-data {
+				background-color: #fafafa;
+			}
+		}
+
+		th {
+			background-color: @bk-header;
+		}
+
+		.bt-2 {
+			border-top: 2px solid @border-color;
+		}
+
+		.bl-2 {
+			border-left: 2px solid @border-color;
+		}
+	}
+
+	.code-ed {
+		background-color: white;
+	}
+
+	.code-green {
+		background-color: #e3ffe37f;
+	}
+
+	.code-teal {
+		background-color: #d3fff07f;
+	}
+
+	.code-pink {
+		background-color: #ffe3f07f;
+	}
+
+	.code-blue {
+		background-color: #d3f0ff7f;
+	}
+
+	.code-lemon {
+		background-color: #ffffe07f;
+	}
+
+	.code-gold {
+		background-color: #f8f0d37f;
+	}
+
+	.timeboard-select {
+		position: absolute;
+		background: white;
+		margin: 0;
+		padding: 2px;
+		z-index: 8;
+
+		li {
+			list-style: none;
+			padding: 2px 8px 2px 2px;
+			cursor: pointer;
+
+			&.sel:hover {
+				background-color: var(--hoverBk);
+			}
+
+			&.clear {
+				border-top: 1px solid @border-color;
+				padding: 4px 2px 4px 5ch;
+				margin-top: 4px;
+			}
+
+			.code {
+				display: inline-block;
+				min-width: 3.5ch;
+				margin-right: 3px;
+				padding: 1px;
+				text-align: center;
+				border: 1px solid @border-color;
+			}
+		}
+
+		.wd {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+			gap: 10px;
+			padding: 0 0 4px 0;
+			border-bottom: 1px solid @border-color;
+			width: 100%;
+
+			input {
+				border: 1px solid @border-color;
+				padding: 0 4px;
+				text-align: right;
+				width: 5ch;
+				height: 22px;
+			}
+		}
+	}
+}
