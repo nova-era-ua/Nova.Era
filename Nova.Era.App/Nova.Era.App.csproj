@@ -656,7 +656,6 @@
     <Content Include="App_application\main\settings\project\model.json" />
     <Content Include="App_application\main\sales\project\model.json" />
     <Content Include="App_application\main\document\sales\retcust\model.json" />
-    <Content Include="App_application\_apps\applist.json" />
     <Content Include="App_application\main\app.json" />
     <Content Include="App_application\main\widgets\widget1\model.json" />
     <Content Include="App_application\main\widgets\widget2\model.json" />
