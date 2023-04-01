@@ -1,9 +1,0 @@
-﻿<Page xmlns="clr-namespace:A2v10.Xaml;assembly=A2v10.Xaml">
-	<StackPanel AlignItems="Center" Gap="6">
-		<EmptyPanel Icon="SmileSad">
-			Manufacturing dashboard yet not implemented.
-		</EmptyPanel>
-		<Button Content="Show Dialog" Command="{BindCmd Dialog, Action=Show, Argument=0, Url='/$manufacturing/dashboard/test1'}"/>
-		<Button Content="Invoke" Command="{BindCmd Command=Invoke, Argument=0, Url='/$manufacturing/dashboard/cmd1'}"/>
-	</StackPanel>
-</Page>

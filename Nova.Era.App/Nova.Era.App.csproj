@@ -250,10 +250,6 @@
     <Content Include="App_application\main\_sql\migrations.sql" />
     <Content Include="App_application\main\_sql\security.sql" />
     <Content Include="App_application\main\_sql\startup_mt.sql" />
-    <Content Include="App_application\manufacturing\readme.txt" />
-    <Content Include="App_application\manufacturing\_sql\ui.sql" />
-    <Content Include="App_application\SqlScriptsDebug\drop_all_tables.sql" />
-    <Content Include="App_application\personnel\_sql\ui.sql" />
     <Content Include="todo.txt" />
     <Content Include="App_application\main\catalog\item\edit.dialog.xaml">
       <SubType>Designer</SubType>
@@ -529,10 +525,6 @@
     <Content Include="App_application\main\_navpane\navpane.view.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_application\personnel\timeboard\test.view.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\accounting\bankacc\model.json" />
@@ -665,8 +657,6 @@
     <Content Include="App_application\main\sales\project\model.json" />
     <Content Include="App_application\main\document\sales\retcust\model.json" />
     <Content Include="App_application\_apps\applist.json" />
-    <Content Include="App_application\manufacturing\dashboard\model.json" />
-    <Content Include="App_application\manufacturing\spec\model.json" />
     <Content Include="App_application\main\app.json" />
     <Content Include="App_application\main\widgets\widget1\model.json" />
     <Content Include="App_application\main\widgets\widget2\model.json" />
@@ -718,13 +708,8 @@
     <Content Include="App_application\main\reports\cash\model.json" />
     <Content Include="App_application\main\reports\settle\model.json" />
     <Content Include="App_application\main\profile\license\model.json" />
-    <Content Include="App_application\manufacturing\item\model.json" />
-    <Content Include="App_application\manufacturing\report\model.json" />
-    <Content Include="App_application\manufacturing\catalog\model.json" />
-    <Content Include="App_application\manufacturing\project\model.json" />
     <Content Include="App_application\main\settings\testgroup\model.json" />
     <Content Include="App_application\main\task\kanban\model.json" />
-    <Content Include="App_application\personnel\timeboard\model.json" />
     <Content Include="App_application\main\_assets\timeboard.less" />
     <Content Include="App_application\main\_assets\timeboard.js" />
     <None Include="packages.config" />
@@ -879,8 +864,6 @@
     <TypeScriptCompile Include="App_application\main\task\partial\index.template.ts" />
     <TypeScriptCompile Include="App_application\main\_navpane\notification.template.ts" />
     <TypeScriptCompile Include="App_application\main\_navpane\navpane.template.ts" />
-    <TypeScriptCompile Include="App_application\manufacturing\dashboard\test1.template.ts" />
-    <TypeScriptCompile Include="App_application\personnel\timeboard\test.template.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_application\main\_localization\main.uk.txt" />
@@ -1323,16 +1306,6 @@
   <ItemGroup>
     <Content Include="App_application\main\catalog\project\index.view.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_application\manufacturing\dashboard\index.view.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_application\manufacturing\dashboard\test1.dialog.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
