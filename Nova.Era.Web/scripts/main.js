@@ -76,7 +76,7 @@
 	*/
 
 })();
-// Copyright © 2015-2018 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2018 Oleksandr Kukhtin. All rights reserved.
 
 // 20181201-7379
 // services/locale.js
@@ -198,7 +198,7 @@ app.modules['std:const'] = function () {
 
 // Copyright © 2015-2023 Oleksandr Kukhtin. All rights reserved.
 
-// 20230224-7921
+// 20230527-7936
 // services/utils.js
 
 app.modules['std:utils'] = function () {
@@ -243,6 +243,7 @@ app.modules['std:utils'] = function () {
 		eval: evaluate,
 		simpleEval: simpleEval,
 		format: format,
+		convertToString,
 		toNumber,
 		parse: parse,
 		getStringId,
@@ -520,6 +521,15 @@ app.modules['std:utils'] = function () {
 		return formatDate(date);
 	}
 
+	function convertToString(obj) {
+		if (!obj)
+			return '';
+		if (isObjectExact(obj) && 'Name' in obj)
+			return obj.Name;
+		else if (isDate(obj))
+			return formatDate(obj);
+		return '' + val;
+	}
 
 	function format(obj, dataType, opts) {
 		opts = opts || {};
@@ -1016,7 +1026,8 @@ app.modules['std:utils'] = function () {
 			events: assign(src.events, tml.events),
 			defaults: assign(src.defaults, tml.defaults),
 			commands: assign(src.commands, tml.commands),
-			delegates: assign(src.delegates, tml.delegates)
+			delegates: assign(src.delegates, tml.delegates),
+			options: assign(src.options, tml.options)
 		});
 	}
 };
@@ -1572,7 +1583,7 @@ app.modules['std:period'] = function () {
 };
 
 
-// Copyright © 2015-2021 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2021 Oleksandr Kukhtin. All rights reserved.
 
 // 20210211-7747
 /* services/modelinfo.js */
@@ -1704,9 +1715,9 @@ app.modules['std:modelInfo'] = function () {
 };
 
 
-// Copyright © 2015-2022 Oleksandr Kukhtin. All rights reserved.
+// Copyright © 2015-2023 Oleksandr Kukhtin. All rights reserved.
 
-// 20221124-7907
+// 20230518-7933
 /* services/http.js */
 
 app.modules['std:http'] = function () {
@@ -1864,7 +1875,7 @@ app.modules['std:http'] = function () {
 					selector.innerHTML = srcElem ? srcElem.outerHTML : '';
 					if (elemId && !document.getElementById(elemId)) {
 						selector.innerHTML = '';
-						resolve(false);
+						resolve(false, null);
 						return;
 					}
 					for (let i = 0; i < rdoc.scripts.length; i++) {
@@ -1880,8 +1891,9 @@ app.modules['std:http'] = function () {
 					}
 
 					let fec = selector.firstElementChild;
+					let ve = null;
 					if (fec && fec.__vue__) {
-						let ve = fec.__vue__;
+						ve = fec.__vue__;
 						ve.$data.__baseUrl__ = baseUrl || urlTools.normalizeRoot(url);
 						// save initial search
 						ve.$data.__baseQuery__ = urlTools.parseUrlAndQuery(url).query;
@@ -1892,7 +1904,7 @@ app.modules['std:http'] = function () {
 						}
 					}
 					rdoc.body.remove();
-					resolve(true);
+					resolve(ve);
 					eventBus.$emit('endLoad');
 				})
 				.catch(function (error) {
@@ -2758,7 +2770,7 @@ app.modules['std:impl:array'] = function () {
 
 /* Copyright © 2015-2023 Oleksandr Kukhtin. All rights reserved.*/
 
-/*20230318-7922*/
+/*20230605-7936*/
 // services/datamodel.js
 
 /*
@@ -3205,6 +3217,12 @@ app.modules['std:impl:array'] = function () {
 			elem._fireGlobalPeriodChanged_ = (period) => {
 				elem.$emit('GlobalPeriod.change', elem, period);
 			};
+			elem._fireGlobalAppEvent_ = (ev) => {
+				elem.$emit(ev.event, ev.data);
+			}
+			elem._fireSignalAppEvent_ = (ev) => {
+				elem.$emit("Signal." + ev.event, ev.data);
+			}
 		}
 		if (startTime) {
 			logtime('create root time:', startTime, false);
@@ -3484,6 +3502,14 @@ app.modules['std:impl:array'] = function () {
 		}
 	}
 
+	function getGlobalSaveEvent() {
+		let tml = this.$template;
+		if (!tml) return undefined;
+		let opts = tml.options;
+		if (!opts) return undefined;
+		return opts.globalSaveEvent;
+
+	}
 	function getDelegate(name) {
 		let tml = this.$template;
 		if (!tml || !tml.delegates) {
@@ -3706,7 +3732,7 @@ app.modules['std:impl:array'] = function () {
 
 	function hasErrors(props) {
 		if (!props || !props.length) return false;
-		let errs = this._collectErrors_();
+		let errs = this._allErrors_;
 		if (!errs.length) return false;
 		for (let i = 0; i < errs.length; i++) {
 			let e = errs[i];
@@ -3717,21 +3743,6 @@ app.modules['std:impl:array'] = function () {
 	}
 
 	function collectErrors() {
-		let me = this;
-		if (!me._host_) return me._allErrors_;
-		if (!me._needValidate_) return me._allErrors_;
-		let tml = me.$template;
-		if (!tml) return me._allErrors_;
-		let vals = tml.validators;
-		if (!vals) return me._allErrors_;
-		me._allErrors_.splice(0, me._allErrors_.length);
-		for (var val in vals) {
-			let err1 = validateOneElement(me, val, vals[val]);
-			if (err1) {
-				me._allErrors_.push({ x: val, e: err1 });
-			}
-		}
-		return me._allErrors_;
 	}
 
 	function validateAll(force) {
@@ -3754,6 +3765,23 @@ app.modules['std:impl:array'] = function () {
 			}
 		}
 		logtime('validation time:', startTime);
+		// merge allerrs into
+		// sync arrays:
+		// if me._allErrors_[i] not found in allerrs => remove it
+		let i = me._allErrors_.length;
+		while (i--) {
+			let a = me._allErrors_[i];
+			if (!allerrs.find(n => n.x === a.x))
+				me._allErrors_.splice(i, 1);
+		}
+		// if allerrs[i] not found in me._allErrors_ => append it
+		allerrs.forEach(n => {
+			if (!me._allErrors_.find(a => a.x === n.x))
+				me._allErrors_.push(n);
+		});
+
+
+
 		return allerrs;
 		//console.dir(allerrs);
 	}
@@ -3763,6 +3791,7 @@ app.modules['std:impl:array'] = function () {
 			return;
 		if (path && path.toLowerCase().startsWith('query'))
 			return;
+		this.$root.$emit('Model.dirty.change', val, `${path}.${prop}`);
 		if (isNoDirty(this.$root))
 			return;
 		if (path && prop && isSkipDirty(this.$root, `${path}.${prop}`))
@@ -3918,10 +3947,10 @@ app.modules['std:impl:array'] = function () {
 		root.prototype._exec_ = executeCommand;
 		root.prototype._canExec_ = canExecuteCommand;
 		root.prototype._delegate_ = getDelegate;
+		root.prototype._globalSaveEvent_ = getGlobalSaveEvent;
 		root.prototype._validate_ = validate;
 		root.prototype._validateAll_ = validateAll;
 		root.prototype.$forceValidate = forceValidateAll;
-		root.prototype._collectErrors_ = collectErrors;
 		root.prototype.$hasErrors = hasErrors;
 		root.prototype.$destroy = destroyRoot;
 		// props cache for t.construct
@@ -4485,7 +4514,7 @@ app.modules['std:mask'] = function () {
 	}
 };
 
-// Copyright © 2015-2018 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2018 Oleksandr Kukhtin. All rights reserved.
 
 /*20180702-7237*/
 /* services/tools.js */
@@ -4509,7 +4538,7 @@ app.modules['std:tools'] = function () {
 	}
 };
 
-// Copyright © 2015-2021 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2021 Oleksandr Kukhtin. All rights reserved.
 
 // 20201004-7806
 /* services/html.js */
@@ -5587,9 +5616,9 @@ Vue.component('validator-control', {
 	app.components['static', staticControl];
 
 })();
-// Copyright © 2015-2022 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2023 Oleksandr Kukhtin. All rights reserved.
 
-/*20220627-7853*/
+/*20230613-7937*/
 /*components/combobox.js */
 
 (function () {
@@ -5609,10 +5638,10 @@ Vue.component('validator-control', {
 				<optgroup v-for="(grp, grpIndex) in itemsSourceGroup" :key="grpIndex" v-if="groupby"
 					:label="grp.name">
 					<option v-for="(cmb, cmbIndex) in grp.items" :key="grpIndex + '_' + cmbIndex"
-						v-text="getName(cmb, true)" :value="getValue(cmb)"></option>
+						v-text="getName(cmb, true)" :value="getValue(cmb)" :class="getClass(cmb)"></option>
 				</optgroup>
 				<option v-for="(cmb, cmbIndex) in itemsSource" :key="cmbIndex" v-if="!groupby"
-					v-text="getName(cmb, true)" :value="getValue(cmb)"></option>
+					v-text="getName(cmb, true)" :value="getValue(cmb)" :class="getClass(cmb)"></option>
 			</slot>
 		</select>
 		<validator :invalid="invalid" :errors="errors" :options="validatorOptions"></validator>
@@ -5645,6 +5674,7 @@ Vue.component('validator-control', {
 			propToValidate: String,
 			nameProp: String,
 			valueProp: String,
+			boldProp: String,
 			showvalue: Boolean,
 			align: String,
 			groupby : String
@@ -5685,6 +5715,10 @@ Vue.component('validator-control', {
 			getValue(itm) {
 				let v = this.valueProp ? utils.eval(itm, this.valueProp) : itm;
 				return v;
+			},
+			getClass(itm) {
+				return this.boldProp ?
+					(utils.eval(itm, this.boldProp) ? 'bold' : undefined) : undefined;
 			},
 			getWrapText() {
 				return this.showvalue ? this.getComboValue() : this.getText();
@@ -5986,8 +6020,12 @@ Vue.component('validator-control', {
 				this.setDate(dt);
 			},
 			selectDay(day) {
+				let oldMonth = this.modelDate.getUTCMonth();
 				var dt = new Date(Date.UTC(day.getFullYear(), day.getMonth(), day.getDate(), 0, 0, 0, 0));
 				this.setDate(dt);
+				let newMonth = this.modelDate.getUTCMonth();
+				if (newMonth != oldMonth)
+					return;
 				this.isOpen = false;
 			},
 			setDate(d) {
@@ -6371,9 +6409,9 @@ Vue.component('validator-control', {
 		}
 	});
 })();
-// Copyright © 2015-2021 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2023 Oleksandr Kukhtin. All rights reserved.
 
-// 20210729-7798
+// 20230528-7936
 // components/periodpicker.js
 
 
@@ -6559,6 +6597,7 @@ Vue.component('validator-control', {
 				let root = this.item.$root;
 				if (!root) return;
 				let eventName = this.item._path_ + '.' + this.prop + '.change';
+				root.$setDirty(true);
 				root.$emit(eventName, this.item, this.period, null);
 			},
 			toggle(ev) {
@@ -6622,7 +6661,7 @@ Vue.component('validator-control', {
 
 // Copyright © 2015-2023 Alex Kukhtin. All rights reserved.
 
-/*20230217-7921*/
+/*20230613-7937*/
 // components/selector.js
 
 (function selector_component() {
@@ -6652,10 +6691,10 @@ Vue.component('validator-control', {
 		<validator :invalid="invalid" :errors="errors" :options="validatorOptions"></validator>
 		<div class="selector-pane" v-if="isOpen" ref="pane" :class="paneClass">
 			<div class="selector-body" :style="bodyStyle">
-				<slot name="pane" :items="items" :is-item-active="isItemActive" :item-name="itemName" :hit="hit" :slotStyle="slotStyle">
+				<slot name="pane" :items="items" :is-item-active="isItemActive" :item-name="itemName" :hit="hit" :max-chars="maxChars" :slotStyle="slotStyle">
 					<ul class="selector-ul">
 						<li @mousedown.prevent="hit(itm)" :class="{active: isItemActive(itmIndex)}"
-							v-for="(itm, itmIndex) in items" :key="itmIndex" v-text="itemName(itm)">}</li>
+							v-for="(itm, itmIndex) in items" :key="itmIndex" v-text="itemName(itm)"></li>
 					</ul>
 				</slot>
 			</div>
@@ -6691,7 +6730,8 @@ Vue.component('validator-control', {
 			hasClear: Boolean,
 			mode: String,
 			fetchCommand: String,
-			fetchCommandData: Object
+			fetchCommandData: Object,
+			maxChars: Number
 		},
 		data() {
 			return {
@@ -6809,7 +6849,10 @@ Vue.component('validator-control', {
 				return ix === this.current;
 			},
 			itemName(itm) {
-				return utils.simpleEval(itm, this.display);
+				let v = utils.simpleEval(itm, this.display);
+				if (this.maxChars)
+					return utils.text.maxChars(v, this.maxChars);
+				return v;
 			},
 			blur() {
 				let text = this.query;
@@ -7030,9 +7073,9 @@ Vue.component('validator-control', {
 		}
 	});
 })();
-// Copyright © 2015-2022 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2023 Oleksandr Kukhtin. All rights reserved.
 
-// 20221107-7903
+// 20230504-7930
 // components/datagrid.js*/
 
 (function () {
@@ -7167,7 +7210,8 @@ Vue.component('validator-control', {
 			width: String,
 			fit: Boolean,
 			wrap: String,
-			command: Object
+			command: Object,
+			maxChars: Number
 		},
 		created() {
 			this.$parent.$addColumn(this);
@@ -7390,7 +7434,12 @@ Vue.component('validator-control', {
 			}
 
 			let content = utils.eval(row, col.content, col.dataType, col.evalOpts);
-			let chElems = [h('span', { 'class': { 'dg-cell': true, 'negative-red': isNegativeRed(col) } }, content)];
+			let spanProps = { 'class': { 'dg-cell': true, 'negative-red': isNegativeRed(col) } };
+			if (col.maxChars) {
+				spanProps.attrs = { title: content };
+				content = utils.text.maxChars(content, col.maxChars);
+			}
+			let chElems = [h('span', spanProps, content)];
 			let icoSingle = !col.content ? ' ico-single' : '';
 			if (col.icon)
 				chElems.unshift(h('i', { 'class': 'ico ico-' + col.icon + icoSingle }));
@@ -9359,9 +9408,9 @@ TODO:
 	});
 
 })();
-// Copyright © 2015-2019 Alex Kukhtin. All rights reserved.
+// Copyright © 2015-2023 Oleksandr Kukhtin. All rights reserved.
 
-// 20190328-7473
+// 20230527-7936
 // components/list.js
 
 /* TODO:
@@ -9380,7 +9429,7 @@ TODO:
 <ul class="a2-list" v-lazy="itemsSource">
 	<template v-if="itemsSource">
 		<li class="a2-list-item" tabindex="1" :class="cssClass(listItem)" v-for="(listItem, listItemIndex) in source" :key="listItemIndex" 
-				@mousedown.prevent="select(listItem)" @keydown="keyDown" 
+				@mousedown="select(listItem)" @keydown="keyDown" 
 				ref="li" v-on:dblclick.prevent="doDblClick">
 			<span v-if="listItem.__group" v-text="listItem.__group"></span>
 			<slot name="items" :item="listItem" v-if="!listItem.__group"/>
@@ -11489,20 +11538,26 @@ Vue.component('a2-panel', {
 		}
 	});
 })();
-// Copyright © 2022 Alex Kukhtin. All rights reserved.
+// Copyright © 2022-2023 Olekdsandr Kukhtin. All rights reserved.
 
-// 20221112-7905
+// 20230525-7935
 // components/treegrid.js
 
 (function () {
 
+	const utils = require('std:utils');
+
 	let gridTemplate = `
 <table v-lazy="root">
-	<colgroup><slot name="columns" v-bind:that="that"></slot></colgroup>
-	<thead><tr><slot name="header" v-bind:that="that"></slot></tr></thead>
+	<colgroup><col class="fit c-m" v-if=isMarkCell></col><slot name="columns" v-bind:that="that"></slot></colgroup>
+	<thead><tr>
+		<th class="c-m" v-if=isMarkCell :class=gridLines></th>
+		<slot name="header" v-bind:that="that"></slot>
+	</tr></thead>
 	<tbody>
 		<tr v-for="(itm, ix) in rows" :class="rowClass(itm)" 
-				@click.stop.prevent="select(itm)" v-on:dblclick.prevent="dblClick($event, itm)">
+				@click.prevent="select(itm)" v-on:dblclick.prevent="dblClick($event, itm)">
+			<td class="c-m" v-if=isMarkCell :class="rowMarkClass(itm)"></td>
 			<slot name="row" v-bind:itm="itm.elem" v-bind:that="that"></slot>
 		</tr>
 	</tbody>
@@ -11515,7 +11570,11 @@ Vue.component('a2-panel', {
 			root: [Object, Array],
 			item: String,
 			folderStyle: String,
-			doubleclick: Function
+			doubleclick: Function,
+			isFolder: String,
+			mark: String,
+			markStyle: String,
+			gridLines: String
 		},
 		computed: {
 			rows() {
@@ -11549,6 +11608,12 @@ Vue.component('a2-panel', {
 			},
 			that() {
 				return this;
+			},
+			isMarkCell() {
+				return this.markStyle === 'marker' || this.markStyle === 'both';
+			},
+			isMarkRow() {
+				return this.markStyle === 'row' || this.markStyle === 'both';
 			}
 		},
 		watch: {
@@ -11573,13 +11638,29 @@ Vue.component('a2-panel', {
 				let ch = itm[this.item];
 				return ch && ch.length > 0;
 			},
+			isRowFolder(elm) {
+				if (this.hasChildren(elm))
+					return true;
+				if (this.isFolder)
+					return utils.simpleEval(elm, this.isFolder);
+				return '';
+			},
+			rowMarkClass(itm) {
+				if (this.isMarkRow && this.mark)
+					return utils.simpleEval(itm.elem, this.mark) + ' ' + this.gridLines;
+				return this.gridLines;
+			},
+			rowMarker(itm) {
+				if (this.isMarkRow && this.mark)
+					return utils.simpleEval(itm.elem, this.mark);
+				return '';
+			},
 			rowClass(itm) {
-				let cls = `lev lev-${itm.level}`;
+				let cls = `lev lev-${itm.level} ` + this.rowMarker(itm);
 				if (itm.elem.$selected)
 					cls += ' active';
-				if (this.hasChildren(itm.elem) && this.folderStyle !== 'none')
+				if (this.isRowFolder(itm.elem) && this.folderStyle !== 'none')
 					cls += ' ' + this.folderStyle;
-					
 				return cls;
 			},
 			toggleClass(itm) {
@@ -12819,7 +12900,7 @@ Vue.directive('resize', {
 
 // Copyright © 2015-2023 Oleksandr Kukhtin. All rights reserved.
 
-/*20230224-7921*/
+/*20230605-7936*/
 // controllers/base.js
 
 (function () {
@@ -13025,6 +13106,12 @@ Vue.directive('resize', {
 				if (this.__saveEvent__)
 					this.$caller.$data.$emit(this.__saveEvent__, this.$data);
 			},
+			$emitGlobal(event, data) {
+				eventBus.$emit('globalAppEvent', { event, data });
+			},
+			$emitParentTab(event, data) {
+				eventBus.$emit('toParentTab', { event, source: this, data });
+			},
 			$emitCaller(event, ...arr) {
 				if (this.$caller)
 					this.$caller.$data.$emit(event, ...arr);
@@ -13039,6 +13126,30 @@ Vue.directive('resize', {
 					for (let k of Object.keys(obj))
 						obj[k] = null;
 				}
+			},
+			$savePart(dataToSave, urlToSave, dialog) {
+				if (this.$data.$readOnly)
+					return;
+				eventBus.$emit('closeAllPopups');
+				let self = this;
+				let root = window.$$rootUrl;
+				const routing = require('std:routing'); // defer loading
+
+				let url = `${root}/${routing.dataUrl()}/save`;
+				return new Promise(function (resolve, reject) {
+					let baseUrl = urltools.combine(dialog ? '/_dialog' : '/_page', urlToSave);
+					let jsonData = utils.toJson({ baseUrl: baseUrl, data: dataToSave });
+					dataservice.post(url, jsonData).then(function (data) {
+						if (self.__destroyed__) return;
+						if (dataToSave.$merge)
+							dataToSave.$merge(data, true, true /*only exists*/);
+						resolve(dataToSave); // merged
+					}).catch(function (msg) {
+						if (msg === __blank__)
+							return;
+						self.$alertUi(msg);
+					});
+				});
 			},
 			$save(opts) {
 				if (this.$data.$readOnly)
@@ -13072,6 +13183,9 @@ Vue.directive('resize', {
 						self.$data.$emit('Model.saved', self.$data);
 						if (self.__saveEvent__)
 							self.$caller.$data.$emit(self.__saveEvent__, self.$data);
+						let globalSaveEvent = self.$data._globalSaveEvent_();
+						if (globalSaveEvent)
+							self.$emitGlobal(globalSaveEvent, self.$data);
 						self.$data.$setDirty(false);
 						// data is a full model. Resolve requires only single element.
 						let dataToResolve;
@@ -13253,11 +13367,11 @@ Vue.directive('resize', {
 				await callback();
 				this.$defer(() => this.$data.$setDirty(wasDirty));
 			},
-			$requery() {
+			$requery(query) {
 				if (this.inDialog)
 					eventBus.$emit('modalRequery', this.$baseUrl);
 				else
-					eventBus.$emit('requery');
+					eventBus.$emit('requery', this, query);
 			},
 
 			$remove(item, confirm) {
@@ -13349,9 +13463,10 @@ Vue.directive('resize', {
 					if (opts && opts.catchError)
 						throw err;
 					else if (err.indexOf('UI:') === 0)
-						this.$alert(err);
+						this.$alert(err.substring(3).replace('\\n', '\n'));
 					else
 						alert(err);
+					return false;
 				}
 			},
 
@@ -13966,6 +14081,8 @@ Vue.directive('resize', {
 					opts = { dataType: opts };
 				if (!opts.format && !opts.dataType && !opts.mask)
 					return value;
+				if (opts.format === 'ToString')
+					return utils.convertToString(value, opts);
 				if (opts.mask)
 					return value ? mask.getMasked(opts.mask, value) : value;
 				if (opts.dataType)
@@ -14198,6 +14315,7 @@ Vue.directive('resize', {
 			__createController__() {
 				let ctrl = {
 					$save: this.$save,
+					$savePart: this.$savePart,
 					$invoke: this.$invoke,
 					$close: this.$close,
 					$modalClose: this.$modalClose,
@@ -14224,6 +14342,8 @@ Vue.directive('resize', {
 					$upload: this.$upload,
 					$emitCaller: this.$emitCaller,
 					$emitSaveEvent: this.$emitSaveEvent,
+					$emitGlobal: this.$emitGlobal,
+					$emitParentTab: this.$emitParentTab,
 					$nodirty: this.$nodirty,
 					$showSidePane: this.$showSidePane
 				};
@@ -14293,6 +14413,14 @@ Vue.directive('resize', {
 			},
 			__global_period_changed__(period) {
 				this.$data._fireGlobalPeriodChanged_(period);
+			},
+			__signalAppEvent__(data) {
+				if (this.$data._fireSignalAppEvent_)
+					this.$data._fireSignalAppEvent_(data);
+			},
+			__globalAppEvent__(data) {
+				if (this.$data._fireGlobalAppEvent_)
+					this.$data._fireGlobalAppEvent_(data);
 			}
 		},
 		created() {
@@ -14302,12 +14430,17 @@ Vue.directive('resize', {
 			this.$caller = out.caller;
 			this.__destroyed__ = false;
 
+			if (!this.$store && store.create)
+				this.$store = store.create(this);
+
 			eventBus.$on('beginRequest', this.__beginRequest);
 			eventBus.$on('endRequest', this.__endRequest);
 			eventBus.$on('queryChange', this.__queryChange);
 			eventBus.$on('childrenSaved', this.__notified);
 			eventBus.$on('invokeTest', this.__invoke__test__);
 			eventBus.$on('globalPeriodChanged', this.__global_period_changed__);
+			eventBus.$on('globalAppEvent', this.__globalAppEvent__);
+			eventBus.$on('signalEvent', this.__signalAppEvent__);
 
 			this.$on('cwChange', this.__cwChange);
 			this.__asyncCache__ = {};
@@ -14316,7 +14449,8 @@ Vue.directive('resize', {
 				log.time('create time:', __createStartTime, false);
 		},
 		beforeDestroy() {
-			this.$data._fireUnload_();
+			if (this.$data._fireUnload_)
+				this.$data._fireUnload_();
 		},
 		destroyed() {
 			//console.dir('base.js has been destroyed');
@@ -14329,6 +14463,7 @@ Vue.directive('resize', {
 			eventBus.$off('childrenSaved', this.__notified);
 			eventBus.$off('invokeTest', this.__invoke__test__);
 			eventBus.$off('globalPeriodChanged', this.__global_period_changed__);
+			eventBus.$off('globalAppEvent', this.__globalAppEvent__);
 
 			this.$off('cwChange', this.__cwChange);
 			htmlTools.removePrintFrame();
@@ -14623,9 +14758,9 @@ Vue.directive('resize', {
 		pageNavBar: a2NavBarPage
 	};
 })();	
-// Copyright © 2020 Alex Kukhtin. All rights reserved.
+// Copyright © 2020-2023 Oleksandr Kukhtin. All rights reserved.
 
-/*20200611-7673*/
+/*20230412-7926*/
 /* controllers/sidebar.js */
 
 (function () {
@@ -14692,11 +14827,10 @@ Vue.directive('resize', {
 					console.error('no top menu found');
 			},
 			itemHref(item) {
+				if (!item.Url)
+					return undefined
 				let top = this.topMenu;
-				if (top) {
-					return urlTools.combine(top.Url, item.Url);
-				}
-				return undefined;
+				return top ? urlTools.combine(top.Url, item.Url) : undefined;
 			},
 			toggle() {
 				this.$parent.sideBarCollapsed = !this.$parent.sideBarCollapsed;
@@ -14718,7 +14852,7 @@ Vue.directive('resize', {
 		template: `
 <div :class="cssClass">
 	<a href role="button" class="ico collapse-handle" @click.prevent="toggle"></a>
-	<div class="side-bar-body" v-if="bodyIsVisible">
+	<div class="side-bar-body advance" v-if="bodyIsVisible">
 		<tree-view :items="sideMenu" :is-active="isActive" :is-group="isGroup" :click="navigate" :get-href="itemHref"
 			:options="{folderSelect: folderSelect, label: 'Name', title: 'Description',
 			subitems: 'Menu', expandAll:true, xtraClass:'ClassName',

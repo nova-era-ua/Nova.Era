@@ -1,7 +1,7 @@
 ﻿
 /* Copyright © 2019-2023 Oleksandr Kukhtin. All rights reserved. */
 
-/* Version 10.0.7922 */
+/* Version 10.0.7936 */
 
 declare function require(url: string): any;
 
@@ -213,7 +213,8 @@ interface Template {
 		noDirty?: boolean,
 		persistSelect?: string[],
 		skipDirty?: string[],
-		bindOnce?: string[]
+		bindOnce?: string[],
+		globalSaveEvent?: string
 	};
 	properties?: {
 		[prop: string]: templateProperty
@@ -233,6 +234,7 @@ interface Template {
 	delegates?: {
 		[prop: string]: (this: IRoot, ...args: any[]) => any
 	};
+	loaded?: (data: object) => void;
 }
 
 declare const enum ReportFormat {
@@ -245,7 +247,8 @@ declare const enum ReportFormat {
 
 interface IController {
 	$save(): Promise<object>;
-	$requery(): void;
+	$savePart(data: object, url: string, dialog?: boolean): Promise<object>;
+	$requery(query?: object): void;
 	$reload(args?: any): Promise<void>;
 	$invoke(command: string, arg?: object, path?: string, opts?: { catchError?: boolean, hideIndicator?: boolean }): Promise<any>;
 	$close(): void;
@@ -272,6 +275,8 @@ interface IController {
 	$upload(url: string, accept?: string, data?: { Id?: any, Key?: any }, opts?: { catchError?: boolean }): Promise<any>;
 	$emitCaller(event: string, ...params: any[]): void;
 	$emitSaveEvent(): void;
+	$emitGlobal(event: string, data?: any): void;
+	$emitParentTab(event: string, data?: any): void;
 	$nodirty(func: () => Promise<any>): void;
 	$showSidePane(url: string, arg?: string | number, data?: object): void;
 }
@@ -302,6 +307,7 @@ interface IViewModel extends IController {
 	readonly $isDirty: boolean;
 	readonly $isPristine: boolean;
 	readonly $canSave: boolean;
+	readonly inDialog: boolean;
 	$errorMessage(path: string): string;
 	$hasError(path: string): boolean;
 	$getErrors(severity: Severity): IErrorInfo[] | null;
