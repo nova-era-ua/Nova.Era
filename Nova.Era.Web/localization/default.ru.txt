@@ -1,6 +1,6 @@
 ﻿;
 @About=О системе
-@Confidentiality=Конфедициальность
+@Confidentiality=Конфиденциальность
 @Contacts=Конакты
 @Version=Версия
 @Debug=Отладка
@@ -11,6 +11,7 @@
 @DataModel=Модель данных
 @Profiling=Профилирование
 @Profile=Профиль
+@License=Лицензия
 @ChangePassword=Сменить пароль
 @SubstUser=Сменить пользователя
 @AllUsers=Все пользователи
@@ -25,6 +26,7 @@
 @SetPassword=Установить пароль
 @Error=Ошибка
 @Warning=Предупреждение
+@Or=или
 ;
 @ResetPassword=Восстановление пароля
 @ResetPasswordBody=Код подтверждения для восстановления пароля: <b>{0}</b>
@@ -34,6 +36,8 @@
 @SetNewPassword=Установка пароля
 @InviteEMail=Добро пожаловать!
 @ChangePasswordDisabled=Смена пароля запрещена
+@InviteUserSubject=Приглашение на регистрацию
+@InviteUserBody=Для завершения регистрации перейдите <a href="{0}">по ссылке</a>
 ;
 @Home=Главная
 @Documents=Документы
@@ -81,6 +85,7 @@
 @Memo=Примечание
 ;
 @Confirm=Подтверждение
+@PasswordAgain=Пароль еще раз
 @ConfirmDeleteDocument=Удалить документ?
 @DocumentSaved=Документ сохранен успешно
 ;
@@ -99,6 +104,7 @@
 @Login=Войти
 @UserName=Имя
 @LoginPrompt=Вход в систему
+@SignInWith=Вход через
 @RegisterPrompt=Регистрация в системе
 @ForgotPrompt=Восстановление пароля
 @ConfirmEMailPrompt=Подтверждение е-mail
@@ -121,6 +127,7 @@
 @PasswordLength=пароль должен иметь длину не менее 6 символов
 @InvalidLoginError=Неправильный е-mail или пароль
 @InvalidEMailError=Неправильный е-mail
+@InvalidOldPassword=Неправильный старый пароль
 @UserLockuotError=Пользователь заблокирован.\nПопробуйте еще через несколько минут
 @EmailNotConfirmed=Ваш e-mail еще не подтвержден. (возможно письмо попало в спам?)
 @AntiForgery=Невозможно обработать запрос.\nОбновите страницу и попробуйте еще раз.\nВозможно в браузере запрещены cookies?
@@ -145,4 +152,21 @@
 @SendCodeAgain=Отправить код повторно
 @ErrorAntiForgery=Запрос уже выполнен в другом окне браузера. Страница будет перезагружена
 @IHaveCode=У меня есть код подтверждения
-@AvailableLocales={"uk-UA": 'Украинский',"ru-RU": 'Русский',"en-US": 'Английский',"de-DE": 'Немецкий'}
+@AvailableLocales={"uk-UA": 'Украинский',"ru-RU": 'Русский',"en-US": 'Английский',"de-DE": 'Немецкий', "es-ES": "Испанский"}
+;
+@CloseTabsRight=Закрыть вкладки справа
+@CloseOtherTabs=Закрыть остальные вкладки
+@ReopenClosedTab=Открыть закрытую вкладку
+@CloseAllTabs=Закрыть все вкладки
+@OpenTabs=Открытые вкладки
+@RecentlyClosedTabs=Недавно закрытые
+;
+@TwoFactorPrompt=Two-factor authentication
+@Verify=Verify
+@AuthenticatorText=Open your two-factor authenticator (TOTP) app to view your authentication code.
+@UseAnotherAccount=Use another account
+@AuthenticationCode=Authentication code
+@LogOutPrompt=Log Out
+@LoginAgain=Login Again
+@LogOutMessage=You have successfully logged out of the application.
+;

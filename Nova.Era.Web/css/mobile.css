@@ -1,10 +1,11 @@
 ﻿/* mixins */
 /* icon colors */
+/* free: e920, e921, e92b, e92c */
 @font-face {
   font-family: 'A2v10';
   font-display: fallback;
   src: url('/css/fonts/A2v10.eot');
-  src: url('/css/fonts/A2v10.eot?#iefix') format('eot'), url('/css/fonts/A2v10.woff?v=7930') format('woff'), url('/css/fonts/A2v10.ttf?v=7930') format('truetype'), url('/css/fonts/A2v10.svg#A2v10') format('svg');
+  src: url('/css/fonts/A2v10.eot?#iefix') format('eot'), url('/css/fonts/A2v10.woff?v=7970') format('woff'), url('/css/fonts/A2v10.ttf?v=7970') format('truetype'), url('/css/fonts/A2v10.svg#A2v10') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -161,8 +162,14 @@
 .ico-disapprove:before {
   content: "\e937";
 }
+.ico-calendar-today:before {
+  content: "\e93c";
+}
 .ico-calendar:before {
   content: "\e93d";
+}
+.ico-calendar-week:before {
+  content: "\e93e";
 }
 .ico-call:before {
   content: "\ea19";
@@ -335,6 +342,12 @@
 .ico-rename:before {
   content: "\e953";
 }
+.ico-edit-undo:before {
+  content: "\e947";
+}
+.ico-edit-redo:before {
+  content: "\e948";
+}
 .ico-pencil:before {
   content: "\e949";
 }
@@ -370,6 +383,10 @@
 }
 .ico-failure-red:before {
   content: "\ea04";
+  color: #e41400 !important;
+}
+.ico-failure-outline-red:before {
+  content: "\ea05";
   color: #e41400 !important;
 }
 .ico-file:before {
@@ -432,6 +449,9 @@
 }
 .ico-folder-outline:before {
   content: "\e95a";
+}
+.ico-folder-move-to:before {
+  content: "\e957";
 }
 .ico-folders-outline:before {
   content: "\e959";
@@ -609,6 +629,10 @@
 .ico-info-outline:before {
   content: "\ea09";
 }
+.ico-info-outline-blue:before {
+  content: "\ea09";
+  color: #1ba1e2 !important;
+}
 .ico-paste:before {
   content: "\e94e";
 }
@@ -621,6 +645,10 @@
 }
 .ico-success-outline:before {
   content: "\ea13";
+}
+.ico-success-outline-green:before {
+  content: "\ea13";
+  color: #16cd16 !important;
 }
 .ico-waiting:before {
   content: "\ea15";
@@ -641,6 +669,10 @@
 }
 .ico-warning-outline:before {
   content: "\ea17";
+}
+.ico-warning-outline-yellow:before {
+  content: "\ea17";
+  color: #ffcc00 !important;
 }
 .ico-trash:before {
   content: "\e992";
@@ -676,8 +708,26 @@
 .ico-upload:before {
   content: "\e910";
 }
+.ico-apply:before {
+  content: "\e911";
+}
+.ico-unapply:before {
+  content: "\e912";
+}
 .ico-brand-excel:before {
   content: "\e913";
+}
+.ico-folder-ban:before {
+  content: "\e915";
+}
+.ico-assets:before {
+  content: "\e916";
+}
+.ico-clip:before {
+  content: "\e917";
+}
+.ico-lead:before {
+  content: "\e918";
 }
 .ico-user:before {
   content: "\e998";

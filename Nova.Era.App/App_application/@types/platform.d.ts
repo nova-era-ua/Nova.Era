@@ -1,7 +1,7 @@
 ﻿
-/* Copyright © 2019-2023 Oleksandr Kukhtin. All rights reserved. */
+/* Copyright © 2019-2025 Oleksandr Kukhtin. All rights reserved. */
 
-/* Version 10.0.7936 */
+/* Version 10.0.7976 */
 
 declare function require(url: string): any;
 
@@ -33,12 +33,19 @@ interface IElement {
 	$set(src: object): IElement;
 }
 
+declare const enum MoveDir {
+	up = 'up',
+	down = 'down'
+}
+
 interface IArrayElement extends IElement {
 	readonly $parent: IElementArray<IElement>;
 	$selected: boolean;
 	$checked: boolean;
 	$remove(): void;
 	$select(root?: IElementArray<IElement>): void;
+	$move(dir: MoveDir): void;
+	$canMove(dir: MoveDir): boolean;
 }
 
 interface ITreeElement extends IArrayElement {
@@ -107,6 +114,7 @@ interface IElementArray<T> extends Array<T> {
 	$renumberRows(): IElementArray<T>;
 	$copy(src: any[]): IElementArray<T>;
 	$sum(fn: (item: T) => number): number;
+	$allItems(): Generator<T>;
 }
 
 interface IRoot extends IElement {
@@ -120,6 +128,7 @@ interface IRoot extends IElement {
 	$defer(handler: () => any): void;
 	$emit(event: string, ...params: any[]): void;
 	$forceValidate(): void;
+	$revalidate(elem: IElement, rule: string): void;
 	$setDirty(dirty: boolean, path?: string): void;
 	$createModelInfo(elem: IElementArray<IElement>, modelInfo: IModelInfo): IModelInfo;
 	$hasErrors(props: string[]): boolean;
@@ -235,6 +244,7 @@ interface Template {
 		[prop: string]: (this: IRoot, ...args: any[]) => any
 	};
 	loaded?: (data: object) => void;
+	utils?: any;
 }
 
 declare const enum ReportFormat {
@@ -243,6 +253,22 @@ declare const enum ReportFormat {
 	'Word' = 'word',
 	'OpenText' = 'opentext',
 	'OpenSheet' = 'opensheet'
+}
+
+declare const enum AcceptFormat {
+	'excel' = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	'word' = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	'png' = 'image/png',
+	'jpeg' = 'image/jpeg',
+	'image' = 'image/*',
+	'pngjpeg' = 'image/png, image/jpeg',
+	'video' = 'video/*',
+	'audio' = 'audio/*',
+	'text' = 'text/plain',
+	'csv' = 'text/csv',
+	'zip' = 'application/zip',
+	'json' = 'application/json',
+	'pdf' = 'application/pdf'
 }
 
 interface IController {
@@ -260,11 +286,11 @@ interface IController {
 	$inlineOpen(id: string): void;
 	$inlineClose(id: string, result?: any): void;
 	$inlineDepth(): number;
-	$saveModified(msg?: string, title?: string): boolean;
+	$saveModified(msg?: string, title?: string, validRequired?: boolean): boolean;
 	$asyncValid(cmd: string, arg: object): any | Promise<any>;
-	$toast(text: string, style?: CommonStyle): void;
-	$toast(toast: { text: string, style?: CommonStyle }): void;
-	$notifyOwner(id: any, toast?: string | { text: string, style?: CommonStyle }): void;
+	$toast(text: string, style?: CommonStyle, timeout?: number): void;
+	$toast(toast: { text: string, style?: CommonStyle, timeout?: number }): void;
+	$notifyOwner(id: any, toast?: string | { text: string, style?: CommonStyle, timeout?: number }): void;
 	$navigate(url: string, data?: object, newWindow?: boolean, updateAfter?: IElementArray<IElement>): void;
 	$defer(handler: () => void): void;
 	$setFilter(target: any, prop: string, value: any): void;
@@ -272,13 +298,16 @@ interface IController {
 	$expand(elem: ITreeElement, prop: string, value: boolean): Promise<any>;
 	$focus(htmlid: string): void;
 	$report(report: string, arg: object, opts?: { export?: Boolean, attach?: Boolean, print?: Boolean, format?: ReportFormat }, url?: string, data?: object): void;
-	$upload(url: string, accept?: string, data?: { Id?: any, Key?: any }, opts?: { catchError?: boolean }): Promise<any>;
+	$upload(url: string, accept?: string | AcceptFormat, data?: { Id?: any, Key?: any }, opts?: { catchError?: boolean }): Promise<any>;
+	$file(url: string, arg: any, opts?: { action: FileActions }, data?: object): void;
 	$emitCaller(event: string, ...params: any[]): void;
 	$emitSaveEvent(): void;
 	$emitGlobal(event: string, data?: any): void;
 	$emitParentTab(event: string, data?: any): void;
 	$nodirty(func: () => Promise<any>): void;
 	$showSidePane(url: string, arg?: string | number, data?: object): void;
+	$hideSidePane(): void;
+	$longOperation(action: () => Promise<any>): Promise<any>;
 }
 
 interface IMessage {
@@ -302,6 +331,12 @@ interface IErrorInfo {
 	index: number;
 }
 
+declare const enum FileActions {
+	download = "download",
+	print = "print",
+	open = "open"
+}
+
 interface IViewModel extends IController {
 	readonly $isLoading: boolean;
 	readonly $isDirty: boolean;
@@ -315,6 +350,8 @@ interface IViewModel extends IController {
 	$dbRemoveSelected(arr: object[], confirm?: string | IConfirm, opts?: { checkPermission: boolean }): void;
 	$setCurrentUrl(url: string): void;
 	$export(arg: any, url: string, data?: any, opts?: { saveRequired: boolean }): void;
+	$navigateSimple(url: string, data?: object, newWindow?: boolean, updateAfter?: IElementArray<IElement>): void;
+	$navigateExternal(url: string, newWindow?: boolean): void;
 }
 
 // utilities
@@ -323,10 +360,12 @@ declare const enum DataType {
 	Currency = "Currency",
 	Number = "Number",
 	DateTime = "DateTime",
+	DateTime2 = "DateTime2",
 	Date = "Date",
 	DateUrl = "DateUrl",
 	Time = "Time",
-	Period = "Period"
+	Period = "Period",
+	Percent = "Percent"
 }
 
 declare const enum DateTimeUnit {
@@ -363,10 +402,12 @@ interface UtilsDate {
 	compare(d1: Date, d2: Date): number;
 	diff(unit: DateUnit, d1: Date, d2: Date): number;
 	endOfMonth(d: Date): Date;
-	format(d: number | Date): string;
+	format(d: number | Date, format?: string): string;
 	formatDate(d: number | Date): string;
 	parse(str: string): Date;
 	tryParse(str: string): Date | string;
+	int2time(val: number): string;
+	time2int(time: string): number;
 }
 
 interface UtilsText {
@@ -414,6 +455,7 @@ interface Utils {
 	simpleEval(obj: any, path: string): any;
 
 	mergeTemplate(tml1: Template, tml2: Template): Template;
+	mapTagColor(style: string): string;
 
 	readonly date: UtilsDate;
 	readonly text: UtilsText;

@@ -11,6 +11,7 @@
 @DataModel=Datenmodell
 @Profiling=Profilierung
 @Profile=Profil
+@License=Lizenz
 @ChangePassword=Passwort ändern
 @SubstUser=Benutzer wechseln
 @AllUsers=Alle Benutzer
@@ -25,6 +26,7 @@
 @SetPassword=Passwort festlegen
 @Error=Fehler
 @Warning=Warnung
+@Or=or
 ;
 @ResetPassword=Passwortwiederherstellung
 @ResetPasswordBody=Code zur Wiederherstellung des Passworts: <b>{0}</b>
@@ -34,6 +36,8 @@
 @SetNewPassword=Passwortfestlegung
 @InviteEMail=Willkommen!
 @ChangePasswordDisabled=Passwortänderung ist nicht erlaubt
+@InviteUserSubject=Invitation
+@InviteUserBody=<a href="{0}">Click here to continue registration</a>
 ;
 @Home=Home
 @Documents=Dokumente
@@ -81,6 +85,7 @@
 @Memo=Hinweis
 ;
 @Confirm=Bestätigung
+@PasswordAgain=Bestätigung
 @ConfirmDeleteDocument=Dokument löschen?
 @DocumentSaved=Das Dokument wurde erfolgreich gespeichert
 ;
@@ -98,6 +103,7 @@
 @Login=Anmelden
 @UserName=Nutzername
 @LoginPrompt=Systemanmeldung
+@SignInWith=Sign in with
 @RegisterPrompt=Im System registrieren
 @ForgotPrompt=Passwort zurücksetzen
 @ConfirmEMailPrompt=E-mail bestätigen
@@ -120,6 +126,7 @@
 @PasswordLength=das Passwort muss mindestens 6 Zeichen lang sein
 @InvalidLoginError=Ungültige E-Mail oder Passwort
 @InvalidEMailError=Ungültige E-Mail
+@InvalidOldPassword=Ungültiges altes Passwort
 @UserLockuotError=Der Benutzer wurde gesperrt.\nIn wenigen Minuten erneut versuchen
 @EmailNotConfirmed=Eine E-Mail wurde nicht bestätigt. Vielleicht ist die Mail in Spam gelandet?
 @AntiForgery=Die Anfrage konnte nicht bearbeitet werden.\nAktualisieren Sie die Seite und versuchen Sie es erneut.\nWahrscheinlich sind dem Browser keine Cookies erlaubt.
@@ -144,4 +151,21 @@
 @SendCodeAgain=Code erneut senden
 @ErrorAntiForgery=The request has already been executed in another browser window. The page will reload
 @IHaveCode=Ich habe einen Bestätigungscode
-@AvailableLocales={"uk-UA": "Ukrainisch","ru-RU": "Russisch","en-US": "Englisch","de-DE": "Deutsche"}
+@AvailableLocales={"uk-UA": "Ukrainisch","ru-RU": "Russisch","en-US": "Englisch","de-DE": "Deutsche", "es-ES": "Spanisch"}
+;
+@CloseTabsRight=Tabs auf der rechten Seite schließen
+@CloseOtherTabs=Andere Tabs schließen
+@ReopenClosedTab=Geschlossenes Tab wieder öffnen
+@CloseAllTabs=Alle Tabs schließen
+@OpenTabs=Tabs öffnen
+@RecentlyClosedTabs=Kürzlich geschlossene Tabs
+;
+@TwoFactorPrompt=Two-factor authentication
+@Verify=Verify
+@AuthenticatorText=Open your two-factor authenticator (TOTP) app to view your authentication code.
+@UseAnotherAccount=Use another account
+@AuthenticationCode=Authentication code
+@LogOutPrompt=Log Out
+@LoginAgain=Login Again
+@LogOutMessage=You have successfully logged out of the application.
+;

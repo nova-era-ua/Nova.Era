@@ -1,6 +1,6 @@
 ﻿
-/* Copyright © 2019-2023 Oleksandr Kukhtin. All rights reserved. */
-/* Version 10.0.7930 */
+/* Copyright © 2019-2024 Oleksandr Kukhtin. All rights reserved. */
+/* Version 10.0.7944 */
 
 interface keyable {
 	[key: string]: any
@@ -33,6 +33,8 @@ interface ServerFetchResponse {
 declare const enum ServerFetchMethod {
 	get = "GET",
 	post = "POST",
+	delete = "DELETE",
+	patch = "PATCH"
 }
 
 interface ServerFetchRequest {
@@ -57,6 +59,7 @@ interface ServerSqlParameters {
 	source?: string;
 	procedure: string;
 	parameters?: object;
+	forCurrentUser?: boolean;
 }
 
 interface ServerSaveModelParameters extends ServerSqlParameters {
@@ -76,4 +79,8 @@ interface ServerEnvironment {
 	createObject(name: string, prms: object): any;
 	invokeCommand(cmd: string, baseUrl: string, prms: object): any;
 	queueTask(command: string, prms: object, runAt?: Date): object;
+}
+
+declare class DateUtils {
+	format(d: any, f: string): string;
 }

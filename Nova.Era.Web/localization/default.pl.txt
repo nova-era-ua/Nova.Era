@@ -11,6 +11,7 @@
 @DataModel=Model danych
 @Profiling=Profilowanie
 @Profile=Profil
+@License=Licencja
 @ChangePassword=Zmień hasło
 @SubstUser=Zmień użytkownika
 @AllUsers=Wszyscy użytkownicy
@@ -25,6 +26,8 @@
 @SetPassword=Ustaw hasło
 @Error=Błąd
 @Warning=Ostrzeżenie
+@Or=or
+
 ;
 @ResetPassword=Odzyskiwanie hasła
 @ResetPasswordBody=Kod potwierdzający odzyskanie hasła: <b>{0}</b>
@@ -34,6 +37,8 @@
 @SetNewPassword=Ustawianie hasła
 @InviteEMail=Witaj!
 @ChangePasswordDisabled=Zmiana hasła jest zabroniona
+@InviteUserSubject=Invitation
+@InviteUserBody=<a href="{0}">Click here to continue registration</a>
 ;
 @Home=Główna
 @Documents=Dokumentacja
@@ -81,6 +86,7 @@
 @Memo=Notatka
 ;
 @Confirm=Potwierdzenie
+@PasswordAgain=Potwierdzenie
 @ConfirmDeleteDocument=Usunąć dokument?
 @DocumentSaved=Dokument został pomyślnie zapisany
 ;
@@ -99,6 +105,7 @@
 @Login=Logowanie
 @UserName=Nazwa użytkownika
 @LoginPrompt=Zaloguj sie
+@SignInWith=Sign in with
 @RegisterPrompt=Rejestracja w systemie
 @ForgotPrompt=Odzyskiwanie hasła
 @ConfirmEMailPrompt=Potwierdzenie e-mail
@@ -121,6 +128,7 @@
 @PasswordLength=Hasło musi mieć co najmniej 6 znaków
 @InvalidLoginError=Nieprawidłowy e-mail lub hasło
 @InvalidEMailError=Nieprawidłowy email
+@InvalidOldPassword=Błędne stare hasło
 @UserLockuotError=Użytkownik został zablokowany.\nSpróbuj ponownie za kilka minut
 @EmailNotConfirmed=Twój e-mail nie został jeszcze zweryfikowany. (może e-mail trafił do spamu?)
 @AntiForgery=Nie można przetworzyć żądania.\nOdśwież stronę i spróbuj ponownie.\nMoże Twoja przeglądarka nie zezwala na pliki cookie?
@@ -146,3 +154,20 @@
 @ErrorAntiForgery=Żądanie zostało już złożone w innym oknie przeglądarki. Strona zostanie ponownie załadowana
 @IHaveCode=Mam kod weryfikacyjny
 @AvailableLocales={"uk-UA": 'ukraiński',"ru-RU": 'rosyjski',"en-US": 'angielski',"de-DE": 'niemiecki'}
+;
+@CloseTabsRight=Close tabs to the right
+@CloseOtherTabs=Close other tabs
+@ReopenClosedTab=Reopen closed tab
+@CloseAllTabs=Close all tabs
+@OpenTabs=Open tabs
+@RecentlyClosedTabs=Recently closed
+;
+@TwoFactorPrompt=Two-factor authentication
+@Verify=Verify
+@AuthenticatorText=Open your two-factor authenticator (TOTP) app to view your authentication code.
+@UseAnotherAccount=Use another account
+@AuthenticationCode=Authentication code
+@LogOutPrompt=Log Out
+@LoginAgain=Login Again
+@LogOutMessage=You have successfully logged out of the application.
+;

@@ -1,6 +1,6 @@
 ﻿{
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"$version": "10.0.7939",
+	"$version": "10.0.7972",
 	"title": "JSON Schema for model.json",
 	"type": "object",
 
@@ -10,8 +10,14 @@
 			"patternProperties": {
 				".+": {
 					"type": "string",
-					"enum": [ "view", "edit", "delete", "apply" ]
+					"enum": [ "view", "edit", "delete", "apply", "create", "unapply", "flag64", "flag128", "flag256" ]
 				}
+			}
+		},
+		"auto": {
+			"type": "object",
+			"properties": {
+				"render": {"type": "string", "enum": ["page", "partial", "dialog", "popup"]}
 			}
 		}
 	},
@@ -47,6 +53,7 @@
 						"targetId": { "type": "string" },
 						"skipDataStack": { "type": "boolean" },
 						"plain": { "type": "boolean" },
+						"endpointHandler": { "type": "string" },
 						"signal": { "type": "boolean" },
 						"merge": {
 							"type": "object",
@@ -86,6 +93,11 @@
 						},
 						"parameters": { "type": "object" },
 						"permissions": { "$ref": "#/definitions/permissions" },
+						"auto": { "$ref": "#/definitions/auto" },
+						"roles": {
+							"type": "array",
+							"items": { "type": "string" }
+						},
 						"scripts": {
 							"type": "array",
 							"items": { "type": "string" }
@@ -117,6 +129,7 @@
 						"processDbEvents": { "type": "boolean" },
 						"commandTimeout": { "type": "number" },
 						"signal": { "type": "boolean" },
+						"endpointHandler": { "type": "string" },
 						"hook": {
 							"type": "string",
 							"pattern": "^\\s*clr-type\\s*:\\s*([\\w\\.]+)\\s*;\\s*assembly\\s*=\\s*([\\w\\.]+)\\s*$"
@@ -133,7 +146,12 @@
 						},
 						"twoPhase": { "type": "boolean" },
 						"parameters": { "type": "object" },
-						"permissions": { "$ref": "#/definitions/permissions" }
+						"permissions": { "$ref": "#/definitions/permissions" },
+						"auto": { "$ref": "#/definitions/auto" },
+						"roles": {
+							"type": "array",
+							"items": { "type": "string" }
+						}
 					},
 					"additionalProperties": false
 				}
@@ -155,7 +173,13 @@
 						"processDbEvents": { "type": "boolean" },
 						"commandTimeout": { "type": "number" },
 						"parameters": { "type": "object" },
-						"permissions": { "$ref": "#/definitions/permissions" }
+						"endpointHandler": { "type": "string" },
+						"permissions": { "$ref": "#/definitions/permissions" },
+						"auto": { "$ref": "#/definitions/auto" },
+						"roles": {
+							"type": "array",
+							"items": { "type": "string" }
+						}
 					},
 					"additionalProperties": false
 				}
@@ -184,7 +208,8 @@
 								"processDbEvents",
 								"startBpmn",
 								"resumeBpmn",
-								"signal"
+								"signal",
+								"auto"
 							]
 						},
 						"schema": { "type": "string" },
@@ -219,8 +244,12 @@
 						"args": { "type": "object" },
 						"file": { "type": "string" },
 						"debugOnly": { "type": "boolean" },
-						"permissions": {
-							"$ref": "#/definitions/permissions"
+						"permissions": { "$ref": "#/definitions/permissions" },
+						"auto": { "$ref": "#/definitions/auto" },
+						"signal": { "type": "boolean" },
+						"roles": {
+							"type": "array",
+							"items": { "type": "string" }
 						}
 					},
 					"additionalProperties": false
@@ -249,9 +278,8 @@
 							"type": "string",
 							"enum": [ "stimulsoft", "xml", "json", "pdf", "xlsx" ]
 						},
-						"permissions": {
-							"$ref": "#/definitions/permissions"
-						}
+						"permissions": { "$ref": "#/definitions/permissions" },
+						"auto": { "$ref": "#/definitions/auto" }
 					},
 					"additionalProperties": false
 				}
@@ -268,7 +296,7 @@
 						"source": { "type": "string" },
 						"type": {
 							"type": "string",
-							"enum": [ "parse", "clr", "sql", "azureBlob", "json" ]
+							"enum": [ "parse", "clr", "sql", "azureBlob", "blobStorage", "json", "excel", "text" ]
 						},
 						"parse": {
 							"type": "string",
@@ -285,6 +313,8 @@
 						"outputFileName": { "type": "string" },
 						"zip": { "type": "boolean" },
 						"azureSource": { "type": "string" },
+						"blobSource": { "type": "string" },
+						"blobStorage": { "type": "string" },
 						"imageCompress": {
 							"type": "object",
 							"properties": {
@@ -308,9 +338,8 @@
 								"additionalProperties": false
 							}
 						},
-						"permissions": {
-							"$ref": "#/definitions/permissions"
-						}
+						"permissions": { "$ref": "#/definitions/permissions" },
+						"auto": { "$ref": "#/definitions/auto" }
 					},
 					"additionalProperties": false
 				}
@@ -323,7 +352,7 @@
 					"type": "object",
 					"properties": {
 						"quality": { "type": "number" },
-						"threshold": { "type": "number" },
+						"threshold": { "type": "number" }
 					},
 					"additionalProperties": false
 				}
